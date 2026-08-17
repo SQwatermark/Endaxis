@@ -1,6 +1,6 @@
 # 当前任务快照
 
-> 更新时间：2026-08-17（Asia/Shanghai）
+> 更新时间：2026-08-18（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 ## 1. 当前目标与边界
@@ -13,9 +13,9 @@
 
 ## 2. Git 基线
 
-- 仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
+- 当前桌面端仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前运行环境）
 - 分支：`feature/next`
-- 当前功能基线：`7b16107e feat(next): preserve sequence guard boundaries`。
+- 当前 Git HEAD：`659f0786 docs(next): refresh desktop handoff`。
 - 紧邻提交：`1c49dee8 feat(next): resolve enemy timed marker targets`
 - 再前提交：`a3dca4c2 feat(next): compile conditional time dilation`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
@@ -58,17 +58,25 @@
 
 - 洛茜终结技的 `OnSkillEnd -> FinishBuffAdvanced` 已确认使用空 ID 列表；原生实现不会调用 Buff 容器，因此只省略这一种可证明的空监听器。非空列表和其他事件仍严格阻塞。
 - 根时间轴与条件分支共用时间膨胀动作解析器。条件分支中的动作留在原成功/失败序列中，不会被提升成无条件调度。
-- 洛茜第三段连携和卡缪重击已越过嵌套时间膨胀阻塞。定时标记的 `Target` 也会在已证明输入为唯一敌人时复用统一目标归约，艾尔黛拉终结技已越过该阻塞。技能根时间轴的直接序列守卫按“用户已排入的技能必然执行”视为已通过；内部 `ForEach`、分支、引导和事件序列仍保留动作帧短路。Mifu 连携因此越过根距离守卫阻塞。`ForEach` 局部短路只会在容器直接遍历技能输入 `Target` 时取得所有权；全量 308 个技能中的 4 个真实直接守卫样本全部遍历 `Context` 能力实体组（Avywenna 3 个、Tangtang 1 个），不能把循环当前目标近似成敌人，因此继续严格阻塞。Avywenna 投射物子技能中的 `CharacterTeamFinder + MainCharacterValidator` 时间膨胀排除结构已支持独立 `controlled` 身份，并会在动作执行帧通过场景控制时间线解析，但父技能仍先停在长枪能力实体距离守卫。全量审计现为 303 个可解析、274 个可编译技能，完整干员仍为 9 名。
-- `CheckEnemyRank` 已确认读取 `EnemyTemplateData.rank`（`Mob/Elite/Boss`），不是五档展示 `tier`。实际值来自敌人实体模板资产，VFS 数据可用前不得猜测映射。
+- 洛茜第三段连携和卡缪重击已越过嵌套时间膨胀阻塞。定时标记的 `Target` 也会在已证明输入为唯一敌人时复用统一目标归约，艾尔黛拉终结技已越过该阻塞。技能根时间轴的直接序列守卫按“用户已排入的技能必然执行”视为已通过；内部 `ForEach`、分支、引导和事件序列仍保留动作帧短路。Mifu 连携因此越过根距离守卫阻塞。`ForEach` 局部短路只会在容器直接遍历技能输入 `Target` 时取得所有权；此前 308 个技能审计中的 4 个真实直接守卫样本全部遍历 `Context` 能力实体组（Avywenna 3 个、Tangtang 1 个），不能把循环当前目标近似成敌人，因此继续严格阻塞。Avywenna 投射物子技能中的 `CharacterTeamFinder + MainCharacterValidator` 时间膨胀排除结构已支持独立 `controlled` 身份，并会在动作执行帧通过场景控制时间线解析，但父技能仍先停在长枪能力实体距离守卫。当前配对快照的全量审计为 312 个可解析、280 个可编译技能，完整干员 10 名。
+- `CheckEnemyRank` 已在当前工作树闭环：桌面 VFS manifest 451359 已提取当前 82 个敌人的 `EnemyTemplateData.rank`，反编译确认枚举值与 `EnemyRankSet` 位掩码，并接入敌人定义、项目实例、编译、运行时条件和生成器。完整依据见 `docs/research/enemy-rank-evidence.md`；不得改用五档展示 `tier`。
+- 能力实体已按“距离恒为 0、范围查找覆盖全部实例、敌人唯一”的项目约束建立极简模型：桌面 VFS manifest 451359 中解析出 54 个模板，另有 Liino 的 `abilityentity_chr_0035_liino_ult_skill_projhit` 明确缺失，不会补造。场景持有统一逻辑目录，实例保留模板、owner/source/target、GameplayTag、时长、子技能身份和黑板，并参与帧推进、来源死亡和结束回执。
+- 1.4.4 `GameAssembly.dll` 的 `SetAbilityEntityDuration.ExecuteInternal` 已直接证明：`setMultipleTarget=false` 经 `GetActionTarget` 只应用一次，`true` 才经 `GetTargets_Dispose` 枚举整组。生成器据此只对有此前确定逻辑生成证明的命名 Context 建立 0/1 单例来源，并复用 `forEachContextTarget`；未知或多实例键继续失败关闭。Li Zhiyan 的 `bunshin1…4` 局部时长形状已有生产者证据，但正式单例来源仍等待其位置目标逻辑生成闭环。
+- 能力实体 `TimeDilationAction.effectTargets` 已从源解析阻塞改为类型化审计：保留 owner-spawned 与可选 GameplayTag 查询，编译阶段明确报告实体时钟/子技能调度缺失。Tangtang、Yvonne、Li Zhiyan、Liino 的连携技现统一暴露该运行时边界；不得把它误认作纯表现 `EffectAction`。
+- `spawnAbilityEntity` 已贯通 DSL、严格校验、编译、标准模拟和生成器。正式生成产物目前覆盖 Arclight 终结技、Gilberta 战技/终结技、Lifeng 终结技；庄方宜审计产物也保存了对应步骤。子 SkillData 目前仍沿用已验证的静态伤害投影，运行时只发出 child-skill request 回执，避免双重结算。
+- `OwnerSpawnedEntityFinder + TagValidator` 的 Context 来源证据仍完整保留。统一 `findOwnerSpawnedAbilityEntities` 步骤已经能够按当前干员和原生标签查询逻辑目录，把完整组写入本次施法 Context，并可把数量写入动作黑板复用现有比较条件。Avywenna 三组长枪与 Tangtang 水体四个守卫仍需实体目标 Buff、投射物来源和生成器转换，不能提前宣称闭环。完整盘点见 `docs/research/ability-entity-context-target-audit.md`。
+- Context 组现在可按稳定句柄同步迭代；body 通过显式 `currentTarget` 读取、比较或 `Assign` 有限剩余时长。若 body 返回 false，运行时会因原生跨实例短路规则尚未证明而显式失败，不能猜测继续/终止。原始语料共有 10 个时长设置、2 个当前时长检查和 1 个目标设置；当前只接入全部已观察时长动作共有的 `Assign` 子集，目标设置仍阻塞。
 
 ## 4. 最新验证基线
 
 当前验证结果：
 
-- Python 生成器测试：250 项通过；
-- 生成器 `--check`：通过；
+- Python 生成器测试：258 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；生成器 `--check` 通过；
+- 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。严格生成已越过全部 11 个登记对象，当前全量审计为 30 名、320 个入口、318 个可解析、280 个可编译；新增的六个可解析入口来自能力实体时间膨胀目标的类型化保留，不代表该运行时已实现。
 - `npm.cmd run type-check:next`：通过；
-- `npm.cmd exec vitest run src/next`：165 个测试文件、940 项测试通过。
+- 能力实体模板、目录、操作执行器和场景装配的 36 项聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已修复。
+- `npm run test:next`：169 个文件中 168 个、955 项中 953 项通过；仅余既有 `runStandardPlayerDamageScenarioSimulation.test.ts` 两项时间线停滞。
+- 全仓 `npm test -- --run`：243 个文件中 235 个、1463 项中 1450 项通过。13 项失败里两项是既有 Next 时间线停滞；其余旧版/UI 工作树回归不属于能力实体链路，未在本任务中修改或掩盖。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
 
@@ -86,6 +94,7 @@
 - 技能费用、冷却、部分潜能/天赋与静态属性；
 - 条件 Buff 伤害修正和条件 SlowAction；
 - 根技能 `Source/Owner` 时间膨胀目标；
+- 可严格归约的根 `SpawnAbilityEntity`，包括模板、子技能、目标、动态覆盖时长、Context 输出与数值实体黑板；
 - 严格审计、显式缺口与生成产物校验。
 
 仍不得伪装为已支持的关键内容：
@@ -93,17 +102,16 @@
 - 能力实体自身的时间膨胀目标及其对子 SkillData 时间的影响；
 - FractureAction 的完整运行时链，包括层数、消耗、前后物理附着事件、破甲 Buff 和伤害；
 - 尚会被旧根解析器展开的内部 SequenceAction 守卫尾部，需要显式消费身份后才能迁入局部短路；
-- `CheckEnemyRank` 需要把 `EnemyTemplateData.rank` 接入敌人定义、项目实例和运行时条件求值；
 - 隐藏技能、复杂 Buff、混合养成载荷及无法从数据稳定推导的例外。
 
 ## 6. 下一步建议
 
 下一会话应先重新确认工作树和提交，再从下列候选中只选一个推进：
 
-1. 远程 VFS 恢复后提取敌人 `EnemyTemplateData.rank`，接入 `CheckEnemyRank` 完整链路；
-2. 为 Avywenna/Tangtang 的 `Context` 能力实体集合建立逐实体身份和空间距离模型，再接内部守卫尾部；
-3. 继续研究能力实体时间膨胀，不允许通过忽略目标来让诀“转换成功”；
-4. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品。
+1. 证明 Li Zhiyan 命名 `ContextTarget` 在 `setMultipleTarget=false` 下的单例选择语义，并把已类型化的八个时长赋值安全接入 DSL；庄方宜的 `Context ForEach -> LT -> InputTarget/Assign` 已闭环；
+2. 接入实体目标 Buff、显式结束，再处理 Camille 的设置目标和 Avywenna 的投射物来源；继续研究能力实体时间膨胀，不允许通过忽略目标来让技能“转换成功”；
+3. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
+4. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
 

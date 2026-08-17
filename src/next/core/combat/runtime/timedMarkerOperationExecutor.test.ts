@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -20,7 +20,7 @@ describe('TimedMarkerOperationExecutor', () => {
       resolveTarget: target => (target === 'caster' ? caster : enemy),
       delegate,
     });
-    const step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }> = {
+    const step: ResolvedCombatOperationStep = {
       kind: 'createTimedMarker',
       parameters: {
         target: 'caster',

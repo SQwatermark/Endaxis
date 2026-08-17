@@ -2,7 +2,7 @@
  * 生命伤害与独立失衡步骤进入玩家主动伤害生命周期的装配点。
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
 import { calculateBreakingAttackValue } from '../damage/breakingAttackDamage';
 import { executeHealthDamage } from '../damage/healthDamage';
@@ -31,7 +31,7 @@ import type { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type StaggerStep = Extract<RuntimeOperation, { kind: 'dealStagger' }>;
 type PoiseStep = DamageStep | StaggerStep;

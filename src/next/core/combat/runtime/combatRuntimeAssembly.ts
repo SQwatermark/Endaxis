@@ -10,6 +10,7 @@ import type {
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
+import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
@@ -35,6 +36,7 @@ import { CombatStatusRuntime } from './combatStatusRuntime';
 import type { CombatVitals } from './combatVitals';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
+import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
@@ -59,6 +61,9 @@ import { CombatTimelineClock } from './combatTimelineClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
+import type { LogicalAbilityEntityTemplate } from '../../game-data/logicalAbilityEntity';
+import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -96,6 +101,7 @@ export interface CombatEnemyProgram {
   readonly source:
     | { readonly kind: 'prefab'; readonly enemyId: string; readonly level: number }
     | { readonly kind: 'custom'; readonly level: number };
+  readonly rank: EnemyRank;
   readonly health: number;
   readonly superArmor: number;
   readonly defenderAttributes: PlayerDamageDefenderSnapshot;
@@ -138,6 +144,8 @@ export interface CombatRuntimeAssemblyOptions {
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
+  /** 当前版本证据适配出的逻辑能力实体模板；空数组表示本场技能不会生成实体。 */
+  readonly abilityEntityTemplates?: readonly LogicalAbilityEntityTemplate[];
   /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
   readonly timeDilation?: {
     readonly config: TimeDilationRuntimeConfig;
@@ -208,6 +216,8 @@ export class CombatRuntimeAssembly {
   /** 项目逻辑时间；没有全局变速时与实际战斗帧保持一致。 */
   readonly timelineClock: CombatTimelineClock;
   readonly simulation = new CombatSimulation(this.clock);
+  /** 全场唯一的零空间能力实体实例目录。 */
+  readonly abilityEntities: LogicalAbilityEntityRuntime;
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #enemyBuffRuntime: EnemyBuffRuntime;
@@ -245,6 +255,42 @@ export class CombatRuntimeAssembly {
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.resources = new CombatResources(options.resources);
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.abilityEntities = new LogicalAbilityEntityRuntime({
+      templates: options.abilityEntityTemplates ?? [],
+      hooks: {
+        spawned: entity =>
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'AbilityEntitySpawned',
+            sourceId: entity.ownerId,
+            targetId: `ability-entity:${entity.instanceId}`,
+            data: {
+              templateId: entity.templateId,
+              childSkillId: entity.childSkillId ?? null,
+              remainingDurationSeconds: entity.remainingDurationSeconds,
+            },
+          }),
+        childSkillRequested: (entity, childSkillId) =>
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'AbilityEntityChildSkillRequested',
+            sourceId: entity.ownerId,
+            targetId: `ability-entity:${entity.instanceId}`,
+            data: { templateId: entity.templateId, childSkillId },
+          }),
+        finished: (entity, reason) =>
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'AbilityEntityFinished',
+            sourceId: entity.ownerId,
+            targetId: `ability-entity:${entity.instanceId}`,
+            data: { templateId: entity.templateId, reason },
+          }),
+      },
+    });
     this.timeDilation =
       options.timeDilation === undefined
         ? null
@@ -439,6 +485,8 @@ export class CombatRuntimeAssembly {
     // 先由时间膨胀更新本帧倍率，再推进项目逻辑时间；后续输入读取同一结果。
     this.simulation.add(this.timelineClock);
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
+    // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
+    this.simulation.add(this.abilityEntities);
     // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
     this.simulation.add({
       advanceFrame: () => {
@@ -672,8 +720,13 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
-    const timeDilationOperations = this.#wrapTimeDilationOperations(
+    const abilityEntityOperations = new AbilityEntityOperationExecutor(
+      operatorId,
+      this.abilityEntities,
       baseDelegate,
+    );
+    const timeDilationOperations = this.#wrapTimeDilationOperations(
+      abilityEntityOperations,
       operatorId,
       program.skillId,
       isOperatorControlled,
@@ -711,6 +764,7 @@ export class CombatRuntimeAssembly {
           : this.#requireTimedMarkerContainer(operatorId),
       delegate: statusOperations,
     });
+    const rankConditions = new EnemyRankConditionExecutor(enemy.rank, timedMarkerOperations);
     const vitalsConditions = new CombatVitalsConditionExecutor({
       resolveTarget: target => {
         if (resolveVitals === undefined) {
@@ -718,7 +772,7 @@ export class CombatRuntimeAssembly {
         }
         return resolveVitals(target, operatorId);
       },
-      delegate: timedMarkerOperations,
+      delegate: rankConditions,
     });
     const controlConditions = new OperatorControlConditionExecutor({
       isCasterControlled: () => {
@@ -816,6 +870,7 @@ export class CombatRuntimeAssembly {
           : this.#requireTimedMarkerContainer(operatorId),
       delegate: statusOperations,
     });
+    const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, markerOperations);
     const vitalsConditions = new CombatVitalsConditionExecutor({
       resolveTarget: target => {
         if (options.resolveVitals === undefined) {
@@ -823,7 +878,7 @@ export class CombatRuntimeAssembly {
         }
         return options.resolveVitals(target, operatorId);
       },
-      delegate: markerOperations,
+      delegate: rankConditions,
     });
     const controlConditions = new OperatorControlConditionExecutor({
       isCasterControlled: () => {

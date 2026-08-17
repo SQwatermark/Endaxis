@@ -31,7 +31,7 @@ DEFAULT_TABLES = (
     / "vfs-index-browser"
     / "combat-spec"
     / "artifacts"
-    / "TableCfg-1.4.4-8764515-7"
+    / "TableCfg-1.4.4-9433094-12"
 )
 OBSOLETE_CHARACTER_IDS = {"chr_0002_endminm", "chr_0003_endminf"}
 

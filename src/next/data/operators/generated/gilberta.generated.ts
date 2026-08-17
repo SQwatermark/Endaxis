@@ -427,8 +427,7 @@ export const gilbertaGeneratedSource = {
             "FindTargetAction",
             "Selector",
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -442,8 +441,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 45,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -451,9 +449,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -976,8 +972,7 @@ export const gilbertaGeneratedSource = {
             "FindTargetAction",
             "Selector",
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -985,8 +980,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 8,
           "actionTypes": [
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1007,8 +1001,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 75,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1016,9 +1009,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -1067,9 +1058,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 4,
           "endFrame": 19,
           "actionTypes": [
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -1680,8 +1669,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 8,
           "actionTypes": [
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1689,8 +1677,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 11,
           "actionTypes": [
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1698,8 +1685,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1713,8 +1699,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 80,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1722,9 +1707,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2791,16 +2774,14 @@ export const gilbertaGeneratedSource = {
           "startFrame": 4,
           "endFrame": 13,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 23,
           "endFrame": 42,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -2814,9 +2795,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 19,
           "endFrame": 29,
           "actionTypes": [
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -2838,11 +2817,7 @@ export const gilbertaGeneratedSource = {
           "endFrame": 22,
           "actionTypes": [
             "CheckSquadInFight",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4109,9 +4084,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4123,9 +4096,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4137,9 +4108,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4151,9 +4120,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4165,9 +4132,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4179,9 +4144,7 @@ export const gilbertaGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PlaySoundAction"
           ]
         },
@@ -4194,10 +4157,8 @@ export const gilbertaGeneratedSource = {
             "DefiniteValueCalculation",
             "GainBreakingAttackAtb",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "PlaySoundAction",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -4219,30 +4180,21 @@ export const gilbertaGeneratedSource = {
           "startFrame": 2,
           "endFrame": 43,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 4,
           "actionTypes": [
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 40,
           "endFrame": 46,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -4949,10 +4901,7 @@ export const gilbertaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "PushBackAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "PlaySoundAction"
@@ -4962,8 +4911,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 1,
           "endFrame": 6,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5477,9 +5425,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 12,
           "endFrame": 99,
           "actionTypes": [
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -5498,7 +5444,6 @@ export const gilbertaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -5510,8 +5455,7 @@ export const gilbertaGeneratedSource = {
             "Selector",
             "DamageAction",
             "DefiniteValueCalculation",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5522,8 +5466,7 @@ export const gilbertaGeneratedSource = {
             "Selector",
             "DamageAction",
             "DefiniteValueCalculation",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5534,8 +5477,7 @@ export const gilbertaGeneratedSource = {
             "Selector",
             "DamageAction",
             "DefiniteValueCalculation",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5552,9 +5494,7 @@ export const gilbertaGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "PlaySoundAction",
             "HealAction",
             "Selector",
@@ -5636,11 +5576,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 106,
           "endFrame": 140,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5649,11 +5585,8 @@ export const gilbertaGeneratedSource = {
           "actionTypes": [
             "SaveTwoDirectionAngle",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -6098,6 +6031,19 @@ export const gilbertaGeneratedSource = {
           "skillId": "chr_0013_aglina_normal_skill_abilityrange",
           "sourceFile": "chr_0013_aglina_normal_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0013_aglina_normal_skill",
+            "skillId": "chr_0013_aglina_normal_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -7322,8 +7268,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 50,
           "endFrame": 53,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -7342,13 +7287,11 @@ export const gilbertaGeneratedSource = {
             "FindTargetAction",
             "Selector",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "AirborneAction",
             "DamageAction",
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "PlaySoundAction",
             "HealAction",
             "Selector",
@@ -7362,17 +7305,14 @@ export const gilbertaGeneratedSource = {
           "endFrame": 92,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
           "startFrame": 5,
           "endFrame": 75,
           "actionTypes": [
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -7408,7 +7348,6 @@ export const gilbertaGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -8473,7 +8412,8 @@ export const gilbertaGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -8543,8 +8483,7 @@ export const gilbertaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -8602,8 +8541,7 @@ export const gilbertaGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -8851,6 +8789,23 @@ export const gilbertaGeneratedSource = {
           "skillId": "chr_0013_aglina_ultimate_skill_abilityrange",
           "sourceFile": "chr_0013_aglina_ultimate_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0013_aglina_ultimate_skill",
+            "skillId": "chr_0013_aglina_ultimate_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": {
+              "value": 0.0,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -9985,7 +9940,8 @@ export const gilbertaGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -10004,7 +9960,8 @@ export const gilbertaGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

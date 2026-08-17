@@ -52,6 +52,11 @@ export type ResolvedSkillBuffDefinition = Omit<SkillBuffDefinition, 'lifecycleSe
 };
 
 export interface ResolvedCombatStepParameters {
+  findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
+  forEachContextTarget: CombatStepParameters['forEachContextTarget'];
+  readAbilityEntityRemainingDuration: CombatStepParameters['readAbilityEntityRemainingDuration'];
+  setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
+  spawnAbilityEntity: CombatStepParameters['spawnAbilityEntity'];
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];
@@ -146,12 +151,20 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
     }
   : K extends 'once'
     ? { readonly body: ResolvedActionSequence }
-    : {});
+    : K extends 'forEachContextTarget'
+      ? { readonly body: ResolvedActionSequence }
+      : {});
 
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
   [K in CombatStepKind]: ResolvedCombatStepForKind<K>;
 }[CombatStepKind];
+
+/** 条件、once 与 Context 迭代由序列运行时解释，其余步骤交给操作链。 */
+export type ResolvedCombatOperationStep = Exclude<
+  ResolvedCombatStep,
+  { kind: 'conditional' | 'once' | 'forEachContextTarget' }
+>;
 
 /** 已解析且严格保持声明顺序的同步操作序列。 */
 export interface ResolvedActionSequence {

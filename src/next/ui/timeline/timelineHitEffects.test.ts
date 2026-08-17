@@ -88,6 +88,7 @@ function scenarioWithCast(): ScenarioDocument {
     connections: [],
     enemy: {
       source: { kind: 'custom', level: 90 },
+      rank: 'mob',
       editable: {
         hp: 10000,
         defense: 100,

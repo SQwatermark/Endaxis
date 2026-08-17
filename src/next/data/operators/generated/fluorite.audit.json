@@ -2920,6 +2920,34 @@
               "skillId": "chr_0022_bounda_normal_skill_abilityrange",
               "sourceFile": "chr_0022_bounda_normal_skill_abilityrange.json",
               "entityBlackboardAssignments": [],
+              "spawnPayload": {
+                "abilityEntityId": "abilityentity_chr_0022_bounda_normal_skill",
+                "skillId": "chr_0022_bounda_normal_skill_abilityrange",
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
+              },
               "directDamageHits": [
                 {
                   "startFrame": 89,
@@ -4933,7 +4961,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -6484,7 +6513,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -6503,7 +6533,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

@@ -3,6 +3,7 @@
  * 存档只保存定义身份、等级和用户手动覆盖的值；名称由本地化层按 `id` 解析。
  */
 import type { DamageElement } from './operatorDefinition';
+import type { EnemyRank } from './enemyRank';
 
 export const ENEMY_TIERS = ['normal', 'advanced', 'elite', 'boss', 'leader'] as const;
 /** 定义筛选和展示使用的敌人强度分类。 */
@@ -35,6 +36,8 @@ export interface EnemyDefinition {
   readonly gameId: string;
   readonly iconPath?: string;
   readonly tier: EnemyTier;
+  /** 原生战斗等级；独立于五档展示 tier，供 CheckEnemyRank 等战斗规则读取。 */
+  readonly rank: EnemyRank;
   readonly levelHp: readonly EnemyLevelHpDefinition[];
   readonly defense: number;
   readonly resistances: Readonly<Record<DamageElement, number>>;

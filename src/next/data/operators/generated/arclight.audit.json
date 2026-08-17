@@ -6229,7 +6229,8 @@
             "levelValues": null
           },
           "targetScale": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -6371,6 +6372,19 @@
           "skillId": "chr_0007_ikut_ultimate_skill_abentity",
           "sourceFile": "chr_0007_ikut_ultimate_skill_abentity.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0007_ikut_ultimate_skill",
+            "skillId": "chr_0007_ikut_ultimate_skill_abentity",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 7,
@@ -6783,6 +6797,17 @@
           ]
         },
         {
+          "frame": 54,
+          "actionOrder": [
+            55
+          ],
+          "sequenceOrder": [],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0007_ikut_ultimate_skill"
+          ]
+        },
+        {
           "frame": 61,
           "actionOrder": [
             55,
@@ -6990,7 +7015,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -7009,7 +7035,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

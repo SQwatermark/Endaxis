@@ -79,6 +79,7 @@ export function compileScenarioEnemy(enemy: EnemyDocument): CombatEnemyProgram {
 
   return {
     source,
+    rank: enemy.rank,
     health: requireNonNegative(enemy.editable.hp, 'enemy.editable.hp'),
     superArmor: requireNonNegative(enemy.editable.superArmor, 'enemy.editable.superArmor'),
     defenderAttributes: compileDefenderAttributes(enemy),

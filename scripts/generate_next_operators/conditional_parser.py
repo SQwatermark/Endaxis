@@ -14,6 +14,7 @@ from action_kinds import (
     SEQUENCE_GUARD_ACTION_NAMES,
 )
 from action_payload_parser import (
+    parse_ability_entity_duration_assignment_payload,
     parse_ability_entity_spawn_payload,
     parse_blackboard_calculation_payload,
     parse_blackboard_mutation_payload,
@@ -34,6 +35,7 @@ from action_payload_parser import (
     walk_single_enemy_actions,
 )
 from source_models import (
+    AbilityEntityDurationConditionSource,
     BuffIdInContextConditionSource,
     BuffStackConditionSource,
     ConditionSource,
@@ -44,7 +46,9 @@ from source_models import (
     DistanceConditionSource,
     DoOnceActionSource,
     EntityCountConditionSource,
+    EnemyRankConditionSource,
     EntityTagConditionSource,
+    ForEachContextActionSource,
     GlobalCooldownConditionSource,
     HealthConditionSource,
     MainOperatorConditionSource,
@@ -149,6 +153,47 @@ def parse_conditional_actions(
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
         condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "CheckAbilityEntityCurDuration":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "abilityEntity", "compareType", "value",
+                "saveCurDuration", "bbKey",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            comparison = condition.get("compareType")
+            if comparison != "LT":
+                raise ValueError(f"{path}.compareType: unsupported value {comparison!r}")
+            save_duration = require_bool(
+                condition.get("saveCurDuration"), f"{path}.saveCurDuration"
+            )
+            output_key = condition.get("bbKey")
+            if not isinstance(output_key, str):
+                raise ValueError(f"{path}.bbKey: expected string")
+            if save_duration or output_key:
+                raise ValueError(f"{path}: saving current duration is unsupported")
+            target = parse_target_reference(
+                condition.get("abilityEntity"), f"{path}.abilityEntity"
+            )
+            if target.targetSource != "Target" or target.targetGroupKey:
+                raise ValueError(f"{path}.abilityEntity: unsupported target identity")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                abilityEntityDuration=AbilityEntityDurationConditionSource(
+                    target=target,
+                    comparison=comparison,
+                    value=parse_scalar(
+                        condition.get("value"), f"{path}.value", inherited_blackboard
+                    ),
+                    saveCurrentDuration=save_duration,
+                    outputKey=output_key,
+                ),
+            )
         if condition_type == "CheckDamageDecorateMask":
             mask = condition.get("mask")
             if not isinstance(mask, int) or isinstance(mask, bool) or mask < 0:
@@ -486,6 +531,36 @@ def parse_conditional_actions(
                 mainOperator=MainOperatorConditionSource(
                     targetSource=target_source,
                     targetGroupKey=str(target.get("targetGroupKey", "")),
+                ),
+            )
+        if condition_type == "CheckEnemyRank":
+            raw_rank_mask = condition.get("enemyRankSet")
+            if isinstance(raw_rank_mask, bool):
+                raise ValueError(f"{path}.enemyRankSet: expected EnemyRankSet flags")
+            if isinstance(raw_rank_mask, int):
+                rank_mask = raw_rank_mask
+            elif isinstance(raw_rank_mask, str):
+                names = tuple(part.strip() for part in raw_rank_mask.split(","))
+                if not names or any(not name for name in names) or len(set(names)) != len(names):
+                    raise ValueError(f"{path}.enemyRankSet: invalid EnemyRankSet names")
+                bits = {"Mob": 1, "Elite": 2, "Boss": 4}
+                if any(name not in bits for name in names):
+                    raise ValueError(f"{path}.enemyRankSet: unknown EnemyRankSet name")
+                rank_mask = sum(bits[name] for name in names)
+            else:
+                raise ValueError(f"{path}.enemyRankSet: expected EnemyRankSet flags")
+            if rank_mask < 0 or rank_mask & ~0b111:
+                raise ValueError(f"{path}.enemyRankSet: unknown EnemyRankSet bits")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                enemyRank=EnemyRankConditionSource(
+                    target=parse_target_reference(condition.get("target"), f"{path}.target"),
+                    rankMask=rank_mask,
                 ),
             )
         if condition_type == "CheckTargetsEqual":
@@ -835,6 +910,7 @@ def parse_conditional_actions(
                 physical_infliction = None
                 projectile_launch = None
                 ability_entity_spawn = None
+                ability_entity_duration_assignment = None
                 damage_units = None
                 keyword_action = None
                 time_dilation = None
@@ -879,6 +955,12 @@ def parse_conditional_actions(
                 elif action_type == "SpawnAbilityEntity":
                     ability_entity_spawn = parse_ability_entity_spawn_payload(
                         action, source_path
+                    )
+                elif action_type == "SetAbilityEntityDuration":
+                    ability_entity_duration_assignment = (
+                        parse_ability_entity_duration_assignment_payload(
+                            action, source_path, inherited_blackboard
+                        )
                     )
                 elif action_type == "DamageAction":
                     if "damageUnits" in action:
@@ -928,6 +1010,7 @@ def parse_conditional_actions(
                     "physicalInfliction": physical_infliction,
                     "projectileLaunch": projectile_launch,
                     "abilityEntitySpawn": ability_entity_spawn,
+                    "abilityEntityDurationAssignment": ability_entity_duration_assignment,
                     "damageUnits": damage_units,
                     "keywordAction": keyword_action,
                 }
@@ -985,10 +1068,48 @@ def parse_conditional_actions(
             target = require_dict(
                 value.get("target"), f"{source_name}.{'.'.join(path)}.target"
             )
-            if not (
-                target.get("targetSource") == "Target"
-                and target.get("targetGroupKey") == ""
-            ):
+            target_source = target.get("targetSource")
+            target_group_key = target.get("targetGroupKey")
+            if target_source == "Context" and isinstance(target_group_key, str) and target_group_key:
+                def contains_duration_assignment(current: Any) -> bool:
+                    if isinstance(current, list):
+                        return any(contains_duration_assignment(item) for item in current)
+                    if not isinstance(current, dict) or current.get("isEnable") is False:
+                        return False
+                    if action_name(str(current.get("$type", ""))) == "SetAbilityEntityDuration":
+                        return True
+                    return any(contains_duration_assignment(item) for item in current.values())
+
+                if not contains_duration_assignment(value.get("action")):
+                    for key, child in value.items():
+                        visit(child, start_frame, end_frame, (*path, key), execution_frames)
+                    return
+                parse_target_reference(target, f"{source_name}.{'.'.join(path)}.target")
+                actions = parse_branch(
+                    value.get("action"),
+                    start_frame,
+                    end_frame,
+                    (*path, "action"),
+                    execution_frames,
+                )
+                if actions:
+                    result.append(
+                        ForEachContextActionSource(
+                            startFrame=start_frame,
+                            endFrame=end_frame,
+                            actionIndex=require_server_action_index(
+                                value, f"{source_name}.{'.'.join(path)}"
+                            ),
+                            actionPath=path,
+                            conditions=(),
+                            succeedActions=actions,
+                            failActions=(),
+                            executionFrames=execution_frames,
+                            contextKey=target_group_key,
+                        )
+                    )
+                return
+            if not (target_source == "Target" and target_group_key == ""):
                 for key, child in value.items():
                     visit(child, start_frame, end_frame, (*path, key), execution_frames)
                 return
@@ -1147,6 +1268,34 @@ def parse_conditional_actions(
                             serverActionIndex=action_index,
                             timedMarkerApplication=parse_timed_marker_application_payload(
                                 value, action_path, inherited_blackboard
+                            ),
+                        ),
+                    ),
+                    failActions=(),
+                    executionFrames=execution_frames,
+                )
+            )
+            return
+        if action_type == "SetAbilityEntityDuration" and len(path) == 4:
+            action_path = f"{source_name}.{'.'.join(path)}"
+            action_index = require_server_action_index(value, action_path)
+            result.append(
+                UnconditionalActionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    actionPath=path,
+                    conditions=(),
+                    succeedActions=(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=action_index,
+                            actionPath=path,
+                            serverActionIndex=action_index,
+                            abilityEntityDurationAssignment=(
+                                parse_ability_entity_duration_assignment_payload(
+                                    value, action_path, inherited_blackboard
+                                )
                             ),
                         ),
                     ),

@@ -4,6 +4,7 @@
  * 通过计算得到的面板数据、模拟状态、投影结果一概不保存
  */
 import type { DamageElement, SkillDefinition, SkillType } from '../game-data/operatorDefinition';
+import type { EnemyRank } from '../game-data/enemyRank';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
 export const PROJECT_SCHEMA_VERSION = 1 as const;
@@ -190,6 +191,8 @@ export type EnemyEditableField = (typeof ENEMY_EDITABLE_FIELDS)[number];
 /** 场景中的敌人：来自定义（prefab）的实例，或自定义敌人配置。 */
 export interface EnemyDocument {
   source: { kind: 'prefab'; enemyId: string; level: number } | { kind: 'custom'; level: number };
+  /** 场景实例捕获的原生战斗等级；运行时不回查敌人定义。 */
+  rank: EnemyRank;
   editable: EnemyEditableValues;
   /** `editable` 中被用户改离已捕获默认值的键。 */
   edited: EnemyEditableField[];

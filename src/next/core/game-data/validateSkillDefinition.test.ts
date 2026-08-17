@@ -23,6 +23,38 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('只接受已知的敌人原生 rank，并允许原生空集合表达永不匹配', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'enemyRankIn', ranks: ['elite', 'boss'] } },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+
+    const condition = (
+      definition.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: { condition: { ranks: string[] } } }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters.condition;
+    condition.ranks = ['advanced'];
+    expect(validateSkillDefinition(definition)).toContainEqual(
+      expect.objectContaining({ message: 'unknown enemy rank' }),
+    );
+    condition.ranks = [];
+    expect(validateSkillDefinition(definition)).toEqual([]);
+  });
+
   it('允许终结技仅自动忽略施法者而不配置额外对象', () => {
     const definition = baseSkill();
     definition.scheduledSequences = [

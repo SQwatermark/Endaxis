@@ -6,6 +6,7 @@ describe('compileScenarioEnemy', () => {
   it('只从项目实例编译敌人运行时输入', () => {
     const scenario = createEmptyScenario('scenario:enemy', '敌人编译样本');
     scenario.enemy.source = { kind: 'prefab', enemyId: 'enemy:sample', level: 80 };
+    scenario.enemy.rank = 'elite';
     scenario.enemy.editable = {
       hp: 123456,
       defense: 245,
@@ -25,6 +26,7 @@ describe('compileScenarioEnemy', () => {
 
     expect(result).toMatchObject({
       source: { kind: 'prefab', enemyId: 'enemy:sample', level: 80 },
+      rank: 'elite',
       health: 123456,
       superArmor: 3,
       defenderAttributes: {

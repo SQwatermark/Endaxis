@@ -2,7 +2,7 @@
  * 元素附着步骤与目标 Buff 容器、关卡事件之间的装配点。
  * 必须在操作序列给定的位置同步执行，不能由投影层根据伤害结果事后补算。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import {
   resolveElementalInfliction,
   type ElementalInflictionOperation,
@@ -13,7 +13,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 type InflictionStep = Extract<RuntimeOperation, { kind: 'applyElementalInfliction' }>;
 
 export const ELEMENTAL_INFLICTION_EVENTS = [

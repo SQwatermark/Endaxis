@@ -578,8 +578,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 187,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -587,9 +586,7 @@ export const lifengGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -615,10 +612,8 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -629,10 +624,8 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1387,24 +1380,21 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 4,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 4,
           "endFrame": 18,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 18,
           "endFrame": 131,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1412,9 +1402,7 @@ export const lifengGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -1432,10 +1420,8 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1921,8 +1907,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 115,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1930,9 +1915,7 @@ export const lifengGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -1950,10 +1933,8 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1961,19 +1942,14 @@ export const lifengGeneratedSource = {
           "startFrame": 4,
           "endFrame": 10,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 10,
           "endFrame": 14,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -2495,8 +2471,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 192,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2504,42 +2479,28 @@ export const lifengGeneratedSource = {
           "endFrame": 25,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 35,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 11,
           "endFrame": 35,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 23,
           "endFrame": 35,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -2572,9 +2533,7 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -2587,18 +2546,15 @@ export const lifengGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "EffectAction",
             "DamageAction",
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "DamageAction",
             "DefiniteValueCalculation",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -3731,30 +3687,21 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 194,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 40,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 29,
           "endFrame": 40,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -3770,9 +3717,7 @@ export const lifengGeneratedSource = {
           "endFrame": 5,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -3783,12 +3728,9 @@ export const lifengGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "EffectAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -3807,24 +3749,21 @@ export const lifengGeneratedSource = {
           "startFrame": 34,
           "endFrame": 34,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 5,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 32,
           "endFrame": 32,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4210,7 +4149,6 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -4219,8 +4157,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4698,8 +4635,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 136,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -4707,9 +4643,7 @@ export const lifengGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -4717,9 +4651,7 @@ export const lifengGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -4727,42 +4659,28 @@ export const lifengGeneratedSource = {
           "endFrame": 32,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 67,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 35,
           "endFrame": 49,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 49,
           "endFrame": 67,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4776,19 +4694,15 @@ export const lifengGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
           "startFrame": 51,
           "endFrame": 63,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4842,9 +4756,7 @@ export const lifengGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "HitStopAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -4857,9 +4769,7 @@ export const lifengGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "HitStopAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -4873,7 +4783,6 @@ export const lifengGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -5892,41 +5801,28 @@ export const lifengGeneratedSource = {
           "endFrame": 168,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
           "startFrame": 16,
           "endFrame": 46,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 16,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 46,
           "endFrame": 72,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5989,11 +5885,8 @@ export const lifengGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -6008,9 +5901,7 @@ export const lifengGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -6047,7 +5938,6 @@ export const lifengGeneratedSource = {
           "endFrame": 25,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -7438,7 +7328,8 @@ export const lifengGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -7508,8 +7399,7 @@ export const lifengGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7641,8 +7531,7 @@ export const lifengGeneratedSource = {
           "startFrame": 57,
           "endFrame": 70,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -7833,7 +7722,14 @@ export const lifengGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -7855,7 +7751,14 @@ export const lifengGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -7864,7 +7767,14 @@ export const lifengGeneratedSource = {
               "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
               "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -7911,6 +7821,19 @@ export const lifengGeneratedSource = {
           "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
           "sourceFile": "chr_0015_lifeng_ultimate_skill_abentity.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+            "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 6,
@@ -8849,7 +8772,14 @@ export const lifengGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -8871,7 +8801,14 @@ export const lifengGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ]
@@ -8904,7 +8841,8 @@ export const lifengGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -8923,7 +8861,8 @@ export const lifengGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

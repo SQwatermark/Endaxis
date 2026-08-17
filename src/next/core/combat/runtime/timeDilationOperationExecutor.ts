@@ -2,14 +2,14 @@
  * 执行技能步骤中的普通时间膨胀动作，并按动作生命周期清理实例。
  * 曲线存储方式不决定作用范围；目标解析由整场战斗的装配根提供。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatTarget, TimeDilationIgnoreTarget } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveTimeScaleCurve } from './timeScaleCurve';
 import type { TimeDilationRuntime } from './timeDilationRuntime';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 
 export interface TimeDilationOperationDependencies {
   readonly runtime: TimeDilationRuntime;

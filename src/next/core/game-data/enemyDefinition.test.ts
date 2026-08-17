@@ -7,6 +7,7 @@ const enemy: EnemyDefinition = {
   id: 'enemy-1',
   gameId: 'game_enemy_1',
   tier: 'normal',
+  rank: 'mob',
   levelHp: [
     { level: 1, hp: 100 },
     { level: 90, hp: 1000 },

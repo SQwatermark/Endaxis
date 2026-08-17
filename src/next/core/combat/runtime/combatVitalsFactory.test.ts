@@ -6,6 +6,7 @@ import { createEnemyCombatVitals } from './combatVitalsFactory';
 function enemy(overrides: Partial<CombatEnemyProgram> = {}): CombatEnemyProgram {
   return {
     source: { kind: 'custom', level: 90 },
+    rank: 'mob',
     health: 10000,
     superArmor: 0,
     defenderAttributes: {

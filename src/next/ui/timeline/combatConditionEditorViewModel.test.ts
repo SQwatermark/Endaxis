@@ -13,6 +13,11 @@ import {
 describe('combatConditionEditorViewModel', () => {
   it('每种条件默认结构都能通过技能定义严格校验', () => {
     for (const kind of COMBAT_CONDITION_KINDS) {
+      const conditional = {
+        kind: 'conditional' as const,
+        parameters: { condition: createCombatCondition(kind) },
+        whenTrue: { steps: [] },
+      };
       const definition: SkillDefinition = {
         key: `condition-${kind}`,
         timelineBlockFrames: 1,
@@ -20,13 +25,16 @@ describe('combatConditionEditorViewModel', () => {
           {
             startFrame: 0,
             sequence: {
-              steps: [
-                {
-                  kind: 'conditional',
-                  parameters: { condition: createCombatCondition(kind) },
-                  whenTrue: { steps: [] },
-                },
-              ],
+              steps:
+                kind === 'abilityEntityRemainingDurationCompare'
+                  ? [
+                      {
+                        kind: 'forEachContextTarget',
+                        parameters: { contextKey: 'entities' },
+                        body: { steps: [conditional] },
+                      },
+                    ]
+                  : [conditional],
             },
           },
         ],

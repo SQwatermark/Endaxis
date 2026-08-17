@@ -18,6 +18,7 @@ __all__ = [
 
 # 这些条件作为 SequenceAction 子项时会用返回值截断同一 actionData 的剩余动作。
 SEQUENCE_GUARD_ACTION_NAMES = {
+    "CheckAbilityEntityCurDuration",
     "CheckDistanceCondition",
     "CheckMainCharacterCondition",
     "CheckTargetsEqual",
@@ -43,7 +44,11 @@ COMBAT_ACTION_NAMES = {
 }
 
 # 标记本身不造成伤害，但会改变后续条件、事件冷却或时间轴控制，必须参与完备性审计。
-STATEFUL_COMBAT_ACTION_NAMES = {"CreateTimedMarker", "AddGlobalCDTimer"}
+STATEFUL_COMBAT_ACTION_NAMES = {
+    "CreateTimedMarker",
+    "AddGlobalCDTimer",
+    "SetAbilityEntityDuration",
+}
 AUDITED_COMBAT_ACTION_NAMES = COMBAT_ACTION_NAMES | STATEFUL_COMBAT_ACTION_NAMES
 
 # 这些根级标记已由专用单敌人投影等价消费；这里只阻止完备性审计重复计数。
@@ -75,4 +80,5 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "SimpleCalcBBAction",
     "TimeDilationAction",
     "UltimateTimeAction",
+    "SetAbilityEntityDuration",
 }

@@ -2,14 +2,14 @@
  * 把语义状态动作接到具体状态所有者，并在状态所有者完成结算后记录前后快照。
  * 本适配器不定义叠层、刷新或到期规则；这些规则必须由目标状态所有者实现。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatStatusChangeReason, CombatStatusTransition } from '../status/combatStatuses';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 export interface StatusActionRequest<K extends 'applyStatus' | 'consumeStatus'> {
   readonly sourceId: string;
   readonly skillId: string;

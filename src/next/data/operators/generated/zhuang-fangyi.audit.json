@@ -3348,7 +3348,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -3370,7 +3377,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -3379,7 +3393,14 @@
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
               "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -3628,6 +3649,19 @@
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+            "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -4271,6 +4305,20 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 15,
+          "actionOrder": [
+            13,
+            0
+          ],
+          "sequenceOrder": [
+            13
+          ],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack2"
           ]
         },
         {
@@ -5538,7 +5586,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -5560,7 +5615,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -5569,7 +5631,14 @@
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
               "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -5594,6 +5663,19 @@
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+            "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -6105,6 +6187,20 @@
           "frame": 11,
           "actionOrder": [
             6,
+            0
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack4"
+          ]
+        },
+        {
+          "frame": 11,
+          "actionOrder": [
+            6,
             0,
             2
           ],
@@ -6527,7 +6623,29 @@
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ],
@@ -6555,7 +6673,29 @@
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ],
@@ -6564,7 +6704,29 @@
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                           "entityBlackboardAssignments": [],
-                          "assignBlackboard": true
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
                         }
                       ]
                     }
@@ -6591,7 +6753,29 @@
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -6600,7 +6784,29 @@
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                     "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -6624,7 +6830,29 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -6633,7 +6861,29 @@
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
               "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -6658,6 +6908,34 @@
           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+            "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -7026,6 +7304,20 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 20,
+          "actionOrder": [
+            6,
+            0
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack5"
           ]
         },
         {
@@ -7529,7 +7821,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -7589,7 +7903,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -7607,7 +7943,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -7686,7 +8044,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -7720,7 +8100,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -7764,7 +8166,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -7784,7 +8208,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -7896,7 +8342,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -7930,7 +8398,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -7948,7 +8438,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8027,7 +8539,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8061,7 +8595,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8079,7 +8635,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8099,7 +8677,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -8211,7 +8811,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8245,7 +8867,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8263,7 +8907,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8342,7 +9008,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8376,7 +9064,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8394,7 +9104,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8414,7 +9146,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -8526,7 +9280,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8560,7 +9336,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8578,7 +9376,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8657,7 +9477,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8691,7 +9533,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8709,7 +9573,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8729,7 +9615,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -8778,6 +9686,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -8876,6 +9821,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -8974,6 +9956,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -9072,6 +10091,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -9547,7 +10603,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -9607,7 +10685,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9625,7 +10725,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9704,7 +10826,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9738,7 +10882,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -9782,7 +10948,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9802,7 +10990,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -9914,7 +11124,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9948,7 +11180,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9966,7 +11220,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10045,7 +11321,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10079,7 +11377,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10097,7 +11417,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10117,7 +11459,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -10229,7 +11593,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10263,7 +11649,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10281,7 +11689,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10360,7 +11790,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10394,7 +11846,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10412,7 +11886,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10432,7 +11928,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -10544,7 +12062,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10578,7 +12118,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10596,7 +12158,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10675,7 +12259,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10709,7 +12315,29 @@
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10727,7 +12355,29 @@
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10747,7 +12397,29 @@
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -10796,6 +12468,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10894,6 +12603,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10992,6 +12738,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -11090,6 +12873,43 @@
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -11538,7 +13358,29 @@
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11563,7 +13405,29 @@
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11572,7 +13436,29 @@
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                     "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": "thunder",
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -11642,7 +13528,29 @@
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11667,7 +13575,29 @@
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11676,7 +13606,29 @@
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                     "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": "thunder",
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -11687,7 +13639,29 @@
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
               "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": "thunder",
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -11749,6 +13723,34 @@
           "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+            "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": "thunder",
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 30,
@@ -12027,6 +14029,20 @@
             7
           ],
           "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0030_zhuangfy_attack3_ult"
+          ]
+        },
+        {
+          "frame": 3,
+          "actionOrder": [
+            11,
+            0
+          ],
+          "sequenceOrder": [
+            11
+          ],
+          "itemType": "abilityEntitySpawn",
           "sourcePath": [
             "chr_0030_zhuangfy_attack3_ult"
           ]
@@ -12652,7 +14668,16 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -251943717
+              ]
+            ]
+          ]
         }
       ],
       "timeDilations": [],
@@ -12669,6 +14694,117 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 37,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 37,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 38,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
+        },
         {
           "startFrame": 6,
           "endFrame": 7,
@@ -13416,7 +15552,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -13458,7 +15601,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -13484,7 +15634,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -13585,7 +15742,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -13627,7 +15791,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -13653,7 +15824,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -13681,7 +15859,14 @@
                                     "inputValueKey": "remain_sword_limit"
                                   }
                                 ],
-                                "assignBlackboard": true
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": null,
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": true,
+                                "dieOnEnd": false
                               }
                             ]
                           }
@@ -13726,6 +15911,36 @@
                                 "inputValueKey": "remain_sword_limit"
                               }
                             ],
+                            "spawnPayload": {
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                              "entityBlackboardAssignments": [
+                                {
+                                  "targetKey": "EntityBB_swordDuration",
+                                  "valueType": "Numeric",
+                                  "numericValue": 50.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "sword_duration"
+                                },
+                                {
+                                  "targetKey": "EntityBB_swordLimit",
+                                  "valueType": "Numeric",
+                                  "numericValue": 0.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "remain_sword_limit"
+                                }
+                              ],
+                              "assignBlackboard": true,
+                              "sourceType": "ActionSource",
+                              "sourceContextKey": "",
+                              "target": null,
+                              "overrideDuration": null,
+                              "saveToContextKey": null,
+                              "dieWhenSourceDies": true,
+                              "dieOnEnd": false
+                            },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "conditionalActions": [],
@@ -14187,7 +16402,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -14229,7 +16451,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -14255,7 +16484,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -14356,7 +16592,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -14398,7 +16641,14 @@
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -14424,7 +16674,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -14452,7 +16709,14 @@
                                     "inputValueKey": "remain_sword_limit"
                                   }
                                 ],
-                                "assignBlackboard": true
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": null,
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": true,
+                                "dieOnEnd": false
                               }
                             ]
                           }
@@ -14497,6 +16761,36 @@
                                 "inputValueKey": "remain_sword_limit"
                               }
                             ],
+                            "spawnPayload": {
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                              "entityBlackboardAssignments": [
+                                {
+                                  "targetKey": "EntityBB_swordDuration",
+                                  "valueType": "Numeric",
+                                  "numericValue": 50.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "sword_duration"
+                                },
+                                {
+                                  "targetKey": "EntityBB_swordLimit",
+                                  "valueType": "Numeric",
+                                  "numericValue": 0.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "remain_sword_limit"
+                                }
+                              ],
+                              "assignBlackboard": true,
+                              "sourceType": "ActionSource",
+                              "sourceContextKey": "",
+                              "target": null,
+                              "overrideDuration": null,
+                              "saveToContextKey": null,
+                              "dieWhenSourceDies": true,
+                              "dieOnEnd": false
+                            },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "conditionalActions": [],
@@ -14600,7 +16894,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -15079,6 +17380,22 @@
       "resolvedDamageHits": [],
       "resolvedSchedule": [
         {
+          "frame": 0,
+          "actionOrder": [
+            36
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
+        },
+        {
           "frame": 6,
           "actionOrder": [
             39
@@ -15379,7 +17696,16 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -13979809
+              ]
+            ]
+          ]
         },
         {
           "startFrame": 6,
@@ -15438,10 +17764,12 @@
       ],
       "timeDilations": [],
       "unresolvedCombatActions": [
+        "CheckAbilityEntityCurDuration",
         "CreateBuffAction",
         "IfElseAction",
         "LaunchProjectile",
         "ObtainCostAction",
+        "SetAbilityEntityDuration",
         "SpawnAbilityEntity"
       ]
     },
@@ -15453,6 +17781,117 @@
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
       "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 27,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 28,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 29,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
+        },
         {
           "startFrame": 5,
           "endFrame": 6,
@@ -15826,7 +18265,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -15868,7 +18314,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -15894,7 +18347,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -15995,7 +18455,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16037,7 +18504,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16063,7 +18537,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -16091,7 +18572,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -16138,6 +18626,36 @@
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -16407,7 +18925,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16449,7 +18974,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16475,7 +19007,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -16576,7 +19115,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16618,7 +19164,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -16644,7 +19197,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -16672,7 +19232,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -16719,6 +19286,36 @@
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -17457,7 +20054,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -17499,7 +20103,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -17525,7 +20136,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -17626,7 +20244,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -17668,7 +20293,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -17694,7 +20326,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -17722,7 +20361,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -17769,6 +20415,36 @@
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -18256,7 +20932,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -18298,7 +20981,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -18324,7 +21014,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -18425,7 +21122,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -18467,7 +21171,14 @@
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -18493,7 +21204,14 @@
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -18521,7 +21239,14 @@
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -18568,6 +21293,36 @@
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -18677,7 +21432,14 @@
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -18950,6 +21712,28 @@
               "inputValueKey": "EntityBB_SwordNum"
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
+            "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_SwordNum",
+                "valueType": "Numeric",
+                "numericValue": 0.0,
+                "stringValue": "",
+                "useDirectValue": false,
+                "inputValueKey": "EntityBB_SwordNum"
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": true,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 69,
@@ -19612,6 +22396,22 @@
         {
           "frame": 0,
           "actionOrder": [
+            27
+          ],
+          "sequenceOrder": [
+            8
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
             99
           ],
           "sequenceOrder": [
@@ -19652,6 +22452,17 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 15,
+          "actionOrder": [
+            81
+          ],
+          "sequenceOrder": [],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult"
           ]
         },
         {
@@ -20355,7 +23166,16 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -13979809
+              ]
+            ]
+          ]
         },
         {
           "startFrame": 5,
@@ -20501,10 +23321,12 @@
       ],
       "timeDilations": [],
       "unresolvedCombatActions": [
+        "CheckAbilityEntityCurDuration",
         "CreateBuffAction",
         "IfElseAction",
         "LaunchProjectile",
         "ObtainCostAction",
+        "SetAbilityEntityDuration",
         "SpawnAbilityEntity"
       ]
     },
@@ -21398,7 +24220,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -22159,7 +24982,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -22564,7 +25388,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -22583,7 +25408,8 @@
           "omittedAbilityEntityTargets": 2,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

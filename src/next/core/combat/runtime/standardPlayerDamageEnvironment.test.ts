@@ -21,6 +21,7 @@ const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
 
 const testEnemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
+  rank: 'mob',
   health: 10000,
   superArmor: 0,
   defenderAttributes: {

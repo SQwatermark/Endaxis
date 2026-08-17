@@ -2799,8 +2799,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 123,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3331,8 +3330,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 320,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3612,7 +3610,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -3634,7 +3639,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -3643,7 +3655,14 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
               "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -3892,6 +3911,19 @@ export const zhuangFangyiGeneratedSource = {
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+            "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -4713,7 +4745,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -4763,7 +4802,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ]
@@ -4834,8 +4880,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 105,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -4883,11 +4928,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 10,
           "endFrame": 33,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5892,8 +5933,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 170,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -5902,9 +5942,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -6069,7 +6107,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -6091,7 +6136,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -6100,7 +6152,14 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
               "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -6125,6 +6184,19 @@ export const zhuangFangyiGeneratedSource = {
           "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+            "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -6744,7 +6816,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -6794,7 +6873,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ]
@@ -6865,8 +6951,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 165,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -6875,9 +6960,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -6895,11 +6978,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 22,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -7218,7 +7297,29 @@ export const zhuangFangyiGeneratedSource = {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ],
@@ -7246,7 +7347,29 @@ export const zhuangFangyiGeneratedSource = {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ],
@@ -7255,7 +7378,29 @@ export const zhuangFangyiGeneratedSource = {
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                           "entityBlackboardAssignments": [],
-                          "assignBlackboard": true
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
                         }
                       ]
                     }
@@ -7282,7 +7427,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -7291,7 +7458,29 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                     "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -7315,7 +7504,29 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -7324,7 +7535,29 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
               "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -7349,6 +7582,34 @@ export const zhuangFangyiGeneratedSource = {
           "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+            "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 0,
@@ -8255,7 +8516,29 @@ export const zhuangFangyiGeneratedSource = {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ],
@@ -8323,7 +8606,29 @@ export const zhuangFangyiGeneratedSource = {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                             "entityBlackboardAssignments": [],
-                            "assignBlackboard": true
+                            "assignBlackboard": true,
+                            "sourceType": "ActionSource",
+                            "sourceContextKey": "",
+                            "target": {
+                              "targetSource": "Target",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "overrideDuration": null,
+                            "saveToContextKey": null,
+                            "dieWhenSourceDies": false,
+                            "dieOnEnd": false
                           }
                         }
                       ]
@@ -8385,7 +8690,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -8438,7 +8765,29 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ]
@@ -8509,9 +8858,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -8525,8 +8872,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 160,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -8535,9 +8881,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -8597,8 +8941,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 15,
           "endFrame": 18,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -8807,7 +9150,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -8867,7 +9232,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8885,7 +9272,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -8964,7 +9373,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -8998,7 +9429,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -9042,7 +9495,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9062,7 +9537,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -9174,7 +9671,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9208,7 +9727,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9226,7 +9767,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9305,7 +9868,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9339,7 +9924,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9357,7 +9964,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9377,7 +10006,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -9489,7 +10140,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9523,7 +10196,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9541,7 +10236,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9620,7 +10337,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9654,7 +10393,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9672,7 +10433,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9692,7 +10475,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -9804,7 +10609,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9838,7 +10665,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9856,7 +10705,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -9935,7 +10806,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9969,7 +10862,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -9987,7 +10902,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -10007,7 +10944,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -10041,6 +11000,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10139,6 +11135,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10237,6 +11270,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10335,6 +11405,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -10758,7 +11865,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -10818,7 +11947,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -10898,7 +12049,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -10932,7 +12105,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -11074,7 +12269,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11108,7 +12325,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11188,7 +12427,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11222,7 +12483,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11338,7 +12621,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11372,7 +12677,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11452,7 +12779,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11486,7 +12835,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11602,7 +12973,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11636,7 +13029,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11716,7 +13131,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -11750,7 +13187,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -11824,9 +13283,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -11840,8 +13297,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 155,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -11850,9 +13306,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -11912,8 +13366,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 13,
           "endFrame": 16,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -12122,7 +13575,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -12182,7 +13657,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12200,7 +13697,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -12279,7 +13798,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12313,7 +13854,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -12357,7 +13920,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -12377,7 +13962,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -12489,7 +14096,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12523,7 +14152,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12541,7 +14192,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -12620,7 +14293,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12654,7 +14349,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12672,7 +14389,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -12692,7 +14431,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -12804,7 +14565,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12838,7 +14621,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12856,7 +14661,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -12935,7 +14762,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12969,7 +14818,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -12987,7 +14858,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -13007,7 +14900,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         },
@@ -13119,7 +15034,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -13153,7 +15090,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -13171,7 +15130,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -13250,7 +15231,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -13284,7 +15287,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -13302,7 +15327,29 @@ export const zhuangFangyiGeneratedSource = {
                         "inputValueKey": ""
                       }
                     ],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -13322,7 +15369,29 @@ export const zhuangFangyiGeneratedSource = {
                   "inputValueKey": ""
                 }
               ],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -13356,6 +15425,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -13454,6 +15560,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -13552,6 +15695,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -13650,6 +15830,43 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": ""
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+            "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_hitedMark",
+                "valueType": "String",
+                "numericValue": 0.0,
+                "stringValue": "attack1UltHitMark",
+                "useDirectValue": true,
+                "inputValueKey": ""
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 3,
@@ -14059,7 +16276,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -14119,7 +16358,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -14199,7 +16460,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14233,7 +16516,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   },
                   {
@@ -14375,7 +16680,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14409,7 +16736,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -14489,7 +16838,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14523,7 +16894,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -14639,7 +17032,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14673,7 +17088,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -14753,7 +17190,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14787,7 +17246,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -14903,7 +17384,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -14937,7 +17440,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -15017,7 +17542,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -15051,7 +17598,29 @@ export const zhuangFangyiGeneratedSource = {
                           "inputValueKey": ""
                         }
                       ],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": null,
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -15118,9 +17687,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -15134,8 +17701,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 179,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -15144,20 +17710,14 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 31,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -15370,7 +17930,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -15395,7 +17977,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -15404,7 +18008,29 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                     "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": "thunder",
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -15474,7 +18100,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -15499,7 +18147,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -15508,7 +18178,29 @@ export const zhuangFangyiGeneratedSource = {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                     "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                     "entityBlackboardAssignments": [],
-                    "assignBlackboard": true
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": "thunder",
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
                   }
                 ]
               }
@@ -15519,7 +18211,29 @@ export const zhuangFangyiGeneratedSource = {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
               "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": {
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "overrideDuration": null,
+              "saveToContextKey": "thunder",
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -15566,6 +18280,34 @@ export const zhuangFangyiGeneratedSource = {
           "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
           "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+            "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": "thunder",
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 30,
@@ -16039,7 +18781,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -16064,7 +18828,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -16135,7 +18921,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ],
@@ -16160,7 +18968,29 @@ export const zhuangFangyiGeneratedSource = {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
                       "entityBlackboardAssignments": [],
-                      "assignBlackboard": true
+                      "assignBlackboard": true,
+                      "sourceType": "ActionSource",
+                      "sourceContextKey": "",
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideDuration": null,
+                      "saveToContextKey": "thunder",
+                      "dieWhenSourceDies": false,
+                      "dieOnEnd": false
                     }
                   }
                 ]
@@ -16231,18 +19061,14 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 3,
           "endFrame": 9,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 153,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -16256,30 +19082,21 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 9,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 37,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 37,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -16290,9 +19107,7 @@ export const zhuangFangyiGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -16305,9 +19120,7 @@ export const zhuangFangyiGeneratedSource = {
             "GainBreakingAttackAtb",
             "BlowOffAction",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -16668,8 +19481,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 170,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -16692,8 +19504,6 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 125,
           "actionTypes": [
             "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "BlockMoveInterruptSkill"
           ]
         },
@@ -16712,7 +19522,6 @@ export const zhuangFangyiGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -16720,8 +19529,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -17022,7 +19830,16 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -251943717
+              ]
+            ]
+          ]
         }
       ],
       "targetGroupControlFlowActions": [
@@ -17177,9 +19994,7 @@ export const zhuangFangyiGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -17187,8 +20002,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 26,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -17196,8 +20010,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 116,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -17205,8 +20018,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 290,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -17215,9 +20027,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -17227,8 +20037,6 @@ export const zhuangFangyiGeneratedSource = {
             "TogglableAction",
             "CheckHasMoveInput",
             "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "SelfRotateAction"
           ]
         },
@@ -17238,9 +20046,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -17301,8 +20107,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 126,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -17317,8 +20122,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 126,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -17346,11 +20150,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "CheckEntityNum",
             "CompareFloat",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -17447,6 +20247,117 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "directDamageHits": [],
       "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 37,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 37,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 38,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
+        },
         {
           "startFrame": 6,
           "endFrame": 7,
@@ -18194,7 +21105,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -18236,7 +21154,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -18262,7 +21187,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -18363,7 +21295,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -18405,7 +21344,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -18431,7 +21377,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -18459,7 +21412,14 @@ export const zhuangFangyiGeneratedSource = {
                                     "inputValueKey": "remain_sword_limit"
                                   }
                                 ],
-                                "assignBlackboard": true
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": null,
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": true,
+                                "dieOnEnd": false
                               }
                             ]
                           }
@@ -18504,6 +21464,36 @@ export const zhuangFangyiGeneratedSource = {
                                 "inputValueKey": "remain_sword_limit"
                               }
                             ],
+                            "spawnPayload": {
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                              "entityBlackboardAssignments": [
+                                {
+                                  "targetKey": "EntityBB_swordDuration",
+                                  "valueType": "Numeric",
+                                  "numericValue": 50.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "sword_duration"
+                                },
+                                {
+                                  "targetKey": "EntityBB_swordLimit",
+                                  "valueType": "Numeric",
+                                  "numericValue": 0.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "remain_sword_limit"
+                                }
+                              ],
+                              "assignBlackboard": true,
+                              "sourceType": "ActionSource",
+                              "sourceContextKey": "",
+                              "target": null,
+                              "overrideDuration": null,
+                              "saveToContextKey": null,
+                              "dieWhenSourceDies": true,
+                              "dieOnEnd": false
+                            },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "conditionalActions": [],
@@ -18965,7 +21955,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -19007,7 +22004,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -19033,7 +22037,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -19134,7 +22145,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -19176,7 +22194,14 @@ export const zhuangFangyiGeneratedSource = {
                                             "inputValueKey": "remain_sword_limit"
                                           }
                                         ],
-                                        "assignBlackboard": true
+                                        "assignBlackboard": true,
+                                        "sourceType": "ActionSource",
+                                        "sourceContextKey": "",
+                                        "target": null,
+                                        "overrideDuration": null,
+                                        "saveToContextKey": null,
+                                        "dieWhenSourceDies": true,
+                                        "dieOnEnd": false
                                       }
                                     }
                                   ],
@@ -19202,7 +22227,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -19230,7 +22262,14 @@ export const zhuangFangyiGeneratedSource = {
                                     "inputValueKey": "remain_sword_limit"
                                   }
                                 ],
-                                "assignBlackboard": true
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": null,
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": true,
+                                "dieOnEnd": false
                               }
                             ]
                           }
@@ -19275,6 +22314,36 @@ export const zhuangFangyiGeneratedSource = {
                                 "inputValueKey": "remain_sword_limit"
                               }
                             ],
+                            "spawnPayload": {
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                              "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                              "entityBlackboardAssignments": [
+                                {
+                                  "targetKey": "EntityBB_swordDuration",
+                                  "valueType": "Numeric",
+                                  "numericValue": 50.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "sword_duration"
+                                },
+                                {
+                                  "targetKey": "EntityBB_swordLimit",
+                                  "valueType": "Numeric",
+                                  "numericValue": 0.0,
+                                  "stringValue": "",
+                                  "useDirectValue": false,
+                                  "inputValueKey": "remain_sword_limit"
+                                }
+                              ],
+                              "assignBlackboard": true,
+                              "sourceType": "ActionSource",
+                              "sourceContextKey": "",
+                              "target": null,
+                              "overrideDuration": null,
+                              "saveToContextKey": null,
+                              "dieWhenSourceDies": true,
+                              "dieOnEnd": false
+                            },
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "conditionalActions": [],
@@ -19378,7 +22447,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -20341,10 +23417,12 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "unresolvedCombatActions": [
+        "CheckAbilityEntityCurDuration",
         "CreateBuffAction",
         "IfElseAction",
         "LaunchProjectile",
         "ObtainCostAction",
+        "SetAbilityEntityDuration",
         "SpawnAbilityEntity"
       ],
       "buffHolds": [],
@@ -20399,7 +23477,16 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -13979809
+              ]
+            ]
+          ]
         },
         {
           "startFrame": 6,
@@ -20555,6 +23642,117 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 37,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 37,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 38,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
         },
         {
           "startFrame": 6,
@@ -21501,7 +24699,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -22010,9 +25215,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -22031,9 +25234,7 @@ export const zhuangFangyiGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -22041,8 +25242,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 210,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -22051,9 +25251,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -22165,11 +25363,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 77,
           "actionTypes": [
             "CheckEntityNum",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -22238,6 +25432,117 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "directDamageHits": [],
       "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 27,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 28,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 29,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
+        },
         {
           "startFrame": 5,
           "endFrame": 6,
@@ -22611,7 +25916,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -22653,7 +25965,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -22679,7 +25998,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -22780,7 +26106,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -22822,7 +26155,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -22848,7 +26188,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -22876,7 +26223,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -22923,6 +26277,36 @@ export const zhuangFangyiGeneratedSource = {
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -23192,7 +26576,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -23234,7 +26625,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -23260,7 +26658,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -23361,7 +26766,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -23403,7 +26815,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -23429,7 +26848,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -23457,7 +26883,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -23504,6 +26937,36 @@ export const zhuangFangyiGeneratedSource = {
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -24242,7 +27705,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -24284,7 +27754,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -24310,7 +27787,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -24411,7 +27895,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -24453,7 +27944,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -24479,7 +27977,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -24507,7 +28012,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -24554,6 +28066,36 @@ export const zhuangFangyiGeneratedSource = {
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -25041,7 +28583,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -25083,7 +28632,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -25109,7 +28665,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -25210,7 +28773,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -25252,7 +28822,14 @@ export const zhuangFangyiGeneratedSource = {
                                                   "inputValueKey": "remain_sword_limit"
                                                 }
                                               ],
-                                              "assignBlackboard": true
+                                              "assignBlackboard": true,
+                                              "sourceType": "ActionSource",
+                                              "sourceContextKey": "",
+                                              "target": null,
+                                              "overrideDuration": null,
+                                              "saveToContextKey": null,
+                                              "dieWhenSourceDies": true,
+                                              "dieOnEnd": false
                                             }
                                           }
                                         ],
@@ -25278,7 +28855,14 @@ export const zhuangFangyiGeneratedSource = {
                                                 "inputValueKey": "remain_sword_limit"
                                               }
                                             ],
-                                            "assignBlackboard": true
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
                                           }
                                         ]
                                       }
@@ -25306,7 +28890,14 @@ export const zhuangFangyiGeneratedSource = {
                                           "inputValueKey": "remain_sword_limit"
                                         }
                                       ],
-                                      "assignBlackboard": true
+                                      "assignBlackboard": true,
+                                      "sourceType": "ActionSource",
+                                      "sourceContextKey": "",
+                                      "target": null,
+                                      "overrideDuration": null,
+                                      "saveToContextKey": null,
+                                      "dieWhenSourceDies": true,
+                                      "dieOnEnd": false
                                     }
                                   ]
                                 }
@@ -25353,6 +28944,36 @@ export const zhuangFangyiGeneratedSource = {
                                       "inputValueKey": "remain_sword_limit"
                                     }
                                   ],
+                                  "spawnPayload": {
+                                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                    "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                    "entityBlackboardAssignments": [
+                                      {
+                                        "targetKey": "EntityBB_swordDuration",
+                                        "valueType": "Numeric",
+                                        "numericValue": 50.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "sword_duration"
+                                      },
+                                      {
+                                        "targetKey": "EntityBB_swordLimit",
+                                        "valueType": "Numeric",
+                                        "numericValue": 0.0,
+                                        "stringValue": "",
+                                        "useDirectValue": false,
+                                        "inputValueKey": "remain_sword_limit"
+                                      }
+                                    ],
+                                    "assignBlackboard": true,
+                                    "sourceType": "ActionSource",
+                                    "sourceContextKey": "",
+                                    "target": null,
+                                    "overrideDuration": null,
+                                    "saveToContextKey": null,
+                                    "dieWhenSourceDies": true,
+                                    "dieOnEnd": false
+                                  },
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "conditionalActions": [],
@@ -25462,7 +29083,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -25720,6 +29348,28 @@ export const zhuangFangyiGeneratedSource = {
               "inputValueKey": "EntityBB_SwordNum"
             }
           ],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
+            "skillId": "chr_0030_zhuangfy_normal_skill_ult_abilityrange",
+            "entityBlackboardAssignments": [
+              {
+                "targetKey": "EntityBB_SwordNum",
+                "valueType": "Numeric",
+                "numericValue": 0.0,
+                "stringValue": "",
+                "useDirectValue": false,
+                "inputValueKey": "EntityBB_SwordNum"
+              }
+            ],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": true,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 69,
@@ -26762,10 +30412,12 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "unresolvedCombatActions": [
+        "CheckAbilityEntityCurDuration",
         "CreateBuffAction",
         "IfElseAction",
         "LaunchProjectile",
         "ObtainCostAction",
+        "SetAbilityEntityDuration",
         "SpawnAbilityEntity"
       ],
       "buffHolds": [
@@ -26835,7 +30487,16 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -13979809
+              ]
+            ]
+          ]
         },
         {
           "startFrame": 5,
@@ -27078,6 +30739,117 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 27,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CheckAbilityEntityCurDuration",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "nestedCondition": {
+                "startFrame": 0,
+                "endFrame": 3,
+                "actionIndex": 28,
+                "actionPath": [
+                  "timelineActions[8]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckAbilityEntityCurDuration",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "abilityEntityDuration": {
+                      "target": {
+                        "targetSource": "Target",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "comparison": "LT",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "saveCurrentDuration": false,
+                      "outputKey": ""
+                    }
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "SetAbilityEntityDuration",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[8]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "action",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 29,
+                    "abilityEntityDurationAssignment": {
+                      "setMultipleTarget": false,
+                      "actionTargetType": "InputTarget",
+                      "targetContextKey": "",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 3.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "targetSettings": null
+                    }
+                  }
+                ],
+                "failActions": []
+              }
+            }
+          ],
+          "failActions": [],
+          "contextKey": "swordsForExtend"
         },
         {
           "startFrame": 5,
@@ -28327,7 +32099,14 @@ export const zhuangFangyiGeneratedSource = {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": true,
+                "dieOnEnd": false
               }
             }
           ]
@@ -28555,7 +32334,6 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -28580,8 +32358,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 210,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -28590,9 +32367,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -28607,22 +32382,14 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 21,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 21,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -28648,11 +32415,8 @@ export const zhuangFangyiGeneratedSource = {
             "DefiniteValueCalculation",
             "FinishBuffAdvanced",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "SimpleCalcBBAction",
@@ -30167,7 +33931,8 @@ export const zhuangFangyiGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -30227,9 +33992,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -30246,7 +34009,6 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -30271,8 +34033,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 197,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -30281,9 +34042,7 @@ export const zhuangFangyiGeneratedSource = {
           "actionTypes": [
             "TogglableAction",
             "CheckHasMoveInput",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -30305,22 +34064,14 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 21,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 21,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -30346,11 +34097,8 @@ export const zhuangFangyiGeneratedSource = {
             "DefiniteValueCalculation",
             "FinishBuffAdvanced",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -31532,7 +35280,8 @@ export const zhuangFangyiGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -31605,8 +35354,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 78,
           "endFrame": 81,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -31621,9 +35369,7 @@ export const zhuangFangyiGeneratedSource = {
           "endFrame": 208,
           "actionTypes": [
             "BlockMoveInterruptSkill",
-            "ReceiveMoveInputAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "ReceiveMoveInputAction"
           ]
         },
         {
@@ -31651,8 +35397,7 @@ export const zhuangFangyiGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -32388,7 +36133,8 @@ export const zhuangFangyiGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -32407,7 +36153,8 @@ export const zhuangFangyiGeneratedSource = {
           "omittedAbilityEntityTargets": 2,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

@@ -9,8 +9,10 @@ import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import type {
   CompiledSkillProgram,
   ResolvedActionSequence,
+  ResolvedCombatOperationStep,
   ResolvedCombatStep,
 } from '../../compiler/combatProgram';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
@@ -18,6 +20,7 @@ import type { CombatSkillCastInfo } from './skillCastInfo';
 import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
@@ -28,6 +31,10 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 export interface CombatOperationContext {
   /** 一次技能运行实例独占的动作黑板；步骤不得把它缓存到实例生命周期之外。 */
   readonly blackboard: ActionBlackboard;
+  /** 只有读取或写入原生 Context 目标组的步骤才要求存在。 */
+  readonly targetContext?: RuntimeTargetContext;
+  /** 只在 forEachContextTarget 的 body 内存在。 */
+  readonly currentTarget?: RuntimeTargetRef;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
@@ -35,14 +42,8 @@ export interface CombatOperationContext {
 }
 
 export interface CombatOperationExecutor {
-  execute(
-    step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
-    context?: CombatOperationContext,
-  ): boolean;
-  end?(
-    step: Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>,
-    context?: CombatOperationContext,
-  ): void;
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean;
+  end?(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void;
   evaluate(
     condition: Extract<ResolvedCombatStep, { kind: 'conditional' }>['parameters']['condition'],
     context?: CombatOperationContext,
@@ -70,6 +71,7 @@ export class SkillRuntime {
   readonly #dependencies: SkillRuntimeDependencies;
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
+  readonly #targetContext = new RuntimeTargetContext();
   readonly #operationContext: CombatOperationContext;
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #cooldown: SkillCooldown;
@@ -93,6 +95,7 @@ export class SkillRuntime {
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,
+      targetContext: this.#targetContext,
       get skillCastInfo() {
         return runtime.skillCastInfo;
       },
@@ -204,6 +207,7 @@ export class SkillRuntime {
     );
     this.#timeline.reset(this.#context);
     this.#blackboard.restore(this.#program.initialBlackboard);
+    this.#targetContext.clear();
     this.#blackboard.assign(this.#preparedStartBlackboard);
     this.#preparedStartBlackboard = {};
     this.#sequenceRuntime.reset();

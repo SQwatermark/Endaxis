@@ -4928,7 +4928,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -5082,6 +5083,19 @@
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
+            "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -5216,6 +5230,17 @@
             7
           ],
           "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0004_pelica_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 55,
+          "actionOrder": [
+            22
+          ],
+          "sequenceOrder": [],
+          "itemType": "abilityEntitySpawn",
           "sourcePath": [
             "chr_0004_pelica_ultimate_skill"
           ]
@@ -5382,7 +5407,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

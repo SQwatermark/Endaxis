@@ -4,7 +4,7 @@
  * 负责两件事：按步骤顺序读写反应状态并记录回执，以及求值"敌人当前是否带着反应"的条件。
  * 反应状态只描述事实，不在这里附加任何未证实的伤害规则。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -13,7 +13,7 @@ import {
   type ApplyElementalReactionResult,
 } from '../infliction/elementalReactionState';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 type ReactionStep = Extract<
   RuntimeOperation,
   { kind: 'applyElementalReaction' | 'consumeElementalReaction' }

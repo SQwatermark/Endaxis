@@ -95,6 +95,21 @@ function resolveStep(
 ): ResolvedCombatStep {
   const keyed = step.key === undefined ? {} : { key: step.key };
   switch (step.kind) {
+    case 'findOwnerSpawnedAbilityEntities':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'readAbilityEntityRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'setAbilityEntityRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'forEachContextTarget':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
+      };
+    case 'spawnAbilityEntity':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'dealDamage':
       return {
         ...keyed,

@@ -4,6 +4,7 @@
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
 import { SKILL_TYPES } from '../game-data/operatorDefinition';
+import { ENEMY_RANKS } from '../game-data/enemyRank';
 import {
   isObject,
   requireBoolean,
@@ -19,6 +20,7 @@ import {
 const enemyEditableFields = new Set<string>(ENEMY_EDITABLE_FIELDS);
 const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIERS);
 const skillTypes = new Set<string>(SKILL_TYPES);
+const enemyRanks = new Set<string>(ENEMY_RANKS);
 
 export function validateOperatorInstance(
   value: JsonObject,
@@ -84,6 +86,9 @@ export function validateEnemy(value: unknown, path: string, issues: ValidationIs
     requirePositiveInteger(value.source.level, `${path}.source.level`, issues);
   } else {
     issues.push({ path: `${path}.source.kind`, message: 'unknown enemy source kind' });
+  }
+  if (typeof value.rank !== 'string' || !enemyRanks.has(value.rank)) {
+    issues.push({ path: `${path}.rank`, message: 'unknown enemy rank' });
   }
 
   if (!isObject(value.editable)) {

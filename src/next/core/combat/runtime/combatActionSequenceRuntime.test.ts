@@ -3,6 +3,7 @@ import type { ResolvedActionSequence, ResolvedCombatStep } from '../../compiler/
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 function operation(flag: string): ResolvedCombatStep {
   return {
@@ -74,5 +75,39 @@ describe('CombatActionSequenceRuntime', () => {
     fixture.runtime.reset();
     fixture.runtime.createSequence(action).executeInstant({});
     expect(fixture.executed).toEqual(['once', 'once']);
+  });
+
+  it('对 Context 快照中的每个稳定目标同步执行 body', () => {
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('lances', [
+      { kind: 'abilityEntity', instanceId: 3 },
+      { kind: 'abilityEntity', instanceId: 7 },
+    ]);
+    const visited: number[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        if (context?.currentTarget?.kind === 'abilityEntity') {
+          visited.push(context.currentTarget.instanceId);
+        }
+        return true;
+      },
+      evaluate: () => false,
+    };
+    const runtime = new CombatActionSequenceRuntime(operations, {
+      blackboard: new ActionBlackboard(),
+      targetContext,
+    });
+
+    runtime
+      .createSequence(
+        sequence({
+          kind: 'forEachContextTarget',
+          parameters: { contextKey: 'lances' },
+          body: sequence(operation('visit')),
+        }),
+      )
+      .executeInstant({});
+
+    expect(visited).toEqual([3, 7]);
   });
 });

@@ -17,7 +17,7 @@ import type {
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 
-type ImmediateStepKind = Exclude<CombatStepKind, 'conditional' | 'once'>;
+type ImmediateStepKind = Exclude<CombatStepKind, 'conditional' | 'once' | 'forEachContextTarget'>;
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
 export function step<K extends ImmediateStepKind>(
@@ -97,6 +97,14 @@ export function once(
   body: ActionSequenceDefinition,
 ): Extract<CombatStepDefinition, { kind: 'once' }> {
   return { kind: 'once', parameters: { scopeKey }, body };
+}
+
+/** 对施法上下文中的稳定目标句柄逐一同步执行。 */
+export function forEachContextTarget(
+  contextKey: string,
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }> {
+  return { kind: 'forEachContextTarget', parameters: { contextKey }, body };
 }
 
 interface ConditionalCase {

@@ -83,6 +83,7 @@ describe('Perlica standard damage slice', () => {
         program,
         enemy: {
           source: { kind: 'custom', level: 90 },
+          rank: 'mob',
           health: 1000,
           superArmor: 0,
           defenderAttributes: {

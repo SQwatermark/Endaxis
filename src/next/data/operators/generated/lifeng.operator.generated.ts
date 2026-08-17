@@ -541,6 +541,12 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        58,
+        sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0015_lifeng_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity' }),
+        ),
+      ),
+      scheduled(
         64,
         sequence(
           step('dealDamage', {

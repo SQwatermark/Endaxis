@@ -2,7 +2,7 @@
  * 执行技能序列中面向施法者或敌方 Buff 容器的查询与结束操作。
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
@@ -12,7 +12,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 
 /** Buff 查询结果只暴露当前动作需要读取的数值黑板。 */
 export interface BuffQueryResult {

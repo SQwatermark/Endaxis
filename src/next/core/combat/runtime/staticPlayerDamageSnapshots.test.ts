@@ -14,6 +14,7 @@ import { createOperatorAttackAttributes } from '../attributes/operatorAttackAttr
 
 const enemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
+  rank: 'mob',
   health: 100000,
   superArmor: 0,
   defenderAttributes: {

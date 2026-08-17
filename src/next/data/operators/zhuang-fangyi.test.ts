@@ -57,13 +57,15 @@ describe('next Zhuang Fangyi definition', () => {
   it('keeps all four fourth-attack hits and restores their interval timing', () => {
     const current = getSkill(generatedBasicAttack4.key);
     expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);
-    expect(generatedBasicAttack4.scheduledSequences.map(item => item.startFrame)).toEqual([
-      11, 20, 22, 25,
-    ]);
+    expect(
+      generatedBasicAttack4.scheduledSequences
+        .filter(item => collectSteps(item.sequence).some(step => step.kind === 'dealDamage'))
+        .map(item => item.startFrame),
+    ).toEqual([11, 20, 22, 25]);
     expect(current.scheduledSequences.map(item => item.startFrame)).toEqual([11, 11, 11, 11]);
-    const generatedDamage = generatedBasicAttack4.scheduledSequences.map(item =>
-      collectSteps(item.sequence).find(step => step.kind === 'dealDamage'),
-    );
+    const generatedDamage = generatedBasicAttack4.scheduledSequences
+      .flatMap(item => collectSteps(item.sequence))
+      .filter(step => step.kind === 'dealDamage');
     expect(generatedDamage.map(withoutStepKey)).toEqual(
       generatedDamage.map(() => withoutStepKey(generatedDamage[0])),
     );
@@ -85,8 +87,19 @@ describe('next Zhuang Fangyi definition', () => {
       collectSteps(item.sequence),
     );
     const currentSteps = current.scheduledSequences.flatMap(item => collectSteps(item.sequence));
-    expect(withoutStepKey(generatedSteps[0])).toEqual(withoutStepKey(currentSteps[0]));
-    expect(generatedSteps[1]).toMatchObject({
+    expect(generatedSteps).toContainEqual(
+      expect.objectContaining({
+        kind: 'spawnAbilityEntity',
+        parameters: expect.objectContaining({
+          templateId: 'abilityentity_chr_0030_zhuangfy_attack5',
+          childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+        }),
+      }),
+    );
+    const generatedDamage = generatedSteps.find(step => step.kind === 'dealDamage');
+    const currentDamage = currentSteps.find(step => step.kind === 'dealDamage');
+    expect(withoutStepKey(generatedDamage)).toEqual(withoutStepKey(currentDamage));
+    expect(generatedSteps.find(step => step.kind === 'changeResourceByActionValue')).toMatchObject({
       kind: 'changeResourceByActionValue',
       parameters: {
         resource: 'sp',
@@ -96,7 +109,7 @@ describe('next Zhuang Fangyi definition', () => {
       },
     });
     expect(generatedBasicAttack5.blackboard?.atb).toBe(18);
-    expect(currentSteps[1]).toMatchObject({
+    expect(currentSteps.find(step => step.kind === 'changeResource')).toMatchObject({
       kind: 'changeResource',
       parameters: { resource: 'sp', amount: 18, recipient: 'team' },
     });

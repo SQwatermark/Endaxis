@@ -9,6 +9,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
+
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
     collect_blackboard_keys,
@@ -23,6 +25,7 @@ from generate_next_operators import (
     root_target_group_writes_for_condition,
     resolve_latest_target_group_write_at,
     target_group_write_guarantees_single_enemy,
+    target_group_write_ability_entity_collection_identity,
     collect_timed_marker_damage_gates,
     collect_consumed_root_timed_marker_action_ids,
     collect_once_resource_gain_gates,
@@ -35,12 +38,14 @@ from generate_next_operators import (
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
     compile_skill_event_listener,
+    compile_time_dilation,
     event_listener_is_proven_noop,
     compile_resource_gain,
     compile_combat_condition,
     compile_combat_condition_group,
     compile_conditional_action,
     compile_immediate_projectile_children,
+    compile_logical_ability_entity_spawn,
     compile_damage_units_step,
     encode_damage_step_key,
     encode_step_key_parts,
@@ -50,6 +55,7 @@ from generate_next_operators import (
     BlackboardMutationPayload,
     BlackboardMutationSource,
     AbilityEntitySpawnPayload,
+    AbilityEntityDurationAssignmentPayload,
     BuffBlackboardReadSource,
     BuffFinishSource,
     BuffHoldSource,
@@ -372,6 +378,40 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_current_akedb_time_scale_curve_projection_is_preserved(self) -> None:
+        curve = parse_time_scale_curve(
+            [
+                {
+                    "time": 0,
+                    "value": 0.25,
+                    "inTangent": 0,
+                    "outTangent": 0,
+                    "inWeight": 0,
+                    "outWeight": 0.333333343,
+                    "weightedMode": 0,
+                }
+            ],
+            "fixture.timeScaleCurve",
+        )
+
+        self.assertEqual(len(curve), 1)
+        self.assertEqual((curve[0].time, curve[0].value), (0, 0.25))
+
+        malformed = [
+            {
+                "time": 0,
+                "value": 0.25,
+                "inTangent": 0,
+                "outTangent": 0,
+                "inWeight": 0,
+                "outWeight": 0.333333343,
+                "weightedMode": 0,
+                "tangentMode": 0,
+            }
+        ]
+        with self.assertRaisesRegex(ValueError, "unexpected curve-key fields"):
+            parse_time_scale_curve(malformed, "fixture.timeScaleCurve")
+
     def test_time_dilation_main_character_search_resolves_to_controlled(self) -> None:
         target = target_settings_fixture(
             "InstantSearch",
@@ -416,11 +456,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     },
                                     "useCurveKey": True,
                                     "curveKey": "ComboSkill",
-                                    "timeScaleCurve": {
-                                        "preWrapMode": "ClampForever",
-                                        "postWrapMode": "ClampForever",
-                                        "keys": [],
-                                    },
+                                    # 当前 AKEDB 投影会把未使用的内联曲线写成空数组。
+                                    "timeScaleCurve": [],
                                     "finishByAction": True,
                                     "ignoreTargets": [source_target],
                                     "effectTargets": [source_target],
@@ -442,6 +479,64 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(action.targets, ("caster",))
         self.assertEqual(action.ignoredTargets, ("caster",))
+
+    def test_ability_entity_time_dilation_target_is_typed_but_not_compiled(self) -> None:
+        entity_target = target_settings_fixture(
+            "InstantSearch",
+            finder_type="OwnerSpawnedEntityFinder",
+            validator_types=("TagValidator",),
+        )
+        entity_target["selectorData"]["finderData"][
+            "spawnedObjectType"
+        ] = "AbilityEntity"
+        entity_target["selectorData"]["validatorData"][0]["query"] = {
+            "queryType": "HasAny",
+            "tags": [{"tagId": -1480463572}],
+        }
+        action = {
+            "$type": "Example.TimeDilationAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 77,
+            "layer": "Entity",
+            "slot": {"tagId": 11},
+            "timeDilationPriority": {"tagId": 22},
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 0.25,
+                "blackboardKey": "",
+            },
+            "useCurveKey": True,
+            "curveKey": "ComboSkill",
+            "timeScaleCurve": [],
+            "finishByAction": False,
+            "ignoreTargets": [],
+            "effectTargets": [target_settings_fixture("Source"), entity_target],
+            "useTimeScaleForSkillCdTick": False,
+            "influenceSkillCdTime": {
+                "useBlackboardKey": False,
+                "value": 0,
+                "blackboardKey": "",
+            },
+        }
+
+        parsed = parse_time_dilation_action(
+            action,
+            "fixture.timeDilation",
+            {},
+            start_frame=0,
+            end_frame=1,
+        )
+
+        self.assertEqual(parsed.targets, ("caster",))
+        self.assertEqual(len(parsed.effectAbilityEntityTargets), 1)
+        self.assertEqual(
+            parsed.effectAbilityEntityTargets[0].tagQueries,
+            (("HasAny", (-1480463572,)),),
+        )
+        with self.assertRaisesRegex(ValueError, "require runtime support"):
+            compile_time_dilation(parsed, "fixture.timeDilation")
 
     def test_nested_time_dilation_stays_inside_conditional_branch(self) -> None:
         target = target_settings_fixture("Target")
@@ -1066,6 +1161,79 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
 
         with self.assertRaisesRegex(ValueError, "unsupported finder 'UnknownFinder'"):
+            parse_target_group_writes(root, "fixture.json")
+
+    def test_target_group_writes_preserve_owner_spawned_entity_tag_identity(self) -> None:
+        action = {
+            "$type": "Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 4,
+            "targetGroupKey": "lances",
+            "center": "ActionSource",
+            "centerContextKey": "",
+            "useCenterEntityMountPoint": False,
+            "centerMountPoint": "None",
+            "centerToGround": False,
+            "selectorOwner": "ActionOwner",
+            "selectorOwnerContextKey": "",
+            "selectorData": {
+                "finderData": {
+                    "$type": (
+                        "Beyond.Gameplay.Core.Selector+OwnerSpawnedEntityFinder+Data, "
+                        "Gameplay.Beyond"
+                    ),
+                    "spawnedObjectType": "AbilityEntity",
+                },
+                "validatorData": [
+                    {
+                        "$type": (
+                            "Beyond.Gameplay.Core.Selector+TagValidator+Data, "
+                            "Gameplay.Beyond"
+                        ),
+                        "query": {
+                            "queryType": "HasAny",
+                            "tags": [{"tagId": -549424863}],
+                        },
+                    }
+                ],
+                "postProcessorData": [],
+            },
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+            "contextKey": "",
+            "useAdvancedDirectionSetting": False,
+            "advancedSelectorDirection": {},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 8,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        write = parse_target_group_writes(root, "fixture.json")[0]
+
+        self.assertEqual(write.finderType, "OwnerSpawnedEntityFinder")
+        self.assertEqual(write.finderSpawnedObjectType, "AbilityEntity")
+        self.assertEqual(
+            write.validatorTagQueries,
+            (("HasAny", (-549424863,)),),
+        )
+        self.assertFalse(target_group_write_guarantees_single_enemy(write))
+        self.assertEqual(
+            target_group_write_ability_entity_collection_identity(write),
+            (("HasAny", (-549424863,)),),
+        )
+
+        action["selectorData"]["finderData"]["unexpected"] = True
+        with self.assertRaisesRegex(ValueError, "owner-spawned finder fields"):
             parse_target_group_writes(root, "fixture.json")
 
     def test_projectile_child_conditions_and_resource_gains_use_hit_frame(self) -> None:
@@ -3897,6 +4065,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                 "assignBlackboard": False,
                                                 "assignEntityBlackboard": False,
                                                 "assignPairs": [],
+                                                "setAbilityEntitySource": True,
+                                                "abilityEntitySource": "ActionSource",
+                                                "abilityEntitySourceContextKey": "",
+                                                "setAbilityEntityTarget": False,
+                                                "overrideDuration": False,
+                                                "saveToContext": False,
+                                                "contextKey": "",
+                                                "dieWhenSourceDie": False,
+                                                "dieOnEnd": False,
                                             },
                                         ]
                                     },
@@ -4953,6 +5130,58 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'casterControlled' }",
         )
 
+    def test_enemy_rank_condition_preserves_native_rank_mask(self) -> None:
+        condition = {
+            "$type": "Example.CheckEnemyRank+Data, Example",
+            "target": target_settings_fixture("Context", target_group_key="smart_target"),
+            "enemyRankSet": "Elite, Boss",
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        self.assertEqual(parsed.enemyRank.rankMask, 6)
+        self.assertEqual(
+            compile_combat_condition_group((parsed,), "fixture.conditions"),
+            "{ kind: 'enemyRankIn', ranks: ['elite', 'boss'] }",
+        )
+
+        condition["enemyRankSet"] = 0
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+        self.assertEqual(parsed.enemyRank.rankMask, 0)
+        self.assertEqual(
+            compile_combat_condition_group((parsed,), "fixture.conditions"),
+            "{ kind: 'enemyRankIn', ranks: [] }",
+        )
+
+        condition["enemyRankSet"] = 8
+        with self.assertRaisesRegex(ValueError, "EnemyRankSet bits"):
+            parse_conditional_actions(root, "fixture.json", {})
+
     def test_target_equality_between_input_and_main_target_is_guaranteed(self) -> None:
         condition = {
             "$type": "Example.CheckTargetsEqual+Data, Example",
@@ -5623,6 +5852,46 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
 
         with self.assertRaisesRegex(ValueError, "unexpected fields"):
+            parse_aura_actions(root, "fixture.json", {})
+
+    def test_aura_action_accepts_only_the_known_editor_warning(self) -> None:
+        action = aura_action_fixture()
+        action["m_auraTypeWarning"] = (
+            "光环范围过大，每帧检测物理碰撞开销较大，建议使用全局光环"
+        )
+        action["buffIconDurationSource"].update(
+            {
+                "m_abilityEntityTypeInfo": (
+                    "当ActionOwner是AbilityEntity时，Buff图标倒计时显示Owner的剩余时间"
+                ),
+                "m_timedMarkerInfo": (
+                    "选择ActionOwner身上的一个TimedMarker作为Buff图标倒计时显示的来源"
+                ),
+            }
+        )
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        self.assertEqual(len(parse_aura_actions(root, "fixture.json", {})), 1)
+
+        action["m_auraTypeWarning"] = "changed"
+        with self.assertRaisesRegex(ValueError, "unexpected editor warning"):
+            parse_aura_actions(root, "fixture.json", {})
+
+        action["m_auraTypeWarning"] = (
+            "光环范围过大，每帧检测物理碰撞开销较大，建议使用全局光环"
+        )
+        action["buffIconDurationSource"]["m_timedMarkerInfo"] = "changed"
+        with self.assertRaisesRegex(ValueError, "unexpected editor info"):
             parse_aura_actions(root, "fixture.json", {})
 
     def test_condition_compiler_rejects_enemy_main_operator_checks(self) -> None:
@@ -7117,6 +7386,24 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "assignBlackboard": True,
                             "assignEntityBlackboard": False,
                             "assignPairs": [],
+                            "setAbilityEntitySource": True,
+                            "abilityEntitySource": "ActionSource",
+                            "abilityEntitySourceContextKey": "",
+                            "setAbilityEntityTarget": False,
+                            "overrideDuration": False,
+                            "saveToContext": False,
+                            "contextKey": "",
+                            "dieWhenSourceDie": False,
+                            "dieOnEnd": False,
+                            "setAbilityEntitySource": True,
+                            "abilityEntitySource": "ActionSource",
+                            "abilityEntitySourceContextKey": "",
+                            "setAbilityEntityTarget": False,
+                            "overrideDuration": False,
+                            "saveToContext": False,
+                            "contextKey": "",
+                            "dieWhenSourceDie": False,
+                            "dieOnEnd": False,
                             "castSkillOnHit": False,
                             "projectileSkillId": "",
                         },
@@ -7435,6 +7722,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "assignBlackboard": False,
                             "assignEntityBlackboard": False,
                             "assignPairs": [],
+                            "setAbilityEntitySource": True,
+                            "abilityEntitySource": "ActionSource",
+                            "abilityEntitySourceContextKey": "",
+                            "setAbilityEntityTarget": False,
+                            "overrideDuration": False,
+                            "saveToContext": False,
+                            "contextKey": "",
+                            "dieWhenSourceDie": False,
+                            "dieOnEnd": False,
                         },
                     }
                 ]
@@ -7446,6 +7742,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0].sourceId, "fake_target")
         self.assertEqual(actions[0].classification, "nonCombatAbilityEntity")
+
+    def test_logical_ability_entity_spawn_compiles_runtime_identity_fields(self) -> None:
+        payload = AbilityEntitySpawnPayload(
+            "ability_entity",
+            "child_skill",
+            (
+                EntityBlackboardAssignmentSource(
+                    targetKey="EntityBB_power",
+                    valueType="Numeric",
+                    numericValue=3,
+                    stringValue="",
+                    useDirectValue=True,
+                    inputValueKey="",
+                ),
+            ),
+            sourceType="ActionSource",
+            overrideDuration=ScalarSource(40, None, None),
+            saveToContextKey="spawned",
+            dieWhenSourceDies=True,
+        )
+
+        compiled = compile_logical_ability_entity_spawn(payload, "fixture")
+
+        self.assertIn("step('spawnAbilityEntity'", compiled)
+        self.assertIn("childSkillId: 'child_skill'", compiled)
+        self.assertIn("overrideDurationSeconds: { kind: 'constant', value: 40 }", compiled)
+        self.assertIn("saveToContextKey: 'spawned'", compiled)
+        self.assertIn("'EntityBB_power': { kind: 'constant', value: 3 }", compiled)
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {
@@ -7477,6 +7801,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "assignBlackboard": False,
             "assignEntityBlackboard": False,
             "assignPairs": [],
+            "setAbilityEntitySource": True,
+            "abilityEntitySource": "ActionSource",
+            "abilityEntitySourceContextKey": "",
+            "setAbilityEntityTarget": False,
+            "overrideDuration": False,
+            "saveToContext": False,
+            "contextKey": "",
+            "dieWhenSourceDie": False,
+            "dieOnEnd": False,
         }
         root = {
             "actionGroupData": {
@@ -7535,6 +7868,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "abilityEntityId": "ability_entity",
             "abilityEntitySkillId": "child_skill",
             "assignEntityBlackboard": True,
+            "setAbilityEntitySource": True,
+            "abilityEntitySource": "ActionSource",
+            "abilityEntitySourceContextKey": "",
+            "setAbilityEntityTarget": False,
+            "overrideDuration": False,
+            "saveToContext": False,
+            "contextKey": "",
+            "dieWhenSourceDie": False,
+            "dieOnEnd": False,
             "assignPairs": [
                 {
                     "targetKey": "count",
@@ -9026,6 +9368,146 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'eventDamageFeaturesMatch'", compiled)
         self.assertIn("match: 'exceptAny'", compiled)
         self.assertIn("features: ['dot', 'remainArea']", compiled)
+
+    def test_context_ability_entity_duration_guard_and_assignment_compile(self) -> None:
+        target = target_settings_fixture("Context", target_group_key="swordsForExtend")
+        input_target = target_settings_fixture("Target")
+        duration = {"useBlackboardKey": False, "value": 3.0, "blackboardKey": ""}
+        metadata = {
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    **metadata,
+                                    "serverActionIndex": 1,
+                                    "target": target,
+                                    "action": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckAbilityEntityCurDuration+Data, Example",
+                                                **metadata,
+                                                "serverActionIndex": 2,
+                                                "abilityEntity": input_target,
+                                                "compareType": "LT",
+                                                "value": duration,
+                                                "saveCurDuration": False,
+                                                "bbKey": "",
+                                            },
+                                            {
+                                                "$type": "Example.SetAbilityEntityDuration+Data, Example",
+                                                **metadata,
+                                                "serverActionIndex": 3,
+                                                "setMultipleTarget": False,
+                                                "targetSettings": input_target,
+                                                "actionTargetType": "InputTarget",
+                                                "targetContextKey": "",
+                                                "operation": "Assign",
+                                                "value": duration,
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(
+            root,
+            "duration.json",
+            {},
+            include_for_each_sequence_guards=True,
+        )
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].contextKey, "swordsForExtend")
+        guard = parsed[0].succeedActions[0].nestedCondition
+        self.assertIsNotNone(guard)
+        self.assertEqual(
+            guard.conditions[0].abilityEntityDuration.comparison,
+            "LT",
+        )
+
+        compiled = compile_conditional_action(parsed[0], "fixture.duration")
+        self.assertIn("forEachContextTarget(", compiled)
+        self.assertIn("'swordsForExtend'", compiled)
+        self.assertIn("kind: 'abilityEntityRemainingDurationCompare'", compiled)
+        self.assertIn("operator: 'less'", compiled)
+        self.assertIn("step('setAbilityEntityRemainingDuration'", compiled)
+        self.assertIn("{ kind: 'constant', value: 3 }", compiled)
+
+        invalid = json.loads(json.dumps(root))
+        invalid["actionGroupData"]["timelineActions"][0]["_sequenceActionData"][
+            "actionData"
+        ][0]["action"]["actionData"][1]["operation"] = "Add"
+        with self.assertRaisesRegex(ValueError, "operation: unsupported value 'Add'"):
+            parse_conditional_actions(
+                invalid,
+                "duration.json",
+                {},
+                include_for_each_sequence_guards=True,
+            )
+
+    def test_named_context_duration_assignment_requires_singleton_spawn_provenance(self) -> None:
+        spawn = AbilityEntitySpawnPayload(
+            abilityEntityId="abilityentity_fixture",
+            skillId="fixture_child",
+            sourceType="ActionSource",
+            saveToContextKey="bunshin1",
+        )
+        assignment = AbilityEntityDurationAssignmentPayload(
+            setMultipleTarget=False,
+            actionTargetType="ContextTarget",
+            targetContextKey="bunshin1",
+            operation="Assign",
+            value=ScalarSource(0.5, None, None),
+        )
+        action = UnconditionalActionSource(
+            startFrame=0,
+            endFrame=1,
+            actionIndex=0,
+            actionPath=("timelineActions[0]",),
+            conditions=(),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="SpawnAbilityEntity",
+                    actionIndex=0,
+                    abilityEntitySpawn=spawn,
+                ),
+                ConditionalBranchActionSource(
+                    actionType="SetAbilityEntityDuration",
+                    actionIndex=1,
+                    abilityEntityDurationAssignment=assignment,
+                ),
+            ),
+            failActions=(),
+            projectedAbilityEntitySpawns=(spawn,),
+        )
+
+        compiled = compile_conditional_action(action, "fixture.namedDuration")
+
+        self.assertIn("forEachContextTarget(", compiled)
+        self.assertIn("'bunshin1'", compiled)
+        self.assertIn("setAbilityEntityRemainingDuration", compiled)
+
+        without_spawn = replace(
+            action,
+            succeedActions=action.succeedActions[1:],
+            projectedAbilityEntitySpawns=(),
+        )
+        with self.assertRaisesRegex(ValueError, "requires singleton provenance"):
+            compile_conditional_action(without_spawn, "fixture.namedDuration")
 
 
 if __name__ == "__main__":

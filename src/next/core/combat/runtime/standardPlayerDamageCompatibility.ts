@@ -68,9 +68,11 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'actionValueCompare':
+    case 'abilityEntityRemainingDurationCompare':
     case 'timedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':
+    case 'enemyRankIn':
       return;
     case 'healthCompare':
       if (condition.target !== 'enemy') {
@@ -106,6 +108,10 @@ function inspectSequence(
   sequence.steps.forEach((step, index) => {
     const stepPath = `${path}.steps[${index}]`;
     switch (step.kind) {
+      case 'findOwnerSpawnedAbilityEntities':
+      case 'readAbilityEntityRemainingDuration':
+      case 'setAbilityEntityRemainingDuration':
+        return;
       case 'dealDamage': {
         if (source === 'equipment') {
           report(
@@ -177,6 +183,7 @@ function inspectSequence(
       case 'consumeElementalReaction':
         return;
       case 'dealStagger':
+      case 'spawnAbilityEntity':
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':
@@ -210,6 +217,9 @@ function inspectSequence(
         }
         return;
       case 'once':
+        inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
+        return;
+      case 'forEachContextTarget':
         inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
         return;
       default:

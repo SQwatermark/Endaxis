@@ -726,10 +726,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 64,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -747,10 +744,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1243,8 +1238,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 74,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1262,10 +1256,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1751,8 +1743,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 71,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1778,10 +1769,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1792,10 +1781,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -2557,8 +2544,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 77,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2566,9 +2552,7 @@ export const arclightGeneratedSource = {
           "endFrame": 5,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2698,10 +2682,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -2712,10 +2694,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -2726,10 +2706,8 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -3926,8 +3904,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 80,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3935,9 +3912,7 @@ export const arclightGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -3956,10 +3931,8 @@ export const arclightGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -3967,8 +3940,7 @@ export const arclightGeneratedSource = {
           "startFrame": 13,
           "endFrame": 14,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -4554,19 +4526,14 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 131,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 41,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4583,9 +4550,7 @@ export const arclightGeneratedSource = {
           "endFrame": 5,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -4596,11 +4561,8 @@ export const arclightGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -4611,11 +4573,8 @@ export const arclightGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -4627,17 +4586,14 @@ export const arclightGeneratedSource = {
             "DefiniteValueCalculation",
             "GainBreakingAttackAtb",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 39,
           "endFrame": 39,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -5112,7 +5068,6 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -5121,8 +5076,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5649,11 +5603,8 @@ export const arclightGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5667,11 +5618,8 @@ export const arclightGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -5692,11 +5640,8 @@ export const arclightGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5710,11 +5655,8 @@ export const arclightGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5726,7 +5668,6 @@ export const arclightGeneratedSource = {
             "Selector",
             "IfElseAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "InterruptAction",
             "IfElseAction",
             "IfElseAction",
@@ -5747,7 +5688,6 @@ export const arclightGeneratedSource = {
             "CreateBuffAction",
             "FinishBuffAdvanced",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "DamageAction",
             "Selector",
             "AtkScaleCalculation",
@@ -5759,14 +5699,12 @@ export const arclightGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CreateBuffAction",
             "DamageAction",
             "Selector",
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -5781,10 +5719,7 @@ export const arclightGeneratedSource = {
           "startFrame": 96,
           "endFrame": 101,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -5792,19 +5727,14 @@ export const arclightGeneratedSource = {
           "endFrame": 137,
           "actionTypes": [
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 4,
           "endFrame": 9,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -5818,11 +5748,7 @@ export const arclightGeneratedSource = {
           "startFrame": 101,
           "endFrame": 114,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5830,9 +5756,7 @@ export const arclightGeneratedSource = {
           "endFrame": 136,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -5876,22 +5800,14 @@ export const arclightGeneratedSource = {
           "startFrame": 114,
           "endFrame": 124,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 134,
           "endFrame": 158,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5912,41 +5828,35 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 4,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 96,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 101,
           "endFrame": 111,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 134,
           "endFrame": 214,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 10,
           "endFrame": 15,
           "actionTypes": [
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -5960,33 +5870,21 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 9,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 20,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 20,
           "endFrame": 32,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -6000,11 +5898,8 @@ export const arclightGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -8705,9 +8600,6 @@ export const arclightGeneratedSource = {
             "Selector",
             "ShowHideActorAction",
             "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "SelfRotateAction",
             "Selector"
           ]
@@ -8722,19 +8614,14 @@ export const arclightGeneratedSource = {
           "endFrame": 66,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 36,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -8742,7 +8629,6 @@ export const arclightGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -8811,12 +8697,9 @@ export const arclightGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "Selector",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -8828,12 +8711,9 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "Selector",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -8845,9 +8725,7 @@ export const arclightGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -9963,7 +9841,8 @@ export const arclightGeneratedSource = {
             "levelValues": null
           },
           "targetScale": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -10033,8 +9912,7 @@ export const arclightGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -10060,8 +9938,7 @@ export const arclightGeneratedSource = {
           "endFrame": 141,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -10103,11 +9980,7 @@ export const arclightGeneratedSource = {
           "startFrame": 54,
           "endFrame": 85,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -10198,8 +10071,7 @@ export const arclightGeneratedSource = {
           "startFrame": 60,
           "endFrame": 63,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -10386,6 +10258,19 @@ export const arclightGeneratedSource = {
           "skillId": "chr_0007_ikut_ultimate_skill_abentity",
           "sourceFile": "chr_0007_ikut_ultimate_skill_abentity.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0007_ikut_ultimate_skill",
+            "skillId": "chr_0007_ikut_ultimate_skill_abentity",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 7,
@@ -11085,7 +10970,8 @@ export const arclightGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -11104,7 +10990,8 @@ export const arclightGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

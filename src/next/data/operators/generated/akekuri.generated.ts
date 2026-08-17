@@ -661,8 +661,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 90,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -680,11 +679,8 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -1017,8 +1013,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 112,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1044,11 +1039,9 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1058,13 +1051,10 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -1826,8 +1816,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 95,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1845,13 +1834,10 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -1865,9 +1851,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 8,
           "endFrame": 30,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -2338,8 +2322,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 110,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2347,9 +2330,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 18,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2382,8 +2363,7 @@ export const akekuriGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -2393,11 +2373,8 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -2408,13 +2385,10 @@ export const akekuriGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -2435,18 +2409,14 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 40,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 17,
           "endFrame": 40,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -3162,8 +3132,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 137,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3178,9 +3147,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 20,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -3188,9 +3155,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 36,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -3225,11 +3190,8 @@ export const akekuriGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -3237,14 +3199,11 @@ export const akekuriGeneratedSource = {
           "endFrame": 37,
           "actionTypes": [
             "CameraImpulseAction",
-            "FAnimationCurve",
             "DamageAction",
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb"
           ]
         },
@@ -3252,35 +3211,28 @@ export const akekuriGeneratedSource = {
           "startFrame": 40,
           "endFrame": 43,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 34,
           "endFrame": 53,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 10,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 11,
           "endFrame": 34,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -3297,8 +3249,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 37,
           "actionTypes": [
             "CheckEntityNum",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -3731,8 +3682,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 60,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -3757,7 +3707,6 @@ export const akekuriGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -3766,8 +3715,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4214,8 +4162,7 @@ export const akekuriGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -4224,31 +4171,21 @@ export const akekuriGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 45,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 19,
           "endFrame": 45,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4262,11 +4199,8 @@ export const akekuriGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -4287,12 +4221,9 @@ export const akekuriGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "BlowOffEnemyAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -5089,8 +5020,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 136,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -5111,13 +5041,10 @@ export const akekuriGeneratedSource = {
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
             "Selector",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "Selector",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ModifyDynamicBlackboard",
             "ObtainCostAction"
           ]
@@ -5137,14 +5064,11 @@ export const akekuriGeneratedSource = {
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
             "Selector",
-            "FAnimationCurve",
             "IfElseAction",
             "ModifyDynamicBlackboard",
             "HitStopAction",
-            "FAnimationCurve",
             "Selector",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -5166,20 +5090,14 @@ export const akekuriGeneratedSource = {
           "startFrame": 17,
           "endFrame": 30,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 21,
           "endFrame": 30,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -5187,7 +5105,6 @@ export const akekuriGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -7051,7 +6968,8 @@ export const akekuriGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -7135,8 +7053,7 @@ export const akekuriGeneratedSource = {
           "endFrame": 225,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -7152,8 +7069,7 @@ export const akekuriGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7202,24 +7118,21 @@ export const akekuriGeneratedSource = {
           "startFrame": 59,
           "endFrame": 62,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 86,
           "endFrame": 89,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 119,
           "endFrame": 122,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -8468,7 +8381,8 @@ export const akekuriGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -8487,7 +8401,8 @@ export const akekuriGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

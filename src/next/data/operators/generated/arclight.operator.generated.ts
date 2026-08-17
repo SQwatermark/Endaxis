@@ -691,6 +691,12 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         56,
       ),
       scheduled(
+        54,
+        sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0007_ikut_ultimate_skill', dieWhenSourceDies: false, childSkillId: 'chr_0007_ikut_ultimate_skill_abentity' }),
+        ),
+      ),
+      scheduled(
         61,
         sequence(
           step('applyElementalInfliction', { element: 'electric', isExtra: false }),

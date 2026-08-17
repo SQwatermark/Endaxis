@@ -1,0 +1,750 @@
+{
+  "format": "EndaxisEnemyRankEvidence",
+  "gameVersion": "1.4.4",
+  "manifestId": 451359,
+  "nativeValues": {
+    "0": "mob",
+    "1": "boss",
+    "2": "elite"
+  },
+  "enemies": {
+    "eny_0007_mimicw": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0007_mimicw.asset",
+      "assetIndex": 80460,
+      "rawSha256": "fc383416459342ebff61a781c88bed92c38da8454cfebd805598e9f5a1a2ee08",
+      "modelKey": "eny_0007_mimicw_postmodel",
+      "componentCount": 18
+    },
+    "eny_0018_lbtough": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0018_lbtough.asset",
+      "assetIndex": 174119,
+      "rawSha256": "a22f45136df23f9c8ed6e9348abd513f87f930e647213a1d94464cf34f9c906c",
+      "modelKey": "eny_0018_lbtough_postmodel",
+      "componentCount": 18
+    },
+    "eny_0021_agmelee": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0021_agmelee.asset",
+      "assetIndex": 211037,
+      "rawSha256": "f939a210bc539a73fd010053f5fcf21dd74e4fe03eb10796e15381dbe0551b47",
+      "modelKey": "eny_0021_agmelee_postmodel",
+      "componentCount": 18
+    },
+    "eny_0023_aghornb": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0023_aghornb.asset",
+      "assetIndex": 151469,
+      "rawSha256": "fbe667751a933a8c1b570c9e4a2402fad8c86d6c6b98fff76c27d438b95b74f9",
+      "modelKey": "eny_0023_aghornb_postmodel",
+      "componentCount": 18
+    },
+    "eny_0025_agrange": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0025_agrange.asset",
+      "assetIndex": 266624,
+      "rawSha256": "136b89be498f1033249509bd905f5479e19e231b54b5cecdbd150cb0fdba97d0",
+      "modelKey": "eny_0025_agrange_postmodel",
+      "componentCount": 18
+    },
+    "eny_0027_agscorp": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0027_agscorp.asset",
+      "assetIndex": 234007,
+      "rawSha256": "8b215ed19077c535fe2253798aa4799ebfb7b42e12e332cb94a916abdf451c3a",
+      "modelKey": "eny_0027_agscorp_postmodel",
+      "componentCount": 18
+    },
+    "eny_0029_lbmob": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0029_lbmob.asset",
+      "assetIndex": 6615,
+      "rawSha256": "0db16fdefdad0cb26b69024f702cfa809c74897956a2c8af2cb66afe98ac2ad9",
+      "modelKey": "eny_0029_lbmob_postmodel",
+      "componentCount": 18
+    },
+    "eny_0033_lbhunt": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0033_lbhunt.asset",
+      "assetIndex": 234219,
+      "rawSha256": "0a395a79470be6491527a12ddddc30842abfc602c100f0fba000f710c94a911d",
+      "modelKey": "eny_0033_lbhunt_postmodel",
+      "componentCount": 18
+    },
+    "eny_0039_agcanno": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0039_agcanno.asset",
+      "assetIndex": 60714,
+      "rawSha256": "cd4ee755bba394454064fbd70d1cad4d715ac5b4aa13470d4142edf8ba22f3c7",
+      "modelKey": "eny_0039_agcanno_postmodel",
+      "componentCount": 19
+    },
+    "eny_0045_agtrinit": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0045_agtrinit.asset",
+      "assetIndex": 292888,
+      "rawSha256": "405fc33de693dd73c60e372b49e0030c424d2b3ecb15239b797d4a2f90a200ee",
+      "modelKey": "eny_0045_agtrinit_postmodel",
+      "componentCount": 18
+    },
+    "eny_0046_lbshamman": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0046_lbshamman.asset",
+      "assetIndex": 132937,
+      "rawSha256": "af7836df957d9522331583d6c2b0113513486ab9e840dbcb5465be9e8d04bfb8",
+      "modelKey": "eny_0046_lbshamman_postmodel",
+      "componentCount": 18
+    },
+    "eny_0047_firebat": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0047_firebat.asset",
+      "assetIndex": 64411,
+      "rawSha256": "89c10538acacee3cc96303a9c5c0623192f4e28e61f869228ea658a691911251",
+      "modelKey": "eny_0047_firebat_postmodel",
+      "componentCount": 18
+    },
+    "eny_0048_hvybow": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0048_hvybow.asset",
+      "assetIndex": 152610,
+      "rawSha256": "2c2cc2261ed0efc0e029b75e8494d4f07b5ffe2ef07cd546e1704cc54bf84f7f",
+      "modelKey": "eny_0048_hvybow_postmodel",
+      "componentCount": 18
+    },
+    "eny_0049_rogue": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0049_rogue.asset",
+      "assetIndex": 66375,
+      "rawSha256": "608af78cb22a5b5ff38cb35608627cb23c7e7ecb82ad92c19b6b3b476da408cd",
+      "modelKey": "eny_0049_rogue_postmodel",
+      "componentCount": 18
+    },
+    "eny_0050_hound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0050_hound.asset",
+      "assetIndex": 256116,
+      "rawSha256": "6519e8fe8d6b319e01e05aabb5c7ded349e712ce79e0305cfc2c1329a0e19c91",
+      "modelKey": "eny_0050_hound_postmodel",
+      "componentCount": 18
+    },
+    "eny_0051_rodin": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0051_rodin.asset",
+      "assetIndex": 92546,
+      "rawSha256": "cd8f62a055ec28d1853fddabc68824e1dfcc0069ae19ef8d57250d9336e5d837",
+      "modelKey": "eny_0051_rodin_postmodel",
+      "componentCount": 18
+    },
+    "eny_0052_palesent": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0052_palesent.asset",
+      "assetIndex": 28405,
+      "rawSha256": "128d6764be76838afd6ae44a016dd4c220098c0ecfd17cc592b814e8333dace8",
+      "modelKey": "eny_0052_palesent_postmodel",
+      "componentCount": 18
+    },
+    "eny_0053_hsmob": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0053_hsmob.asset",
+      "assetIndex": 91671,
+      "rawSha256": "01ff37f68e12bf67e2127bce5d9ca986c15587a3bfe9368cc39e5ce5746aaac3",
+      "modelKey": "eny_0053_hsmob_postmodel",
+      "componentCount": 18
+    },
+    "eny_0054_hsmino": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0054_hsmino.asset",
+      "assetIndex": 24492,
+      "rawSha256": "6245b0a3c34160451e149d074e6be7f5bbca0e69dd5e3c0159e5ea871edfebad",
+      "modelKey": "eny_0054_hsmino_postmodel",
+      "componentCount": 18
+    },
+    "eny_0055_hscrane": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0055_hscrane.asset",
+      "assetIndex": 145790,
+      "rawSha256": "b00006f5d761a9797c3d122e2faa1855ad59cfb6f89fe82549d0c01f54efa328",
+      "modelKey": "eny_0055_hscrane_postmodel",
+      "componentCount": 18
+    },
+    "eny_0058_agdisk": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0058_agdisk.asset",
+      "assetIndex": 97053,
+      "rawSha256": "00538655eafb80634d28c60dfd51848c8f5bf2d681f7b50ddf79d6109ad731c8",
+      "modelKey": "eny_0058_agdisk_postmodel",
+      "componentCount": 18
+    },
+    "eny_0059_erhound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0059_erhound.asset",
+      "assetIndex": 152799,
+      "rawSha256": "1f50a8b2ae320d969932ca1278f9e1cd9aeb6f0f6f3b39598c73dbc2ec81a538",
+      "modelKey": "eny_0059_erhound_postmodel",
+      "componentCount": 18
+    },
+    "eny_0060_lbmad": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0060_lbmad.asset",
+      "assetIndex": 57593,
+      "rawSha256": "5a11cffe7f0e6098b157ae943b25b116bc10515b59269246a46eb8e3b8b1fe9a",
+      "modelKey": "eny_0060_lbmad_postmodel",
+      "componentCount": 18
+    },
+    "eny_0061_palecore": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0061_palecore.asset",
+      "assetIndex": 191844,
+      "rawSha256": "edb5e6e26679dd5fa53a3d9de827476bd3b06e9dfb7972e9b1497981fa7dee32",
+      "modelKey": "eny_0061_palecore_postmodel",
+      "componentCount": 18
+    },
+    "eny_0062_paletent": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0062_paletent.asset",
+      "assetIndex": 106660,
+      "rawSha256": "fccbc0143443817f1a775986e04bd9528dc4908cf831aa37c4fc3dac8250c7c6",
+      "modelKey": "eny_0062_paletent_postmodel",
+      "componentCount": 18
+    },
+    "eny_0063_agmelee2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0063_agmelee2.asset",
+      "assetIndex": 70121,
+      "rawSha256": "a8af1d23959440e8be54e0e6589f95737d592544fce129f5b9254ad182a7c32f",
+      "modelKey": "eny_0063_agmelee2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0064_agrange2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0064_agrange2.asset",
+      "assetIndex": 234277,
+      "rawSha256": "959bc1aea33cb8b060233680b57cb1c2a60bbc17112d44ef556746caf995340a",
+      "modelKey": "eny_0064_agrange2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0065_lbmob2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0065_lbmob2.asset",
+      "assetIndex": 225599,
+      "rawSha256": "8db00d7a56335eb9fbf052a8e2daa9594db390b69b90245a449174f36ec5b44a",
+      "modelKey": "eny_0065_lbmob2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0066_lbhunt2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0066_lbhunt2.asset",
+      "assetIndex": 58334,
+      "rawSha256": "7c7e27d365f6f858abdd91bcfc1468096461108df8f34799adbee297bff6ab1d",
+      "modelKey": "eny_0066_lbhunt2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0067_hound2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0067_hound2.asset",
+      "assetIndex": 66803,
+      "rawSha256": "088a282c81faa235b5ded2716026aad353ed3468ecef23efb50bb71e75e22e93",
+      "modelKey": "eny_0067_hound2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0068_lbtough2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0068_lbtough2.asset",
+      "assetIndex": 259468,
+      "rawSha256": "45c0e725eed3f10fd89ca3ee84f46a52f81b4f5323851d234ccd4a6c8934b0ca",
+      "modelKey": "eny_0068_lbtough2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0069_aghornb2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0069_aghornb2.asset",
+      "assetIndex": 33349,
+      "rawSha256": "c6d7a72d490ad5c75ca3c18466190df509de8c323b1c3dfada9eaecc20e681f4",
+      "modelKey": "eny_0069_aghornb2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0070_agscorp2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0070_agscorp2.asset",
+      "assetIndex": 176771,
+      "rawSha256": "e4d638a25e6f57078375713af06da953221dce3e904ce8b7fbb4813a3bbb1553",
+      "modelKey": "eny_0070_agscorp2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0071_sandb": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0071_sandb.asset",
+      "assetIndex": 11632,
+      "rawSha256": "4ec252ae44763026fce6633c135defca9b7bc4d3f1b75ba48ba30fc0ea3803ac",
+      "modelKey": "eny_0071_sandb_postmodel",
+      "componentCount": 19
+    },
+    "eny_0072_slimeml": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0072_slimeml.asset",
+      "assetIndex": 72578,
+      "rawSha256": "be77784a6e828ce6a86fb397984d0971512e1f22c242344da5692f46b862ce82",
+      "modelKey": "eny_0072_slimeml_postmodel",
+      "componentCount": 18
+    },
+    "eny_0073_slimerg": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0073_slimerg.asset",
+      "assetIndex": 36892,
+      "rawSha256": "599cfefedf4eecf18f717da6d6385746e18fa50d940bd00a525740af437e450b",
+      "modelKey": "eny_0073_slimerg_postmodel",
+      "componentCount": 18
+    },
+    "eny_0074_lbshield": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0074_lbshield.asset",
+      "assetIndex": 188562,
+      "rawSha256": "be9422acaefd9d3346875bcb3a72bc9377a66d33e2108f9a5ee0cb7b463a03e7",
+      "modelKey": "eny_0074_lbshield_postmodel",
+      "componentCount": 18
+    },
+    "eny_0075_lbroshan": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0075_lbroshan.asset",
+      "assetIndex": 262984,
+      "rawSha256": "92eb658980d17a2919055e42a079638ba58b932853016e4ff6c1d7d8b7074ed5",
+      "modelKey": "eny_0075_lbroshan_postmodel",
+      "componentCount": 18
+    },
+    "eny_0076_agfly": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0076_agfly.asset",
+      "assetIndex": 267980,
+      "rawSha256": "0876784e7e4adbed3544df487041d3a9f420561bfab8f54e4fa35070be416981",
+      "modelKey": "eny_0076_agfly_postmodel",
+      "componentCount": 18
+    },
+    "eny_0077_agshield": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0077_agshield.asset",
+      "assetIndex": 251868,
+      "rawSha256": "27632a05c282135e0234551cce946d477d1cb2d42d965dd2630464693ca3beb4",
+      "modelKey": "eny_0077_agshield_postmodel",
+      "componentCount": 20
+    },
+    "eny_0078_nefarp1": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0078_nefarp1.asset",
+      "assetIndex": 39152,
+      "rawSha256": "c65f3d55a159f3e7b1bc3be474c20be89fe1ed47711722ea405a9147fe538070",
+      "modelKey": "eny_0078_nefarp1_postmodel",
+      "componentCount": 19
+    },
+    "eny_0079_nefarp2": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0079_nefarp2.asset",
+      "assetIndex": 243320,
+      "rawSha256": "69a8092735419e2f2a86e282ab8396554a9f96e761e7859c0467d621c1584d8d",
+      "modelKey": "eny_0079_nefarp2_postmodel",
+      "componentCount": 19
+    },
+    "eny_0081_ruanyi": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0081_ruanyi.asset",
+      "assetIndex": 57376,
+      "rawSha256": "36488737e2ac30e757d8afb01b92f8a65905e96d2be191b24e3b005b5afaba99",
+      "modelKey": "eny_0081_ruanyi_postmodel",
+      "componentCount": 21
+    },
+    "eny_0082_hsbear": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0082_hsbear.asset",
+      "assetIndex": 292878,
+      "rawSha256": "8d2d0bf65caae2cd8d984c9a8278f257cf5020bea26f737dddf32be814b0f91c",
+      "modelKey": "eny_0082_hsbear_postmodel",
+      "componentCount": 18
+    },
+    "eny_0083_hstiger": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0083_hstiger.asset",
+      "assetIndex": 42344,
+      "rawSha256": "8524c211d1085b914366dcf751994e2cdeb458238b6786655c050020ba68320d",
+      "modelKey": "eny_0083_hstiger_postmodel",
+      "componentCount": 18
+    },
+    "eny_0084_hshunt": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0084_hshunt.asset",
+      "assetIndex": 148501,
+      "rawSha256": "e7bec6d49e04f4aeb350ce80fa9f451ed39fd923313c22a28884f98f06f98271",
+      "modelKey": "eny_0084_hshunt_postmodel",
+      "componentCount": 18
+    },
+    "eny_0085_hsrogue": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0085_hsrogue.asset",
+      "assetIndex": 70456,
+      "rawSha256": "2e9b4e17b6caed86e42b1cd7ee3136777afd063a13f33aa40b0481adcd1103e3",
+      "modelKey": "eny_0085_hsrogue_postmodel",
+      "componentCount": 18
+    },
+    "eny_0087_wgslime": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0087_wgslime.asset",
+      "assetIndex": 60800,
+      "rawSha256": "8e68c244b0cbc72c6594561f7e270f8c57acbd19b42e09d2cc4e1b6aafc5dc33",
+      "modelKey": "eny_0087_wgslime_postmodel",
+      "componentCount": 18
+    },
+    "eny_0088_wgthorns": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0088_wgthorns.asset",
+      "assetIndex": 238556,
+      "rawSha256": "ca149655e05b8d66235efc309f3f4fa812b6aaf21c137f00a8002402efb174b4",
+      "modelKey": "eny_0088_wgthorns_postmodel",
+      "componentCount": 18
+    },
+    "eny_0089_wgreflec": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0089_wgreflec.asset",
+      "assetIndex": 14001,
+      "rawSha256": "cfa39ac16f454dea3ae72d2feacc262b2e9bc23a402ca2da06e7466a89a349bf",
+      "modelKey": "eny_0089_wgreflec_postmodel",
+      "componentCount": 18
+    },
+    "eny_0090_wgabyss": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0090_wgabyss.asset",
+      "assetIndex": 11525,
+      "rawSha256": "9092a0803bb44fed1db089c0e93a06bb53f6adc0f59e7e9194e16e5598a6d1ea",
+      "modelKey": "eny_0090_wgabyss_postmodel",
+      "componentCount": 19
+    },
+    "eny_0091_wgshoal": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0091_wgshoal.asset",
+      "assetIndex": 98063,
+      "rawSha256": "28d76e5a5ec090ea8b8e17f26b9f70cb57241ef2d105db04f38151a45e16896c",
+      "modelKey": "eny_0091_wgshoal_postmodel",
+      "componentCount": 18
+    },
+    "eny_0092_slbomb": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0092_slbomb.asset",
+      "assetIndex": 32276,
+      "rawSha256": "b561340034425af5e5ddd310fe66241d2304a492ae5225c3d222642e2a70c763",
+      "modelKey": "eny_0092_slbomb_postmodel",
+      "componentCount": 18
+    },
+    "eny_0093_hshog": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0093_hshog.asset",
+      "assetIndex": 153486,
+      "rawSha256": "d2c8673052217015562b505fc61f20553626e15cc52fd97546dcd1b452682ad4",
+      "modelKey": "eny_0093_hshog_postmodel",
+      "componentCount": 18
+    },
+    "eny_0094_hsfly": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0094_hsfly.asset",
+      "assetIndex": 76748,
+      "rawSha256": "533038b9e2e35fac89c37fca53056e46c4d2fee7b599dab145101b4eeb93f6bf",
+      "modelKey": "eny_0094_hsfly_postmodel",
+      "componentCount": 18
+    },
+    "eny_0095_ethillu": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0095_ethillu.asset",
+      "assetIndex": 125479,
+      "rawSha256": "813667c9ca3b7c475f08241dc5133b0a1023d226738c04d2347b0c6c00b27b42",
+      "modelKey": "eny_0095_ethillu_postmodel",
+      "componentCount": 18
+    },
+    "eny_0096_hsmob2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0096_hsmob2.asset",
+      "assetIndex": 291880,
+      "rawSha256": "2679b9f41e9103a06d1d2de2bb61c7db7ad2082eed34205c86b9d8653d3fc364",
+      "modelKey": "eny_0096_hsmob2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0097_hsmino2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0097_hsmino2.asset",
+      "assetIndex": 177308,
+      "rawSha256": "e051bacb50b328526bbe620634e9fb194683e98fe80e1f6762691751ca810afa",
+      "modelKey": "eny_0097_hsmino2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0098_sandb2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0098_sandb2.asset",
+      "assetIndex": 32666,
+      "rawSha256": "016bd500645f077bbb8492b3e04d8c92fd6f4d7ae6b426440afc41913685e3b3",
+      "modelKey": "eny_0098_sandb2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0099_slimeml2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0099_slimeml2.asset",
+      "assetIndex": 155923,
+      "rawSha256": "66ea5f227ad01c71a5c8d321ccb0a9de5f87eb433867284f8aab7eff819b7ca0",
+      "modelKey": "eny_0099_slimeml2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0100_slimerg2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0100_slimerg2.asset",
+      "assetIndex": 284574,
+      "rawSha256": "b2b22e3ef5340acc6eb32875d59518650228c8075dd71bbcbba8049700c5643b",
+      "modelKey": "eny_0100_slimerg2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0101_agfly2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0101_agfly2.asset",
+      "assetIndex": 200779,
+      "rawSha256": "ff2db9185c69714315205ec0c3b30bc1025f15aad46b1d3881ce3efcecaa0a15",
+      "modelKey": "eny_0101_agfly2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0102_hstiger2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0102_hstiger2.asset",
+      "assetIndex": 4431,
+      "rawSha256": "3e51cbd540c437305f77d74796013ef4a578c85a7be4966add0d623797e7add0",
+      "modelKey": "eny_0102_hstiger2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0103_hshunt2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0103_hshunt2.asset",
+      "assetIndex": 42376,
+      "rawSha256": "ecfae2c1bee3abd1ff613417cd352c08fe1ead4e7d9156ec1bd47afe7f61c2a1",
+      "modelKey": "eny_0103_hshunt2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0104_hsrogue2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0104_hsrogue2.asset",
+      "assetIndex": 33378,
+      "rawSha256": "361afd759f154dcc38e782ed100fae322613f13c64f40bf85f8945fea63ea1f4",
+      "modelKey": "eny_0104_hsrogue2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0105_wgslime2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0105_wgslime2.asset",
+      "assetIndex": 162657,
+      "rawSha256": "57b683d4ba6c715791859a16c9219017a99ff0902cfd1e4c0c44f3daf909b147",
+      "modelKey": "eny_0105_wgslime2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0106_wgthorns2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0106_wgthorns2.asset",
+      "assetIndex": 243836,
+      "rawSha256": "7de4cdd7439f8e4e3287988a255b63dbd1e93f8772949f5b9923e2d094993267",
+      "modelKey": "eny_0106_wgthorns2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0107_wgshoal2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0107_wgshoal2.asset",
+      "assetIndex": 25964,
+      "rawSha256": "7e26d080978e4364acf6bb2927b01f5c21ef8cd2d0101a0ccdd17ec780dbeacc",
+      "modelKey": "eny_0107_wgshoal2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0108_slbomb2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0108_slbomb2.asset",
+      "assetIndex": 124448,
+      "rawSha256": "8768bd172abadfbcdb3521f7e39f047f1f0439036d22758b796b327285ab9e72",
+      "modelKey": "eny_0108_slbomb2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0109_hshog2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0109_hshog2.asset",
+      "assetIndex": 242120,
+      "rawSha256": "b3a4e982605f8d1a469ed4a8f495dc6737b4dd7af0e0cd72cfe44b28e87aed55",
+      "modelKey": "eny_0109_hshog2_postmodel",
+      "componentCount": 18
+    },
+    "eny_0112_jzmonk": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0112_jzmonk.asset",
+      "assetIndex": 66576,
+      "rawSha256": "d3ea284a4d1cad95f2a94678ded9a5481243380a916efd5f9a7e88e2e95193ec",
+      "modelKey": "eny_0112_jzmonk_postmodel",
+      "componentCount": 18
+    },
+    "eny_0113_jzogre": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0113_jzogre.asset",
+      "assetIndex": 171166,
+      "rawSha256": "461957858e50e00e7e208ce256db8a90c522e5aef0d3c4e5980d2dd7aea172b0",
+      "modelKey": "eny_0113_jzogre_postmodel",
+      "componentCount": 19
+    },
+    "eny_0114_jzmking": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0114_jzmking.asset",
+      "assetIndex": 120708,
+      "rawSha256": "1088067d9ea5c89de6cf6b1b22035ea08c9a3cf1152128a8d91948a006d475b8",
+      "modelKey": "eny_0114_jzmking_postmodel",
+      "componentCount": 20
+    },
+    "eny_0117_klhound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0117_klhound.asset",
+      "assetIndex": 148073,
+      "rawSha256": "ebfa64890a45f4b973367d9abe6938a07f78f04284140e14caa292af0368d564",
+      "modelKey": "eny_0117_klhound_postmodel",
+      "componentCount": 18
+    },
+    "eny_0118_klhog": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0118_klhog.asset",
+      "assetIndex": 273103,
+      "rawSha256": "b43b9fdd6b75046317c9da80e9801a350bf8f350dc9e698787a585869b4eec5f",
+      "modelKey": "eny_0118_klhog_postmodel",
+      "componentCount": 18
+    },
+    "eny_0119_kltiger": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0119_kltiger.asset",
+      "assetIndex": 244065,
+      "rawSha256": "58a47c2a2c9aa5e19bf1bf201affb20ef1009c9d8d8bae30c4471c4c408d50e8",
+      "modelKey": "eny_0119_kltiger_postmodel",
+      "componentCount": 18
+    },
+    "eny_0120_klbear": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0120_klbear.asset",
+      "assetIndex": 280987,
+      "rawSha256": "098cc298152c272c8bc41b911f47337618cc91be14235faaaea74df37e65ecdc",
+      "modelKey": "eny_0120_klbear_postmodel",
+      "componentCount": 18
+    },
+    "eny_0121_klbud": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0121_klbud.asset",
+      "assetIndex": 195879,
+      "rawSha256": "2fdeae5f68318ac2d2c83062ac1f9f0d3f2fabfa4edee3ee02d243cda2c06919",
+      "modelKey": "eny_0121_klbud_postmodel",
+      "componentCount": 18
+    },
+    "eny_0122_kltdbud": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0122_kltdbud.asset",
+      "assetIndex": 174111,
+      "rawSha256": "913ae132d9badf158c7bc7f0e7e791743a2007322c9f1d704faee7b2edd2aa9d",
+      "modelKey": "eny_0122_kltdbud_postmodel",
+      "componentCount": 18
+    },
+    "eny_0123_klcap": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0123_klcap.asset",
+      "assetIndex": 28713,
+      "rawSha256": "0fcf812764f79be429be8fdc4980e488429a4aac6775ec65305410f3ef2fc2b6",
+      "modelKey": "eny_0123_klcap_postmodel",
+      "componentCount": 18
+    },
+    "eny_0124_kltdcap": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0124_kltdcap.asset",
+      "assetIndex": 201698,
+      "rawSha256": "550cfa4fa0e98f7016992c8f5ab85a9a42fd63ab3b391c6848a671db1b52ae0a",
+      "modelKey": "eny_0124_kltdcap_postmodel",
+      "componentCount": 18
+    },
+    "eny_0125_fdcentur": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0125_fdcentur.asset",
+      "assetIndex": 229424,
+      "rawSha256": "6b220a4a254f58c560d9adf9badf2c8e98f92842107899b791eeebb6a8e7ce3a",
+      "modelKey": "eny_0125_fdcentur_postmodel",
+      "componentCount": 19
+    }
+  }
+}

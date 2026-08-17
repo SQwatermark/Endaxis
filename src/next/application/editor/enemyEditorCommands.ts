@@ -38,6 +38,7 @@ export function createDefinitionEnemyDocument(
   }
   return {
     source: { kind: 'prefab', enemyId: definition.id, level },
+    rank: definition.rank,
     editable: {
       hp,
       defense: definition.defense,
@@ -69,6 +70,7 @@ export function createCustomEnemyDocument(level = 90): EnemyDocument {
   if (!Number.isInteger(level) || level <= 0) throw new Error('enemy level must be positive');
   return {
     source: { kind: 'custom', level },
+    rank: 'mob',
     editable: {
       hp: 100000,
       defense: 100,

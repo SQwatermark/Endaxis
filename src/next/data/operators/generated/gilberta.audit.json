@@ -4890,6 +4890,19 @@
           "skillId": "chr_0013_aglina_normal_skill_abilityrange",
           "sourceFile": "chr_0013_aglina_normal_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0013_aglina_normal_skill",
+            "skillId": "chr_0013_aglina_normal_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -5226,6 +5239,17 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
+          ]
+        },
+        {
+          "frame": 21,
+          "actionOrder": [
+            27
+          ],
+          "sequenceOrder": [],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0013_aglina_normal_skill"
           ]
         },
         {
@@ -6437,7 +6461,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -6582,6 +6607,23 @@
           "skillId": "chr_0013_aglina_ultimate_skill_abilityrange",
           "sourceFile": "chr_0013_aglina_ultimate_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0013_aglina_ultimate_skill",
+            "skillId": "chr_0013_aglina_ultimate_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": {
+              "value": 0.0,
+              "blackboardKey": "duration",
+              "levelValues": null
+            },
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -6985,6 +7027,17 @@
             10
           ],
           "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0013_aglina_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 60,
+          "actionOrder": [
+            29
+          ],
+          "sequenceOrder": [],
+          "itemType": "abilityEntitySpawn",
           "sourcePath": [
             "chr_0013_aglina_ultimate_skill"
           ]
@@ -7408,7 +7461,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -7427,7 +7481,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

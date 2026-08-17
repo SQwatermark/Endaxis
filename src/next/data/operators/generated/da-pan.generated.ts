@@ -1302,8 +1302,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 83,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1311,9 +1310,7 @@ export const daPanGeneratedSource = {
           "endFrame": 14,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -1339,7 +1336,6 @@ export const daPanGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "IfElseAction",
             "HitStopAction",
@@ -1985,8 +1981,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 85,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1994,9 +1989,7 @@ export const daPanGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2014,11 +2007,9 @@ export const daPanGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
             "CameraImpulseAction",
             "ObtainCostAction"
@@ -2631,16 +2622,14 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 14,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 14,
           "endFrame": 90,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2648,9 +2637,7 @@ export const daPanGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2676,7 +2663,6 @@ export const daPanGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "IfElseAction",
             "CameraImpulseAction",
@@ -2691,12 +2677,10 @@ export const daPanGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "IfElseAction",
             "CameraImpulseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -2704,8 +2688,7 @@ export const daPanGeneratedSource = {
           "startFrame": 25,
           "endFrame": 28,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -3731,8 +3714,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 150,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3740,9 +3722,7 @@ export const daPanGeneratedSource = {
           "endFrame": 10,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -3761,11 +3741,9 @@ export const daPanGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -3773,30 +3751,21 @@ export const daPanGeneratedSource = {
           "startFrame": 31,
           "endFrame": 34,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 6,
           "endFrame": 29,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 29,
           "endFrame": 52,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4500,8 +4469,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 215,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -4528,11 +4496,8 @@ export const daPanGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4543,11 +4508,8 @@ export const daPanGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb"
           ]
         },
@@ -4564,33 +4526,21 @@ export const daPanGeneratedSource = {
           "startFrame": 5,
           "endFrame": 17,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 17,
           "endFrame": 35,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 35,
           "endFrame": 60,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5036,8 +4986,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 188,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -5062,7 +5011,6 @@ export const daPanGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -5071,8 +5019,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5548,16 +5495,14 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 27,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 27,
           "endFrame": 210,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -5571,11 +5516,8 @@ export const daPanGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -5603,11 +5545,8 @@ export const daPanGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5625,11 +5564,8 @@ export const daPanGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -5637,16 +5573,14 @@ export const daPanGeneratedSource = {
           "startFrame": 12,
           "endFrame": 43,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 43,
           "endFrame": 46,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -6665,26 +6599,21 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 26,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 26,
           "endFrame": 146,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 26,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -6713,11 +6642,8 @@ export const daPanGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -6754,7 +6680,6 @@ export const daPanGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -7477,7 +7402,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -7547,8 +7473,7 @@ export const daPanGeneratedSource = {
           "startFrame": 0,
           "endFrame": 1,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7608,8 +7533,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7618,8 +7542,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7628,8 +7551,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7638,8 +7560,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7648,8 +7569,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7658,8 +7578,7 @@ export const daPanGeneratedSource = {
           "actionTypes": [
             "DamageAction",
             "DefiniteValueCalculation",
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -7672,24 +7591,21 @@ export const daPanGeneratedSource = {
             "KnockDownAction",
             "DamageAction",
             "DefiniteValueCalculation",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 82,
           "endFrame": 85,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 36,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -9087,7 +9003,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 42,
@@ -9112,7 +9029,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 46,
@@ -9137,7 +9055,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 50,
@@ -9162,7 +9081,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 54,
@@ -9187,7 +9107,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 58,
@@ -9212,7 +9133,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 62,
@@ -9237,7 +9159,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 14
+          "sequenceIndex": 14,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -9281,7 +9204,8 @@ export const daPanGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

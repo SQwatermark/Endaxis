@@ -15,6 +15,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'casterControlled':
       return { kind };
+    case 'enemyRankIn':
+      return { kind, ranks: ['mob'] };
     case 'skillBranchEnabled':
       return { kind, branchKey: 'custom-branch' };
     case 'targetStaggered':
@@ -35,6 +37,12 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         left: { kind: 'constant', value: 0 },
         operator: 'equal',
         right: { kind: 'constant', value: 0 },
+      };
+    case 'abilityEntityRemainingDurationCompare':
+      return {
+        kind,
+        operator: 'less',
+        value: { kind: 'constant', value: 0 },
       };
     case 'statusActive':
       return { kind, statusKey: 'custom-status', target: 'caster' };

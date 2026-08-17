@@ -73,11 +73,13 @@ from source_models import (
     ProjectileLaunchPayload,
     ConditionalProjectileProjection,
     AbilityEntitySpawnPayload,
+    AbilityEntityDurationAssignmentPayload,
     ConditionalBranchActionSource,
     ConditionalActionSource,
     SequenceGuardActionSource,
     SwitchActionSource,
     DoOnceActionSource,
+    ForEachContextActionSource,
     UnconditionalActionSource,
     BlackboardCalculationSource,
     BlackboardMutationSource,
@@ -165,6 +167,7 @@ from source_schema import (
 )
 from target_parser import (
     parse_selector_summary,
+    parse_spawned_entity_selector_identity,
     parse_target_reference,
     selector_component_name,
 )
@@ -183,7 +186,7 @@ DEFAULT_TABLES = (
     / "vfs-index-browser"
     / "combat-spec"
     / "artifacts"
-    / "TableCfg-1.4.4-8764515-7"
+    / "TableCfg-1.4.4-9433094-12"
 )
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "generated"
 
@@ -231,14 +234,17 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "buffStack",
         "health",
         "mainOperator",
+        "enemyRank",
         "targetIdentity",
         "distance",
         "entityTag",
         "timedMarker",
         "globalCooldown",
         "skillHasHit",
+        "abilityEntityDuration",
         "nestedCondition",
         "targetFinderType",
+        "finderSpawnedObjectType",
         "onceScopeKey",
         "onceActions",
         "blackboardCalculation",
@@ -255,6 +261,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "projectileLaunch",
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
+        "abilityEntityDurationAssignment",
         "auraAbilityEntityHits",
         "damageUnits",
         "keywordAction",
@@ -271,6 +278,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "keywordActions",
         "targetValidatorTypes",
         "targetPostProcessorTypes",
+        "validatorTagQueries",
     }
 )
 
@@ -2326,6 +2334,7 @@ def parse_aura_actions(
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> tuple[AuraActionSource, ...]:
     """严格读取区域动作；当前只形成审计事实，不提前近似其持续生命周期。"""
+    aura_type_warning = "光环范围过大，每帧检测物理碰撞开销较大，建议使用全局光环"
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[AuraActionSource] = []
 
@@ -2362,8 +2371,19 @@ def parse_aura_actions(
             return
         if action_name(str(value.get("$type", ""))) == "AuraAction":
             action_path = f"{source_name}.{'.'.join(path)}"
-            if set(value) != AURA_ACTION_FIELDS:
+            action_fields = set(value)
+            if action_fields not in (
+                AURA_ACTION_FIELDS,
+                AURA_ACTION_FIELDS | {"m_auraTypeWarning"},
+            ):
                 raise ValueError(f"{action_path}: unexpected fields {sorted(value)}")
+            if (
+                "m_auraTypeWarning" in value
+                and value["m_auraTypeWarning"] != aura_type_warning
+            ):
+                raise ValueError(
+                    f"{action_path}.m_auraTypeWarning: unexpected editor warning"
+                )
 
             shape_path = f"{action_path}.shapeData"
             shape = require_dict(value.get("shapeData"), shape_path)
@@ -2422,8 +2442,27 @@ def parse_aura_actions(
 
             icon_path = f"{action_path}.buffIconDurationSource"
             icon_duration = require_dict(value.get("buffIconDurationSource"), icon_path)
-            if set(icon_duration) != {"durationSourceType", "timedMarkerId"}:
+            icon_fields = {"durationSourceType", "timedMarkerId"}
+            icon_editor_fields = {
+                "m_abilityEntityTypeInfo",
+                "m_timedMarkerInfo",
+            }
+            if set(icon_duration) not in (
+                icon_fields,
+                icon_fields | icon_editor_fields,
+            ):
                 raise ValueError(f"{icon_path}: unexpected fields {sorted(icon_duration)}")
+            expected_icon_editor_info = {
+                "m_abilityEntityTypeInfo": (
+                    "当ActionOwner是AbilityEntity时，Buff图标倒计时显示Owner的剩余时间"
+                ),
+                "m_timedMarkerInfo": (
+                    "选择ActionOwner身上的一个TimedMarker作为Buff图标倒计时显示的来源"
+                ),
+            }
+            for key, expected in expected_icon_editor_info.items():
+                if key in icon_duration and icon_duration[key] != expected:
+                    raise ValueError(f"{icon_path}.{key}: unexpected editor info")
             duration_source_type = icon_duration.get("durationSourceType")
             timed_marker_id = icon_duration.get("timedMarkerId")
             if not isinstance(duration_source_type, str) or not duration_source_type:
@@ -3400,7 +3439,12 @@ def resolve_ability_entity_payload(
             child_blackboard[assignment.targetKey] = inherited_value
 
     cycle_truncated = skill_id in stack
-    child_conditions = parse_conditional_actions(child, child_name, child_blackboard)
+    child_conditions = parse_conditional_actions(
+        child,
+        child_name,
+        child_blackboard,
+        include_for_each_sequence_guards=True,
+    )
     child_calculations = parse_blackboard_calculations(child, child_name, child_blackboard)
     child_mutations, child_reads, child_finishes = parse_blackboard_runtime_actions(
         child, child_name, child_blackboard
@@ -3445,6 +3489,7 @@ def resolve_ability_entity_payload(
         skillId=skill_id,
         sourceFile=child_name,
         entityBlackboardAssignments=payload.entityBlackboardAssignments,
+        spawnPayload=payload,
         directDamageHits=parse_direct_damage_hits(child, child_name, child_blackboard),
         intervalDamageHits=parse_interval_damage_hits(child, child_name, child_blackboard),
         conditionalActions=child_conditions,
@@ -3991,6 +4036,20 @@ def collect_resolved_schedule(skill: SkillSource) -> tuple[ResolvedScheduleItemS
         )
         for action in skill.auxiliaryActions
         if action.actionType == "CreateBuffAction"
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=entity.spawnFrame,
+            actionOrder=entity.actionOrder,
+            itemType="abilityEntitySpawn",
+            sourcePath=(skill.skillId,),
+            payload=payload,
+            inputTarget="enemy",
+            sequenceOrder=entity.actionOrder[:-1],
+        )
+        for entity in skill.abilityEntityHits
+        for payload in (getattr(entity, "spawnPayload", None),)
+        if payload is not None and logical_ability_entity_spawn_can_compile(payload)
     )
     result.extend(
         ResolvedScheduleItemSource(
@@ -4541,6 +4600,12 @@ def parse_target_group_writes(
                 f"{source_name}.{'.'.join(path)}.selectorData",
                 finder_required=True,
             )
+            spawned_object_type, validator_tag_queries = (
+                parse_spawned_entity_selector_identity(
+                    value.get("selectorData"),
+                    f"{source_name}.{'.'.join(path)}.selectorData",
+                )
+            )
             interval: float | None = None
             if producer_type == "ContinuousFindTargetAction":
                 raw_interval = value.get("findInterval")
@@ -4571,6 +4636,8 @@ def parse_target_group_writes(
                     postProcessorTypes=post_processors,
                     inputTargets=(),
                     intervalSeconds=interval,
+                    finderSpawnedObjectType=spawned_object_type,
+                    validatorTagQueries=validator_tag_queries,
                 )
             )
         elif producer_type == "MergeTargetAction":
@@ -4609,6 +4676,12 @@ def parse_target_group_writes(
                     f"{target_path}.selectorData",
                     finder_required=target_source == "InstantSearch",
                 )
+                spawned_object_type, validator_tag_queries = (
+                    parse_spawned_entity_selector_identity(
+                        target.get("selectorData"),
+                        f"{target_path}.selectorData",
+                    )
+                )
                 input_targets.append(
                     TargetGroupInputSource(
                         targetSource=target_source,
@@ -4619,6 +4692,8 @@ def parse_target_group_writes(
                         finderCheckAlive=finder_check_alive,
                         validatorTypes=validators,
                         postProcessorTypes=post_processors,
+                        finderSpawnedObjectType=spawned_object_type,
+                        validatorTagQueries=validator_tag_queries,
                     )
                 )
             result.append(
@@ -4965,6 +5040,10 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
 
 def compile_time_dilation(action: TimedTimeDilationSource, path: str) -> str:
     """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
+    if action.effectAbilityEntityTargets:
+        raise ValueError(
+            f"{path}: ability-entity time-dilation targets require runtime support"
+        )
     if action.kind == "ultimate":
         if action.targetScale is None:
             raise ValueError(f"{path}: ultimate time dilation has no target scale")
@@ -5138,6 +5217,7 @@ def compile_combat_condition(
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
+    ability_entity_current_target: bool = False,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
     if is_guaranteed_single_enemy_condition(
@@ -5146,6 +5226,24 @@ def compile_combat_condition(
         return "{ kind: 'singleEnemyPresent' }"
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
+    if source.sourceType == "CheckAbilityEntityCurDuration":
+        duration = source.abilityEntityDuration
+        if duration is None:
+            raise ValueError(f"{path}: missing ability entity duration payload")
+        if not ability_entity_current_target:
+            raise ValueError(f"{path}: ability entity current target is unavailable")
+        operator = COMPARISON_OPERATOR_MAP.get(duration.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {duration.comparison!r}")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'abilityEntityRemainingDurationCompare',",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {compile_condition_operand(duration.value, f'{path}.value')},",
+                "}",
+            ]
+        )
     if source.sourceType == "CheckDamageDecorateMask":
         damage_mask = source.damageDecorateMask
         if damage_mask is None:
@@ -5204,6 +5302,28 @@ def compile_combat_condition(
             f"{path}: unsupported main operator target "
             f"{main_operator.targetSource!r}/{main_operator.targetGroupKey!r}"
         )
+    if source.sourceType == "CheckEnemyRank":
+        enemy_rank = source.enemyRank
+        if enemy_rank is None:
+            raise ValueError(f"{path}: missing enemy rank condition payload")
+        if not target_reference_has_plain_selector(enemy_rank.target):
+            raise ValueError(f"{path}: CheckEnemyRank target selector changes identity")
+        target = resolve_fixed_combat_target(
+            enemy_rank.target.targetSource,
+            enemy_rank.target.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
+        if target != "enemy":
+            raise ValueError(f"{path}: CheckEnemyRank target does not resolve to the enemy")
+        ranks = tuple(
+            rank
+            for bit, rank in ((1, "mob"), (2, "elite"), (4, "boss"))
+            if enemy_rank.rankMask & bit
+        )
+        return f"{{ kind: 'enemyRankIn', ranks: {ts_inline_literal(ranks)} }}"
     if source.sourceType == "CompareFloat":
         if source.left is None or source.right is None or source.comparison is None:
             raise ValueError(f"{path}: incomplete CompareFloat condition")
@@ -5402,6 +5522,7 @@ def compile_combat_condition_group(
     root_skill_context: bool = False,
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
+    ability_entity_current_target: bool = False,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
@@ -5415,6 +5536,7 @@ def compile_combat_condition_group(
             root_skill_context,
             input_target,
             skill_has_output_damage,
+            ability_entity_current_target,
         )
         for index, condition in enumerate(conditions)
     ]
@@ -6127,6 +6249,8 @@ def compile_conditional_branch_action(
     context_action: ConditionalActionSource | None = None,
     step_key_prefix: str | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    ability_entity_current_target: bool = False,
+    singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if action.actionType in {
@@ -6148,6 +6272,8 @@ def compile_conditional_branch_action(
             input_target=input_target,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -6168,6 +6294,8 @@ def compile_conditional_branch_action(
             context_action=context_action,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -6184,6 +6312,35 @@ def compile_conditional_branch_action(
         if ability_entity_spawn in projected_ability_entity_spawns:
             return "sequence()"
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
+    duration_assignment = getattr(action, "abilityEntityDurationAssignment", None)
+    if duration_assignment is not None:
+        if duration_assignment.operation != "Assign" or duration_assignment.setMultipleTarget:
+            raise ValueError(f"{path}: unsupported ability entity duration assignment")
+        compiled_assignment = (
+            "step('setAbilityEntityRemainingDuration', { value: "
+            f"{compile_condition_operand(duration_assignment.value, f'{path}.value')} }})"
+        )
+        if duration_assignment.actionTargetType == "InputTarget":
+            if not ability_entity_current_target:
+                raise ValueError(f"{path}: ability entity current target is unavailable")
+            return compiled_assignment
+        if (
+            duration_assignment.targetContextKey
+            not in singleton_ability_entity_context_keys
+        ):
+            raise ValueError(
+                f"{path}: ContextTarget duration assignment requires singleton provenance"
+            )
+        return "\n".join(
+            [
+                "forEachContextTarget(",
+                f"  {ts_inline_literal(duration_assignment.targetContextKey)},",
+                "  sequence(",
+                f"    {compiled_assignment},",
+                "  ),",
+                ")",
+            ]
+        )
     projectile_launch = getattr(action, "projectileLaunch", None)
     if projectile_launch is not None:
         projection = ConditionalProjectileProjection(
@@ -6357,12 +6514,15 @@ def compile_conditional_branch(
     context_action: ConditionalActionSource | None = None,
     step_key_prefix: str | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    ability_entity_current_target: bool = False,
+    singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
         return "sequence()"
     lines = ["sequence("]
     compiled_count = 0
+    available_singleton_keys = set(singleton_ability_entity_context_keys)
     for index, action in enumerate(actions):
         compiled = compile_conditional_branch_action(
             action,
@@ -6378,7 +6538,31 @@ def compile_conditional_branch(
             context_action=context_action,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=frozenset(
+                available_singleton_keys
+            ),
         )
+        ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
+        if (
+            ability_entity_spawn is not None
+            and ability_entity_spawn in projected_ability_entity_spawns
+            and ability_entity_spawn.saveToContextKey is not None
+            and logical_ability_entity_spawn_can_compile(ability_entity_spawn)
+        ):
+            # A projected SpawnAbilityEntity is guaranteed on every retained path.
+            # Next's logical spawn writes exactly one stable handle to this key.
+            available_singleton_keys.add(ability_entity_spawn.saveToContextKey)
+        nested_condition = getattr(action, "nestedCondition", None)
+        if nested_condition is not None:
+            available_singleton_keys.update(
+                payload.saveToContextKey
+                for payload in getattr(
+                    nested_condition, "projectedAbilityEntitySpawns", ()
+                )
+                if payload.saveToContextKey is not None
+                and logical_ability_entity_spawn_can_compile(payload)
+            )
         if compiled == "sequence()":
             continue
         compiled_count += 1
@@ -6429,6 +6613,8 @@ def compile_conditional_action(
     skill_has_output_damage: bool = False,
     step_key_prefix: str | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    ability_entity_current_target: bool = False,
+    singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     if isinstance(action, DoOnceActionSource):
@@ -6446,6 +6632,8 @@ def compile_conditional_action(
             context_action=action,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
         if body == "sequence()":
             return body
@@ -6455,6 +6643,34 @@ def compile_conditional_action(
             [
                 "once(",
                 f"  {ts_inline_literal(action.onceScopeKey)},",
+                *body_lines,
+                ")",
+            ]
+        )
+    if isinstance(action, ForEachContextActionSource):
+        body = compile_conditional_branch(
+            action.succeedActions,
+            f"{path}.succeedActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
+            projected_projectile_launches=action.projectedProjectileLaunches,
+            context_action=action,
+            step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
+            ability_entity_current_target=True,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+        )
+        body_lines = indent_source(body, 2)
+        body_lines[-1] += ","
+        return "\n".join(
+            [
+                "forEachContextTarget(",
+                f"  {ts_inline_literal(action.contextKey)},",
                 *body_lines,
                 ")",
             ]
@@ -6474,6 +6690,8 @@ def compile_conditional_action(
             context_action=action,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
@@ -6489,6 +6707,7 @@ def compile_conditional_action(
         root_skill_context,
         input_target,
         skill_has_output_damage,
+        ability_entity_current_target,
     )
     succeed = compile_conditional_branch(
         action.succeedActions,
@@ -6504,6 +6723,8 @@ def compile_conditional_action(
         context_action=action,
         step_key_prefix=step_key_prefix,
         buff_definitions=buff_definitions,
+        ability_entity_current_target=ability_entity_current_target,
+        singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
     )
     fail = (
         compile_conditional_branch(
@@ -6520,6 +6741,8 @@ def compile_conditional_action(
             context_action=action,
             step_key_prefix=step_key_prefix,
             buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
         if action.failActions
         else None
@@ -6732,6 +6955,23 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
     )
 
 
+def target_group_write_ability_entity_collection_identity(
+    write: TargetGroupWriteSource,
+) -> tuple[tuple[str, tuple[int, ...]], ...] | None:
+    """识别带完整标签证据的 owner-spawned AbilityEntity 集合，不推断实例状态。"""
+    if (
+        write.producerType not in {"FindTargetAction", "ContinuousFindTargetAction"}
+        or write.finderType != "OwnerSpawnedEntityFinder"
+        or write.finderSpawnedObjectType != "AbilityEntity"
+        or write.postProcessorTypes
+        or not write.validatorTypes
+        or any(validator != "TagValidator" for validator in write.validatorTypes)
+        or len(write.validatorTagQueries) != len(write.validatorTypes)
+    ):
+        return None
+    return write.validatorTagQueries
+
+
 def target_group_write_buff_application_target(
     write: TargetGroupWriteSource | None,
 ) -> Literal["enemy", "party"] | None:
@@ -6809,6 +7049,59 @@ def zero_distance_target_role(reference: TargetReferenceSource) -> str | None:
     if target_identity_reference_guarantees_single_enemy(reference):
         return "enemy"
     return None
+
+
+def logical_ability_entity_spawn_can_compile(payload: AbilityEntitySpawnPayload) -> bool:
+    """判断生成动作能否无损进入当前根技能零空间 DSL；其他形状继续留在审计层。"""
+    return (
+        payload.sourceType in {"ActionSource", "ActionOwner"}
+        and not payload.sourceContextKey
+        and not payload.dieOnEnd
+        and (payload.target is None or zero_distance_target_role(payload.target) is not None)
+        and all(
+            assignment.valueType == "Numeric"
+            for assignment in payload.entityBlackboardAssignments
+        )
+    )
+
+
+def compile_logical_ability_entity_spawn(
+    payload: AbilityEntitySpawnPayload,
+    path: str,
+) -> str:
+    """把有完整来源证据的 SpawnAbilityEntity 转为逻辑实例生成步骤。"""
+    if not logical_ability_entity_spawn_can_compile(payload):
+        raise ValueError(f"{path}: AbilityEntity spawn is outside the zero-space root subset")
+    fields = [
+        f"templateId: {ts_inline_literal(payload.abilityEntityId)}",
+        f"dieWhenSourceDies: {ts_inline_literal(payload.dieWhenSourceDies)}",
+    ]
+    if payload.skillId is not None:
+        fields.append(f"childSkillId: {ts_inline_literal(payload.skillId)}")
+    if payload.target is not None:
+        target = zero_distance_target_role(payload.target)
+        if target is None:
+            raise AssertionError("compile predicate accepted an unresolved AbilityEntity target")
+        fields.append(f"target: {ts_inline_literal(target)}")
+    if payload.overrideDuration is not None:
+        fields.append(
+            "overrideDurationSeconds: "
+            + compile_condition_operand(payload.overrideDuration, f"{path}.overrideDuration")
+        )
+    if payload.saveToContextKey is not None:
+        fields.append(f"saveToContextKey: {ts_inline_literal(payload.saveToContextKey)}")
+    assignments = []
+    for assignment in payload.entityBlackboardAssignments:
+        operand = (
+            f"{{ kind: 'constant', value: {ts_inline_literal(assignment.numericValue)} }}"
+            if assignment.useDirectValue
+            else "{ kind: 'blackboard', key: "
+            f"{ts_inline_literal(assignment.inputValueKey)} }}"
+        )
+        assignments.append(f"{ts_inline_literal(assignment.targetKey)}: {operand}")
+    if assignments:
+        fields.append("blackboardAssignments: { " + ", ".join(assignments) + " }")
+    return "step('spawnAbilityEntity', { " + ", ".join(fields) + " })"
 
 
 def evaluate_zero_distance_condition(
@@ -6920,6 +7213,8 @@ def collect_compilable_conditional_action_types(
                 result.add("SlowAction")
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:
                 result.add("SpawnAbilityEntity")
+            if getattr(branch_action, "abilityEntityDurationAssignment", None) is not None:
+                result.add("SetAbilityEntityDuration")
             projectile_launch = getattr(branch_action, "projectileLaunch", None)
             if projectile_launch is not None and contains_equivalent_projectile_projection(
                 projected_launches,
@@ -6937,7 +7232,10 @@ def collect_compilable_conditional_action_types(
     def visit(action: ConditionalActionSource) -> None:
         if isinstance(action, DoOnceActionSource):
             result.add("DoOnceAction")
-        elif isinstance(action, (UnconditionalActionSource, SequenceGuardActionSource)):
+        elif isinstance(
+            action,
+            (UnconditionalActionSource, SequenceGuardActionSource, ForEachContextActionSource),
+        ):
             pass
         else:
             result.add(
@@ -7929,6 +8227,10 @@ def compile_resolved_sequence(
     )
     damage_indexes = {hit: index for index, hit in enumerate(hits)}
     compiled_schedule: list[tuple[ResolvedScheduleItemSource, list[str]]] = []
+    singleton_ability_entity_context_keys: set[str] = set()
+    target_group_context_keys = {
+        write.targetGroupKey for write in getattr(skill, "targetGroupWrites", ())
+    }
     for schedule_index, item in enumerate(schedule):
         if item.itemType == "damage":
             payload = cast(ResolvedDamageHitSource, item.payload)
@@ -7941,6 +8243,17 @@ def compile_resolved_sequence(
                 index == len(hits) - 1,
                 runtime_blackboard_keys,
             )
+        elif item.itemType == "abilityEntitySpawn":
+            payload = cast(AbilityEntitySpawnPayload, item.payload)
+            step_lines = compile_logical_ability_entity_spawn(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn",
+            ).splitlines()
+            if (
+                payload.saveToContextKey is not None
+                and payload.saveToContextKey not in target_group_context_keys
+            ):
+                singleton_ability_entity_context_keys.add(payload.saveToContextKey)
         elif item.itemType == "condition":
             payload = cast(ConditionalActionSource, item.payload)
             target_group_writes = (
@@ -7961,6 +8274,9 @@ def compile_resolved_sequence(
                 ),
                 step_key_prefix=skill.key,
                 buff_definitions=buff_definitions,
+                singleton_ability_entity_context_keys=frozenset(
+                    singleton_ability_entity_context_keys
+                ),
             )
             if compiled_condition == "sequence()":
                 continue
@@ -8359,6 +8675,8 @@ def collect_definition_helpers(
         helpers.add("branch")
     if any("once(" in source for _, source in compiled):
         helpers.add("once")
+    if any("forEachContextTarget(" in source for _, source in compiled):
+        helpers.add("forEachContextTarget")
     return ", ".join(sorted(helpers))
 
 
@@ -8851,7 +9169,7 @@ def render_report(
                     asdict(provenance) for provenance in skill.blackboardProvenance
                 ],
                 "targetGroupWrites": [
-                    asdict(write) for write in skill.targetGroupWrites
+                    serialize_audit_value(write) for write in skill.targetGroupWrites
                 ],
                 "timeDilations": [asdict(action) for action in skill.timeDilations],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,

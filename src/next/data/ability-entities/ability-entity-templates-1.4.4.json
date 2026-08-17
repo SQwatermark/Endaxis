@@ -1,0 +1,1729 @@
+{
+  "format": "EndaxisLogicalAbilityEntityTemplateEvidence",
+  "gameVersion": "1.4.4",
+  "manifestId": 451359,
+  "spatialModel": "zero-distance-all-instances-single-enemy",
+  "lifeTypeNativeValues": {
+    "limited": 0,
+    "infinite": 1
+  },
+  "templates": {
+    "abilityentity_chr_0004_pelica_ultimate_skill": {
+      "gameId": "abilityentity_chr_0004_pelica_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427836715,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0004_pelica_ultimate_skill.asset",
+      "assetIndex": 183550,
+      "rawSha256": "e2a194f256cd78d9a9d453e178ae5c1b1ca435d1207a08a263b66de95ce3c4a3",
+      "referencedBySkillFiles": ["chr_0004_pelica_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0006_wolfgd_combo_skill": {
+      "gameId": "abilityentity_chr_0006_wolfgd_combo_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 1980073742],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.5,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836722,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0006_wolfgd_combo_skill.asset",
+      "assetIndex": 158737,
+      "rawSha256": "348c323a51e61b75f5b34368c6b15f38630dd47a52a41024cce0a1c4dc378fe3",
+      "referencedBySkillFiles": ["chr_0006_wolfgd_combo_skill_projhit.json"]
+    },
+    "abilityentity_chr_0007_ikut_ultimate_skill": {
+      "gameId": "abilityentity_chr_0007_ikut_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836733,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0007_ikut_ultimate_skill.asset",
+      "assetIndex": 209201,
+      "rawSha256": "3c2265203c56fc25bc69c8333526ca612116a330491bd0810c788a0f654dad5d",
+      "referencedBySkillFiles": ["chr_0007_ikut_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0011_seraph_normal_skill_buff": {
+      "gameId": "abilityentity_chr_0011_seraph_normal_skill_buff",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -380421959],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 3,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836766,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0011_seraph_normal_skill_buff.asset",
+      "assetIndex": 104194,
+      "rawSha256": "ce7331279a229598605a150fab4935ff0af24345a17d680c93ce2d379b808d43",
+      "referencedBySkillFiles": ["chr_0011_seraph_normal_skill_projhit.json"]
+    },
+    "abilityentity_chr_0012_avywen_combo_skill_lance": {
+      "gameId": "abilityentity_chr_0012_avywen_combo_skill_lance",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078, 1447025331],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 62.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836775,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0012_avywen_combo_skill_lance.asset",
+      "assetIndex": 81225,
+      "rawSha256": "9366df518aa000ec4b749de67ce539a086211fa0865c634c688ea72cf2717d17",
+      "referencedBySkillFiles": ["chr_0012_avywen_combo_skill_lance_gene.json"]
+    },
+    "abilityentity_chr_0012_avywen_ultimate_skill": {
+      "gameId": "abilityentity_chr_0012_avywen_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [
+        -1706530655, 1717826765, -715143713, 152398297, 1980073742, -808036568, -279045144,
+        1643653132, 2056757668, 195489960, 2136825092, -3742501, 486381712, -922203198
+      ],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 62.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836781,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0012_avywen_ultimate_skill.asset",
+      "assetIndex": 231255,
+      "rawSha256": "e2470bea49a1dc4b9b9fcf388db93d7f69a609d5108565c40306760d449a281a",
+      "referencedBySkillFiles": ["chr_0012_avywen_ultimate_skill_lance_gene.json"]
+    },
+    "abilityentity_chr_0013_aglina_normal_skill": {
+      "gameId": "abilityentity_chr_0013_aglina_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 1980073742],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836786,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0013_aglina_normal_skill.asset",
+      "assetIndex": 245410,
+      "rawSha256": "142475e09e16ca68b77d8eb340c5aec08ee1e3881ccea2e5d9d03d86eeec2f39",
+      "referencedBySkillFiles": ["chr_0013_aglina_normal_skill.json"]
+    },
+    "abilityentity_chr_0013_aglina_ultimate_skill": {
+      "gameId": "abilityentity_chr_0013_aglina_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 1980073742],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836791,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0013_aglina_ultimate_skill.asset",
+      "assetIndex": 195984,
+      "rawSha256": "4a933753240dec76f9e5281ea6f14473d6dc60f54ee3d70acefe4c14b624b399",
+      "referencedBySkillFiles": ["chr_0013_aglina_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0014_aurora_combo_skill": {
+      "gameId": "abilityentity_chr_0014_aurora_combo_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 3.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427836796,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0014_aurora_combo_skill.asset",
+      "assetIndex": 57722,
+      "rawSha256": "b8fdd5377994505bb38c7277d98f8ca22244f743514f52f1ba477df2fea60bc1",
+      "referencedBySkillFiles": ["chr_0014_aurora_combo_skill_bear_gene.json"]
+    },
+    "abilityentity_chr_0014_aurora_ultimate_skill": {
+      "gameId": "abilityentity_chr_0014_aurora_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 8.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836804,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0014_aurora_ultimate_skill.asset",
+      "assetIndex": 256024,
+      "rawSha256": "e2d33079033d2fb5e79cc9114fd3172a00aef56bcf22ef7a74cde2547e557036",
+      "referencedBySkillFiles": ["chr_0014_aurora_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0015_lifeng_ultimate_skill": {
+      "gameId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836809,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0015_lifeng_ultimate_skill.asset",
+      "assetIndex": 176471,
+      "rawSha256": "7a6eef5e438d5c5f39337d844316ac80c26edcd575888befec2b13490e8f326b",
+      "referencedBySkillFiles": ["chr_0015_lifeng_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0016_laevat_dung_inflict": {
+      "gameId": "abilityentity_chr_0016_laevat_dung_inflict",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -1496115823],
+      "lifeTypeNativeValue": 1,
+      "durationSeconds": 99999.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836815,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0016_laevat_dung_inflict.asset",
+      "assetIndex": 290987,
+      "rawSha256": "877f524ddb08b06e0c4f4ae7002caaea3d8d07a29c730b2c48076c7d3f91a70b",
+      "referencedBySkillFiles": ["chr_0016_laevat_dung_spawn_abilityentity.json"]
+    },
+    "abilityentity_chr_0016_laevat_normal_skill": {
+      "gameId": "abilityentity_chr_0016_laevat_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427836820,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0016_laevat_normal_skill.asset",
+      "assetIndex": 120720,
+      "rawSha256": "9b00031b258453f738129c6b0dcd963417121698e12f4c2b6f81466af94d9ed6",
+      "referencedBySkillFiles": ["chr_0016_laevat_normal_skill.json"]
+    },
+    "abilityentity_chr_0017_yvonne_combo_skill": {
+      "gameId": "abilityentity_chr_0017_yvonne_combo_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427836826,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0017_yvonne_combo_skill.asset",
+      "assetIndex": 260224,
+      "rawSha256": "7b26abee98b9b16c9bd159ac16862989d02941bfaa8edb4a6926df4029305f76",
+      "referencedBySkillFiles": ["chr_0017_yvonne_combo_skill.json"]
+    },
+    "abilityentity_chr_0017_yvonne_ultimate_skill": {
+      "gameId": "abilityentity_chr_0017_yvonne_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -716056851],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836833,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0017_yvonne_ultimate_skill.asset",
+      "assetIndex": 53212,
+      "rawSha256": "d14c72a0630a9675506124e9e3b08491731b7daa937b3f932edc7c79fa054d41",
+      "referencedBySkillFiles": ["chr_0017_yvonne_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0017_yvonne_ultimate_skill2": {
+      "gameId": "abilityentity_chr_0017_yvonne_ultimate_skill2",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -716056851],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836843,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0017_yvonne_ultimate_skill2.asset",
+      "assetIndex": 176580,
+      "rawSha256": "c07cc2c3ece514cdde1da32a38ed698232de76ffbd99910f9bfe88019ff9cef4",
+      "referencedBySkillFiles": ["chr_0017_yvonne_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0017_yvonne_ultimate_skill3": {
+      "gameId": "abilityentity_chr_0017_yvonne_ultimate_skill3",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -716056851],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836853,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0017_yvonne_ultimate_skill3.asset",
+      "assetIndex": 47590,
+      "rawSha256": "51a735e03875f899f5683b87dc76a8a78c8cd312457e2715ab32ace7e3121d21",
+      "referencedBySkillFiles": ["chr_0017_yvonne_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0020_meurs_talent_shockwave": {
+      "gameId": "abilityentity_chr_0020_meurs_talent_shockwave",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 692972078],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 2.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836863,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0020_meurs_talent_shockwave.asset",
+      "assetIndex": 161608,
+      "rawSha256": "d7346b00bdb9ff93458922da974a84596f0f78b543815ed6d5892a64d88e9dbc",
+      "referencedBySkillFiles": ["chr_0020_meurs_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0022_bounda_normal_skill": {
+      "gameId": "abilityentity_chr_0022_bounda_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427836868,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0022_bounda_normal_skill.asset",
+      "assetIndex": 63193,
+      "rawSha256": "ab804004e31349ff8d0de7c2a6d111c687f90bee51350eb6240c20fe6e92642f",
+      "referencedBySkillFiles": ["chr_0022_bounda_normal_skill_projhit.json"]
+    },
+    "abilityentity_chr_0025_ardelia_air_attack": {
+      "gameId": "abilityentity_chr_0025_ardelia_air_attack",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 1912875157],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 100.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836874,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_air_attack.asset",
+      "assetIndex": 250709,
+      "rawSha256": "1b082f82fe404812dab82eb7bd5f607aa885b2b5269329df1f5ac4fd1385e630",
+      "referencedBySkillFiles": ["chr_0025_ardelia_plunging_attack_start.json"]
+    },
+    "abilityentity_chr_0025_ardelia_attack4": {
+      "gameId": "abilityentity_chr_0025_ardelia_attack4",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -2043217379],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427836884,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_attack4.asset",
+      "assetIndex": 229050,
+      "rawSha256": "12e0441a41f6013f1ffd64797323d39e7c467d83e475a33f307606c5dfeb4bc5",
+      "referencedBySkillFiles": ["chr_0025_ardelia_attack4.json"]
+    },
+    "abilityentity_chr_0025_ardelia_attack4_end": {
+      "gameId": "abilityentity_chr_0025_ardelia_attack4_end",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -2043217379],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836892,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_attack4_end.asset",
+      "assetIndex": 11586,
+      "rawSha256": "1b412e863bbecbc8642420c8340cef1e119c9fc8e0482fc48695260b0b79978e",
+      "referencedBySkillFiles": ["chr_0025_ardelia_attack4.json"]
+    },
+    "abilityentity_chr_0025_ardelia_attack4_low": {
+      "gameId": "abilityentity_chr_0025_ardelia_attack4_low",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -2043217379],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427836900,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_attack4_low.asset",
+      "assetIndex": 133493,
+      "rawSha256": "12833da4aaf85120aeef5a5ab59c9c1f6fe79e122c45c39ff9dc0c5a6254ec8a",
+      "referencedBySkillFiles": ["chr_0025_ardelia_attack4.json"]
+    },
+    "abilityentity_chr_0025_ardelia_combo_skill": {
+      "gameId": "abilityentity_chr_0025_ardelia_combo_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -1450079158],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836908,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_combo_skill.asset",
+      "assetIndex": 33660,
+      "rawSha256": "417d69074a0f15371d8710d2389897a833b63d0a886c385800d67b2da62feff1",
+      "referencedBySkillFiles": ["chr_0025_ardelia_combo_skill.json"]
+    },
+    "abilityentity_chr_0025_ardelia_combo_skill_bomb": {
+      "gameId": "abilityentity_chr_0025_ardelia_combo_skill_bomb",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 3.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427836918,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_combo_skill_bomb.asset",
+      "assetIndex": 198388,
+      "rawSha256": "12059cfdaedecec099a695e8cb5eaaaee9c3c277401259248ab4c6b32aa1cb32",
+      "referencedBySkillFiles": ["chr_0025_ardelia_combo_skill_projhit.json"]
+    },
+    "abilityentity_chr_0025_ardelia_normal_skill": {
+      "gameId": "abilityentity_chr_0025_ardelia_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -1557646711],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 5.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 10,
+      "rootRid": 8194869126427836926,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_normal_skill.asset",
+      "assetIndex": 100688,
+      "rawSha256": "433e3acdff5592e4d1a812f67a8eeadfb5aaa423f55122c5796e02c4ec33266e",
+      "referencedBySkillFiles": ["chr_0025_ardelia_normal_skill.json"]
+    },
+    "abilityentity_chr_0025_ardelia_remain_loop": {
+      "gameId": "abilityentity_chr_0025_ardelia_remain_loop",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 10.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 10,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836936,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0025_ardelia_remain_loop.asset",
+      "assetIndex": 173057,
+      "rawSha256": "f045412713fb9823a3c2b7c7d9b3a71b0ab9884cf262b77d1373e4990aaee03b",
+      "referencedBySkillFiles": [
+        "chr_0025_ardelia_normal_skill_gene_sheep.json",
+        "chr_0025_ardelia_ultimate_skill_sheep_projhit.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_comboskill_water": {
+      "gameId": "abilityentity_chr_0027_tangtang_comboskill_water",
+      "factionNativeValue": 2,
+      "bornTagIds": [
+        -1706530655, 1717826765, -715143713, 152398297, -808036568, -279045144, 1643653132,
+        2056757668, 195489960, 2136825092, -3742501, 486381712, 45117620
+      ],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 62.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 30.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 2,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427836954,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_comboskill_water.asset",
+      "assetIndex": 162775,
+      "rawSha256": "f527910a6e12628e48d7a7c9bb2d89d6dd4e0063a9fb5b09bbbb5a4b79ed1d52",
+      "referencedBySkillFiles": ["chr_0027_tangtang_combo_skill_water_gene.json"]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836964,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill.asset",
+      "assetIndex": 33358,
+      "rawSha256": "f7fc971a135a099618e29825e789e60f1efc746b2a8f207ef3ce6e8f79b6a12e",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_02": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_02",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836973,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_02.asset",
+      "assetIndex": 60580,
+      "rawSha256": "71066de04cb2f22fda518aad6e4c3099b625288e623dff558a8f0b60e9f674c4",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_02_02": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_02_02",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -380421959, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836982,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_02_02.asset",
+      "assetIndex": 70993,
+      "rawSha256": "4318382da09fccd68cc89f26ccb5a7f7131532ad3755fe96899299bb411e8272",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_03": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_03",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836991,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_03.asset",
+      "assetIndex": 251153,
+      "rawSha256": "701c7d56bb1a63435b84d57a6a8f2018e11fb75b387a321769e32af9b14af75d",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_03_02": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_03_02",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427837000,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_03_02.asset",
+      "assetIndex": 209678,
+      "rawSha256": "17558a6a144d67525bb93a9f8218abe95d3c5fcd1a5d0e16d64a1bacce3b93db",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_03_03": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_03_03",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -822673584],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427837009,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_03_03.asset",
+      "assetIndex": 254629,
+      "rawSha256": "44eb2a21f5e1b5e447dd2667468105b97978ec5864274240b0b8e5059ce8c260",
+      "referencedBySkillFiles": [
+        "chr_0027_tangtang_normal_skill_abilityentitymove.json",
+        "chr_0027_tangtang_ult_skill_abilityentitymove.json"
+      ]
+    },
+    "abilityentity_chr_0027_tangtang_normal_skill_move": {
+      "gameId": "abilityentity_chr_0027_tangtang_normal_skill_move",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, 77793925],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 5.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837018,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_move.asset",
+      "assetIndex": 48807,
+      "rawSha256": "d2856d130037e9660ea975dffe0fc4705ea74ac0554a49ca9faca05997ff2711",
+      "referencedBySkillFiles": ["chr_0027_tangtang_normal_skill.json"]
+    },
+    "abilityentity_chr_0027_tangtang_ultskill": {
+      "gameId": "abilityentity_chr_0027_tangtang_ultskill",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -715143713, 152398297, 1980073742, -171713892],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 10.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837025,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_ultskill.asset",
+      "assetIndex": 279880,
+      "rawSha256": "7780ee0bcac4f3708dba7c771231534ce272950cf77af21a7f50dec43ff58f61",
+      "referencedBySkillFiles": ["chr_0027_tangtang_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0028_wulfa_combo_qte_timing": {
+      "gameId": "abilityentity_chr_0028_wulfa_combo_qte_timing",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1496115823, -494423221],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 10.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.10000000149011612,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837031,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0028_wulfa_combo_qte_timing.asset",
+      "assetIndex": 26884,
+      "rawSha256": "1a05280d4f2f921e240b8007c4db8d031571852b7f5f414b9c33464fe66466c9",
+      "referencedBySkillFiles": [
+        "chr_0028_wulfa_absorb_1_projhit.json",
+        "chr_0028_wulfa_absorb_2_projhit.json"
+      ]
+    },
+    "abilityentity_chr_0029_pograni_ultimate_skill": {
+      "gameId": "abilityentity_chr_0029_pograni_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 963241770],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427837036,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0029_pograni_ultimate_skill.asset",
+      "assetIndex": 252029,
+      "rawSha256": "ebdd3b20c31830da6feb14b32b88858509e2391d824b092ba53078fed7abba2d",
+      "referencedBySkillFiles": ["chr_0029_pograni_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_air_attack": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_air_attack",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655, -251943717],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 2.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837044,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_air_attack.asset",
+      "assetIndex": 281291,
+      "rawSha256": "d7e1e94fa14300d625fa663af3ad6c4af4172cd9e38287da969702ac3a4ce3fc",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_air_attack_projhit.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_attack2": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_attack2",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837056,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_attack2.asset",
+      "assetIndex": 167882,
+      "rawSha256": "70c1f903aa60fc1ea26e8d9a1fbd80f4d095fc1c5323bd45ff040bdd6dcf23e9",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_attack2.json", "chr_0030_zhuangfy_attack4.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_attack3_ult": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 2.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837062,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_attack3_ult.asset",
+      "assetIndex": 290509,
+      "rawSha256": "e89584448a6676af5c93677fa0fec083ce09a9a6fdfa443783aac9f71a35eca9",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_attack3_ult.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_attack5": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_attack5",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837074,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_attack5.asset",
+      "assetIndex": 258320,
+      "rawSha256": "a6335a462d1451f7ee192313343cf86c52be38f39afb4877e9b11f3915bcee5a",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_attack5.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_attack_ult": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.5,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837079,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_attack_ult.asset",
+      "assetIndex": 261977,
+      "rawSha256": "77edb70d2e04fa694827e7b2fd25e6e190cc774bf7f13dbb7d711bb19d94ce35",
+      "referencedBySkillFiles": [
+        "chr_0030_zhuangfy_attack1_ult.json",
+        "chr_0030_zhuangfy_attack2_ult.json"
+      ]
+    },
+    "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655, -1913169726],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 3.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 10,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837091,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_normal_skill_fake_target.asset",
+      "assetIndex": 285707,
+      "rawSha256": "5dfa098ba49b3ba0611f622768649ee300621c68a88d6bf0712c0a4b50d7b72d",
+      "referencedBySkillFiles": [
+        "chr_0030_zhuangfy_normal_skill.json",
+        "chr_0030_zhuangfy_normal_skill_ult.json"
+      ]
+    },
+    "abilityentity_chr_0030_zhuangfy_normal_skill_sword": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655, -13979809],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 45.0,
+      "durationBlackboard": {
+        "useBlackboardKey": true,
+        "value": 0.0,
+        "blackboardKey": "EntityBB_swordDuration"
+      },
+      "maxDurationForServerSeconds": 60.0,
+      "maxStackingCount": 5,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": true,
+        "value": 18,
+        "blackboardKey": "EntityBB_swordLimit"
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837096,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_normal_skill_sword.asset",
+      "assetIndex": 225111,
+      "rawSha256": "da7a77a8a4b5061792aee79165f1151db459651bb866e22e30118becb1dc3387",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_normal_skill_ult": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 1.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 3.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 7,
+      "rootRid": 8194869126427837112,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_normal_skill_ult.asset",
+      "assetIndex": 56902,
+      "rawSha256": "b888b08d48e3f0480548b6006594a6d045c2d637ff9d9b09c3a9516dd0d8ae81",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_normal_skill_ult.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_ult": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_ult",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 3.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 3.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427837124,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_ult.asset",
+      "assetIndex": 259685,
+      "rawSha256": "6d6fb29a96899b8426fef6d2cb954debc9b1fe6e4518045971b285d557f2bc72",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0030_zhuangfy_ult_mirror": {
+      "gameId": "abilityentity_chr_0030_zhuangfy_ult_mirror",
+      "factionNativeValue": 2,
+      "bornTagIds": [1717826765, -1706530655],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 3.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 3.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427837131,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_ult_mirror.asset",
+      "assetIndex": 208071,
+      "rawSha256": "b4cc1990975f04873f7f870e4d0d41edd4d34e1771c3fda0cb16a338983b9ab0",
+      "referencedBySkillFiles": ["chr_0030_zhuangfy_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_combo_skill": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_combo_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -1480463572],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 50.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 7,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427837144,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_combo_skill.asset",
+      "assetIndex": 293094,
+      "rawSha256": "b1c7408e23cb842f02ccabb6b016bf0b3a187b4e0a0a0ad9ba87e21eb87f4dbc",
+      "referencedBySkillFiles": ["chr_0032_lizhiyan_combo_skill.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_combo_skill_death": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 6,
+      "rootRid": 8194869126427837152,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_combo_skill_death.asset",
+      "assetIndex": 16340,
+      "rawSha256": "2fbe686b12a0a61fd237a7280877d31e3a02f503214fea43169ceed35aaae87c",
+      "referencedBySkillFiles": ["chr_0032_lizhiyan_combo_skill_abilityentity_seal_again.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_normal_skill": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837163,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_normal_skill.asset",
+      "assetIndex": 14849,
+      "rawSha256": "6863f8e41d8973a139fb3c7d2c17d904b9f5f80750c2fc9e949beb53cf790e7e",
+      "referencedBySkillFiles": ["chr_0032_lizhiyan_normal_skill.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_ultimate_skill": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, 464088014],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 30.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837168,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_ultimate_skill.asset",
+      "assetIndex": 206620,
+      "rawSha256": "083658f8a4ffce86b45cc89be440e43ed631084925a87515782abb55a54bc1ac",
+      "referencedBySkillFiles": ["chr_0032_lizhiyan_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_ultimate_skill_place": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_place",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -807738102],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 30.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837188,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_ultimate_skill_place.asset",
+      "assetIndex": 231442,
+      "rawSha256": "5597078c9a291ccff666c47b36607398968534f3af590ce7edf431068bd5744a",
+      "referencedBySkillFiles": ["chr_0032_lizhiyan_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0033_camille_normal_skill": {
+      "gameId": "abilityentity_chr_0033_camille_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -1505402826],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": true,
+        "value": 5.0,
+        "blackboardKey": "EntityBB_bat_duration"
+      },
+      "maxDurationForServerSeconds": 60.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 5,
+      "managedReferenceCount": 8,
+      "rootRid": 8194869126427837193,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0033_camille_normal_skill.asset",
+      "assetIndex": 4104,
+      "rawSha256": "1bff085b5215c26aa08d41fa39587ffd8fe22e274560b27b178a0d5fbc11d828",
+      "referencedBySkillFiles": ["chr_0033_camille_normal_skill_projhit.json"]
+    }
+  },
+  "unresolvedReferences": {
+    "abilityentity_chr_0035_liino_ult_skill_projhit": {
+      "reason": "manifestAssetMissing",
+      "expectedAssetName": "data_abilityentity_chr_0035_liino_ult_skill_projhit.asset",
+      "referencedBySkillFiles": ["chr_0035_liino_ultimate_skill.json"]
+    }
+  }
+}

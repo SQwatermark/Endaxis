@@ -4366,7 +4366,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -4489,7 +4490,14 @@
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -4511,7 +4519,14 @@
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
                 "entityBlackboardAssignments": [],
-                "assignBlackboard": true
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": null,
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
               }
             }
           ],
@@ -4520,7 +4535,14 @@
               "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
               "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
               "entityBlackboardAssignments": [],
-              "assignBlackboard": true
+              "assignBlackboard": true,
+              "sourceType": "ActionSource",
+              "sourceContextKey": "",
+              "target": null,
+              "overrideDuration": null,
+              "saveToContextKey": null,
+              "dieWhenSourceDies": false,
+              "dieOnEnd": false
             }
           ]
         }
@@ -4567,6 +4589,19 @@
           "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
           "sourceFile": "chr_0015_lifeng_ultimate_skill_abentity.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+            "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [
             {
               "startFrame": 6,
@@ -5197,6 +5232,20 @@
           ]
         },
         {
+          "frame": 58,
+          "actionOrder": [
+            37,
+            0
+          ],
+          "sequenceOrder": [
+            37
+          ],
+          "itemType": "abilityEntitySpawn",
+          "sourcePath": [
+            "chr_0015_lifeng_ultimate_skill"
+          ]
+        },
+        {
           "frame": 64,
           "actionOrder": [
             37,
@@ -5482,7 +5531,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -5501,7 +5551,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

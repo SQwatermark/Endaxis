@@ -21,6 +21,8 @@ __all__ = [
     "InflictionPayload",
     "TimedInflictionSource",
     "TimedResourceGainSource",
+    "AbilityEntityTimeDilationTargetSource",
+    "TimedTimeDilationSource",
     "ProjectileSkillTriggerSource",
     "ProjectileTriggeredSkillSource",
     "ProjectileLaunchSource",
@@ -42,6 +44,7 @@ __all__ = [
     "BuffStackConditionSource",
     "HealthConditionSource",
     "MainOperatorConditionSource",
+    "EnemyRankConditionSource",
     "TargetReferenceSource",
     "TargetIdentityConditionSource",
     "DistanceConditionSource",
@@ -255,6 +258,15 @@ class TimeScaleCurveKeySource:
 
 
 @dataclass(frozen=True)
+class AbilityEntityTimeDilationTargetSource:
+    """时间膨胀中的能力实体集合；仅保留身份查询，不声称已能执行。"""
+
+    reference: "TargetReferenceSource"
+    spawnedObjectType: str | None
+    tagQueries: tuple[tuple[str, tuple[int, ...]], ...]
+
+
+@dataclass(frozen=True)
 class TimedTimeDilationSource:
     """根技能时间轴中的普通或终结技专用时间膨胀动作。"""
 
@@ -275,6 +287,7 @@ class TimedTimeDilationSource:
     influenceSkillCooldown: ScalarSource | None
     targetScale: float | None
     sequenceIndex: int = -1
+    effectAbilityEntityTargets: tuple[AbilityEntityTimeDilationTargetSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -354,6 +367,7 @@ class AbilityEntityHitSource:
     skillId: str
     sourceFile: str
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...]
+    spawnPayload: "AbilityEntitySpawnPayload"
     directDamageHits: tuple[TimedDamageSource, ...]
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
@@ -388,6 +402,7 @@ class ResolvedDamageHitSource:
 
 
 ResolvedScheduleItemType = Literal[
+    "abilityEntitySpawn",
     "damage",
     "condition",
     "blackboardCalculation",
@@ -425,6 +440,7 @@ class ResolvedScheduleItemSource:
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"
+        " | AbilityEntitySpawnPayload"
     )
     # 仅条件动作会读取其调用者传入的 Target；这里保存投影后已确认的目标身份。
     inputTarget: Literal["enemy"] | None = None
@@ -590,6 +606,13 @@ class MainOperatorConditionSource:
 
 
 @dataclass(frozen=True)
+class EnemyRankConditionSource:
+    target: "TargetReferenceSource"
+    # 原生 EnemyRankSet 位集：Mob=1、Elite=2、Boss=4。
+    rankMask: int
+
+
+@dataclass(frozen=True)
 class TargetReferenceSource:
     """一个原生 TargetSettings 引用；保留证明目标身份与位置所需的选择器语义。"""
 
@@ -667,6 +690,17 @@ class BuffIdInContextConditionSource:
 
 
 @dataclass(frozen=True)
+class AbilityEntityDurationConditionSource:
+    """原生能力实体剩余时长检查的完整可审计载荷。"""
+
+    target: TargetReferenceSource
+    comparison: str
+    value: ScalarSource
+    saveCurrentDuration: bool
+    outputKey: str
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -678,6 +712,7 @@ class ConditionSource:
     buffStack: BuffStackConditionSource | None = None
     health: HealthConditionSource | None = None
     mainOperator: MainOperatorConditionSource | None = None
+    enemyRank: "EnemyRankConditionSource | None" = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None
@@ -686,6 +721,7 @@ class ConditionSource:
     skillHasHit: "SkillHasHitConditionSource | None" = None
     damageDecorateMask: "DamageDecorateMaskConditionSource | None" = None
     contextBuffId: "BuffIdInContextConditionSource | None" = None
+    abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
 
 
 @dataclass(frozen=True)
@@ -919,6 +955,25 @@ class AbilityEntitySpawnPayload:
     skillId: str | None
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
     assignBlackboard: bool = False
+    sourceType: str = ""
+    sourceContextKey: str = ""
+    target: TargetReferenceSource | None = None
+    overrideDuration: ScalarSource | None = None
+    saveToContextKey: str | None = None
+    dieWhenSourceDies: bool = False
+    dieOnEnd: bool = False
+
+
+@dataclass(frozen=True)
+class AbilityEntityDurationAssignmentPayload:
+    """原生能力实体剩余时长赋值；目标选择语义由编译阶段证明。"""
+
+    setMultipleTarget: bool
+    actionTargetType: str
+    targetContextKey: str
+    operation: str
+    value: ScalarSource
+    targetSettings: TargetReferenceSource | None = None
 
 
 @dataclass(frozen=True)
@@ -946,6 +1001,7 @@ class ConditionalBranchActionSource:
     projectileLaunch: ProjectileLaunchPayload | None = None
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
+    abilityEntityDurationAssignment: AbilityEntityDurationAssignmentPayload | None = None
     auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
     keywordAction: TimedKeywordActionSource | None = None
@@ -992,6 +1048,13 @@ class DoOnceActionSource(ConditionalActionSource):
 @dataclass(frozen=True)
 class UnconditionalActionSource(ConditionalActionSource):
     """借用统一动作树保存根时间轴中的直接战斗动作。"""
+
+
+@dataclass(frozen=True)
+class ForEachContextActionSource(ConditionalActionSource):
+    """对原生 Context 目标组的稳定句柄逐一执行同步动作序列。"""
+
+    contextKey: str = ""
 
 
 @dataclass(frozen=True)
@@ -1083,6 +1146,8 @@ class TargetGroupInputSource:
     finderCheckAlive: bool | None
     validatorTypes: tuple[str, ...]
     postProcessorTypes: tuple[str, ...]
+    finderSpawnedObjectType: str | None = None
+    validatorTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1103,6 +1168,8 @@ class TargetGroupWriteSource:
     postProcessorTypes: tuple[str, ...]
     inputTargets: tuple[TargetGroupInputSource, ...]
     intervalSeconds: float | None
+    finderSpawnedObjectType: str | None = None
+    validatorTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
 
 
 @dataclass(frozen=True)

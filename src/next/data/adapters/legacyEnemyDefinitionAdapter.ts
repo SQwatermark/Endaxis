@@ -5,6 +5,8 @@
 import type { EnemySheet } from '../../../data/types';
 import type { EnemyDefinition, EnemyLevelHpDefinition } from '../../core/game-data/enemyDefinition';
 import { DAMAGE_ELEMENTS } from '../../core/game-data/operatorDefinition';
+import { isEnemyRank, type EnemyRank } from '../../core/game-data/enemyRank';
+import enemyRankEvidence from '../enemies/enemy-ranks-1.4.4.json';
 
 const legacyEnemyModules = import.meta.glob('../../../data/enemies/*.ts', {
   eager: true,
@@ -16,6 +18,14 @@ function requireFiniteNumber(value: unknown, field: string, enemyId: string): nu
     throw new Error(`legacy enemy '${enemyId}' has invalid ${field}`);
   }
   return value;
+}
+
+function requireEnemyRank(gameId: string, enemyId: string): EnemyRank {
+  const evidence = (enemyRankEvidence.enemies as Record<string, { rank?: unknown }>)[gameId];
+  if (evidence === undefined || !isEnemyRank(evidence.rank)) {
+    throw new Error(`legacy enemy '${enemyId}' has no verified EnemyTemplateData.rank`);
+  }
+  return evidence.rank;
 }
 
 function adaptLevelHp(sheet: EnemySheet, enemyId: string): readonly EnemyLevelHpDefinition[] {
@@ -62,6 +72,7 @@ function adaptEnemy(enemyId: string, sheet: EnemySheet): EnemyDefinition {
     gameId: sheet.gameId,
     iconPath: sheet.avatar,
     tier: sheet.tier,
+    rank: requireEnemyRank(sheet.gameId, enemyId),
     levelHp: adaptLevelHp(sheet, enemyId),
     defense: requireFiniteNumber(sheet.def, 'defense', enemyId),
     resistances: Object.freeze(resistances),

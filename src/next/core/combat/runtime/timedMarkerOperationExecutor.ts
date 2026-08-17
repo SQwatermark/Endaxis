@@ -2,13 +2,13 @@
  * 执行定时标记的创建、条件查询与动作结束清理。
  * 目标到实体容器的映射由装配层提供；动态时长只读取当前技能实例黑板。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { TimedMarkerContainer, TimedMarkerHandle } from './timedMarkers';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 
 export interface TimedMarkerOperationDependencies {
   readonly resolveTarget: (target: CombatTarget) => TimedMarkerContainer;

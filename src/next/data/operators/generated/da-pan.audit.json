@@ -4728,7 +4728,8 @@
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [
@@ -5938,7 +5939,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 42,
@@ -5963,7 +5965,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 46,
@@ -5988,7 +5991,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 50,
@@ -6013,7 +6017,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 54,
@@ -6038,7 +6043,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 58,
@@ -6063,7 +6069,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 62,
@@ -6088,7 +6095,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 14
+          "sequenceIndex": 14,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -6132,7 +6140,8 @@
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "effectAbilityEntityTargets": []
         }
       ],
       "unresolvedCombatActions": [

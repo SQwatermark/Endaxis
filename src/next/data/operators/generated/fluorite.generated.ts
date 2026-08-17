@@ -515,8 +515,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 77,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -524,9 +523,7 @@ export const fluoriteGeneratedSource = {
           "endFrame": 3,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -549,8 +546,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 13,
           "endFrame": 16,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -941,8 +937,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 77,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -959,8 +954,7 @@ export const fluoriteGeneratedSource = {
             "FindTargetAction",
             "Selector",
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1399,8 +1393,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 137,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1410,8 +1403,7 @@ export const fluoriteGeneratedSource = {
             "FindTargetAction",
             "Selector",
             "LaunchProjectile",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1922,8 +1914,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 153,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1939,25 +1930,21 @@ export const fluoriteGeneratedSource = {
           "startFrame": 29,
           "endFrame": 33,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 26,
           "endFrame": 29,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 29,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -2592,8 +2579,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 150,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2609,25 +2595,21 @@ export const fluoriteGeneratedSource = {
           "startFrame": 26,
           "endFrame": 30,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 23,
           "endFrame": 26,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 26,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -3283,17 +3265,14 @@ export const fluoriteGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 85,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -3311,43 +3290,35 @@ export const fluoriteGeneratedSource = {
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "GainBreakingAttackAtb",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
           "startFrame": 20,
           "endFrame": 23,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 18,
           "endFrame": 24,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 21,
           "endFrame": 25,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 1,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -3699,8 +3670,7 @@ export const fluoriteGeneratedSource = {
           "endFrame": 60,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -3733,9 +3703,7 @@ export const fluoriteGeneratedSource = {
             "AtkScaleCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -3744,8 +3712,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4253,8 +4220,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 0,
           "endFrame": 89,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -4301,30 +4267,21 @@ export const fluoriteGeneratedSource = {
           "startFrame": 12,
           "endFrame": 14,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 26,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 17,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -4338,11 +4295,8 @@ export const fluoriteGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -4496,6 +4450,34 @@ export const fluoriteGeneratedSource = {
               "skillId": "chr_0022_bounda_normal_skill_abilityrange",
               "sourceFile": "chr_0022_bounda_normal_skill_abilityrange.json",
               "entityBlackboardAssignments": [],
+              "spawnPayload": {
+                "abilityEntityId": "abilityentity_chr_0022_bounda_normal_skill",
+                "skillId": "chr_0022_bounda_normal_skill_abilityrange",
+                "entityBlackboardAssignments": [],
+                "assignBlackboard": true,
+                "sourceType": "ActionSource",
+                "sourceContextKey": "",
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideDuration": null,
+                "saveToContextKey": null,
+                "dieWhenSourceDies": false,
+                "dieOnEnd": false
+              },
               "directDamageHits": [
                 {
                   "startFrame": 89,
@@ -5686,8 +5668,7 @@ export const fluoriteGeneratedSource = {
           "endFrame": 75,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -5709,8 +5690,7 @@ export const fluoriteGeneratedSource = {
             "DefiniteValueCalculation",
             "IfElseAction",
             "ObtainCostAction",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -5743,8 +5723,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 11,
           "endFrame": 20,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -5752,27 +5731,21 @@ export const fluoriteGeneratedSource = {
           "endFrame": 19,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 15,
           "endFrame": 18,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 19,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5794,11 +5767,8 @@ export const fluoriteGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -5806,7 +5776,6 @@ export const fluoriteGeneratedSource = {
           "endFrame": 13,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -7322,7 +7291,8 @@ export const fluoriteGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -7405,8 +7375,7 @@ export const fluoriteGeneratedSource = {
           "startFrame": 72,
           "endFrame": 120,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -7420,18 +7389,14 @@ export const fluoriteGeneratedSource = {
           "startFrame": 57,
           "endFrame": 72,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -8851,7 +8816,8 @@ export const fluoriteGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -8870,7 +8836,8 @@ export const fluoriteGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

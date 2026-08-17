@@ -18,6 +18,7 @@ describe('enemyEditorCommands', () => {
     const enemy = createDefinitionEnemyDocument(definition, 90, 30);
 
     expect(enemy.source).toEqual({ kind: 'prefab', enemyId: definition.id, level: 90 });
+    expect(enemy.rank).toBe(definition.rank);
     expect(enemy.editable).toMatchObject({
       hp: 2476341,
       defense: 100,
@@ -76,6 +77,7 @@ describe('enemyEditorCommands', () => {
   it('创建自定义敌人时不伪装成预制体覆盖', () => {
     expect(createCustomEnemyDocument(80)).toMatchObject({
       source: { kind: 'custom', level: 80 },
+      rank: 'mob',
       edited: [],
     });
   });

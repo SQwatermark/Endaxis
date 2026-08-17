@@ -5,7 +5,11 @@ from __future__ import annotations
 from typing import Any, Literal, cast
 
 from action_payload_parser import parse_scalar
-from source_models import TimedTimeDilationSource, TimeScaleCurveKeySource
+from source_models import (
+    AbilityEntityTimeDilationTargetSource,
+    TimedTimeDilationSource,
+    TimeScaleCurveKeySource,
+)
 from source_utils import (
     action_name,
     require_bool,
@@ -15,7 +19,10 @@ from source_utils import (
     require_number,
     require_server_action_index,
 )
-from target_parser import parse_target_reference
+from target_parser import (
+    parse_spawned_entity_selector_identity,
+    parse_target_reference,
+)
 
 
 def parse_time_dilation_target(
@@ -63,27 +70,76 @@ def parse_time_dilation_target(
     raise ValueError(f"{path}: unsupported time-dilation target source {source!r}")
 
 
+def parse_ability_entity_time_dilation_target(
+    value: Any,
+    path: str,
+) -> AbilityEntityTimeDilationTargetSource:
+    """严格保留时间膨胀所选能力实体集合的身份证据。"""
+    target = require_dict(value, path)
+    reference = parse_target_reference(target, path)
+    spawned_object_type, tag_queries = parse_spawned_entity_selector_identity(
+        target.get("selectorData"),
+        f"{path}.selectorData",
+    )
+    if reference.targetSource == "InstantSearch":
+        if (
+            reference.finderType != "OwnerSpawnedEntityFinder"
+            or spawned_object_type != "AbilityEntity"
+            or any(item != "TagValidator" for item in reference.validatorTypes)
+            or len(tag_queries) != len(reference.validatorTypes)
+            or reference.postProcessorTypes
+        ):
+            raise ValueError(f"{path}: unsupported ability-entity time-dilation query")
+    elif reference.targetSource == "Context":
+        if (
+            reference.finderType is not None
+            or reference.validatorTypes
+            or reference.postProcessorTypes
+            or not reference.targetGroupKey
+        ):
+            raise ValueError(f"{path}: unsupported Context ability-entity time-dilation query")
+    else:
+        raise ValueError(f"{path}: expected an ability-entity time-dilation target")
+    return AbilityEntityTimeDilationTargetSource(
+        reference=reference,
+        spawnedObjectType=spawned_object_type,
+        tagQueries=tag_queries,
+    )
+
+
 def parse_time_scale_curve(value: Any, path: str) -> tuple[TimeScaleCurveKeySource, ...]:
-    curve = require_dict(value, path)
-    if (
-        curve.get("preWrapMode") != "ClampForever"
-        or curve.get("postWrapMode") != "ClampForever"
-    ):
-        raise ValueError(f"{path}: only ClampForever curves are supported")
+    legacy_key_fields = {
+        "time",
+        "value",
+        "inTangent",
+        "outTangent",
+        "tangentMode",
+        "weightedMode",
+        "inWeight",
+        "outWeight",
+    }
+    projected_key_fields = legacy_key_fields - {"tangentMode"}
+    if isinstance(value, list):
+        # The current AKEDB projection exposes Unity's keyframes directly and
+        # omits the legacy tangentMode field.
+        raw_keys = value
+        expected_key_fields = projected_key_fields
+    else:
+        curve = require_dict(value, path)
+        if set(curve) != {"preWrapMode", "postWrapMode", "keys"}:
+            raise ValueError(f"{path}: unexpected curve fields {sorted(curve)}")
+        if (
+            curve.get("preWrapMode") != "ClampForever"
+            or curve.get("postWrapMode") != "ClampForever"
+        ):
+            raise ValueError(f"{path}: only ClampForever curves are supported")
+        raw_keys = require_list(curve.get("keys"), f"{path}.keys")
+        expected_key_fields = legacy_key_fields
     result: list[TimeScaleCurveKeySource] = []
-    for index, raw in enumerate(require_list(curve.get("keys"), f"{path}.keys")):
+    for index, raw in enumerate(raw_keys):
         key_path = f"{path}.keys[{index}]"
         key = require_dict(raw, key_path)
-        if set(key) != {
-            "time",
-            "value",
-            "inTangent",
-            "outTangent",
-            "tangentMode",
-            "weightedMode",
-            "inWeight",
-            "outWeight",
-        }:
+        if set(key) != expected_key_fields:
             raise ValueError(f"{key_path}: unexpected curve-key fields {sorted(key)}")
         weighted_mode = key.get("weightedMode")
         if not isinstance(weighted_mode, int) or isinstance(weighted_mode, bool):
@@ -193,19 +249,26 @@ def parse_time_dilation_action(
     slot = require_dict(action.get("slot"), f"{path}.slot").get("tagId")
     if not isinstance(slot, int) or isinstance(slot, bool):
         raise ValueError(f"{path}.slot.tagId: expected integer")
+    raw_effect_targets = require_list(
+        action.get("effectTargets"), f"{path}.effectTargets"
+    )
     effect_targets = tuple(
         parse_time_dilation_target(target, f"{path}.effectTargets[{index}]")
-        for index, target in enumerate(
-            require_list(action.get("effectTargets"), f"{path}.effectTargets")
-        )
+        for index, target in enumerate(raw_effect_targets)
     )
-    if "abilityEntity" in effect_targets:
-        raise ValueError(f"{path}.effectTargets: ability entities need an explicit runtime model")
+    effect_ability_entity_targets = tuple(
+        parse_ability_entity_time_dilation_target(
+            raw_effect_targets[index], f"{path}.effectTargets[{index}]"
+        )
+        for index, target in enumerate(effect_targets)
+        if target == "abilityEntity"
+    )
     use_curve_key = require_bool(action.get("useCurveKey"), f"{path}.useCurveKey")
     curve_key = action.get("curveKey")
     if not isinstance(curve_key, str):
         raise ValueError(f"{path}.curveKey: expected string")
-    inline_curve = parse_time_scale_curve(action.get("timeScaleCurve"), f"{path}.timeScaleCurve")
+    raw_curve = action.get("timeScaleCurve")
+    inline_curve = parse_time_scale_curve(raw_curve, f"{path}.timeScaleCurve")
     if use_curve_key == bool(inline_curve):
         raise ValueError(f"{path}: expected exactly one named or inline curve")
     influence = None
@@ -241,9 +304,11 @@ def parse_time_dilation_action(
         targets=tuple(
             cast(Literal["caster", "enemy"], target)
             for target in effect_targets
+            if target != "abilityEntity"
         ),
         omittedAbilityEntityTargets=omitted,
         influenceSkillCooldown=influence,
         targetScale=None,
         sequenceIndex=sequence_index,
+        effectAbilityEntityTargets=effect_ability_entity_targets,
     )

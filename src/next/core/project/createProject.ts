@@ -26,6 +26,7 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
     connections: [],
     enemy: {
       source: { kind: 'custom', level: 90 },
+      rank: 'mob',
       editable: {
         hp: 100000,
         defense: 100,

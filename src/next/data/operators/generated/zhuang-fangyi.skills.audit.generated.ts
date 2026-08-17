@@ -91,6 +91,12 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         15,
         sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange' }),
+        ),
+      ),
+      scheduled(
+        15,
+        sequence(
           step('dealDamage', {
             damageType: 'electric',
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
@@ -227,6 +233,12 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         11,
         sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange' }),
+        ),
+      ),
+      scheduled(
+        11,
+        sequence(
           step('dealDamage', {
             damageType: 'electric',
             attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
@@ -277,6 +289,12 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     timelineBlockFrames: 50,
     scheduledSequences: [
+      scheduled(
+        20,
+        sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack5', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange', target: 'enemy' }),
+        ),
+      ),
       scheduled(
         20,
         sequence(
@@ -414,6 +432,12 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
           }),
         ),
         35,
+      ),
+      scheduled(
+        3,
+        sequence(
+          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange', target: 'enemy', saveToContextKey: 'thunder' }),
+        ),
       ),
       scheduled(
         33,

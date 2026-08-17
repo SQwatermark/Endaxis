@@ -58,6 +58,14 @@ function collectSequenceKeys(
     }
     if (step.kind === 'once' && isRecord(step.body) && Array.isArray(step.body.steps)) {
       collectSequenceKeys(step.body.steps, `${stepPath}.once`, entries);
+      continue;
+    }
+    if (
+      step.kind === 'forEachContextTarget' &&
+      isRecord(step.body) &&
+      Array.isArray(step.body.steps)
+    ) {
+      collectSequenceKeys(step.body.steps, `${stepPath}.body`, entries);
     }
   }
 }

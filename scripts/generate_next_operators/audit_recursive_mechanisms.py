@@ -15,7 +15,7 @@ import audit_all_operators as generation_audit
 import generate_next_operators as generator
 
 
-DEFAULT_BUFF_SOURCE = generator.DEFAULT_SOURCE.parent / "buff-data-cdn"
+DEFAULT_BUFF_SOURCE = generator.DEFAULT_SOURCE.parent / "BuffData"
 DEFAULT_BUFF_FALLBACK = generator.DEFAULT_SOURCE.parent / "buff-data-current"
 DEFAULT_JSON_OUTPUT = (
     generator.REPOSITORY_ROOT
@@ -563,7 +563,9 @@ def build_document(
             "countingRule": {
                 "root": "入口 SkillData 中直接配置的 Action",
                 "recursive": "入口技能、子技能、干员前缀 Buff 及递归 Skill/Buff 引用闭包",
-                "operatorCoverage": "29 名范围内含该机制的干员数；管理员缺源时不推断机制",
+                "operatorCoverage": (
+                    f"{len(operators)} 名范围内含该机制的干员数；管理员缺源时不推断机制"
+                ),
             },
         },
         "layers": {
@@ -636,7 +638,7 @@ def render_markdown(document: dict[str, Any]) -> str:
         "",
         "## 口径",
         "",
-        "本报告由 `CharacterTable`、`CharGrowthTable.skillGroupMap`、`skill-data-cdn` 与 `buff-data-cdn` 自动生成。",
+        "本报告由 `CharacterTable`、`CharGrowthTable.skillGroupMap`、`skill-data-cdn` 与 `BuffData` 自动生成。",
         "`chr_0002_endminm`、`chr_0003_endminf` 作为废案过滤，`chr_9000_endmin` 管理员单列。",
         "根统计只看入口 SkillData；递归统计继续展开子技能、干员前缀 Buff 以及 Skill/Buff 的实际引用。",
         "Action 同时统计配置数量和 `isEnable != false` 的启用数量；正文展示完整配置分布，JSON 同时保留启用分布。",
@@ -697,7 +699,7 @@ def render_markdown(document: dict[str, Any]) -> str:
                 else "无"
             )
             + "。",
-            "- 下表中的公共 Buff 同样属于当前 `buff-data-cdn` 不自包含，不应记为 parser 或 Next 运行时缺口。",
+            "- 下表中的公共 Buff 同样属于当前 `BuffData` 不自包含，不应记为 parser 或 Next 运行时缺口。",
             "",
         ]
     )

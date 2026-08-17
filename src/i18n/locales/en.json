@@ -1451,6 +1451,7 @@
         "healthCompare": "Health comparison",
         "contextFlagEquals": "Context flag equals",
         "actionValueCompare": "Action value comparison",
+        "abilityEntityRemainingDurationCompare": "Ability entity remaining duration",
         "statusActive": "Status active",
         "buffStackCompare": "Buff tag stack comparison",
         "entityTagMatch": "Entity tag match",
@@ -1654,6 +1655,11 @@
         "operatorAttribute": "Final build value of one of the operator's four primary attributes."
       },
       "stepHelp": {
+        "findOwnerSpawnedAbilityEntities": "Finds logical ability entities by the current operator and native GameplayTags, saving the full group and optional count in this cast context.",
+        "forEachContextTarget": "Synchronously executes one step sequence for each stable target handle already stored in the cast context.",
+        "readAbilityEntityRemainingDuration": "Reads the finite remaining lifetime of the current iterated Context target into this cast's action blackboard.",
+        "setAbilityEntityRemainingDuration": "Assigns the remaining lifetime of the current iterated ability entity using the proven native Assign subset.",
+        "spawnAbilityEntity": "Creates an ability entity in the scene-wide logical directory, preserving its template, owner, target, lifetime, and blackboard under the simplified spatial model.",
         "applyElementalInfliction": "Applies elemental infliction to the enemy for later elemental reactions.",
         "applyElementalReaction": "Directly applies an elemental reaction with duration and effectiveness.",
         "consumeElementalReaction": "Consumes a specified reaction on the enemy for follow-up effects.",

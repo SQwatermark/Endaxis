@@ -3,13 +3,13 @@
  * 只消费已闭环的资源步骤，其他步骤必须显式委托；未知步骤不能被吞掉或视作成功。
  */
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
-type RuntimeOperation = Exclude<ResolvedCombatStep, { kind: 'conditional' | 'once' }>;
+type RuntimeOperation = ResolvedCombatOperationStep;
 
 /** 资源执行节点所需的来源身份、账本、回执和后继执行器。 */
 export interface SkillResourceOperationDependencies {

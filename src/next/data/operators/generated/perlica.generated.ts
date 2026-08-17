@@ -357,8 +357,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 166,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -889,8 +888,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 168,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -898,9 +896,7 @@ export const perlicaGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -1589,8 +1585,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 173,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1646,9 +1641,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 15,
           "endFrame": 36,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -1656,9 +1649,7 @@ export const perlicaGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2586,8 +2577,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 179,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2601,9 +2591,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 27,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -3256,9 +3244,7 @@ export const perlicaGeneratedSource = {
             "DefiniteValueCalculation",
             "KnockDownAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb",
             "PlaySoundAction"
           ]
@@ -3274,27 +3260,21 @@ export const perlicaGeneratedSource = {
           "startFrame": 35,
           "endFrame": 38,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 135,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 32,
           "endFrame": 45,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -3303,21 +3283,12 @@ export const perlicaGeneratedSource = {
           "actionTypes": [
             "SaveTwoDirectionAngle",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CameraRotateAction",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "SaveCameraAngle",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -3788,7 +3759,6 @@ export const perlicaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -3796,8 +3766,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 2,
           "endFrame": 7,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -4562,9 +4531,7 @@ export const perlicaGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CreateBuffAction"
           ]
         },
@@ -4615,35 +4582,28 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 155,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 27,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 12,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 12,
           "endFrame": 27,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -4657,11 +4617,8 @@ export const perlicaGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -5251,19 +5208,14 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 75,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 22,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -5271,7 +5223,6 @@ export const perlicaGeneratedSource = {
           "endFrame": 22,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -5331,9 +5282,7 @@ export const perlicaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 24,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -6750,7 +6699,8 @@ export const perlicaGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -6865,9 +6815,7 @@ export const perlicaGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -7187,6 +7135,19 @@ export const perlicaGeneratedSource = {
           "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
           "sourceFile": "chr_0004_pelica_ultimate_skill_abilityrange.json",
           "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0004_pelica_ultimate_skill",
+            "skillId": "chr_0004_pelica_ultimate_skill_abilityrange",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
           "directDamageHits": [],
           "intervalDamageHits": [],
           "conditionalActions": [],
@@ -7488,7 +7449,8 @@ export const perlicaGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

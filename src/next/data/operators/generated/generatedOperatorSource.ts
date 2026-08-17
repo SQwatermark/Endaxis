@@ -227,6 +227,8 @@ export interface GeneratedAbilityEntityHitSource {
   readonly sourceFile: string;
   /** 父动作在生成实体时写入的实例黑板，用于解析子技能中的动态标记等身份。 */
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
+  /** 生成动作本身的来源、目标、时长和 Context 输出证据。 */
+  readonly spawnPayload: GeneratedAbilityEntitySpawnPayload;
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly intervalDamageHits: readonly GeneratedTimedIntervalDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
@@ -496,6 +498,12 @@ export interface GeneratedTargetIdentityConditionSource {
   readonly second: GeneratedTargetReferenceSource;
 }
 
+export interface GeneratedEnemyRankConditionSource {
+  readonly target: GeneratedTargetReferenceSource;
+  /** 原生 EnemyRankSet 位集：Mob=1、Elite=2、Boss=4。 */
+  readonly rankMask: number;
+}
+
 /** 原生距离条件使用三维距离；lessThan=true 的实际边界为小于等于。 */
 export interface GeneratedDistanceConditionSource {
   readonly source: GeneratedTargetReferenceSource;
@@ -537,6 +545,14 @@ export interface GeneratedBuffIdInContextConditionSource {
   readonly queryType: string;
 }
 
+export interface GeneratedAbilityEntityDurationConditionSource {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly comparison: string;
+  readonly value: GeneratedScalarSource;
+  readonly saveCurrentDuration: boolean;
+  readonly outputKey: string;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -548,6 +564,7 @@ export interface GeneratedConditionSource {
   readonly buffStack?: GeneratedBuffStackConditionSource;
   readonly health?: GeneratedHealthConditionSource;
   readonly mainOperator?: GeneratedMainOperatorConditionSource;
+  readonly enemyRank?: GeneratedEnemyRankConditionSource;
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
   readonly entityTag?: GeneratedEntityTagConditionSource;
@@ -556,6 +573,7 @@ export interface GeneratedConditionSource {
   readonly skillHasHit?: GeneratedSkillHasHitConditionSource;
   readonly damageDecorateMask?: GeneratedDamageDecorateMaskConditionSource | null;
   readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
+  readonly abilityEntityDuration?: GeneratedAbilityEntityDurationConditionSource;
 }
 
 export interface GeneratedConditionalActionSource {
@@ -574,6 +592,8 @@ export interface GeneratedConditionalActionSource {
   readonly projectedAbilityEntitySpawns?: readonly GeneratedAbilityEntitySpawnPayload[];
   /** 已由解析层提升为确定命中子技能并进入全局调度的投射物。 */
   readonly projectedProjectileLaunches?: readonly GeneratedConditionalProjectileProjection[];
+  /** 仅 Context 目标组迭代节点存在。 */
+  readonly contextKey?: string;
 }
 
 export interface GeneratedBlackboardCalculationPayload {
@@ -702,6 +722,22 @@ export interface GeneratedAbilityEntitySpawnPayload {
   readonly skillId: string | null;
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
   readonly assignBlackboard: boolean;
+  readonly sourceType: string;
+  readonly sourceContextKey: string;
+  readonly target: GeneratedTargetReferenceSource | null;
+  readonly overrideDuration: GeneratedScalarSource | null;
+  readonly saveToContextKey: string | null;
+  readonly dieWhenSourceDies: boolean;
+  readonly dieOnEnd: boolean;
+}
+
+export interface GeneratedAbilityEntityDurationAssignmentPayload {
+  readonly setMultipleTarget: boolean;
+  readonly actionTargetType: string;
+  readonly targetContextKey: string;
+  readonly operation: string;
+  readonly value: GeneratedScalarSource;
+  readonly targetSettings: GeneratedTargetReferenceSource | null;
 }
 
 /** 条件分支中的一个直接子动作；嵌套条件保持在原始动作位置。 */
@@ -731,6 +767,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
+  readonly abilityEntityDurationAssignment?: GeneratedAbilityEntityDurationAssignmentPayload;
   /** 仅当所属条件分支被选中时才会执行、且子调用中含 Aura 的能力实体。 */
   readonly auraAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
@@ -814,6 +851,8 @@ export interface GeneratedTargetGroupInputSource {
   readonly finderCheckAlive: boolean | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+  readonly finderSpawnedObjectType?: string | null;
+  readonly validatorTagQueries?: readonly (readonly [string, readonly number[]])[];
 }
 
 /** 命名目标组的一次原生写入；它只保留来源证据，不代表已归约为单敌人语义。 */
@@ -832,6 +871,8 @@ export interface GeneratedTargetGroupWriteSource {
   readonly postProcessorTypes: readonly string[];
   readonly inputTargets: readonly GeneratedTargetGroupInputSource[];
   readonly intervalSeconds: number | null;
+  readonly finderSpawnedObjectType?: string | null;
+  readonly validatorTagQueries?: readonly (readonly [string, readonly number[]])[];
 }
 
 export interface GeneratedBuffEventActionSource {
@@ -882,6 +923,13 @@ export interface GeneratedTimeScaleCurveKeySource {
   readonly outWeight: number;
 }
 
+/** 尚未进入正式 DSL 的能力实体时间膨胀集合身份。 */
+export interface GeneratedAbilityEntityTimeDilationTargetSource {
+  readonly reference: GeneratedTargetReferenceSource;
+  readonly spawnedObjectType: string | null;
+  readonly tagQueries: readonly (readonly [string, readonly number[]])[];
+}
+
 /** 原生技能时间轴中的时间膨胀动作；公共曲线仍以名称引用。 */
 export interface GeneratedTimedTimeDilationSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
@@ -900,6 +948,7 @@ export interface GeneratedTimedTimeDilationSource extends GeneratedNativeSequenc
   readonly omittedAbilityEntityTargets: number;
   readonly influenceSkillCooldown: GeneratedScalarSource | null;
   readonly targetScale: number | null;
+  readonly effectAbilityEntityTargets: readonly GeneratedAbilityEntityTimeDilationTargetSource[];
 }
 
 export interface GeneratedSkillSource {

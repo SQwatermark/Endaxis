@@ -27,6 +27,7 @@ import {
   type ElementalReaction,
   type OperatorAttribute,
 } from '../../../core/game-data/operatorDefinition';
+import { ENEMY_RANKS, type EnemyRank } from '../../../core/game-data/enemyRank';
 import {
   createCombatCondition,
   parseConditionIntegerList,
@@ -50,6 +51,8 @@ const operandLabels = () => ({
   blackboardKey: t('nextTimeline.skillEditing.operandBlackboardKey'),
   constantValue: t('nextTimeline.skillEditing.operandConstantValue'),
 });
+const conditionKindLabel = (kind: CombatConditionKind): string =>
+  kind === 'enemyRankIn' ? 'Enemy rank' : t(`nextTimeline.skillEditing.conditionKinds.${kind}`);
 const isLeafWithoutParameters = computed(() =>
   ['combatActive', 'singleEnemyPresent', 'casterControlled'].includes(props.condition.kind),
 );
@@ -112,6 +115,9 @@ function setComparison(event: Event): void {
     case 'actionValueCompare':
       emit('update', { ...condition, operator });
       break;
+    case 'abilityEntityRemainingDurationCompare':
+      emit('update', { ...condition, operator });
+      break;
     case 'buffStackCompare':
       emit('update', { ...condition, operator });
       break;
@@ -134,6 +140,8 @@ function setOperand(field: 'value' | 'left' | 'right', value: ActionValueOperand
     emit('update', { ...condition, left: value });
   else if (condition.kind === 'actionValueCompare' && field === 'right')
     emit('update', { ...condition, right: value });
+  else if (condition.kind === 'abilityEntityRemainingDurationCompare' && field === 'value')
+    emit('update', { ...condition, value });
 }
 
 function setContextValue(event: Event): void {
@@ -287,6 +295,15 @@ function setReaction(event: Event): void {
   if (ELEMENTAL_REACTIONS.includes(reaction)) emit('update', { ...props.condition, reaction });
 }
 
+function toggleEnemyRank(rank: EnemyRank, event: Event): void {
+  if (props.condition.kind !== 'enemyRankIn') return;
+  const enabled = (event.target as HTMLInputElement).checked;
+  const ranks = enabled
+    ? [...new Set([...props.condition.ranks, rank])]
+    : props.condition.ranks.filter(item => item !== rank);
+  emit('update', { ...props.condition, ranks });
+}
+
 function setAttribute(side: 'left' | 'right', event: Event): void {
   if (props.condition.kind !== 'deckAttributeCompare') return;
   const attribute = (event.target as HTMLSelectElement).value as OperatorAttribute;
@@ -330,7 +347,7 @@ function removeChild(index: number): void {
       />
       <select :value="condition.kind" @change="setKind">
         <option v-for="kind in COMBAT_CONDITION_KINDS" :key="kind" :value="kind">
-          {{ t(`nextTimeline.skillEditing.conditionKinds.${kind}`) }}
+          {{ conditionKindLabel(kind) }}
         </option>
       </select>
     </label>
@@ -412,6 +429,17 @@ function removeChild(index: number): void {
       /></label>
     </template>
 
+    <fieldset v-if="condition.kind === 'enemyRankIn'" class="condition-editor__elements">
+      <legend>Enemy rank</legend>
+      <label v-for="rank in ENEMY_RANKS" :key="rank"
+        ><input
+          type="checkbox"
+          :checked="condition.ranks.includes(rank)"
+          @change="toggleEnemyRank(rank, $event)"
+        />{{ rank }}</label
+      >
+    </fieldset>
+
     <template v-if="condition.kind === 'contextFlagEquals'">
       <label class="condition-editor__field"
         ><EditorFieldLabel
@@ -481,6 +509,29 @@ function removeChild(index: number): void {
           :value="condition.right"
           :labels="operandLabels()"
           @update="setOperand('right', $event)"
+      /></label>
+    </template>
+
+    <template v-if="condition.kind === 'abilityEntityRemainingDurationCompare'">
+      <label class="condition-editor__field"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.comparisonOperator')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.comparisonOperator')"
+        /><select :value="condition.operator" @change="setComparison">
+          <option v-for="operator in COMPARISON_OPERATORS" :key="operator" :value="operator">
+            {{ t(`nextTimeline.skillEditing.comparisonOperators.${operator}`) }}
+          </option>
+        </select></label
+      >
+      <label class="condition-editor__operand"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.value')"
+          :help="
+            t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
+          " /><ActionValueOperandEditor
+          :value="condition.value"
+          :labels="operandLabels()"
+          @update="setOperand('value', $event)"
       /></label>
     </template>
 
@@ -778,7 +829,7 @@ function removeChild(index: number): void {
       <div class="condition-editor__add">
         <select v-model="newChildKind">
           <option v-for="kind in COMBAT_CONDITION_KINDS" :key="kind" :value="kind">
-            {{ t(`nextTimeline.skillEditing.conditionKinds.${kind}`) }}
+            {{ conditionKindLabel(kind) }}
           </option></select
         ><button type="button" @click="appendChild">+</button>
       </div>

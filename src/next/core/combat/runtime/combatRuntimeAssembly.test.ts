@@ -9,6 +9,7 @@ import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeA
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
+import type { LogicalAbilityEntityTemplate } from '../../game-data/logicalAbilityEntity';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -30,6 +31,7 @@ const rejectingExecutor: CombatOperationExecutor = {
 
 const testEnemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
+  rank: 'mob',
   health: 1000,
   superArmor: 0,
   defenderAttributes: {
@@ -101,9 +103,11 @@ function createAssembly(
   createOperatorBuffRuntime?: ConstructorParameters<
     typeof CombatRuntimeAssembly
   >[0]['createOperatorBuffRuntime'],
+  enemy: CombatEnemyProgram = testEnemy,
+  abilityEntityTemplates: readonly LogicalAbilityEntityTemplate[] = [],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
-    enemy: testEnemy,
+    enemy,
     resources: {
       sp: 100,
       maxSp: 300,
@@ -123,6 +127,7 @@ function createAssembly(
       ],
     },
     enemyBuffRuntime,
+    abilityEntityTemplates,
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
@@ -132,6 +137,68 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('runs logical AbilityEntity spawn steps through the shared scene directory', () => {
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  templateId: 'fixture_entity',
+                  childSkillId: 'fixture_child',
+                  target: 'enemy',
+                  overrideDurationSeconds: { kind: 'constant', value: 2 },
+                  saveToContextKey: 'spawned',
+                  dieWhenSourceDies: false,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [
+        {
+          id: 'fixture_entity',
+          bornTagIds: [],
+          lifetime: { kind: 'limited', durationSeconds: 5 },
+          maxStackingCount: -1,
+        },
+      ],
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(assembly.abilityEntities.activeCount).toBe(1);
+    expect(assembly.receipt.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'AbilityEntitySpawned',
+          sourceId: 'operator',
+          data: expect.objectContaining({
+            templateId: 'fixture_entity',
+            remainingDurationSeconds: 2,
+          }),
+        }),
+        expect.objectContaining({
+          event: 'AbilityEntityChildSkillRequested',
+          data: expect.objectContaining({ childSkillId: 'fixture_child' }),
+        }),
+      ]),
+    );
+  });
+
   it('shares one cooldown ledger across placed casts of the same skill', () => {
     const assembly = createAssembly([
       skill({ castId: 'cast:1', cooldownFrames: 10, costs: [], costFrame: 0 }),
@@ -738,6 +805,44 @@ describe('CombatRuntimeAssembly', () => {
       expect(target).toBe('enemy');
       return enemyVitals;
     });
+
+    assembly.tryStartSkill('operator', 'skill');
+
+    expect(assembly.resources.sp).toBe(120);
+  });
+
+  it('evaluates rank conditions from the compiled scenario enemy', () => {
+    const program = skill({
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'enemyRankIn', ranks: ['elite', 'boss'] } },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'changeResource',
+                      parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      { ...testEnemy, rank: 'elite' },
+    );
 
     assembly.tryStartSkill('operator', 'skill');
 

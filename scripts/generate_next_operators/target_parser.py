@@ -17,7 +17,71 @@ from source_schema import (
 )
 from source_utils import require_bool, require_dict, require_list
 
-__all__ = ["parse_selector_summary", "parse_target_reference", "selector_component_name"]
+__all__ = [
+    "parse_selector_summary",
+    "parse_spawned_entity_selector_identity",
+    "parse_target_reference",
+    "selector_component_name",
+]
+
+
+def parse_spawned_entity_selector_identity(
+    value: Any,
+    path: str,
+) -> tuple[str | None, tuple[tuple[str, tuple[int, ...]], ...]]:
+    """保留 owner-spawned 实体集合的对象种类与标签查询，不推断其数量或位置。"""
+    selector = require_dict(value, path)
+    spawned_object_type: str | None = None
+    if "finderData" in selector:
+        finder = require_dict(selector.get("finderData"), f"{path}.finderData")
+        if selector_component_name(finder, f"{path}.finderData") == "OwnerSpawnedEntityFinder":
+            if set(finder) != {"$type", "spawnedObjectType"}:
+                raise ValueError(
+                    f"{path}.finderData: unexpected owner-spawned finder fields "
+                    f"{sorted(finder)}"
+                )
+            spawned_object_type = finder.get("spawnedObjectType")
+            if not isinstance(spawned_object_type, str) or not spawned_object_type:
+                raise ValueError(
+                    f"{path}.finderData.spawnedObjectType: expected non-empty string"
+                )
+
+    tag_queries: list[tuple[str, tuple[int, ...]]] = []
+    for index, raw_validator in enumerate(
+        require_list(selector.get("validatorData"), f"{path}.validatorData")
+    ):
+        validator_path = f"{path}.validatorData[{index}]"
+        validator = require_dict(raw_validator, validator_path)
+        if selector_component_name(validator, validator_path) != "TagValidator":
+            continue
+        if set(validator) != {"$type", "query"}:
+            raise ValueError(
+                f"{validator_path}: unexpected tag-validator fields {sorted(validator)}"
+            )
+        query = require_dict(validator.get("query"), f"{validator_path}.query")
+        if set(query) != {"queryType", "tags"}:
+            raise ValueError(
+                f"{validator_path}.query: unexpected fields {sorted(query)}"
+            )
+        query_type = query.get("queryType")
+        if query_type not in {"HasAny", "HasAll", "ExceptAny", "ExceptAll"}:
+            raise ValueError(
+                f"{validator_path}.query.queryType: unsupported value {query_type!r}"
+            )
+        tags: list[int] = []
+        for tag_index, raw_tag in enumerate(
+            require_list(query.get("tags"), f"{validator_path}.query.tags")
+        ):
+            tag_path = f"{validator_path}.query.tags[{tag_index}]"
+            tag = require_dict(raw_tag, tag_path)
+            if set(tag) != {"tagId"}:
+                raise ValueError(f"{tag_path}: unexpected fields {sorted(tag)}")
+            tag_id = tag.get("tagId")
+            if not isinstance(tag_id, int) or isinstance(tag_id, bool):
+                raise ValueError(f"{tag_path}.tagId: expected integer")
+            tags.append(tag_id)
+        tag_queries.append((query_type, tuple(tags)))
+    return spawned_object_type, tuple(tag_queries)
 
 def selector_component_name(value: Any, path: str) -> str:
     """读取 Selector 嵌套类型名；该格式与普通 Action 的类型名层级不同。"""

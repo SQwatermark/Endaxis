@@ -354,8 +354,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 105,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -363,9 +362,7 @@ export const estellaGeneratedSource = {
           "endFrame": 6,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -383,14 +380,10 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -876,8 +869,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 99,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -895,14 +887,10 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -918,9 +906,7 @@ export const estellaGeneratedSource = {
           "endFrame": 9,
           "actionTypes": [
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -1398,8 +1384,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 82,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -1425,14 +1410,10 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1443,14 +1424,10 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -1458,22 +1435,14 @@ export const estellaGeneratedSource = {
           "startFrame": 6,
           "endFrame": 52,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 16,
           "endFrame": 53,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -1481,9 +1450,7 @@ export const estellaGeneratedSource = {
           "endFrame": 21,
           "actionTypes": [
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -2266,35 +2233,28 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 7,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 7,
           "endFrame": 16,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 16,
           "endFrame": 133,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -2313,10 +2273,8 @@ export const estellaGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "HitStopAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -2324,8 +2282,7 @@ export const estellaGeneratedSource = {
           "startFrame": 21,
           "endFrame": 24,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -2911,8 +2868,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 151,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2926,22 +2882,14 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 46,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 31,
           "endFrame": 46,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -2958,9 +2906,7 @@ export const estellaGeneratedSource = {
           "endFrame": 30,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -2976,8 +2922,7 @@ export const estellaGeneratedSource = {
           "startFrame": 30,
           "endFrame": 33,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -2989,7 +2934,6 @@ export const estellaGeneratedSource = {
             "DefiniteValueCalculation",
             "EffectAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb"
           ]
         },
@@ -2997,8 +2941,7 @@ export const estellaGeneratedSource = {
           "startFrame": 30,
           "endFrame": 34,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -3337,7 +3280,6 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -3346,8 +3288,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -3809,30 +3750,21 @@ export const estellaGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 50,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 21,
           "endFrame": 50,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -3846,11 +3778,8 @@ export const estellaGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -3878,8 +3807,7 @@ export const estellaGeneratedSource = {
           "startFrame": 21,
           "endFrame": 21,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -6348,9 +6276,6 @@ export const estellaGeneratedSource = {
           "actionTypes": [
             "ShowHideActorAction",
             "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
             "SelfRotateAction",
             "Selector",
             "SelfRotateAction"
@@ -6366,11 +6291,8 @@ export const estellaGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -6378,8 +6300,7 @@ export const estellaGeneratedSource = {
           "endFrame": 116,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -6387,8 +6308,7 @@ export const estellaGeneratedSource = {
           "endFrame": 115,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -6421,13 +6341,10 @@ export const estellaGeneratedSource = {
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
             "Selector",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -6435,8 +6352,7 @@ export const estellaGeneratedSource = {
           "endFrame": 22,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -6457,11 +6373,7 @@ export const estellaGeneratedSource = {
           "startFrame": 17,
           "endFrame": 36,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -6469,7 +6381,6 @@ export const estellaGeneratedSource = {
           "endFrame": 15,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -8310,7 +8221,8 @@ export const estellaGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -8393,8 +8305,7 @@ export const estellaGeneratedSource = {
           "startFrame": 0,
           "endFrame": 30,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -8452,16 +8363,14 @@ export const estellaGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
           "startFrame": 54,
           "endFrame": 57,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -9141,7 +9050,8 @@ export const estellaGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -9160,7 +9070,8 @@ export const estellaGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

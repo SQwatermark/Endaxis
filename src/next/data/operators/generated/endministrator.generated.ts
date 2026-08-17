@@ -766,16 +766,14 @@ export const endministratorGeneratedSource = {
           "endFrame": 79,
           "actionTypes": [
             "SelfRotateAction",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 9,
           "endFrame": 23,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -794,11 +792,8 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -856,11 +851,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 5,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -868,7 +859,6 @@ export const endministratorGeneratedSource = {
           "endFrame": 23,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -1389,7 +1379,8 @@ export const endministratorGeneratedSource = {
                 "omittedAbilityEntityTargets": 0,
                 "influenceSkillCooldown": null,
                 "targetScale": null,
-                "sequenceIndex": -1
+                "sequenceIndex": -1,
+                "effectAbilityEntityTargets": []
               }
             }
           ]
@@ -2701,7 +2692,8 @@ export const endministratorGeneratedSource = {
                 "omittedAbilityEntityTargets": 0,
                 "influenceSkillCooldown": null,
                 "targetScale": null,
-                "sequenceIndex": -1
+                "sequenceIndex": -1,
+                "effectAbilityEntityTargets": []
               }
             }
           ]
@@ -2734,7 +2726,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 14
+          "sequenceIndex": 14,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -2805,8 +2798,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 88,
           "actionTypes": [
             "SelfRotateAction",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -2825,11 +2817,8 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "HitStopAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -2887,11 +2876,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 5,
           "endFrame": 24,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -2899,7 +2884,6 @@ export const endministratorGeneratedSource = {
           "endFrame": 23,
           "actionTypes": [
             "TimeDilationAction",
-            "FAnimationCurve",
             "Selector"
           ]
         },
@@ -3420,7 +3404,8 @@ export const endministratorGeneratedSource = {
                 "omittedAbilityEntityTargets": 0,
                 "influenceSkillCooldown": null,
                 "targetScale": null,
-                "sequenceIndex": -1
+                "sequenceIndex": -1,
+                "effectAbilityEntityTargets": []
               }
             }
           ]
@@ -4732,7 +4717,8 @@ export const endministratorGeneratedSource = {
                 "omittedAbilityEntityTargets": 0,
                 "influenceSkillCooldown": null,
                 "targetScale": null,
-                "sequenceIndex": -1
+                "sequenceIndex": -1,
+                "effectAbilityEntityTargets": []
               }
             }
           ]
@@ -4765,7 +4751,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 1,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -4829,10 +4816,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 120,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -4850,13 +4834,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5348,18 +5329,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 5,
           "endFrame": 160,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -5377,13 +5354,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -5882,8 +5856,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 60,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -5891,9 +5864,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 5,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -5901,9 +5872,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -5930,13 +5899,10 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -5947,24 +5913,17 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 11,
           "endFrame": 32,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -6788,8 +6747,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 76,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -6805,9 +6763,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -6815,9 +6771,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 18,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -6851,13 +6805,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -6867,13 +6818,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -6883,11 +6831,9 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -6905,19 +6851,16 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 18,
           "endFrame": 21,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -6929,9 +6872,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 15,
           "endFrame": 24,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -8125,18 +8066,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 30,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
           "startFrame": 30,
           "endFrame": 127,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -8160,7 +8097,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ModifyDynamicBlackboard",
             "ObtainCostAction"
@@ -8179,16 +8115,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 19,
           "endFrame": 21,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 16,
           "endFrame": 19,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -8202,22 +8136,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 14,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 15,
           "endFrame": 30,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -8967,8 +8893,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 107,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -8976,9 +8901,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 9,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -8986,9 +8909,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 25,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -9024,9 +8945,7 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "IfElseAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -9035,13 +8954,11 @@ export const endministratorGeneratedSource = {
           "endFrame": 29,
           "actionTypes": [
             "CameraImpulseAction",
-            "FAnimationCurve",
             "DamageAction",
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "BlowOffEnemyAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb"
           ]
         },
@@ -9050,8 +8967,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 34,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -9060,27 +8976,21 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "CheckEntityNum",
             "HitStopAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 25,
           "endFrame": 34,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 8,
           "endFrame": 34,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -9646,8 +9556,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 120,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -9672,7 +9581,6 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -9681,8 +9589,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 1,
           "endFrame": 6,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -10139,10 +10046,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 170,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -10160,13 +10064,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -10686,18 +10587,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 5,
           "endFrame": 51,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
@@ -10715,13 +10612,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "HitStopAction",
-            "FAnimationCurve",
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -11234,8 +11128,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 60,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -11243,9 +11136,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 5,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -11253,9 +11144,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 12,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -11282,13 +11171,10 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -11299,24 +11185,17 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 11,
           "endFrame": 32,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -12140,8 +12019,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 76,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -12157,9 +12035,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 7,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -12167,9 +12043,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 18,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -12203,13 +12077,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -12219,13 +12090,10 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
             "CameraImpulseAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -12235,11 +12103,9 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -12257,19 +12123,16 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 18,
           "endFrame": 21,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -12281,9 +12144,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 15,
           "endFrame": 24,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -13498,18 +13359,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 30,
           "actionTypes": [
-            "MoveToAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "MoveToAction"
           ]
         },
         {
           "startFrame": 30,
           "endFrame": 113,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -13533,7 +13390,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ModifyDynamicBlackboard",
             "ObtainCostAction"
@@ -13552,16 +13408,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 19,
           "endFrame": 21,
           "actionTypes": [
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 16,
           "endFrame": 19,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -13575,22 +13429,14 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 14,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
           "startFrame": 15,
           "endFrame": 30,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -14340,8 +14186,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 60,
           "actionTypes": [
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -14349,9 +14194,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 9,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -14359,9 +14202,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 25,
           "actionTypes": [
             "CheckEntityNum",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
@@ -14397,9 +14238,7 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "IfElseAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "CameraImpulseAction",
-            "FAnimationCurve",
             "ObtainCostAction"
           ]
         },
@@ -14408,13 +14247,11 @@ export const endministratorGeneratedSource = {
           "endFrame": 29,
           "actionTypes": [
             "CameraImpulseAction",
-            "FAnimationCurve",
             "DamageAction",
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
             "BlowOffEnemyAction",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "GainBreakingAttackAtb"
           ]
         },
@@ -14423,8 +14260,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 32,
           "actionTypes": [
             "CheckEntityNum",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
@@ -14433,27 +14269,21 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "CheckEntityNum",
             "HitStopAction",
-            "FAnimationCurve",
-            "HitStopAction",
-            "FAnimationCurve"
+            "HitStopAction"
           ]
         },
         {
           "startFrame": 25,
           "endFrame": 32,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 8,
           "endFrame": 32,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
@@ -15020,8 +14850,7 @@ export const endministratorGeneratedSource = {
           "endFrame": 154,
           "actionTypes": [
             "CustomRootMotionAction",
-            "Selector",
-            "FAnimationCurve"
+            "Selector"
           ]
         },
         {
@@ -15046,7 +14875,6 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "IfElseAction",
             "ObtainCostAction"
           ]
@@ -15055,8 +14883,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 5,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -15530,8 +15357,7 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -15540,29 +15366,21 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 18,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 10,
           "endFrame": 18,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -15576,11 +15394,8 @@ export const endministratorGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -15606,7 +15421,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
             "ModifyDynamicBlackboard",
             "CrushAction",
@@ -15615,7 +15429,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
             "ModifyDynamicBlackboard"
           ]
@@ -15641,8 +15454,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 9,
           "endFrame": 9,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -17606,8 +17418,7 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "CustomRootMotionAction",
-            "FAnimationCurve"
+            "CustomRootMotionAction"
           ]
         },
         {
@@ -17616,29 +17427,21 @@ export const endministratorGeneratedSource = {
           "actionTypes": [
             "FindTargetAction",
             "Selector",
-            "SnapToTargetWithRangeAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "SnapToTargetWithRangeAction"
           ]
         },
         {
           "startFrame": 0,
           "endFrame": 18,
           "actionTypes": [
-            "AddCameraControlStateAction",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddCameraControlStateAction"
           ]
         },
         {
           "startFrame": 10,
           "endFrame": 18,
           "actionTypes": [
-            "AddDynamicCcsAction",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve",
-            "FAnimationCurve"
+            "AddDynamicCcsAction"
           ]
         },
         {
@@ -17652,11 +17455,8 @@ export const endministratorGeneratedSource = {
             "Selector",
             "Selector",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
             "CurveEvaluateFloat",
-            "FAnimationCurve",
-            "CameraRotateAction",
-            "FAnimationCurve"
+            "CameraRotateAction"
           ]
         },
         {
@@ -17682,7 +17482,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
             "ModifyDynamicBlackboard",
             "CrushAction",
@@ -17691,7 +17490,6 @@ export const endministratorGeneratedSource = {
             "DefiniteValueCalculation",
             "DefiniteValueCalculation",
             "EnemyHurtAnimAction",
-            "FAnimationCurve",
             "HitStopAction",
             "ModifyDynamicBlackboard"
           ]
@@ -17717,8 +17515,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 9,
           "endFrame": 9,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -19626,8 +19423,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -19682,8 +19478,7 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "IgniteAction",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -19704,8 +19499,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 49,
           "endFrame": 52,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -20921,7 +20715,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -20940,7 +20735,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "effectAbilityEntityTargets": []
         }
       ]
     },
@@ -20970,8 +20766,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
-            "TimeDilationAction",
-            "FAnimationCurve"
+            "TimeDilationAction"
           ]
         },
         {
@@ -21026,8 +20821,7 @@ export const endministratorGeneratedSource = {
             "DamageAction",
             "DefiniteValueCalculation",
             "IgniteAction",
-            "EnemyHurtAnimAction",
-            "FAnimationCurve"
+            "EnemyHurtAnimAction"
           ]
         },
         {
@@ -21048,8 +20842,7 @@ export const endministratorGeneratedSource = {
           "startFrame": 49,
           "endFrame": 52,
           "actionTypes": [
-            "CameraImpulseAction",
-            "FAnimationCurve"
+            "CameraImpulseAction"
           ]
         },
         {
@@ -22272,7 +22065,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": null,
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "effectAbilityEntityTargets": []
         },
         {
           "startFrame": 0,
@@ -22291,7 +22085,8 @@ export const endministratorGeneratedSource = {
           "omittedAbilityEntityTargets": 0,
           "influenceSkillCooldown": null,
           "targetScale": 0.0,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "effectAbilityEntityTargets": []
         }
       ]
     }

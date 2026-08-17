@@ -176,6 +176,7 @@ describe('V2 project document', () => {
 
     const malformed = JSON.parse(serializeProjectDocument(project));
     malformed.scenarios[0].tracks[0].operator.promoted = 'yes';
+    malformed.scenarios[0].enemy.rank = 'advanced';
     malformed.scenarios[0].enemy.editable.finisherMultiplier = 'one';
     malformed.scenarios[0].battle.controlSwitches.push({
       id: 'switch:invalid',
@@ -199,6 +200,10 @@ describe('V2 project document', () => {
           {
             path: '$.scenarios[0].tracks[0].operator.promoted',
             message: 'expected a boolean',
+          },
+          {
+            path: '$.scenarios[0].enemy.rank',
+            message: 'unknown enemy rank',
           },
           {
             path: '$.scenarios[0].enemy.editable.finisherMultiplier',

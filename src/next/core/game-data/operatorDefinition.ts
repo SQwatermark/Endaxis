@@ -204,6 +204,8 @@ export type CombatCondition =
   | { kind: 'singleEnemyPresent' }
   /** 当前技能所属干员是否为该帧的主控干员；必须由场景运行时提供主控身份。 */
   | { kind: 'casterControlled' }
+  /** 当前单敌人是否属于任一原生 EnemyTemplateData.rank。 */
+  | { kind: 'enemyRankIn'; ranks: readonly import('./enemyRank').EnemyRank[] }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | {
@@ -221,6 +223,12 @@ export type CombatCondition =
       left: ActionValueOperand;
       operator: ComparisonOperator;
       right: ActionValueOperand;
+    }
+  | {
+      /** 比较当前 Context 迭代目标的有限能力实体剩余时长。 */
+      kind: 'abilityEntityRemainingDurationCompare';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
     }
   | { kind: 'statusActive'; statusKey: string; target: CombatTarget; minimumStacks?: number }
   | {
@@ -288,11 +296,13 @@ export const COMBAT_CONDITION_KINDS = [
   'combatActive',
   'singleEnemyPresent',
   'casterControlled',
+  'enemyRankIn',
   'skillBranchEnabled',
   'targetStaggered',
   'healthCompare',
   'contextFlagEquals',
   'actionValueCompare',
+  'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',
   'entityTagMatch',
@@ -392,6 +402,39 @@ export const STATUS_MODIFIER_KINDS = [
  * 增加步骤时必须同时提供编译、运行时执行和严格校验，不能只扩展此类型。
  */
 export interface CombatStepParameters {
+  /** 按 owner 与原生 GameplayTag 查询逻辑能力实体，并保存为本次释放的 Context 目标组。 */
+  findOwnerSpawnedAbilityEntities: {
+    saveToContextKey: string;
+    tagQuery?: {
+      type: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      tagIds: readonly number[];
+      exact?: boolean;
+    };
+    /** 可选地把同一查询结果数量写入动作黑板，后续复用 actionValueCompare。 */
+    saveCountToBlackboardKey?: string;
+  };
+  /** 对本次释放 Context 中已经固定的目标句柄逐一同步执行同一序列。 */
+  forEachContextTarget: {
+    contextKey: string;
+  };
+  /** 读取当前 Context 迭代目标的能力实体剩余时长到动作黑板。 */
+  readAbilityEntityRemainingDuration: {
+    outputKey: string;
+  };
+  /** 将当前 Context 迭代目标的能力实体剩余时长赋为一个明确数值。 */
+  setAbilityEntityRemainingDuration: {
+    value: ActionValueOperand;
+  };
+  /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
+  spawnAbilityEntity: {
+    templateId: string;
+    childSkillId?: string;
+    target?: CombatTarget;
+    overrideDurationSeconds?: ActionValueOperand;
+    saveToContextKey?: string;
+    dieWhenSourceDies: boolean;
+    blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
+  };
   applyElementalInfliction: { element: InflictionElement; isExtra: boolean };
   applyElementalReaction: {
     reaction: ElementalReaction;
@@ -583,6 +626,11 @@ export interface CombatStepParameters {
 }
 
 export const COMBAT_STEP_KINDS = [
+  'findOwnerSpawnedAbilityEntities',
+  'forEachContextTarget',
+  'readAbilityEntityRemainingDuration',
+  'setAbilityEntityRemainingDuration',
+  'spawnAbilityEntity',
   'applyElementalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
@@ -624,7 +672,9 @@ type CombatStepForKind<K extends CombatStepKind> = {
   ? { whenTrue: ActionSequenceDefinition; whenFalse?: ActionSequenceDefinition }
   : K extends 'once'
     ? { body: ActionSequenceDefinition }
-    : {});
+    : K extends 'forEachContextTarget'
+      ? { body: ActionSequenceDefinition }
+      : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = {

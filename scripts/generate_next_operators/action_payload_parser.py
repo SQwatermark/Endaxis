@@ -10,6 +10,7 @@ import struct
 from typing import Any, Iterable
 
 from source_models import (
+    AbilityEntityDurationAssignmentPayload,
     AbilityEntitySpawnPayload,
     BlackboardCalculationPayload,
     BlackboardMutationPayload,
@@ -41,6 +42,7 @@ from target_parser import parse_selector_summary, parse_target_reference
 
 __all__ = [
     "classify_buff",
+    "parse_ability_entity_duration_assignment_payload",
     "parse_ability_entity_spawn_payload",
     "parse_blackboard_calculation_payload",
     "parse_blackboard_mutation_payload",
@@ -515,12 +517,136 @@ def parse_ability_entity_spawn_payload(
         raise ValueError(f"{path}.abilityEntityId: expected non-empty string")
     if not isinstance(skill_id, str):
         raise ValueError(f"{path}.abilityEntitySkillId: expected string")
+    if not require_bool(action.get("setAbilityEntitySource"), f"{path}.setAbilityEntitySource"):
+        raise ValueError(f"{path}.setAbilityEntitySource: disabled source is unsupported")
+    source_type = action.get("abilityEntitySource")
+    source_context_key = action.get("abilityEntitySourceContextKey")
+    if not isinstance(source_type, str) or not source_type:
+        raise ValueError(f"{path}.abilityEntitySource: expected non-empty string")
+    if not isinstance(source_context_key, str):
+        raise ValueError(f"{path}.abilityEntitySourceContextKey: expected string")
+    set_target = require_bool(action.get("setAbilityEntityTarget"), f"{path}.setAbilityEntityTarget")
+    target = (
+        parse_target_reference(action.get("abilityEntityTarget"), f"{path}.abilityEntityTarget")
+        if set_target
+        else None
+    )
+    override_duration = require_bool(action.get("overrideDuration"), f"{path}.overrideDuration")
+    duration = (
+        parse_scalar(action.get("duration"), f"{path}.duration", {})
+        if override_duration
+        else None
+    )
+    save_to_context = require_bool(action.get("saveToContext"), f"{path}.saveToContext")
+    context_key = action.get("contextKey")
+    if not isinstance(context_key, str):
+        raise ValueError(f"{path}.contextKey: expected string")
+    if save_to_context != bool(context_key):
+        raise ValueError(f"{path}.saveToContext/contextKey: inconsistent context output")
     assign_blackboard = require_bool(action.get("assignBlackboard"), f"{path}.assignBlackboard")
     return AbilityEntitySpawnPayload(
         abilityEntityId=ability_id,
         skillId=skill_id or None,
         entityBlackboardAssignments=parse_entity_blackboard_assignments(action, path),
         assignBlackboard=assign_blackboard,
+        sourceType=source_type,
+        sourceContextKey=source_context_key,
+        target=target,
+        overrideDuration=duration,
+        saveToContextKey=context_key or None,
+        dieWhenSourceDies=require_bool(action.get("dieWhenSourceDie"), f"{path}.dieWhenSourceDie"),
+        dieOnEnd=require_bool(action.get("dieOnEnd"), f"{path}.dieOnEnd"),
+    )
+
+
+def parse_ability_entity_duration_assignment_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> AbilityEntityDurationAssignmentPayload:
+    """严格读取语料中出现过的 SetAbilityEntityDuration 载荷。"""
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "setMultipleTarget", "targetSettings", "actionTargetType", "targetContextKey",
+        "operation", "value",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected fields {sorted(action)}")
+    set_multiple_target = require_bool(
+        action.get("setMultipleTarget"), f"{path}.setMultipleTarget"
+    )
+    action_target_type = action.get("actionTargetType")
+    target_context_key = action.get("targetContextKey")
+    operation = action.get("operation")
+    if action_target_type not in {"InputTarget", "ContextTarget"}:
+        raise ValueError(
+            f"{path}.actionTargetType: unsupported value {action_target_type!r}"
+        )
+    if not isinstance(target_context_key, str):
+        raise ValueError(f"{path}.targetContextKey: expected string")
+    if (action_target_type == "ContextTarget") != bool(target_context_key):
+        raise ValueError(f"{path}.targetContextKey: inconsistent target context")
+    if operation != "Assign":
+        raise ValueError(f"{path}.operation: unsupported value {operation!r}")
+    if set_multiple_target:
+        raise ValueError(f"{path}.setMultipleTarget: unsupported true value")
+
+    raw_target_settings = require_dict(action.get("targetSettings"), f"{path}.targetSettings")
+    full_target_fields = {
+        "targetSource", "targetGroupKey", "selectorOwner", "ownerContextKey",
+        "centerType", "centerContextKey", "centerToGround", "selectorData",
+        "enableAdvancedDirection", "advancedDirection", "selectorDirection",
+        "target", "targetContextKey",
+    }
+    compact_target_fields = {
+        "targetSource", "selectorOwner", "centerType", "centerToGround",
+        "enableAdvancedDirection", "advancedDirection", "selectorDirection", "target",
+    }
+    target_settings = None
+    if set(raw_target_settings) == full_target_fields:
+        target_settings = parse_target_reference(
+            raw_target_settings, f"{path}.targetSettings"
+        )
+    elif set(raw_target_settings) == compact_target_fields:
+        if action_target_type != "InputTarget":
+            raise ValueError(f"{path}.targetSettings: compact ContextTarget is unsupported")
+        expected_compact_values = {
+            "targetSource": "Target",
+            "selectorOwner": "ActionOwner",
+            "centerType": "ActionSource",
+            "centerToGround": False,
+            "enableAdvancedDirection": False,
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+        }
+        if any(
+            raw_target_settings.get(key) != expected
+            for key, expected in expected_compact_values.items()
+        ):
+            raise ValueError(f"{path}.targetSettings: unsupported compact target values")
+        direction = require_dict(
+            raw_target_settings.get("advancedDirection"),
+            f"{path}.targetSettings.advancedDirection",
+        )
+        if direction != {
+            "directionType": "SourceForward",
+            "sourceMountPoint": "None",
+            "targetMountPoint": "None",
+            "customSourceAndTarget": False,
+            "clampToXZ": True,
+            "invertDirection": False,
+        }:
+            raise ValueError(f"{path}.targetSettings.advancedDirection: unsupported values")
+    else:
+        raise ValueError(f"{path}.targetSettings: unexpected fields {sorted(raw_target_settings)}")
+
+    return AbilityEntityDurationAssignmentPayload(
+        setMultipleTarget=set_multiple_target,
+        actionTargetType=action_target_type,
+        targetContextKey=target_context_key,
+        operation=operation,
+        value=parse_scalar(action.get("value"), f"{path}.value", inherited_blackboard),
+        targetSettings=target_settings,
     )
 
 
