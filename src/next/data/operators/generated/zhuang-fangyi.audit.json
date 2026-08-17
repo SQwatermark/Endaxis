@@ -3791,6 +3791,7 @@
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -5830,6 +5831,7 @@
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -7126,6 +7128,7 @@
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -9911,6 +9914,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -10071,6 +10075,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -10231,6 +10236,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -10391,6 +10397,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -12793,6 +12800,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -12953,6 +12961,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -13113,6 +13122,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -13273,6 +13283,7 @@
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -14142,6 +14153,7 @@
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -16265,6 +16277,7 @@
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "explicitFinishes": [],
+                            "timelineJumps": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -17116,6 +17129,7 @@
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "explicitFinishes": [],
+                            "timelineJumps": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -18982,6 +18996,7 @@
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -19643,6 +19658,7 @@
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -20773,6 +20789,7 @@
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -21652,6 +21669,7 @@
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -22119,6 +22137,16 @@
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [
+            {
+              "startFrame": 12,
+              "endFrame": 64,
+              "destFrame": 64,
+              "actionIndex": 22,
+              "conditionActionTypes": [],
+              "sequenceIndex": 5
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 12,

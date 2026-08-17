@@ -6553,6 +6553,7 @@
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [
             {

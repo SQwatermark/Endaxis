@@ -7201,6 +7201,7 @@ export const perlicaGeneratedSource = {
               "sequenceIndex": 2
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],

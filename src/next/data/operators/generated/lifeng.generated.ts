@@ -8068,6 +8068,16 @@ export const lifengGeneratedSource = {
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [
+            {
+              "startFrame": 67,
+              "endFrame": 68,
+              "destFrame": 150,
+              "actionIndex": 22,
+              "conditionActionTypes": [],
+              "sequenceIndex": 8
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 67,

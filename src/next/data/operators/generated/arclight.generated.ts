@@ -10439,6 +10439,7 @@ export const arclightGeneratedSource = {
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [
             {

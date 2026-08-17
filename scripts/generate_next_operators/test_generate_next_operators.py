@@ -48,6 +48,8 @@ from generate_next_operators import (
     compile_logical_ability_entity_spawn,
     ability_entity_child_buff_can_compile,
     ability_entity_child_finishes_are_terminal,
+    ability_entity_child_timeline_can_compile,
+    parse_timeline_jumps,
     compile_ability_entity_child_skill,
     compile_damage_units_step,
     encode_damage_step_key,
@@ -8025,6 +8027,69 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertTrue(ability_entity_child_finishes_are_terminal(terminal))
         self.assertFalse(ability_entity_child_finishes_are_terminal(nonterminal))
+
+    def test_ability_entity_child_with_timeline_jump_is_not_linearized(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 89,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 29,
+                                    "isEnable": True,
+                                    "destFrame": 149,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckBuffStackNum+Data, Example",
+                                                "serverActionIndex": 30,
+                                                "isEnable": True,
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        jumps = parse_timeline_jumps(root, "fixture.json")
+
+        self.assertEqual(len(jumps), 1)
+        self.assertEqual(jumps[0].destFrame, 149)
+        self.assertEqual(jumps[0].conditionActionTypes, ("CheckBuffStackNum",))
+        self.assertFalse(
+            ability_entity_child_timeline_can_compile(
+                SimpleNamespace(
+                    inheritsSourceBlackboard=True,
+                    cycleTruncated=False,
+                    directDamageHits=(SimpleNamespace(startFrame=149),),
+                    intervalDamageHits=(),
+                    explicitFinishes=(),
+                    timelineJumps=jumps,
+                    inflictions=(),
+                    conditionalActions=(),
+                    auxiliaryActions=(),
+                    resourceGains=(),
+                    projectileLaunches=(),
+                    projectileTriggeredSkills=(),
+                    nestedAbilityEntityHits=(),
+                    blackboardCalculations=(),
+                    blackboardMutations=(),
+                    buffBlackboardReads=(),
+                    buffFinishes=(),
+                    auraActions=(),
+                    keywordActions=(),
+                    combatActions=("DamageAction",),
+                )
+            )
+        )
 
     def test_disabled_entity_blackboard_accepts_only_the_empty_editor_placeholder(self) -> None:
         placeholder = {

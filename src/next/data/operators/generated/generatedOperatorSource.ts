@@ -227,6 +227,15 @@ export interface GeneratedTimedAbilityEntityFinishSource extends GeneratedNative
   readonly skipDieDisplay: boolean;
 }
 
+/** SkillData 时间轴跳转证据；当前生成运行时不会把它线性化为动作。 */
+export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenceMember {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly destFrame: number;
+  readonly actionIndex: number;
+  readonly conditionActionTypes: readonly string[];
+}
+
 /** SpawnAbilityEntity 引用的子 SkillData；其内部时间均相对 spawnFrame 记录。 */
 export interface GeneratedAbilityEntityHitSource {
   readonly spawnFrame: number;
@@ -242,6 +251,8 @@ export interface GeneratedAbilityEntityHitSource {
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly intervalDamageHits: readonly GeneratedTimedIntervalDamageSource[];
   readonly explicitFinishes: readonly GeneratedTimedAbilityEntityFinishSource[];
+  /** 未闭环的控制流；非空时子技能不得编译为线性实体时间轴。 */
+  readonly timelineJumps: readonly GeneratedTimedTimelineJumpSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];

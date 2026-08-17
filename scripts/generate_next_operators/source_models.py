@@ -373,6 +373,18 @@ class TimedAbilityEntityFinishSource:
 
 
 @dataclass(frozen=True)
+class TimedTimelineJumpSource:
+    """SkillData 时间轴上的条件跳转；当前只用于保留控制流证据。"""
+
+    startFrame: int
+    endFrame: int
+    destFrame: int
+    actionIndex: int
+    conditionActionTypes: tuple[str, ...]
+    sequenceIndex: int = -1
+
+
+@dataclass(frozen=True)
 class AbilityEntityHitSource:
     spawnFrame: int
     actionOrder: tuple[int, ...]
@@ -384,6 +396,7 @@ class AbilityEntityHitSource:
     directDamageHits: tuple[TimedDamageSource, ...]
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...]
     explicitFinishes: tuple[TimedAbilityEntityFinishSource, ...]
+    timelineJumps: tuple[TimedTimelineJumpSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     inflictions: tuple[TimedInflictionSource, ...]
     auxiliaryActions: tuple[AuxiliaryActionSource, ...]

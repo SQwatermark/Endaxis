@@ -215,11 +215,13 @@ damage, already-projected fixed interval damage, infliction,
 action-blackboard mutation, resource gain, a proven caster-target Buff, or a
 condition tree accepted by the shared compiler. Interval condition carriers
 whose execution frames were already projected are omitted rather than executed
-twice. Arclight's ultimate child now owns local
-frames 7 and 63; Lifeng's owns 6, 66, 67 and 121, including its local
-blackboard branch. Their old parent-absolute entries are removed in the same
-generation pass, and a generated contract asserts the absence of both old
-Arclight frames. Native `assignBlackboard=true` is represented explicitly by
+twice. Any child with `JumpToAction` is now excluded from this linear subset.
+Arclight's ultimate child owns local frames 7 and 63, and its old
+parent-absolute entries are removed in the same generation pass. Lifeng's
+ultimate child was removed from this migration after its conditional frame-67
+jump to frame 150 was exposed; its 6/66/121 actions remain parent-projected
+until jump semantics are supported. Generated contracts cover both decisions.
+Native `assignBlackboard=true` is represented explicitly by
 copying the spawning action blackboard before applying per-key entity
 assignments. The same migration now covers Zhuang Fangyi basic attacks 2, 4 and
 5 in audit output. The first two preserve their float32-projected local interval
@@ -240,8 +242,13 @@ skill-cost ultimate-energy gains remain beside the damage on local frames
 
 Direct IL2CPP evidence also closes the non-conditional child-host termination
 shape. `FinishOwnerAction.ExecuteInternal` is at RVA `0x06CF5E28` in the same
-hashed desktop module. It resolves the declared target before dispatching the
-finish call by entity kind; the strict AbilityEntity child samples use plain
+hashed desktop module. A second static pass against desktop
+`GameAssembly.dll` (SHA-256
+`0C5573679BC6DEC2D068A14335466DB7CCF20AF9BAE2B983FB9D45677D80FFCE`)
+confirms that it resolves every declared target and dispatches by the target
+Entity's `ObjectType`. `AbilityEntityInfo.type` returns `0x200`; that value
+takes the generic finish route, rather than the special `0x20` release or
+`0x40` projectile route. The strict AbilityEntity child samples use plain
 `Owner`, which is the child host established above. The formal child DSL now
 exposes only that exact operation as `finishCurrentAbilityEntity`. It is valid
 only with a current iterated/child target, removes the logical instance with an
@@ -313,13 +320,25 @@ values remain blocked until direct native evidence and consumers are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed
 replacement rule.
 
-Fluorite also establishes a stricter child-termination boundary. Its battle
-skill projectile spawns
-`abilityentity_chr_0022_bounda_normal_skill`, whose five-second child timeline
-deals damage at local frames 89 and 149 but executes
-`FinishOwnerAction(Owner)` at both 90 and 150. Treating the first finish as
-logical entity destruction would make the second hit unreachable. The
-generator therefore now requires every direct child-host finish to be terminal:
-no later modeled combat action or later finish may exist. Fluorite keeps its
-existing parent-frame 99/159 projection and does not create a logical entity
-until native evidence distinguishes action termination from entity lifetime.
+Fluorite establishes a separate control-flow boundary, not a counterexample to
+host termination. Its battle-skill projectile spawns
+`abilityentity_chr_0022_bounda_normal_skill`, whose raw linear listing contains
+damage/finish pairs at local frames 89/90 and 149/150. The same child also has
+two frame-0 `JumpToAction` controls: `CheckHp(follow_tar, ratio <= 0)` jumps to
+89, while `CheckBuffStackNum(follow_tar,
+buff_chr_0022_bounda_ultimate_skill >= 1)` jumps to 149. The two finish frames
+therefore belong to alternative control-flow paths; flattening both into one
+timeline created the apparent unreachable hit. The source model now retains
+each jump's frame range, destination, action index and condition action types.
+Because Next has no proven timeline-jump interpreter, any AbilityEntity child
+containing such a jump is rejected before linear compilation. The existing
+terminal-finish guard remains as an independent defence for genuinely linear
+children. Fluorite keeps its parent-frame 99/159 projection until those jump
+conditions and their scheduling semantics are modeled end to end.
+
+Lifeng exposes the same class of omission in a smaller graph. At local frame
+67, `CompareFloat(isCombo == 0)` succeeds into an unconditional jump to frame
+150; the alternate branch writes `EntityBB_isCombo`, and a later damage action
+exists at frame 121. That child is no longer embedded into the logical entity
+timeline. Its parent projection remains an explicitly incomplete fallback: it
+must not be cited as proof that the conditional skip itself is simulated.

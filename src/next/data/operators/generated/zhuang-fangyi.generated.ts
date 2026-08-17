@@ -4053,6 +4053,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -6351,6 +6352,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [
             {
               "startFrame": 9,
@@ -7800,6 +7802,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 7
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11225,6 +11228,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11385,6 +11389,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11545,6 +11550,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -11705,6 +11711,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15750,6 +15757,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -15910,6 +15918,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -16070,6 +16079,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -16230,6 +16240,7 @@ export const zhuangFangyiGeneratedSource = {
               "sequenceIndex": 6
             }
           ],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -18699,6 +18710,7 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],
@@ -21818,6 +21830,7 @@ export const zhuangFangyiGeneratedSource = {
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "explicitFinishes": [],
+                            "timelineJumps": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -22669,6 +22682,7 @@ export const zhuangFangyiGeneratedSource = {
                             "directDamageHits": [],
                             "intervalDamageHits": [],
                             "explicitFinishes": [],
+                            "timelineJumps": [],
                             "conditionalActions": [],
                             "inflictions": [],
                             "auxiliaryActions": [],
@@ -26633,6 +26647,7 @@ export const zhuangFangyiGeneratedSource = {
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -27294,6 +27309,7 @@ export const zhuangFangyiGeneratedSource = {
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -28424,6 +28440,7 @@ export const zhuangFangyiGeneratedSource = {
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -29303,6 +29320,7 @@ export const zhuangFangyiGeneratedSource = {
                                   "directDamageHits": [],
                                   "intervalDamageHits": [],
                                   "explicitFinishes": [],
+                                  "timelineJumps": [],
                                   "conditionalActions": [],
                                   "inflictions": [],
                                   "auxiliaryActions": [],
@@ -29755,6 +29773,16 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [
+            {
+              "startFrame": 12,
+              "endFrame": 64,
+              "destFrame": 64,
+              "actionIndex": 22,
+              "conditionActionTypes": [],
+              "sequenceIndex": 5
+            }
+          ],
           "conditionalActions": [
             {
               "startFrame": 12,

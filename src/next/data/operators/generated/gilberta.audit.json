@@ -4982,6 +4982,7 @@
           "directDamageHits": [],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [
@@ -6726,6 +6727,7 @@
           "directDamageHits": [],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],

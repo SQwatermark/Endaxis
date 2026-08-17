@@ -4,6 +4,7 @@ import type { OperatorDefinition } from '../../core/game-data/operatorDefinition
 import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
 import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
+import { lifengUltimate } from './generated/lifeng.operator.generated';
 import {
   akekuri,
   daPan,
@@ -41,12 +42,20 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('finishCurrentAbilityEntityWhenSourceDies');
   });
 
-  it('Fluorite 战技在宿主结束语义冲突未解决前保留父时间轴投影', () => {
+  it('Fluorite 战技在时间轴跳转未解决前保留父时间轴投影', () => {
     const serialized = JSON.stringify(fluoriteBattleSkill);
     const frames = fluoriteBattleSkill.scheduledSequences.map(sequence => sequence.startFrame);
 
     expect(serialized).not.toContain('abilityentity_chr_0022_bounda_normal_skill');
     expect(frames).toEqual(expect.arrayContaining([99, 159]));
+  });
+
+  it('Lifeng 终结技不会把条件跳转后的能力实体动作线性内嵌', () => {
+    const serialized = JSON.stringify(lifengUltimate);
+    const frames = lifengUltimate.scheduledSequences.map(sequence => sequence.startFrame);
+
+    expect(serialized).not.toContain('"childSkill":');
+    expect(frames).toEqual(expect.arrayContaining([64, 124, 179]));
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {

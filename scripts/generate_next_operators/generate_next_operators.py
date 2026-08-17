@@ -31,6 +31,7 @@ from source_models import (
     ProjectileLaunchSource,
     TimedIntervalDamageSource,
     TimedAbilityEntityFinishSource,
+    TimedTimelineJumpSource,
     AbilityEntityHitSource,
     AbilityEntityTimeDilationTargetSource,
     ResolvedDamageHitSource,
@@ -2931,6 +2932,48 @@ def parse_ability_entity_finishes(
     return tuple(result)
 
 
+def parse_timeline_jumps(
+    root: dict[str, Any],
+    source_name: str,
+) -> tuple[TimedTimelineJumpSource, ...]:
+    """保留 JumpToAction 的时间与条件类型；未建模控制流不得被线性化。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedTimelineJumpSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        for action in walk_actions(timeline.get("_sequenceActionData")):
+            if action_name(action["$type"]) != "JumpToAction" or action.get("isEnable") is False:
+                continue
+            path = f"{timeline_path}.JumpToAction"
+            condition_types = tuple(
+                action_name(item["$type"])
+                for item in walk_actions(action.get("conditionAction"))
+                if item.get("isEnable") is not False
+            )
+            result.append(
+                TimedTimelineJumpSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    destFrame=require_non_negative_int(
+                        action.get("destFrame"), f"{path}.destFrame"
+                    ),
+                    actionIndex=require_server_action_index(action, path),
+                    conditionActionTypes=condition_types,
+                    sequenceIndex=timeline_index,
+                )
+            )
+    return tuple(result)
+
+
 def parse_buff_source_death_finish(
     buff: dict[str, Any],
     source_name: str,
@@ -3657,6 +3700,7 @@ def resolve_ability_entity_payload(
         directDamageHits=parse_direct_damage_hits(child, child_name, child_blackboard),
         intervalDamageHits=parse_interval_damage_hits(child, child_name, child_blackboard),
         explicitFinishes=parse_ability_entity_finishes(child, child_name),
+        timelineJumps=parse_timeline_jumps(child, child_name),
         conditionalActions=child_conditions,
         inflictions=parse_inflictions(child, child_name),
         auxiliaryActions=parse_auxiliary_actions(child, child_name, source_dir, child_blackboard),
@@ -7460,6 +7504,7 @@ def ability_entity_child_timeline_can_compile(
             for finish in getattr(hit, "explicitFinishes", ())
         )
         and ability_entity_child_finishes_are_terminal(hit)
+        and not getattr(hit, "timelineJumps", ())
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())

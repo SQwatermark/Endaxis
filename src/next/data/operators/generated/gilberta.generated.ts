@@ -6123,6 +6123,7 @@ export const gilbertaGeneratedSource = {
           "directDamageHits": [],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [
@@ -8908,6 +8909,7 @@ export const gilbertaGeneratedSource = {
           "directDamageHits": [],
           "intervalDamageHits": [],
           "explicitFinishes": [],
+          "timelineJumps": [],
           "conditionalActions": [],
           "inflictions": [],
           "auxiliaryActions": [],

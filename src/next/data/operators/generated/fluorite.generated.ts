@@ -4669,6 +4669,28 @@ export const fluoriteGeneratedSource = {
                   "sequenceIndex": 4
                 }
               ],
+              "timelineJumps": [
+                {
+                  "startFrame": 0,
+                  "endFrame": 89,
+                  "destFrame": 89,
+                  "actionIndex": 29,
+                  "conditionActionTypes": [
+                    "CheckHp"
+                  ],
+                  "sequenceIndex": 5
+                },
+                {
+                  "startFrame": 0,
+                  "endFrame": 89,
+                  "destFrame": 149,
+                  "actionIndex": 36,
+                  "conditionActionTypes": [
+                    "CheckBuffStackNum"
+                  ],
+                  "sequenceIndex": 11
+                }
+              ],
               "conditionalActions": [
                 {
                   "startFrame": 89,
