@@ -2,12 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { akekuri, endministrator, estella, fluorite, gilberta, lastRite, lifeng } from './index';
+import {
+  akekuri,
+  daPan,
+  endministrator,
+  estella,
+  fluorite,
+  gilberta,
+  lastRite,
+  lifeng,
+} from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
   [gilberta, 9],
   [lifeng, 9],
   [estella, 9],
+  [daPan, 9],
   [akekuri, 9],
   [fluorite, 10],
   [endministrator, 20],

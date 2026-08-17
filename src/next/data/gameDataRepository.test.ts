@@ -3,6 +3,7 @@ import {
   akekuri,
   arcane,
   arclight,
+  daPan,
   endministrator,
   estella,
   fluorite,
@@ -38,6 +39,7 @@ describe('gameDataRepository', () => {
       gilberta,
       lifeng,
       estella,
+      daPan,
       akekuri,
       fluorite,
       endministrator,
@@ -50,6 +52,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(gilberta.slug)).toBe(gilberta);
     expect(nextGameDataRepository.getOperator(lifeng.slug)).toBe(lifeng);
     expect(nextGameDataRepository.getOperator(estella.slug)).toBe(estella);
+    expect(nextGameDataRepository.getOperator(daPan.slug)).toBe(daPan);
     expect(nextGameDataRepository.getOperator(akekuri.slug)).toBe(akekuri);
     expect(nextGameDataRepository.getOperator(fluorite.slug)).toBe(fluorite);
     expect(nextGameDataRepository.getOperator(endministrator.slug)).toBe(endministrator);

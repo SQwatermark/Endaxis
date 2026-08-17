@@ -9,6 +9,7 @@ export { arclight } from './arclight';
 export { gilberta } from './gilberta';
 export { lifeng } from './lifeng';
 export { estella } from './estella';
+export { daPan } from './da-pan';
 export { akekuri } from './akekuri';
 export { fluorite } from './fluorite';
 export { endministrator } from './endministrator';

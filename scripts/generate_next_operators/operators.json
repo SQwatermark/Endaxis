@@ -872,6 +872,148 @@
       ]
     },
     {
+      "slug": "da-pan",
+      "exportName": "daPanGeneratedSource",
+      "charId": "chr_0018_dapan",
+      "talents": [
+        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
+        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+      ],
+      "potentials": [
+        { "key": "potential1", "compile": "unmodeledPotential" },
+        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "staticAttributes" },
+        { "key": "potential4" },
+        { "key": "potential5", "compile": "unmodeledPotential" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["basicAttack1", "basicAttack2", "basicAttack3", "basicAttack4"]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
+      ],
+      "skills": [
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0018_dapan_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0018_dapan_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0018_dapan_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0018_dapan_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0018_dapan_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"],
+            "availability": "targetStaggered",
+            "afterDamage": "gainFinisherSp",
+            "unmodeledBuffIds": ["buff_common_full_immune_medium"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0018_dapan_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0018_dapan_normal_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"],
+            "costResource": "sp"
+          }
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0018_dapan_combo_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"],
+            "usePatchCooldown": true
+          }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0018_dapan_ultimate_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["ultimateSkill"],
+            "costResource": "ultimateEnergy",
+            "usePatchCooldown": true,
+            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+          }
+        }
+      ]
+    },
+    {
       "slug": "akekuri",
       "exportName": "akekuriGeneratedSource",
       "charId": "chr_0019_karin",
