@@ -680,12 +680,49 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent1',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'sub_ratio',
+          operation: 'assign',
+          value: [0.01, 0.015],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'max_ratio',
+          operation: 'assign',
+          value: [0.5, 0.75],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'rate',
+          operation: 'assign',
+          value: [10, 10],
+        },
+      ],
     },
     {
       key: 'talent2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'combo',
+          operation: 'assign',
+          value: [1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'imbue_scale',
+          operation: 'assign',
+          value: [0.2],
+        },
+      ],
     },
   ],
   potentials: [
@@ -697,17 +734,45 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['agility', 'intellect'],
+          value: 10,
+        },
+      ],
     },
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_3',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'atk',
+          operation: 'assign',
+          value: 0.1,
+        },
+      ],
     },
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.9,
+        },
+      ],
     },
     {
       key: 'potential5',
@@ -715,5 +780,5 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
       modifiers: [],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

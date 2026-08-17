@@ -51,6 +51,8 @@ export interface GeneratedTimedDamageSource extends GeneratedNativeSequenceMembe
   readonly damageUnits: readonly GeneratedDamageUnitSource[];
   /** 同一目标短时命中标记的门控；标记存在时原生 Sequence 会在伤害前短路。 */
   readonly timedMarkerGate: GeneratedTimedMarkerGateSource | null;
+  /** 原生伤害所属 Sequence 容器路径；旧生成产物可能缺少此字段。 */
+  readonly nativeContainerPath?: readonly string[];
 }
 
 export interface GeneratedTimedMarkerGateSource {

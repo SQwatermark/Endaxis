@@ -12,6 +12,12 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [lastRite, 9],
 ];
 
+function hasUpgradeBehavior(
+  upgrade: OperatorDefinition['talents'][number] | OperatorDefinition['potentials'][number],
+): boolean {
+  return (upgrade.modifiers?.length ?? 0) > 0 || (upgrade.eventHandlers?.length ?? 0) > 0;
+}
+
 describe('新增的完整技能转换干员', () => {
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
     const skills = operator.skillGroups.flatMap(group =>
@@ -23,10 +29,17 @@ describe('新增的完整技能转换干员', () => {
     expect(skills.every(skill => skill.scheduledSequences.length > 0)).toBe(true);
   });
 
-  it.each(generatedOperators)('会显式报告尚未转换的非技能能力', operator => {
+  it.each(generatedOperators)('养成缺口与尚无可执行行为的定义保持一致', operator => {
     expect(operator.conversionSupport?.completeness).toBe('partial');
-    expect(operator.conversionSupport?.missingCapabilities).toEqual(
-      expect.arrayContaining([{ capability: 'talentEffects' }, { capability: 'potentialEffects' }]),
+    const capabilities = new Set(
+      operator.conversionSupport?.missingCapabilities.map(item => item.capability),
+    );
+
+    expect(capabilities.has('talentEffects')).toBe(
+      operator.talents.some(talent => !hasUpgradeBehavior(talent)),
+    );
+    expect(capabilities.has('potentialEffects')).toBe(
+      operator.potentials.some(potential => !hasUpgradeBehavior(potential)),
     );
   });
 });

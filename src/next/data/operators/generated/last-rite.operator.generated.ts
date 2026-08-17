@@ -754,35 +754,137 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent2',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_2',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'rate',
+          operation: 'assign',
+          value: [1.2, 1.5],
+        },
+      ],
     },
   ],
   potentials: [
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atk_up',
+          operation: 'assign',
+          value: 0.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'poise',
+          operation: 'assign',
+          value: 5,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_1',
+          operation: 'assign',
+          value: 1,
+        },
+      ],
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['strength'],
+          value: 20,
+        },
+        { kind: 'addStaticDamageIncrease', target: 'cryo', value: 0.1 },
+      ],
     },
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atk_scale2',
+          operation: 'multiply',
+          value: 1.15,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atk_scale3',
+          operation: 'multiply',
+          value: 1.15,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atk_scale',
+          operation: 'multiply',
+          value: 1.15,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'atk_scale',
+          operation: 'multiply',
+          value: 1.15,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'atk_scale2',
+          operation: 'multiply',
+          value: 1.15,
+        },
+      ],
     },
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
     },
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atb',
+          operation: 'add',
+          value: 5,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atk_scale',
+          operation: 'multiply',
+          value: 1.2,
+        },
+      ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
 };

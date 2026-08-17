@@ -875,6 +875,18 @@ export type UpgradeModifierDefinition =
       stat: 'criticalRate';
       value: number;
     }
+  | {
+      /**
+       * 养成效果直接修补目标技能组编译后的初始动作黑板。
+       * `operation` 使用与原生 SkillBBModifier 相同的 add/multiply/assign 语义；
+       * `value` 按天赋/潜能等级解析，而不是按技能等级解析。
+       */
+      kind: 'patchSkillBlackboard';
+      skillGroupKey: string;
+      blackboardKey: string;
+      operation: 'add' | 'multiply' | 'assign';
+      value: LevelValues;
+    }
   | { kind: 'multiplySkillDamage'; skillGroupKey: string; multiplier: number }
   | {
       kind: 'multiplyStepDamage';
@@ -922,6 +934,7 @@ export const UPGRADE_MODIFIER_KINDS = [
   'multiplySkillCost',
   'setEffectiveness',
   'addSkillStat',
+  'patchSkillBlackboard',
   'multiplySkillDamage',
   'multiplyStepDamage',
   'multiplySkillCooldown',

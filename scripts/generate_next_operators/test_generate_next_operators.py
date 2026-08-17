@@ -5914,9 +5914,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
     def test_resolved_sequence_compiles_non_damage_skill_cost_and_cooldown(self) -> None:
         skill = SimpleNamespace(
             key="ultimate",
+            skillType="ultimate",
             timelineBlockFrames=20,
             patch=SimpleNamespace(
                 cooldownSeconds=(15,) * 12,
+                costTypes=(0,) * 12,
                 costValues=(240,) * 12,
             ),
             costFrame=2,
@@ -5967,10 +5969,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         source = compile_resolved_sequence(
             skill,
-            {
-                "usePatchCooldown": True,
-                "costResource": "ultimateEnergy",
-            },
+            {},
             require_damage=False,
         )
 

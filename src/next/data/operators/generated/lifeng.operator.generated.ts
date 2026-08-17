@@ -630,12 +630,33 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'phy_resist_down',
+          operation: 'add',
+          value: 0.05,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'num',
+          operation: 'assign',
+          value: 2,
+        },
+      ],
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['strength', 'agility', 'intellect', 'will'],
+          value: 15,
+        },
+      ],
     },
     {
       key: 'potential3',
@@ -645,7 +666,14 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
     },
     {
       key: 'potential5',

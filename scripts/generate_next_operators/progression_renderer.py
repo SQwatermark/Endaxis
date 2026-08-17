@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -87,6 +88,12 @@ ATTRIBUTE_TYPE_SEMANTICS: dict[int, tuple[str, str]] = {
     60: ("EtherDamageTakenScalar", "combat.etherDamageTakenScalar"),
     87: ("PhysicalAndSpellInflictionEnhance", "panel.artsIntensity"),
 }
+SKILL_BB_MODIFIER_OPERATIONS = {
+    1: "add",
+    2: "multiply",
+    3: "assign",
+}
+
 MODIFIER_TYPE_NAMES = {
     0: "Addition",
     1: "Multiplier",
@@ -165,6 +172,78 @@ def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
     ):
         kinds.append("skillParamModifier")
     return tuple(kinds)
+
+
+def _parse_skill_blackboard_patch_entry(
+    entry: dict[str, Any],
+    entry_path: str,
+    skills: list[SkillSource],
+) -> tuple[str, str, str, float]:
+    """解析只包含 skillBbModifier 的养成条目；目标技能必须能对应到稳定技能组。"""
+    payload_kinds = _effect_payload_kinds(entry, entry_path)
+    if payload_kinds != ("skillBbModifier",):
+        raise ValueError(
+            f"{entry_path}: expected only skillBbModifier, got {list(payload_kinds)!r}"
+        )
+    modifier = require_dict(entry.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
+    skill_id = modifier.get("skillId")
+    if not isinstance(skill_id, str) or not skill_id:
+        raise ValueError(f"{entry_path}.skillBbModifier.skillId: expected non-empty skill id")
+    group_key = skill_key_by_id(skills, skill_id)
+    blackboard_key = modifier.get("bbKey")
+    if not isinstance(blackboard_key, str) or not blackboard_key:
+        raise ValueError(f"{entry_path}.skillBbModifier.bbKey: expected non-empty blackboard key")
+    operation = SKILL_BB_MODIFIER_OPERATIONS.get(modifier.get("modifyType"))
+    if operation is None:
+        raise ValueError(
+            f"{entry_path}.skillBbModifier.modifyType: unsupported {modifier.get('modifyType')!r}"
+        )
+    value = float(require_number(modifier.get("floatValue"), f"{entry_path}.skillBbModifier.floatValue"))
+    if not math.isfinite(value):
+        raise ValueError(f"{entry_path}.skillBbModifier.floatValue: expected finite value")
+    return group_key, blackboard_key, operation, value
+
+
+def _render_skill_blackboard_patch_modifiers(
+    entries: list[dict[str, Any]],
+    path: str,
+    skills: list[SkillSource],
+    *,
+    multi_level: bool,
+) -> str:
+    """渲染 patchSkillBlackboard modifiers；multi_level 为 true 时 value 按等级数组展开。"""
+    if not entries:
+        raise ValueError(f"{path}: expected at least one skillBbModifier entry")
+    order: list[tuple[str, str, str]] = []
+    values_by_key: dict[tuple[str, str, str], list[float]] = {}
+    for entry_index, entry in enumerate(entries):
+        entry_path = f"{path}[{entry_index}]"
+        group_key, blackboard_key, operation, value = _parse_skill_blackboard_patch_entry(
+            entry, entry_path, skills
+        )
+        key = (group_key, blackboard_key, operation)
+        if key not in values_by_key:
+            values_by_key[key] = []
+            order.append(key)
+        values_by_key[key].append(value)
+    lines = ["  modifiers: ["]
+    for key in order:
+        group_key, blackboard_key, operation = key
+        values = values_by_key[key]
+        rendered_value = values if multi_level else values[0]
+        lines.extend(
+            [
+                "    {",
+                "      kind: 'patchSkillBlackboard',",
+                f"      skillGroupKey: {ts_inline_literal(group_key)},",
+                f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
+                f"      operation: {ts_inline_literal(operation)},",
+                f"      value: {ts_inline_literal(rendered_value)},",
+                "    },",
+            ]
+        )
+    lines.append("  ],")
+    return "\n".join(lines)
 
 
 def parse_static_attribute_progression(
@@ -418,6 +497,13 @@ def skill_id_by_key(skills: list[SkillSource], key: str) -> str:
     return matches[0]
 
 
+def skill_key_by_id(skills: list[SkillSource], skill_id: str) -> str:
+    matches = [skill.key for skill in skills if skill.skillId == skill_id]
+    if len(matches) != 1:
+        raise ValueError(f"operator skills: expected exactly one skill with id {skill_id!r}")
+    return matches[0]
+
+
 def skill_ids_by_group_key(
     operator: dict[str, Any],
     skills: list[SkillSource],
@@ -518,6 +604,47 @@ def render_talents(
                     ]
                 )
             )
+        elif kind == "skillBlackboardPatch":
+            patch_entries: list[dict[str, Any]] = []
+            expected_keys: set[tuple[str, str, str]] | None = None
+            for level, effect_id in entries:
+                effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+                data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
+                level_keys: set[tuple[str, str, str]] = set()
+                level_entries: list[dict[str, Any]] = []
+                for index, raw_entry in enumerate(data_list):
+                    entry_path = f"{effect_id}.dataList[{index}]"
+                    entry = require_dict(raw_entry, entry_path)
+                    group_key, blackboard_key, operation, _ = _parse_skill_blackboard_patch_entry(
+                        entry, entry_path, skills
+                    )
+                    patch_key = (group_key, blackboard_key, operation)
+                    if patch_key in level_keys:
+                        raise ValueError(f"{entry_path}: duplicate blackboard patch {patch_key!r}")
+                    level_keys.add(patch_key)
+                    level_entries.append(entry)
+                if expected_keys is None:
+                    expected_keys = level_keys
+                elif expected_keys != level_keys:
+                    raise ValueError(f"{effect_id}: talent levels patch different blackboard keys")
+                patch_entries.extend(level_entries)
+            body = _render_skill_blackboard_patch_modifiers(
+                patch_entries,
+                f"CharGrowthTable.talentNodeMap",
+                skills,
+                multi_level=True,
+            )
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        body,
+                        "}",
+                    ]
+                )
+            )
         elif kind == "unmodeledMultiTarget":
             if len(entries) != 1:
                 raise ValueError(f"talent {key}: expected one source level")
@@ -597,7 +724,11 @@ def render_potentials(
                 )
             kind = "multiplyUltimateCost"
         data: dict[str, Any] | None = None
-        if kind not in {"staticAttributes", "multiplyUltimateCost"}:
+        if kind not in {
+            "staticAttributes",
+            "skillBlackboardPatch",
+            "multiplyUltimateCost",
+        }:
             if len(data_list) != 1:
                 raise ValueError(f"{effect_id}: expected one effect entry")
             data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
@@ -608,6 +739,13 @@ def render_potentials(
                     f"PotentialTalentEffectTable.{effect_id}.dataList",
                     mode="strict",
                 )
+            )
+        elif kind == "skillBlackboardPatch":
+            body = _render_skill_blackboard_patch_modifiers(
+                [require_dict(entry, f"{effect_id}.dataList[{index}]") for index, entry in enumerate(data_list)],
+                f"PotentialTalentEffectTable.{effect_id}.dataList",
+                skills,
+                multi_level=False,
             )
         elif kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
             assert data is not None

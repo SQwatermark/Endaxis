@@ -3,6 +3,7 @@ import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSamp
 import { createEmptyScenario } from '../core/project/createProject';
 import { perlica } from '../data/operators/perlica';
 import { perlicaGeneratedOperator } from '../data/operators/generated/perlica.operator.generated';
+import { arclightGeneratedOperator } from '../data/operators/generated/arclight.operator.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -82,7 +83,108 @@ function placeGeneratedPerlicaFlow() {
   );
 }
 
+function createGeneratedTeamScenario() {
+  const scenario = createEmptyScenario('scenario:generated-team', '自动生成干员组队样本');
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 0,
+    spRecoveryPerSecond: 0,
+  };
+  const build = (operatorSlug: string) => ({
+    operatorSlug,
+    level: 90,
+    promoted: true,
+    potential: 0,
+    trustLevel: 4,
+    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+    talentStates: {},
+  });
+  scenario.tracks[0] = {
+    id: 'track:0',
+    operator: build(arclightGeneratedOperator.slug),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  scenario.tracks[1] = {
+    id: 'track:1',
+    operator: build(perlicaGeneratedOperator.slug),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:${++nextId}` };
+  const withTrigger = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: arclightGeneratedOperator,
+    skillGroupKey: 'basicAttack',
+    skillKey: 'basicAttack5',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  return placeSkillGroup({
+    scenario: withTrigger,
+    trackIndex: 1,
+    operator: perlicaGeneratedOperator,
+    skillGroupKey: 'comboSkill',
+    startFrame: 20,
+    ids,
+  }).scenario;
+}
+
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('runs generated operators through team events, combo windows and shared resources', () => {
+    const definitions = [arclightGeneratedOperator, perlicaGeneratedOperator];
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedTeamScenario(),
+      endFrame: 80,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(12).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug => definitions.find(operator => operator.slug === slug) ?? null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => [entry.sourceId, entry.data?.skillId]),
+    ).toEqual([
+      ['track:0', 'basicAttack5'],
+      ['track:1', 'comboSkill'],
+    ]);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:1' }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowConsumed', sourceId: 'track:1' }),
+    );
+    expect(
+      new Set(
+        result.receiptEntries
+          .filter(entry => entry.event === 'DamageApplied')
+          .map(entry => entry.sourceId),
+      ),
+    ).toEqual(new Set(['track:0', 'track:1']));
+    expect(result.finalResources.sp).toBeGreaterThan(result.initialResources.sp);
+  });
+
   it('runs every generated Perlica skill type through the production simulation flow', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: placeGeneratedPerlicaFlow(),

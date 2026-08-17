@@ -22,6 +22,8 @@
 
 完整定义包含基础信息、六个里程碑等级的面板基线、技能组、天赋和潜能。生成器会反向核对 `CharGrowthTable.skillGroupMap`，并验证天赋、潜能修改的技能 ID、黑板键和数据形状。
 
+技能费用与冷却由稳定技能类型和 `SkillPatchTable` 自动恢复。非零战技费用必须使用原生技力类型，非零终结技费用必须使用原生终结技能量类型；冷却只接受非零补丁值。`operators.json` 中已有的 `costResource` 与 `usePatchCooldown` 只作为旧配置的断言，不能覆盖或补造数据源结果。
+
 天赋阵列的四次属性加点来自 `CharGrowthTable.talentNodeMap` 中 `nodeType = 3` 的节点，而不是面板成长表。生成器按 `attributeNodeInfo.breakStage` 排序并严格校验四个阶段、属性修正模式和目标属性；与全局 `[10, 15, 15, 20]` 主属性规则一致时省略 `trustAttributeBonus`，存在例外时才把源数据写入定义。全量核对记录见 [trust-attribute-bonus-audit.md](trust-attribute-bonus-audit.md)。
 
 ### 宽松转换支持状态
@@ -105,6 +107,8 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 会归并为同一个 `ultimate` 技能组补丁；各目标倍率不一致、混入其他载荷或指向其他技能组时
 立即报错。全量宽松审计会把同一结果写入效果的 `dslConversion`，其他尚未闭环的潜能仍保留
 `potentialEffects` 支持度缺口，不因其中一个可转换条目而被误报为完整。
+
+纯 `skillBbModifier` 养成效果可使用 `compile: "skillBlackboardPatch"` 转换为技能初始黑板补丁。转换器逐条验证目标原生技能能唯一对应到稳定技能组、黑板键非空、操作类型受支持，并保持天赋等级顺序。指向隐藏天赋技能、混入 Buff/附加技能或同时修改其他参数的效果不能借用该编译器，仍应显式保留为未建模。
 
 ## 当前边界
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { perlica } from '../../data/operators/perlica';
+import { arclightGeneratedOperator } from '../../data/operators/generated/arclight.operator.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
+import { compileOperatorDefinitionSkills } from './compileScenarioTimeline';
 import {
   applyOperatorUpgradeSkillPatches,
   resolveActiveOperatorUpgrades,
@@ -41,6 +43,29 @@ function program(
 }
 
 describe('operator upgrade compilation', () => {
+  it('compiles generated talent and potential effects into operator skills', () => {
+    const skills = compileOperatorDefinitionSkills(
+      'track:0',
+      build({
+        operatorSlug: arclightGeneratedOperator.slug,
+        potential: 4,
+        talentStates: { 0: 2 },
+      }),
+      arclightGeneratedOperator,
+    );
+    const battleSkill = skills.find(skill => skill.skillGroupKey === 'battleSkill');
+    const ultimate = skills.find(skill => skill.skillGroupKey === 'ultimate');
+
+    expect(battleSkill?.initialBlackboard).toMatchObject({
+      talent_1: 1,
+      duration: 15,
+      pulse_up: Math.fround(0.0008 * 1.3),
+      count: 3,
+      atb: 50,
+    });
+    expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 76.5 }]);
+  });
+
   it('selects talents and potentials in stable declaration order', () => {
     const operator = {
       ...perlica,
@@ -113,6 +138,45 @@ describe('operator upgrade compilation', () => {
     expect(source.map(skill => skill.costs[0]!.value)).toEqual([100, 120, 100]);
   });
 
+  it('patches initial skill blackboards with add, multiply and assign operations', () => {
+    const source = [
+      { ...program('battle-a', 'battleSkill', 'sp', 100), initialBlackboard: { atb: 40, pulse_up: 0.0005, count: 3 } },
+      { ...program('battle-b', 'battleSkill', 'sp', 100), initialBlackboard: { atb: 35, pulse_up: 0.0008, count: 3 } },
+      program('ultimate', 'ultimate', 'ultimateEnergy', 100),
+    ];
+    const patched = applyOperatorUpgradeSkillPatches(source, [
+      {
+        source: 'talent',
+        level: 2,
+        definition: {
+          key: 'talent-patch',
+          levels: 2,
+          modifiers: [
+            {
+              kind: 'patchSkillBlackboard',
+              skillGroupKey: 'battleSkill',
+              blackboardKey: 'talent_1',
+              operation: 'assign',
+              value: [1, 1],
+            },
+            {
+              kind: 'patchSkillBlackboard',
+              skillGroupKey: 'battleSkill',
+              blackboardKey: 'pulse_up',
+              operation: 'multiply',
+              value: [1, 1.3],
+            },
+          ],
+        },
+      },
+    ]);
+
+    expect(patched[0]!.initialBlackboard).toMatchObject({ talent_1: 1, atb: 40, pulse_up: Math.fround(0.0005 * 1.3), count: 3 });
+    expect(patched[1]!.initialBlackboard).toMatchObject({ talent_1: 1, atb: 35, pulse_up: Math.fround(0.0008 * 1.3), count: 3 });
+    expect(patched[2]!.initialBlackboard).toEqual({});
+    expect(source[0]!.initialBlackboard).not.toHaveProperty('talent_1');
+  });
+
   it('fails closed for missing targets and unsupported active modifiers', () => {
     const source = [program('ultimate', 'ultimate', 'ultimateEnergy', 100)];
     expect(() =>
@@ -150,5 +214,26 @@ describe('operator upgrade compilation', () => {
         },
       ]),
     ).toThrow("kind 'multiplySkillDamage' is not connected to skill compilation");
+    expect(() =>
+      applyOperatorUpgradeSkillPatches(source, [
+        {
+          source: 'potential',
+          level: 1,
+          definition: {
+            key: 'bad-blackboard-target',
+            levels: 1,
+            modifiers: [
+              {
+                kind: 'patchSkillBlackboard',
+                skillGroupKey: 'missing',
+                blackboardKey: 'atb',
+                operation: 'add',
+                value: 10,
+              },
+            ],
+          },
+        },
+      ]),
+    ).toThrow("references missing skill group 'missing'");
   });
 });

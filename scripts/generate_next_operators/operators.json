@@ -307,7 +307,7 @@
         {
           "index": 0,
           "key": "electricDamageBonus",
-          "compile": "unmodeledTalent"
+          "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
@@ -318,19 +318,18 @@
       "potentials": [
         {
           "key": "potential1",
-          "compile": "unmodeledPotential"
+          "compile": "skillBlackboardPatch"
         },
         {
           "key": "potential2",
-          "compile": "unmodeledPotential"
+          "compile": "staticAttributes"
         },
         {
           "key": "potential3",
-          "compile": "unmodeledPotential"
+          "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
-          "compile": "unmodeledPotential"
+          "key": "potential4"
         },
         {
           "key": "potential5",
@@ -487,13 +486,13 @@
       "charId": "chr_0013_aglina",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2", "compile": "skillBlackboardPatch" },
         { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
       "skillGroups": [
@@ -623,10 +622,10 @@
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2", "compile": "staticAttributes" },
         { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
       "skillGroups": [
@@ -752,10 +751,10 @@
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4", "compile": "staticAttributes" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
       "skillGroups": [
@@ -877,14 +876,14 @@
       "exportName": "akekuriGeneratedSource",
       "charId": "chr_0019_karin",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
+        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        { "key": "potential2", "compile": "staticAttributes" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
       "skillGroups": [
@@ -1014,10 +1013,10 @@
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "staticAttributes" },
         { "key": "potential2", "compile": "unmodeledPotential" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
       "skillGroups": [
@@ -1408,14 +1407,14 @@
       "charId": "chr_0026_lastrite",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2", "compile": "staticAttributes" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4" },
+        { "key": "potential5", "compile": "skillBlackboardPatch" }
       ],
       "skillGroups": [
         {

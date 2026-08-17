@@ -114,9 +114,28 @@ describe('compileScenarioRuntimeAssembly', () => {
       defense: 0,
     });
     expect(compiled.inputs).toEqual([]);
+    expect(compiled.isOperatorControlled?.('track:0', 0)).toBe(true);
+    expect(compiled.isOperatorControlled?.('track:0', 30)).toBe(true);
     expect(compiled.enemyBuffRuntime).toBe(settings.environment.enemyBuffRuntime);
     expect(compiled.createOperationExecutor).toBe(settings.environment.createOperationExecutor);
     expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
+  });
+
+  it('derives the controlled operator from scenario switch events', () => {
+    const scenario = createScenario();
+    scenario.tracks[1] = {
+      ...scenario.tracks[0]!,
+      id: 'track:1',
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    scenario.battle.controlSwitches.push({ id: 'switch:1', frame: 30, trackIndex: 1 });
+
+    const compiled = compileScenarioRuntimeAssembly(scenario, options());
+
+    expect(compiled.isOperatorControlled?.('track:0', 29)).toBe(true);
+    expect(compiled.isOperatorControlled?.('track:0', 30)).toBe(false);
+    expect(compiled.isOperatorControlled?.('track:1', 30)).toBe(true);
   });
 
   it('delivers compiled equipment contributions to the runtime operation executor', () => {

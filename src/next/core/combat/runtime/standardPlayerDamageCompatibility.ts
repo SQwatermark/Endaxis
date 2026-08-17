@@ -70,6 +70,7 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'actionValueCompare':
     case 'timedMarkerPresent':
     case 'elementalReactionActive':
+    case 'casterControlled':
       return;
     case 'healthCompare':
       if (condition.target !== 'enemy') {

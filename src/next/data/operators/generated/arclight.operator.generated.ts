@@ -373,6 +373,8 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
     timelineBlockFrames: 36,
+    costs: [{ resource: 'sp', value: 100 }],
+    costFrame: 0,
     scheduledSequences: [
       scheduled(
         0,
@@ -568,6 +570,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
     timelineBlockFrames: 27,
+    cooldownFrames: 90,
     scheduledSequences: [
       scheduled(
         0,
@@ -657,6 +660,9 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
     timelineBlockFrames: 77,
+    cooldownFrames: 450,
+    costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    costFrame: 0,
     scheduledSequences: [
       scheduled(
         0,
@@ -749,7 +755,36 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     {
       key: 'electricDamageBonus',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_1',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'duration',
+          operation: 'assign',
+          value: [15, 15],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'pulse_up',
+          operation: 'add',
+          value: [0.0005, 0.0008],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'count',
+          operation: 'assign',
+          value: [3, 3],
+        },
+      ],
     },
     {
       key: 'electricAdditionalHit',
@@ -761,22 +796,51 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atb',
+          operation: 'add',
+          value: 10,
+        },
+      ],
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['agility', 'intellect'],
+          value: 15,
+        },
+      ],
     },
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'pulse_up',
+          operation: 'multiply',
+          value: 1.3,
+        },
+      ],
     },
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
     },
     {
       key: 'potential5',

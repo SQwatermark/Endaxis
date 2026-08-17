@@ -668,7 +668,13 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['agility', 'intellect'],
+          value: 10,
+        },
+      ],
     },
     {
       key: 'potential2',
@@ -678,12 +684,34 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'duration_potential',
+          operation: 'assign',
+          value: 6,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_lv',
+          operation: 'assign',
+          value: 3,
+        },
+      ],
     },
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.9,
+        },
+      ],
     },
     {
       key: 'potential5',

@@ -685,19 +685,85 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent2',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'heal_scale',
+          operation: 'assign',
+          value: [0.6, 0.9],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'heal_const',
+          operation: 'assign',
+          value: [72, 108],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'heal_scale',
+          operation: 'assign',
+          value: [0.6, 0.9],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'heal_const',
+          operation: 'assign',
+          value: [72, 108],
+        },
+      ],
     },
   ],
   potentials: [
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'radiusadd_display',
+          operation: 'assign',
+          value: 0.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'radius',
+          operation: 'assign',
+          value: 6.3,
+        },
+      ],
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential2',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential2_onceadd',
+          operation: 'assign',
+          value: 0.1,
+        },
+      ],
     },
     {
       key: 'potential3',
@@ -707,7 +773,14 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
     },
     {
       key: 'potential5',

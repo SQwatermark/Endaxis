@@ -4,6 +4,7 @@
  */
 import type { CompiledSkillProgram } from './combatProgram';
 import type {
+  LevelValues,
   OperatorDefinition,
   OperatorUpgradeDefinition,
   UpgradeModifierDefinition,
@@ -72,6 +73,45 @@ function requireMultiplier(value: number, path: string): void {
   }
 }
 
+function resolveUpgradeLevelValue(value: LevelValues, upgradeLevel: number, path: string): number {
+  const resolved = typeof value === 'number' ? value : value[upgradeLevel - 1];
+  if (resolved === undefined) {
+    throw new RangeError(`${path} has no value for upgrade level ${upgradeLevel}`);
+  }
+  if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
+  return resolved;
+}
+
+function patchSkillBlackboard(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'patchSkillBlackboard' }>,
+  upgradeLevel: number,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  const value = resolveUpgradeLevelValue(modifier.value, upgradeLevel, `${path}.value`);
+  const targets = programs.filter(program => program.skillGroupKey === modifier.skillGroupKey);
+  if (targets.length === 0) {
+    throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
+  }
+  return programs.map(program => {
+    if (program.skillGroupKey !== modifier.skillGroupKey) return program;
+    const previousValue = program.initialBlackboard[modifier.blackboardKey] ?? 0;
+    const nextValue =
+      modifier.operation === 'add'
+        ? previousValue + value
+        : modifier.operation === 'multiply'
+          ? previousValue * value
+          : value;
+    return {
+      ...program,
+      initialBlackboard: {
+        ...program.initialBlackboard,
+        [modifier.blackboardKey]: Math.fround(nextValue),
+      },
+    };
+  });
+}
+
 function multiplySkillCost(
   programs: readonly CompiledSkillProgram[],
   modifier: Extract<UpgradeModifierDefinition, { kind: 'multiplySkillCost' }>,
@@ -114,6 +154,10 @@ export function applyOperatorUpgradeSkillPatches(
       if (PANEL_MODIFIER_KINDS.has(modifier.kind)) continue;
       if (modifier.kind === 'multiplySkillCost') {
         patched = multiplySkillCost(patched, modifier, path);
+        continue;
+      }
+      if (modifier.kind === 'patchSkillBlackboard') {
+        patched = patchSkillBlackboard(patched, modifier, upgrade.level, path);
         continue;
       }
       throw new Error(`${path} kind '${modifier.kind}' is not connected to skill compilation`);

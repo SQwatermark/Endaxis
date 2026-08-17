@@ -6753,6 +6753,63 @@ def render_time_dilation_scheduled_entries(skill: SkillSource) -> list[str]:
     return result
 
 
+def resolve_skill_cooldown_frames(
+    skill: SkillSource, config: dict[str, Any]
+) -> tuple[float, ...] | None:
+    """从 SkillPatch 推导冷却；清单中的旧开关只用于校验，不能决定是否生成。"""
+    explicit = config.get("usePatchCooldown")
+    if explicit not in {None, True}:
+        raise ValueError(f"{skill.key}.compile.usePatchCooldown: expected true")
+    patch = getattr(skill, "patch", None)
+    if patch is None:
+        if explicit is True:
+            raise ValueError(f"{skill.key}.compile.usePatchCooldown: source patch is missing")
+        return None
+    frames = tuple(round(value * 30, 8) for value in patch.cooldownSeconds)
+    has_cooldown = any(frame != 0 for frame in frames)
+    if explicit is True and not has_cooldown:
+        raise ValueError(f"{skill.key}.compile.usePatchCooldown: source cooldown is zero")
+    return frames if has_cooldown else None
+
+
+def resolve_skill_cost_resource(skill: SkillSource, config: dict[str, Any]) -> str | None:
+    """只按稳定技能类型和 SkillPatch 的非零费用推导运行时资源。"""
+    explicit = config.get("costResource")
+    if explicit is not None and (not isinstance(explicit, str) or not explicit):
+        raise ValueError(f"{skill.key}.compile.costResource: expected non-empty string")
+    patch = getattr(skill, "patch", None)
+    if patch is None:
+        if explicit is not None:
+            raise ValueError(f"{skill.key}.compile.costResource: source patch is missing")
+        return None
+    if not any(value != 0 for value in patch.costValues):
+        if explicit is not None:
+            raise ValueError(f"{skill.key}.compile.costResource: source cost is zero")
+        return None
+
+    inferred = {
+        "battleSkill": "sp",
+        "ultimate": "ultimateEnergy",
+    }.get(skill.skillType)
+    if inferred is None:
+        raise ValueError(
+            f"{skill.key}: non-zero source cost cannot be inferred for skill type {skill.skillType!r}"
+        )
+    expected_cost_type = 1 if inferred == "sp" else 0
+    source_cost_types = set(patch.costTypes)
+    if source_cost_types != {expected_cost_type}:
+        raise ValueError(
+            f"{skill.key}: {inferred} cost expects patch cost type {expected_cost_type}, "
+            f"got {sorted(source_cost_types)!r}"
+        )
+    if explicit is not None and explicit != inferred:
+        raise ValueError(
+            f"{skill.key}.compile.costResource: expected inferred resource {inferred!r}, "
+            f"got {explicit!r}"
+        )
+    return inferred
+
+
 def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
     if len(skill.directDamageHits) != 1:
         raise ValueError(f"{skill.key}: direct damage compiler requires exactly one non-projectile hit")
@@ -6899,10 +6956,12 @@ def compile_direct_damage(skill: SkillSource, config: dict[str, Any]) -> str:
         fields.append("availability: { kind: 'targetStaggered', target: 'enemy' },")
     elif availability is not None:
         raise ValueError(f"{skill.key}.compile.availability: unsupported value")
-    if config.get("usePatchCooldown") is True:
-        frames = tuple(round(value * 30, 8) for value in skill.patch.cooldownSeconds)
-        fields.append(f"cooldownFrames: {ts_inline_literal(compact_level_values(frames))},")
-    cost_resource = config.get("costResource")
+    cooldown_frames = resolve_skill_cooldown_frames(skill, config)
+    if cooldown_frames is not None:
+        fields.append(
+            f"cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},"
+        )
+    cost_resource = resolve_skill_cost_resource(skill, config)
     if cost_resource is not None:
         cost = compact_level_values(skill.patch.costValues)
         fields.append(f"costs: [{{ resource: {ts_inline_literal(cost_resource)}, value: {ts_inline_literal(cost)} }}],")
@@ -7048,13 +7107,28 @@ def compile_projectile_damage(skill: SkillSource, config: dict[str, Any]) -> str
         for lines in [step_source.splitlines()]
         for index, line in enumerate(lines)
     ]
-    cooldown_frames = tuple(round(value * 30, 8) for value in skill.patch.cooldownSeconds)
+    cooldown_frames = resolve_skill_cooldown_frames(skill, config)
+    cost_resource = resolve_skill_cost_resource(skill, config)
+    resource_fields: list[str] = []
+    if cooldown_frames is not None:
+        resource_fields.append(
+            f"    cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},"
+        )
+    if cost_resource is not None:
+        resource_fields.extend(
+            [
+                "    costs: [{ resource: "
+                f"{ts_inline_literal(cost_resource)}, value: "
+                f"{ts_inline_literal(compact_level_values(skill.patch.costValues))} }}],",
+                f"    costFrame: {skill.costFrame},",
+            ]
+        )
     return "\n".join(
         [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
-            f"    cooldownFrames: {ts_inline_literal(compact_level_values(cooldown_frames))},",
+            *resource_fields,
             "    scheduledSequences: [",
             *render_time_dilation_scheduled_entries(skill),
             "      scheduled(",
@@ -7657,20 +7731,14 @@ def compile_resolved_sequence(
         fields.append("    availability: { kind: 'targetStaggered', target: 'enemy' },")
     elif availability is not None:
         raise ValueError(f"{skill.key}.compile.availability: unsupported value")
-    if config.get("usePatchCooldown") is True:
-        cooldown_frames = tuple(
-            round(value * 30, 8) for value in skill.patch.cooldownSeconds
-        )
+    cooldown_frames = resolve_skill_cooldown_frames(skill, config)
+    if cooldown_frames is not None:
         fields.append(
             "    cooldownFrames: "
             f"{ts_inline_literal(compact_level_values(cooldown_frames))},"
         )
-    elif config.get("usePatchCooldown") is not None:
-        raise ValueError(f"{skill.key}.compile.usePatchCooldown: expected true")
-    cost_resource = config.get("costResource")
+    cost_resource = resolve_skill_cost_resource(skill, config)
     if cost_resource is not None:
-        if not isinstance(cost_resource, str) or not cost_resource:
-            raise ValueError(f"{skill.key}.compile.costResource: expected non-empty string")
         fields.append(
             "    costs: [{ resource: "
             f"{ts_inline_literal(cost_resource)}, value: "

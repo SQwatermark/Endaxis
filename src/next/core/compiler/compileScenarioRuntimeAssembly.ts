@@ -24,6 +24,8 @@ import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
 import { compileScenarioEnemy } from './compileScenarioEnemy';
 import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
+import { resolveControlTimeline } from '../project/resolveControlTimeline';
+import { isOperatorControlledAt } from '../combat/runtime/operatorControlTimeline';
 
 type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'>;
 
@@ -38,7 +40,7 @@ export type CombatOperatorRuntimeBindings = Pick<
 
 type EnvironmentOptionKey = Exclude<
   keyof CombatRuntimeAssemblyOptions,
-  'resources' | 'enemy' | 'operators' | 'inputs'
+  'resources' | 'enemy' | 'operators' | 'inputs' | 'isOperatorControlled'
 >;
 
 /** 场景无法持久化、必须由应用装配层提供的战斗环境。 */
@@ -123,6 +125,10 @@ export function compileScenarioRuntimeAssembly(
     })),
     options.operatorRuntimeBindings,
   );
+  const controlTimeline = resolveControlTimeline(
+    scenario.tracks,
+    scenario.battle.controlSwitches,
+  );
 
   return {
     ...options.environment,
@@ -130,5 +136,7 @@ export function compileScenarioRuntimeAssembly(
     enemy: compileScenarioEnemy(scenario.enemy),
     operators,
     inputs: timeline.inputs,
+    isOperatorControlled: (operatorId, frame) =>
+      isOperatorControlledAt(controlTimeline, operatorId, frame),
   };
 }

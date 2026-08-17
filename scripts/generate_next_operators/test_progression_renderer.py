@@ -67,6 +67,22 @@ def skill_parameter_entry(*, skill_id: str, value: float) -> dict[str, object]:
     return entry
 
 
+def skill_blackboard_entry(
+    *, skill_id: str, blackboard_key: str, value: float
+) -> dict[str, object]:
+    """构造只修改一个技能黑板值的原生养成效果。"""
+    entry = effect_entry(attr_type=0, value=0)
+    entry["modifyType"] = 3
+    entry["skillBbModifier"] = {
+        "bbKey": blackboard_key,
+        "floatValue": value,
+        "modifyType": 1,
+        "skillId": skill_id,
+        "stringValue": "",
+    }
+    return entry
+
+
 class ProgressionRendererTests(unittest.TestCase):
     def test_audit_json_keeps_scalar_arrays_compact(self) -> None:
         self.assertEqual(
@@ -569,6 +585,138 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertIn("key: 'talent1'", rendered[0])
         self.assertIn("levels: 2", rendered[0])
         self.assertIn("modifiers: []", rendered[0])
+
+    def test_skill_blackboard_patch_renders_add_multiply_and_assign_modifiers(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "node.a": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 1,
+                        "talentEffectId": "effect.talent1",
+                    }
+                },
+                "node.b": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 2,
+                        "talentEffectId": "effect.talent2",
+                    }
+                },
+            }
+        }
+        skills = [SimpleNamespace(key="battleSkill", skillId="skill.battle")]
+        effects = {
+            "effect.talent1": {
+                "dataList": [
+                    {
+                        "activeCondition": [],
+                        "attachBuff": {"blackboard": [], "buffId": ""},
+                        "attachSkill": {"blackboard": [], "skillId": "", "skillPath": ""},
+                        "attrModifier": {"attrType": 0, "attrValue": 0, "modifierType": 0, "modifyAttributeType": 0},
+                        "modifyType": 3,
+                        "skillBbModifier": {"bbKey": "talent_1", "floatValue": 1, "modifyType": 3, "skillId": "skill.battle", "stringValue": ""},
+                        "skillParamModifier": {"modifyType": 0, "paramType": 0, "paramValue": 0, "skillId": ""},
+                    },
+                    {
+                        "activeCondition": [],
+                        "attachBuff": {"blackboard": [], "buffId": ""},
+                        "attachSkill": {"blackboard": [], "skillId": "", "skillPath": ""},
+                        "attrModifier": {"attrType": 0, "attrValue": 0, "modifierType": 0, "modifyAttributeType": 0},
+                        "modifyType": 3,
+                        "skillBbModifier": {"bbKey": "pulse_up", "floatValue": 0.0005, "modifyType": 1, "skillId": "skill.battle", "stringValue": ""},
+                        "skillParamModifier": {"modifyType": 0, "paramType": 0, "paramValue": 0, "skillId": ""},
+                    },
+                ]
+            },
+            "effect.talent2": {
+                "dataList": [
+                    {
+                        "activeCondition": [],
+                        "attachBuff": {"blackboard": [], "buffId": ""},
+                        "attachSkill": {"blackboard": [], "skillId": "", "skillPath": ""},
+                        "attrModifier": {"attrType": 0, "attrValue": 0, "modifierType": 0, "modifyAttributeType": 0},
+                        "modifyType": 3,
+                        "skillBbModifier": {"bbKey": "talent_1", "floatValue": 1, "modifyType": 3, "skillId": "skill.battle", "stringValue": ""},
+                        "skillParamModifier": {"modifyType": 0, "paramType": 0, "paramValue": 0, "skillId": ""},
+                    },
+                    {
+                        "activeCondition": [],
+                        "attachBuff": {"blackboard": [], "buffId": ""},
+                        "attachSkill": {"blackboard": [], "skillId": "", "skillPath": ""},
+                        "attrModifier": {"attrType": 0, "attrValue": 0, "modifierType": 0, "modifyAttributeType": 0},
+                        "modifyType": 3,
+                        "skillBbModifier": {"bbKey": "pulse_up", "floatValue": 0.0008, "modifyType": 1, "skillId": "skill.battle", "stringValue": ""},
+                        "skillParamModifier": {"modifyType": 0, "paramType": 0, "paramValue": 0, "skillId": ""},
+                    },
+                ]
+            },
+        }
+        rendered = render_talents(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "talents": [{"index": 0, "key": "electricDamageBonus", "compile": "skillBlackboardPatch"}],
+            },
+            skills,
+            growth,
+            effects,
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("key: 'electricDamageBonus'", rendered[0])
+        self.assertIn("levels: 2", rendered[0])
+        self.assertIn("kind: 'patchSkillBlackboard'", rendered[0])
+        self.assertIn("blackboardKey: 'talent_1'", rendered[0])
+        self.assertIn("value: [1, 1]", rendered[0])
+        self.assertIn("blackboardKey: 'pulse_up'", rendered[0])
+        self.assertIn("value: [0.0005, 0.0008]", rendered[0])
+
+    def test_potential_can_patch_multiple_blackboard_values(self) -> None:
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [
+                    {"key": "potential1", "compile": "skillBlackboardPatch"}
+                ],
+                "skillGroups": [
+                    {"key": "ultimate", "skillKeys": ["ultimate"]}
+                ],
+            },
+            [
+                SimpleNamespace(key="comboSkill", skillId="skill.combo"),
+                SimpleNamespace(key="battleSkill", skillId="skill.battle"),
+                SimpleNamespace(key="ultimate", skillId="skill.ultimate"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 1, "potentialEffectId": "effect.potential"}
+                    ]
+                }
+            },
+            {
+                "effect.potential": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="skill.battle",
+                            blackboard_key="damage",
+                            value=0.1,
+                        ),
+                        skill_blackboard_entry(
+                            skill_id="skill.battle",
+                            blackboard_key="stagger",
+                            value=0.2,
+                        ),
+                    ]
+                }
+            },
+        )
+
+        self.assertEqual(rendered[0].count("kind: 'patchSkillBlackboard'"), 2)
+        self.assertIn("blackboardKey: 'damage'", rendered[0])
+        self.assertIn("blackboardKey: 'stagger'", rendered[0])
 
     def test_skill_group_index_rejects_conflicting_group_types(self) -> None:
         growth = {
