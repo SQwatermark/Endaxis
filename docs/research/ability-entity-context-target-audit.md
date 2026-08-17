@@ -148,12 +148,13 @@ conservatively excludes keys also used by ordinary target-group writers. It
 does not introduce a first-item rule for a general collection.
 
 Li Zhiyan's `bunshin1` through `bunshin4` each have one unconditional spawn
-producer before both sets of duration assignments. The compiler deliberately
-does not grant singleton provenance until the corresponding logical spawn can
-itself compile; Li's positional spawn target still needs its zero-space
-projection closed before the four steps enter formal output. The eight
-assignments therefore remain visible in typed audit evidence rather than being
-claimed as an end-to-end compiled skill.
+producer before both sets of duration assignments. Recursive child migration
+exposed an `Owner -> Target` distance condition in the spawned entity skill
+that the earlier audit had skipped. Both endpoints have explicit execution
+identity—the current AbilityEntity and the unique enemy input—so the shared
+zero-distance evaluator now folds this exact plain-selector shape while still
+rejecting missing entity scope and unknown Context targets. The four singleton
+producers and all eight assignments now compile end to end in the battle skill.
 
 The next parser blocker was also narrowed correctly: `effectTargets` belongs
 to `TimeDilationAction`, not the presentation-only `EffectAction`. The audit
@@ -313,8 +314,8 @@ pull, hurt animation, nested conditions, damage, entity count, Buff queries,
 resources and blackboard operations. Li Zhiyan's listener finishes another
 Buff and owner/tag-selected entities, while its child graph also contains an
 Aura. Each must pass the existing strict inline-definition/lifecycle compiler;
-a separate entity-only Buff map would lose observed behavior. Li Zhiyan's positional spawn-target projection
-can follow independently. Avywenna's projectile launch-point semantics, Camille's target
+a separate entity-only Buff map would lose observed behavior. Li Zhiyan's
+combo-skill entity time-dilation closure can follow independently. Avywenna's projectile launch-point semantics, Camille's target
 mutation, replacement/stacking policy, and non-numeric entity blackboard
 values remain blocked until direct native evidence and consumers are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed

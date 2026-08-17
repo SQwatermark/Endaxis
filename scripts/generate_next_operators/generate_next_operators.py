@@ -5725,6 +5725,8 @@ def compile_combat_condition(
         result = evaluate_zero_distance_condition(
             distance,
             root_skill_context=root_skill_context,
+            input_target=input_target,
+            ability_entity_current_target=ability_entity_current_target,
         )
         if result is True:
             return "{ kind: 'singleEnemyPresent' }"
@@ -8063,15 +8065,41 @@ def evaluate_zero_distance_condition(
     condition: DistanceConditionSource,
     *,
     root_skill_context: bool,
+    input_target: Literal["enemy"] | None = None,
+    ability_entity_current_target: bool = False,
 ) -> bool | None:
-    """仅在根干员技能的施法者与唯一敌人共点假设下折叠距离比较。"""
-    if not root_skill_context or condition.distance < 0:
+    """在已证明两端实体存在的执行上下文中按统一零距离模型折叠比较。"""
+    if condition.distance < 0:
         return None
-    roles = {
-        zero_distance_target_role(condition.source),
-        zero_distance_target_role(condition.target),
-    }
-    if None in roles or roles != {"caster", "enemy"}:
+
+    def reference_is_present(reference: TargetReferenceSource) -> bool:
+        if not target_reference_has_plain_selector(reference):
+            return False
+        if (
+            reference.targetSource == "Context"
+            and reference.targetGroupKey == "smart_target"
+            and reference.finderType is None
+        ):
+            return root_skill_context
+        if reference.targetGroupKey:
+            return False
+        if reference.targetSource in {"MainCharacter", "Source"}:
+            return True
+        if reference.targetSource == "Owner":
+            return root_skill_context or ability_entity_current_target
+        if reference.targetSource == "Target":
+            return root_skill_context or input_target == "enemy"
+        if reference.targetSource == "MainTarget":
+            return root_skill_context
+        return (
+            root_skill_context
+            and reference.targetSource == "InstantSearch"
+            and reference.finderType == "MainTargetFinder"
+        )
+
+    if not reference_is_present(condition.source) or not reference_is_present(
+        condition.target
+    ):
         return None
     # 原生 lessThan 分支实际使用 <=；半径只会把共点距离进一步减小。
     return condition.lessThan

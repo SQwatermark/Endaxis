@@ -5389,6 +5389,59 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }",
         )
 
+    def test_ability_entity_owner_to_input_distance_uses_zero_distance_model(self) -> None:
+        condition = {
+            "$type": "Example.CheckDistanceCondition+Data, Example",
+            "source": target_settings_fixture("Owner"),
+            "target": target_settings_fixture("Target"),
+            "distance": 4.0,
+            "lessThan": True,
+            "includeTargetRadius": False,
+            "containsHittableObj": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 0,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        with self.assertRaisesRegex(ValueError, "zero-distance model"):
+            compile_combat_condition_group(
+                (parsed,),
+                "fixture.conditions",
+                input_target="enemy",
+            )
+        self.assertEqual(
+            compile_combat_condition_group(
+                (parsed,),
+                "fixture.conditions",
+                input_target="enemy",
+                ability_entity_current_target=True,
+            ),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
     def test_direct_main_operator_guard_is_assumed_to_pass_for_a_placed_skill(self) -> None:
         root = {
             "actionGroupData": {
