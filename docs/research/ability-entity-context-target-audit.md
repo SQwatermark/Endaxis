@@ -295,7 +295,10 @@ source-death notifications independently of the template's
 `dieWhenSourceDies` flag, allowing the observed monitor to work without adding
 an operator HP ledger. In the current player-damage-only environment no such
 notification is invented, so the monitor remains inert until a caller supplies
-that fact.
+that fact. A production-assembly regression compiles the real generated
+Gilberta definition, selects the extracted template, preserves the originating
+cast identity for lifecycle attribution, and verifies periodic detection,
+host cleanup and the `sourceDied` receipt through one operation chain.
 
 The other real child-Owner Buff consumers remain blocked rather than reduced
 to static ID attachments. Yvonne's definition includes effects, target search,

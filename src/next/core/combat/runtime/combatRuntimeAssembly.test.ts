@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import { compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
@@ -15,6 +16,8 @@ import {
   type LogicalAbilityEntityTemplate,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
+import { logicalAbilityEntityTemplates } from '../../../data/ability-entities/abilityEntityTemplateEvidence';
+import { gilbertaBattleSkill } from '../../../data/operators/generated/gilberta.operator.generated';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -450,6 +453,93 @@ describe('CombatRuntimeAssembly', () => {
       expect.objectContaining({
         event: 'AbilityEntityFinished',
         data: expect.objectContaining({ reason: 'explicit' }),
+      }),
+    );
+  });
+
+  it('runs Gilberta generated source-death monitor through the assembled entity Buff chain', () => {
+    let entityBuffs: CombatBuffContainer<string> | undefined;
+    const createAbilityEntityBuffRuntime = (
+      entityId: string,
+      blackboard: ActionBlackboard,
+      target: RuntimeTargetRef,
+    ) => {
+      entityBuffs = new CombatBuffContainer(
+        entityId,
+        new CombatAttributeSet<string>(),
+        undefined,
+        null,
+        blackboard,
+      );
+      return new BuffDefinitionOperationTarget(
+        entityBuffs,
+        {
+          get: () => undefined,
+          compile: entry => ({
+            id: entry.id,
+            stackingType: entry.stackingType,
+            priority: entry.priority,
+            maxStackCount: entry.maxStackCount,
+            triggerIntervalSeconds: entry.triggerIntervalSeconds,
+            waitFirstTriggerInterval: entry.waitFirstTriggerInterval,
+            maxTriggerCount: entry.maxTriggerCount,
+          }),
+        },
+        target,
+      );
+    };
+    const compiled = compileSkill({
+      operatorId: 'operator',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 1,
+      skill: gilbertaBattleSkill,
+    });
+    const spawnAction = compiled.timelineActions.find(action =>
+      action.sequence.steps.some(step => step.kind === 'spawnAbilityEntity'),
+    );
+    if (spawnAction === undefined) throw new Error('Gilberta generated spawn action is missing');
+    const program: CompiledSkillProgram = {
+      ...compiled,
+      skillId: 'gilberta-monitor-fixture',
+      castId: 'gilberta-monitor-cast',
+      timelineBlockFrames: 1,
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [{ ...spawnAction, startFrame: 0 }],
+    };
+    const template = logicalAbilityEntityTemplates.find(
+      item => item.id === 'abilityentity_chr_0013_aglina_normal_skill',
+    );
+    if (template === undefined) throw new Error('Gilberta AbilityEntity template is missing');
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      [template],
+      undefined,
+      createAbilityEntityBuffRuntime,
+    );
+
+    expect(assembly.tryStartSkill('operator', program.skillId, program.castId)).toBe(true);
+    expect(assembly.abilityEntities.activeCount).toBe(1);
+    expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
+      'buff_chr_0013_aglina_normal_skill_monitor',
+    ]);
+    expect(
+      assembly.abilityEntities.notifySourceDied({ kind: 'operator', operatorId: 'operator' }),
+    ).toBe(0);
+    assembly.advanceFrames(5);
+
+    expect(assembly.abilityEntities.activeCount).toBe(0);
+    expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'AbilityEntityFinished',
+        data: expect.objectContaining({ reason: 'sourceDied' }),
       }),
     );
   });
