@@ -91,47 +91,57 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         15,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange', inheritActionBlackboard: true }),
-        ),
-      ),
-      scheduled(
-        15,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack213:abilityEntity25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:2'),
-        ),
-      ),
-      scheduled(
-        24,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:02:14'),
-        ),
-      ),
-      scheduled(
-        26,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:12:14'),
-        ),
-      ),
-      scheduled(
-        29,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:22:14'),
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0030_zhuangfy_attack2',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+            inheritActionBlackboard: true,
+            childSkill: {
+              skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack213:abilityEntity25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:2'),
+                  ),
+                ),
+                scheduled(
+                  9,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:02:14'),
+                  ),
+                ),
+                scheduled(
+                  11,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:12:14'),
+                  ),
+                ),
+                scheduled(
+                  14,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack221:abilityEntityInterval25:chr_0030_zhuangfy_attack238:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder2:131:01:81:22:14'),
+                  ),
+                ),
+              ],
+            },
+          }),
         ),
       ),
     ],
@@ -233,47 +243,57 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         11,
         sequence(
-          step('spawnAbilityEntity', { templateId: 'abilityentity_chr_0030_zhuangfy_attack2', dieWhenSourceDies: false, childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange', inheritActionBlackboard: true }),
-        ),
-      ),
-      scheduled(
-        11,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack413:abilityEntity25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:2'),
-        ),
-      ),
-      scheduled(
-        20,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:02:14'),
-        ),
-      ),
-      scheduled(
-        22,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:12:14'),
-        ),
-      ),
-      scheduled(
-        25,
-        sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:22:14'),
+          step('spawnAbilityEntity', {
+            templateId: 'abilityentity_chr_0030_zhuangfy_attack2',
+            dieWhenSourceDies: false,
+            childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+            inheritActionBlackboard: true,
+            childSkill: {
+              skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack413:abilityEntity25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:2'),
+                  ),
+                ),
+                scheduled(
+                  9,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:02:14'),
+                  ),
+                ),
+                scheduled(
+                  11,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:12:14'),
+                  ),
+                ),
+                scheduled(
+                  14,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'electric',
+                      attackScale: percentages([11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 23, 25]),
+                      tags: ['normalAttack'],
+                    }, '12:basicAttack421:abilityEntityInterval25:chr_0030_zhuangfy_attack438:chr_0030_zhuangfy_attack2_abilityrange11:actionOrder1:61:01:81:22:14'),
+                  ),
+                ),
+              ],
+            },
+          }),
         ),
       ),
     ],

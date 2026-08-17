@@ -7197,10 +7197,10 @@ def ability_entity_child_timeline_can_compile(hit: AbilityEntityHitSource) -> bo
         and not getattr(hit, "cycleTruncated", False)
         and bool(
             getattr(hit, "directDamageHits", ())
+            or getattr(hit, "intervalDamageHits", ())
             or getattr(hit, "inflictions", ())
             or getattr(hit, "conditionalActions", ())
         )
-        and not getattr(hit, "intervalDamageHits", ())
         and not getattr(hit, "auxiliaryActions", ())
         and not getattr(hit, "resourceGains", ())
         and not getattr(hit, "projectileLaunches", ())
@@ -7268,7 +7268,12 @@ def compile_ability_entity_child_skill(
         )
 
     child_damage_frames = tuple(damage.frame - hit.spawnFrame for damage in child_damage_hits)
+    projected_interval_frames = {
+        interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
+    }
     for condition in hit.conditionalActions:
+        if getattr(condition, "executionFrames", ()) in projected_interval_frames:
+            continue
         frames = getattr(condition, "executionFrames", ()) or (condition.startFrame,)
         for frame in frames:
             source = compile_conditional_action(

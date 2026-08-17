@@ -3,11 +3,26 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  zhuangFangyiBasicAttack2,
   zhuangFangyiComboSkill,
   zhuangFangyiEnhancedComboSkill,
 } from './zhuang-fangyi.skills.audit.generated';
 
 describe('zhuangFangyi generated skill audit', () => {
+  it('moves projected interval hits into the AbilityEntity local timeline', () => {
+    const spawn = zhuangFangyiBasicAttack2.scheduledSequences
+      .flatMap(sequence => sequence.sequence.steps)
+      .find(step => step.kind === 'spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
+
+    expect(spawn.parameters.childSkill?.scheduledSequences.map(item => item.startFrame)).toEqual([
+      0, 9, 11, 14,
+    ]);
+    expect(zhuangFangyiBasicAttack2.scheduledSequences.map(item => item.startFrame)).not.toEqual(
+      expect.arrayContaining([24, 26, 29]),
+    );
+  });
+
   it('preserves combo-skill Buff counting and same-frame native order', () => {
     expect(zhuangFangyiComboSkill.scheduledSequences.map(item => item.startFrame)).toEqual([
       0, 24, 24,

@@ -15,16 +15,31 @@ function withoutStepKey<T extends { readonly key?: string }>(step: T | undefined
   return semanticStep;
 }
 
+function collectGeneratedDamageSchedule(skill: typeof generatedBasicAttack2) {
+  return skill.scheduledSequences.flatMap(item => {
+    const rootDamage = collectSteps(item.sequence)
+      .filter(step => step.kind === 'dealDamage')
+      .map(step => ({ startFrame: item.startFrame, step }));
+    const childDamage = collectSteps(item.sequence).flatMap(step => {
+      if (step.kind !== 'spawnAbilityEntity' || step.parameters.childSkill === undefined) return [];
+      return step.parameters.childSkill.scheduledSequences.flatMap(childItem =>
+        collectSteps(childItem.sequence)
+          .filter(childStep => childStep.kind === 'dealDamage')
+          .map(childStep => ({
+            startFrame: item.startFrame + childItem.startFrame,
+            step: childStep,
+          })),
+      );
+    });
+    return [...rootDamage, ...childDamage];
+  });
+}
+
 describe('next Zhuang Fangyi definition', () => {
   it('uses per-hit second-attack scales instead of the separate display total', () => {
-    const damageSteps = generatedBasicAttack2.scheduledSequences.flatMap(item =>
-      collectSteps(item.sequence).filter(step => step.kind === 'dealDamage'),
-    );
-    expect(
-      generatedBasicAttack2.scheduledSequences
-        .filter(item => collectSteps(item.sequence).some(step => step.kind === 'dealDamage'))
-        .map(item => item.startFrame),
-    ).toEqual([2, 2, 15, 24, 26, 29]);
+    const damageSchedule = collectGeneratedDamageSchedule(generatedBasicAttack2);
+    const damageSteps = damageSchedule.map(item => item.step);
+    expect(damageSchedule.map(item => item.startFrame)).toEqual([2, 2, 15, 24, 26, 29]);
 
     const currentDamage = collectSteps(
       getSkill('basicAttack2').scheduledSequences[0]!.sequence,
@@ -57,15 +72,10 @@ describe('next Zhuang Fangyi definition', () => {
   it('keeps all four fourth-attack hits and restores their interval timing', () => {
     const current = getSkill(generatedBasicAttack4.key);
     expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);
-    expect(
-      generatedBasicAttack4.scheduledSequences
-        .filter(item => collectSteps(item.sequence).some(step => step.kind === 'dealDamage'))
-        .map(item => item.startFrame),
-    ).toEqual([11, 20, 22, 25]);
+    const damageSchedule = collectGeneratedDamageSchedule(generatedBasicAttack4);
+    expect(damageSchedule.map(item => item.startFrame)).toEqual([11, 20, 22, 25]);
     expect(current.scheduledSequences.map(item => item.startFrame)).toEqual([11, 11, 11, 11]);
-    const generatedDamage = generatedBasicAttack4.scheduledSequences
-      .flatMap(item => collectSteps(item.sequence))
-      .filter(step => step.kind === 'dealDamage');
+    const generatedDamage = damageSchedule.map(item => item.step);
     expect(generatedDamage.map(withoutStepKey)).toEqual(
       generatedDamage.map(() => withoutStepKey(generatedDamage[0])),
     );

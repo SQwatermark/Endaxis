@@ -209,16 +209,20 @@ finished. Assembly regressions prove that a child action at local frame 2 fires
 after four raw frames under a constant 0.5 entity scale.
 
 The generator now performs that ownership transfer for one strict subset: the
-child must inherit its source action blackboard, have no cycle, interval,
-projectile, nested entity, Aura, Buff, resource or other unowned action, and
-its remaining actions must be damage, infliction or a condition tree already
-accepted by the shared compiler. Arclight's ultimate child now owns local
+child must inherit its source action blackboard, have no cycle, projectile,
+nested entity, Aura, Buff, resource or other unowned action, and its remaining
+actions must be damage, already-projected fixed interval damage, infliction or
+a condition tree accepted by the shared compiler. Interval condition carriers
+whose execution frames were already projected are omitted rather than executed
+twice. Arclight's ultimate child now owns local
 frames 7 and 63; Lifeng's owns 6, 66, 67 and 121, including its local
 blackboard branch. Their old parent-absolute entries are removed in the same
 generation pass, and a generated contract asserts the absence of both old
 Arclight frames. Native `assignBlackboard=true` is represented explicitly by
 copying the spawning action blackboard before applying per-key entity
-assignments.
+assignments. The same migration now covers Zhuang Fangyi basic attacks 2 and 4
+in audit output, preserving their float32-projected local interval frames while
+removing parent frames 24, 26 and 29 from basic attack 2.
 
 This partial migration still does not justify generator compilation of
 `effectAbilityEntityTargets` for the four blocked combo skills. An owner/tag
