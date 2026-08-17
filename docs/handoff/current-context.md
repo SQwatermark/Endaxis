@@ -15,9 +15,9 @@
 
 - 仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
 - 分支：`feature/next`
-- 当前代码基线以 `git HEAD` 为准；最近已提交 `1c49dee8 feat(next): resolve enemy timed marker targets`。
-- 紧邻提交：`a3dca4c2 feat(next): compile conditional time dilation`
-- 再前提交：`80843cb5 fix(next): omit proven empty skill listeners`
+- 当前功能基线：`7b16107e feat(next): preserve sequence guard boundaries`。
+- 紧邻提交：`1c49dee8 feat(next): resolve enemy timed marker targets`
+- 再前提交：`a3dca4c2 feat(next): compile conditional time dilation`
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
