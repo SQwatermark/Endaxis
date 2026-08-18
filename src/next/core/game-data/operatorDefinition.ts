@@ -293,6 +293,11 @@ export type CombatCondition =
       kind: 'eventSkillTypeIn';
       skillTypes: readonly SkillType[];
     }
+  | {
+      /** 匹配触发当前响应的新施加 Buff 身份。 */
+      kind: 'eventBuffIdMatch';
+      buffIds: readonly string[];
+    }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
   | {
@@ -334,6 +339,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
   'eventSkillTypeIn',
+  'eventBuffIdMatch',
   'eventSourceMatchesBuffSource',
   'elementalInflictionPresent',
   'elementalReactionActive',
@@ -864,6 +870,7 @@ export type SkillTriggerScope = 'operator' | 'team';
  */
 export type CombatEventTrigger =
   | { kind: 'operatorHit' }
+  | { kind: 'buffApplied' }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
       kind: 'elementalInflictionApplied';

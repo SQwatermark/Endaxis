@@ -8,6 +8,26 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches the Buff identity carried by an application event', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'buffApplied' as const,
+        targetId: 'operator',
+        buffId: 'buff:matched',
+        sourceId: 'enemy',
+      },
+    };
+
+    expect(
+      executor.evaluate({ kind: 'eventBuffIdMatch', buffIds: ['buff:matched'] }, context),
+    ).toBe(true);
+    expect(executor.evaluate({ kind: 'eventBuffIdMatch', buffIds: ['buff:other'] }, context)).toBe(
+      false,
+    );
+  });
+
   it.each([
     ['exact', ['comboSkill'], true],
     ['exact', ['comboSkill', 'powerAttack'], false],

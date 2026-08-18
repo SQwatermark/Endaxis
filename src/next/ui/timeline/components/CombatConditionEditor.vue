@@ -177,7 +177,8 @@ function setIntegerList(field: 'buffTagIds' | 'tagIds', event: Event): void {
 }
 
 function setBuffIds(event: Event): void {
-  if (props.condition.kind !== 'buffIdStackCompare') return;
+  if (props.condition.kind !== 'buffIdStackCompare' && props.condition.kind !== 'eventBuffIdMatch')
+    return;
   const buffIds = parseConditionStringList((event.target as HTMLTextAreaElement).value);
   if (buffIds) emit('update', { ...props.condition, buffIds });
 }
@@ -687,6 +688,14 @@ function removeChild(index: number): void {
         >
       </fieldset>
     </template>
+
+    <label v-if="condition.kind === 'eventBuffIdMatch'" class="condition-editor__field">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.buffIds')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.buffIds')"
+      />
+      <textarea :value="condition.buffIds.join('\n')" @input="setBuffIds" />
+    </label>
 
     <template v-if="condition.kind === 'eventDamageFeaturesMatch'">
       <label class="condition-editor__field"

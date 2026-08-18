@@ -38,6 +38,8 @@ export interface BuffOperationTarget {
   configureLifecycleOperations?(
     resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,
   ): void;
+  /** 场景装配根把成功施加事实接入全场语义事件中心。 */
+  configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
   apply?(request: BuffApplicationRequest): boolean;
   applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
   getCountByIds(ids: readonly string[]): number;
@@ -67,6 +69,12 @@ export interface BuffOperationTarget {
     reason: BuffFinishReason,
     exact?: boolean,
   ): number;
+}
+
+export interface BuffAppliedEvent {
+  readonly targetId: string;
+  readonly buffId: string;
+  readonly sourceId: string;
 }
 
 /** 由有状态动作精确持有的 Buff 实例，不按 ID 误删其他来源实例。 */

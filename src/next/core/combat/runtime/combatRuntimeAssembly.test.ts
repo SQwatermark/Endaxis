@@ -1061,6 +1061,70 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
+  it('dispatches a successful Buff application to an active skill listener', () => {
+    const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+      get: () => undefined,
+      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+    });
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 2,
+          sequence: {
+            steps: [
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    {
+                      key: 'on-added-buff',
+                      event: { kind: 'buffApplied' },
+                      condition: { kind: 'eventBuffIdMatch', buffIds: ['watched-buff'] },
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'changeResource',
+                            parameters: {
+                              resource: 'sp',
+                              amount: 7,
+                              recipient: 'team',
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'watched-buff',
+                  target: 'caster',
+                  definition: { stackingType: 'unique' },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => buffRuntime,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(assembly.resources.sp).toBe(107);
+  });
+
   it('executes party Buff lifecycle steps relative to each actual operator owner', () => {
     const sourceBuffs = new CombatBuffContainer<string>('source', new CombatAttributeSet<string>());
     const allyBuffs = new CombatBuffContainer<string>('ally', new CombatAttributeSet<string>());

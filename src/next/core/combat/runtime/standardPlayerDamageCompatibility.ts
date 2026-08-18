@@ -80,6 +80,7 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'eventSourceMatchesBuffSource':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
+    case 'eventBuffIdMatch':
     case 'buffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':

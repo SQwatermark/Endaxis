@@ -7,11 +7,11 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 289,
+    "compiledCount": 291,
     "completeOperatorCount": 13,
     "blockerKinds": {
       "projectile-child-actions": 2,
-      "other": 8,
+      "other": 6,
       "projectile-data": 5,
       "root-action-coverage": 2,
       "conditional-leaf": 6,
@@ -1062,10 +1062,10 @@
       "operatorName": "Liino",
       "skillCount": 12,
       "parsedCount": 12,
-      "compiledCount": 5,
+      "compiledCount": 7,
       "complete": false,
       "blockerKinds": {
-        "other": 4,
+        "other": 2,
         "projectile-data": 3
       }
     },
@@ -4423,9 +4423,9 @@
       "operatorName": "Liino",
       "skillId": "chr_0035_liino_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[1].eventListener: unsupported native skill event 'OnTrulyExitFight'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "AuraAction",
         "CreateBuffAction",
@@ -4482,9 +4482,9 @@
       "operatorName": "Liino",
       "skillId": "chr_0035_liino_normal_skill_combo",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill_combo.schedule[0].eventListener: unsupported native skill event 'OnAddedBuff'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "StoreCurSkillExecuteFrame"],
       "conditionCount": 5,
       "referencedBuffCount": 7,

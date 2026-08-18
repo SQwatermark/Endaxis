@@ -1287,6 +1287,7 @@
       "addActivationRule": "Add opening rule",
       "triggerKind": "Trigger event",
       "triggerKinds": {
+        "buffApplied": "Buff applied",
         "damageTagHit": "Damage tag hit",
         "elementalInflictionApplied": "Elemental infliction applied",
         "skillHit": "Specified skill hit",
@@ -1507,6 +1508,7 @@
       "whenTrue": "Condition true",
       "whenFalse": "Condition false",
       "conditionKinds": {
+        "eventBuffIdMatch": "Event Buff ID match",
         "combatActive": "Combat active",
         "singleEnemyPresent": "Single enemy present",
         "casterControlled": "Caster controlled",

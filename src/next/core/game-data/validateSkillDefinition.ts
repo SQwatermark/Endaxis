@@ -535,6 +535,9 @@ function validateCombatCondition(
         });
       }
       break;
+    case 'eventBuffIdMatch':
+      validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
+      break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
       if (record.minimumStacks !== undefined) {
@@ -1614,6 +1617,7 @@ function validateEventTrigger(
   if (kind === null) return;
   switch (kind) {
     case 'operatorHit':
+    case 'buffApplied':
       break;
     case 'damageTagHit':
       requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);

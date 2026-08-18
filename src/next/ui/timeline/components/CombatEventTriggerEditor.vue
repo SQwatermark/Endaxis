@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 编辑事件监听器使用的五类战斗事件筛选。 */
+/** 编辑事件监听器使用的战斗事件筛选。 */
 import { useI18n } from 'vue-i18n';
 import {
   COMBAT_TARGETS,
@@ -17,6 +17,7 @@ const props = defineProps<{ event: CombatEventTrigger }>();
 const emit = defineEmits<{ update: [event: CombatEventTrigger] }>();
 const { t } = useI18n({ useScope: 'global' });
 const KINDS = [
+  'buffApplied',
   'damageTagHit',
   'elementalInflictionApplied',
   'skillHit',
@@ -28,6 +29,9 @@ const SCOPES = ['operator', 'team'] as const;
 
 function setKind(kind: CombatEventTrigger['kind']): void {
   switch (kind) {
+    case 'buffApplied':
+      emit('update', { kind });
+      break;
     case 'damageTagHit':
       emit('update', { kind, tag: 'normalSkill', scope: 'operator' });
       break;

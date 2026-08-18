@@ -1164,6 +1164,7 @@
       "addActivationRule": "Добавить правило открытия",
       "triggerKind": "Событие-триггер",
       "triggerKinds": {
+        "buffApplied": "Наложение усиления",
         "damageTagHit": "Попадание с тегом урона",
         "elementalInflictionApplied": "Наложение элемента",
         "skillHit": "Попадание указанного навыка",
@@ -1384,6 +1385,7 @@
       "whenTrue": "Условие выполнено",
       "whenFalse": "Условие не выполнено",
       "conditionKinds": {
+        "eventBuffIdMatch": "Совпадение ID усиления события",
         "combatActive": "Бой активен",
         "singleEnemyPresent": "Один враг",
         "casterControlled": "Исполнитель управляем",

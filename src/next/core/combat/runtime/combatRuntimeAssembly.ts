@@ -512,6 +512,9 @@ export class CombatRuntimeAssembly {
       target.configureLifecycleOperations?.(source =>
         this.#createBuffLifecycleOperationChain(source, options),
       );
+      target.configureBuffAppliedObserver?.(event =>
+        this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
+      );
     };
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
@@ -1273,6 +1276,9 @@ export class CombatRuntimeAssembly {
     }
     runtime.configureLifecycleOperations?.(source =>
       this.#createBuffLifecycleOperationChain(source, options),
+    );
+    runtime.configureBuffAppliedObserver?.(event =>
+      this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
     );
     this.#abilityEntityBuffs.set(target.instanceId, runtime);
     return runtime;

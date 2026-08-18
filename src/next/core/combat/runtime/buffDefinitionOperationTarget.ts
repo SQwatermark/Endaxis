@@ -12,6 +12,7 @@ import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type {
   BuffApplicationRequest,
   BuffApplicationHandle,
+  BuffAppliedEvent,
   BuffLifecycleOperationSource,
   BuffOperationTarget,
   BuffQueryResult,
@@ -41,6 +42,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   >();
   #resolveLifecycleOperations:
     ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
+  #buffAppliedObserver: ((event: BuffAppliedEvent) => void) | null = null;
   constructor(
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
@@ -78,7 +80,21 @@ export class BuffDefinitionOperationTarget<Key extends string>
       ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
     });
     if (applied !== null) this.onBuffApplied?.();
+    if (applied !== null) {
+      this.#buffAppliedObserver?.({
+        targetId: this.ownerId,
+        buffId: request.buffId,
+        sourceId: request.sourceId,
+      });
+    }
     return applied;
+  }
+
+  configureBuffAppliedObserver(observer: (event: BuffAppliedEvent) => void): void {
+    if (this.#buffAppliedObserver !== null) {
+      throw new Error(`combat Buff runtime '${this.ownerId}' applied observer is configured`);
+    }
+    this.#buffAppliedObserver = observer;
   }
 
   /**

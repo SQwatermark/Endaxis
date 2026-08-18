@@ -11397,6 +11397,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIsNotNone(context_buff)
         assert context_buff is not None
         self.assertEqual(context_buff.buffIds, ("buff_a",))
+        listener = parse_skill_event_listeners(root, "fixture.json", {})[0]
+        compiled_listener = compile_skill_event_listener(
+            listener,
+            "fixture.eventListener",
+            runtime_blackboard_keys=frozenset({"count"}),
+            step_key_prefix="fixture",
+        )
+        self.assertIn("event: { kind: 'buffApplied' }", compiled_listener)
+        self.assertIn("kind: 'eventBuffIdMatch'", compiled_listener)
+        self.assertIn("buffIds: ['buff_a']", compiled_listener)
         damage_guard = buff_guard.succeedActions[0].nestedCondition
         self.assertIsNotNone(damage_guard)
         assert damage_guard is not None
@@ -11481,6 +11491,40 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 runtime_blackboard_keys=frozenset(),
                 step_key_prefix="fixture",
             )
+
+    def test_exit_fight_listener_is_unreachable_in_fixed_timeline_model(self) -> None:
+        listener = SkillEventListenerSource(
+            startFrame=0,
+            endFrame=60,
+            actionIndex=1,
+            priorityLevel="Default",
+            priorityOffset=0,
+            event="OnTrulyExitFight",
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("CreateBuffAction",),
+                    combatActions=("CreateBuffAction",),
+                    buffApplications=(),
+                    actions=(
+                        ConditionalBranchActionSource(
+                            actionType="CreateBuffAction",
+                            actionIndex=2,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        self.assertIsNone(
+            compile_skill_event_listener(
+                listener,
+                "fixture.exitFight",
+                runtime_blackboard_keys=frozenset(),
+                step_key_prefix="fixture",
+            )
+        )
 
     def test_damage_mask_condition_splits_mixed_native_properties(self) -> None:
         condition = SimpleNamespace(

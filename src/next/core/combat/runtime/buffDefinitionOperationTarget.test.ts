@@ -246,6 +246,33 @@ describe('BuffDefinitionOperationTarget', () => {
     expect(onBuffApplied).toHaveBeenCalledOnce();
   });
 
+  it('publishes the exact successful Buff application to the scene observer', () => {
+    const observer = vi.fn();
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+    );
+    target.configureBuffAppliedObserver(observer);
+
+    expect(
+      target.apply({
+        buffId: 'added-buff',
+        sourceId: 'enemy',
+        blackboardValues: {},
+        definition: { stackingType: 'unique' },
+      }),
+    ).toBe(true);
+    expect(observer).toHaveBeenCalledWith({
+      targetId: 'operator',
+      buffId: 'added-buff',
+      sourceId: 'enemy',
+    });
+    expect(() => target.configureBuffAppliedObserver(observer)).toThrow('observer is configured');
+  });
+
   it('registers an added-Buff response before publishing the successful application', () => {
     let handleAdded: ((payload: unknown) => void) | undefined;
     const execute = vi.fn(() => true);

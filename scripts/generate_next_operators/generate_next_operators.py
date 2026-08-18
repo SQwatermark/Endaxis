@@ -6694,6 +6694,24 @@ def compile_combat_condition(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
+    if source.sourceType == "CheckBuffIdInContext":
+        context_buff = source.contextBuffId
+        if context_buff is None:
+            raise ValueError(f"{path}: missing event Buff identity payload")
+        if (
+            context_buff.checkType != "Id"
+            or context_buff.queryType != "HasAny"
+            or not context_buff.buffIds
+        ):
+            raise ValueError(f"{path}: unsupported event Buff identity query")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'eventBuffIdMatch',",
+                f"  buffIds: {ts_inline_literal(context_buff.buffIds)},",
+                "}",
+            ]
+        )
     if source.sourceType == "CheckTargetsEqual" and buff_ability_damage_event:
         identity = source.targetIdentity
         if identity is None:
@@ -11941,7 +11959,12 @@ def compile_skill_event_listener(
     """把已闭环的原生技能临时监听器编译为通用事件监听步骤。"""
     if event_listener_is_proven_noop(listener):
         return None
+    # Endaxis 的固定时间轴从不切换“脱离战斗”状态；该事件在本模型中不可达。
+    # 原生响应仍保留在 audit，不得把其中的清理动作提升成无条件时间轴步骤。
+    if listener.event == "OnTrulyExitFight":
+        return None
     event = {
+        "OnAddedBuff": {"kind": "buffApplied"},
         "OnBeforeTakeDamage": {"kind": "operatorHit"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
     }.get(listener.event)

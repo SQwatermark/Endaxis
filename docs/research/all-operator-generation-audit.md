@@ -11,7 +11,7 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：320 个。
-- 无角色专用声明即可进入通用 DSL：289 个。
+- 无角色专用声明即可进入通用 DSL：291 个。
 - 当前整名干员完整直转：13 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
 - 当前技能入口中已结构化的事件监听器：17 个。
@@ -39,7 +39,7 @@
 | Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |     12 |      5 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |     12 |      7 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     14 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
@@ -61,8 +61,8 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `other`                    |      8 |
 | `conditional-leaf`         |      6 |
+| `other`                    |      6 |
 | `projectile-data`          |      5 |
 | `condition-other`          |      4 |
 | `buff-source-or-target`    |      3 |

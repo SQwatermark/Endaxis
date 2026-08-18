@@ -1287,6 +1287,7 @@
       "addActivationRule": "添加开启规则",
       "triggerKind": "触发事件",
       "triggerKinds": {
+        "buffApplied": "施加 Buff",
         "damageTagHit": "伤害标签命中",
         "elementalInflictionApplied": "施加元素附着",
         "skillHit": "指定技能命中",
@@ -1501,6 +1502,7 @@
       "whenTrue": "条件成立",
       "whenFalse": "条件不成立",
       "conditionKinds": {
+        "eventBuffIdMatch": "事件 Buff ID 匹配",
         "combatActive": "处于战斗中",
         "singleEnemyPresent": "存在单个敌人",
         "casterControlled": "施法者为主控",

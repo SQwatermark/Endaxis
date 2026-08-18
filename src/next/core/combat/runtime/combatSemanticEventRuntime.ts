@@ -23,6 +23,12 @@ export type CombatSemanticEvent =
       readonly features: readonly DamageFeature[];
     }
   | {
+      readonly kind: 'buffApplied';
+      readonly targetId: string;
+      readonly buffId: string;
+      readonly sourceId: string;
+    }
+  | {
       readonly kind: 'damageTagHit';
       readonly sourceOperatorId: string;
       readonly tags: readonly DamageTag[];
@@ -114,6 +120,8 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
   switch (trigger.kind) {
     case 'operatorHit':
       return event.kind === 'operatorHit' && event.targetOperatorId === ownerOperatorId;
+    case 'buffApplied':
+      return event.kind === 'buffApplied' && event.targetId === ownerOperatorId;
     case 'damageTagHit':
       return (
         event.kind === 'damageTagHit' &&
