@@ -164,8 +164,7 @@
           "source": "chr_0009_azrila_combo_skill.json",
           "compile": {
             "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "unmodeledActionTypes": ["HealAction"]
+            "tags": ["comboSkill"]
           }
         },
         {
@@ -751,8 +750,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["normalSkill"],
-            "costResource": "sp",
-            "unmodeledActionTypes": ["HealAction"]
+            "costResource": "sp"
           }
         },
         {
@@ -762,8 +760,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["comboSkill"],
-            "usePatchCooldown": true,
-            "unmodeledActionTypes": ["HealAction"]
+            "usePatchCooldown": true
           }
         },
         {

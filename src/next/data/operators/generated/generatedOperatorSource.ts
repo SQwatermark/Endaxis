@@ -490,6 +490,10 @@ export interface GeneratedHealthConditionSource {
   readonly comparison: string;
   readonly isRatio: boolean;
   readonly value: GeneratedScalarSource;
+  readonly characterTeamSelectionRole?:
+    | 'controlledOperator'
+    | 'lowestHealthRatioOperator'
+    | 'lowestHealthRatioOperatorExceptControlled';
 }
 
 /** 原生实体 GameplayTag 查询；与 Buff 身份和层数查询保持独立。 */
@@ -913,6 +917,15 @@ export interface GeneratedConditionalBranchActionSource {
   /** 仅当所属条件分支被选中时才会执行、且子调用中含 Aura 的能力实体。 */
   readonly auraAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
+  readonly heal?: {
+    readonly healType: string;
+    readonly healer: string;
+    readonly target: GeneratedTargetReferenceSource;
+    readonly attribute: string;
+    readonly multiplier: GeneratedScalarSource;
+    readonly addition: GeneratedScalarSource;
+    readonly tagIds: readonly number[];
+  };
   readonly keywordAction?: GeneratedTimedKeywordActionSource;
   /** 仅在该条件分支被选中后开始的时间膨胀动作。 */
   readonly timeDilation?: GeneratedTimedTimeDilationSource;
@@ -1017,6 +1030,10 @@ export interface GeneratedTargetGroupWriteSource {
   readonly intervalSeconds: number | null;
   readonly finderSpawnedObjectType?: string | null;
   readonly validatorTagQueries?: readonly (readonly [string, readonly number[]])[];
+  readonly characterTeamSelectionRole?:
+    | 'controlledOperator'
+    | 'lowestHealthRatioOperator'
+    | 'lowestHealthRatioOperatorExceptControlled';
 }
 
 export interface GeneratedBuffEventActionSource {

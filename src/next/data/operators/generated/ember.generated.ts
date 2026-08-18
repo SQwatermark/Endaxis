@@ -1990,6 +1990,97 @@ export const emberGeneratedSource = {
         {
           "startFrame": 26,
           "endFrame": 27,
+          "actionIndex": 30,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[5]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "HealAction",
+              "actionIndex": 30,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "serverActionIndex": 30,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "heal": {
+                "healType": "Normal",
+                "healer": "ActionSource",
+                "target": {
+                  "targetSource": "InstantSearch",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": "CharacterTeamFinder",
+                  "validatorTypes": [
+                    "MainCharacterValidator"
+                  ],
+                  "postProcessorTypes": []
+                },
+                "attribute": "Will",
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": "will_additive",
+                  "levelValues": [
+                    0.7,
+                    0.84,
+                    0.98,
+                    1.12,
+                    1.19,
+                    1.26,
+                    1.33,
+                    1.4,
+                    1.47,
+                    1.51,
+                    1.54,
+                    1.58
+                  ]
+                },
+                "addition": {
+                  "value": 0.0,
+                  "blackboardKey": "heal_base",
+                  "levelValues": [
+                    300.0,
+                    360.0,
+                    420.0,
+                    480.0,
+                    510.0,
+                    540.0,
+                    570.0,
+                    600.0,
+                    630.0,
+                    645.0,
+                    660.0,
+                    675.0
+                  ]
+                },
+                "tagIds": [
+                  -1517158118
+                ]
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 27,
           "actionIndex": 31,
           "actionPath": [
             "timelineActions[6]",
@@ -2125,7 +2216,67 @@ export const emberGeneratedSource = {
               "serverActionIndex": 37,
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null
+              "buffIgnite": null,
+              "heal": {
+                "healType": "Normal",
+                "healer": "ActionSource",
+                "target": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "CureTarget",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": "CharacterTeamFinder",
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "attribute": "Will",
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": "will_additive",
+                  "levelValues": [
+                    0.7,
+                    0.84,
+                    0.98,
+                    1.12,
+                    1.19,
+                    1.26,
+                    1.33,
+                    1.4,
+                    1.47,
+                    1.51,
+                    1.54,
+                    1.58
+                  ]
+                },
+                "addition": {
+                  "value": 0.0,
+                  "blackboardKey": "heal_base",
+                  "levelValues": [
+                    300.0,
+                    360.0,
+                    420.0,
+                    480.0,
+                    510.0,
+                    540.0,
+                    570.0,
+                    600.0,
+                    630.0,
+                    645.0,
+                    660.0,
+                    675.0
+                  ]
+                },
+                "tagIds": [
+                  -1517158118
+                ]
+              }
             }
           ],
           "failActions": []
@@ -2854,7 +3005,8 @@ export const emberGeneratedSource = {
             "PriorityFilter"
           ],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "lowestHealthRatioOperatorExceptControlled"
         },
         {
           "startFrame": 0,
@@ -3239,6 +3391,97 @@ export const emberGeneratedSource = {
         {
           "startFrame": 26,
           "endFrame": 27,
+          "actionIndex": 30,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[5]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "HealAction",
+              "actionIndex": 30,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "serverActionIndex": 30,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "heal": {
+                "healType": "Normal",
+                "healer": "ActionSource",
+                "target": {
+                  "targetSource": "InstantSearch",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": "CharacterTeamFinder",
+                  "validatorTypes": [
+                    "MainCharacterValidator"
+                  ],
+                  "postProcessorTypes": []
+                },
+                "attribute": "Will",
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": "will_additive",
+                  "levelValues": [
+                    0.7,
+                    0.84,
+                    0.98,
+                    1.12,
+                    1.19,
+                    1.26,
+                    1.33,
+                    1.4,
+                    1.47,
+                    1.51,
+                    1.54,
+                    1.58
+                  ]
+                },
+                "addition": {
+                  "value": 0.0,
+                  "blackboardKey": "heal_base",
+                  "levelValues": [
+                    300.0,
+                    360.0,
+                    420.0,
+                    480.0,
+                    510.0,
+                    540.0,
+                    570.0,
+                    600.0,
+                    630.0,
+                    645.0,
+                    660.0,
+                    675.0
+                  ]
+                },
+                "tagIds": [
+                  -1517158118
+                ]
+              }
+            }
+          ],
+          "failActions": []
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 27,
           "actionIndex": 31,
           "actionPath": [
             "timelineActions[6]",
@@ -3408,7 +3651,67 @@ export const emberGeneratedSource = {
               "serverActionIndex": 37,
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null
+              "buffIgnite": null,
+              "heal": {
+                "healType": "Normal",
+                "healer": "ActionSource",
+                "target": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "CureTarget",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": "CharacterTeamFinder",
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "attribute": "Will",
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": "will_additive",
+                  "levelValues": [
+                    0.7,
+                    0.84,
+                    0.98,
+                    1.12,
+                    1.19,
+                    1.26,
+                    1.33,
+                    1.4,
+                    1.47,
+                    1.51,
+                    1.54,
+                    1.58
+                  ]
+                },
+                "addition": {
+                  "value": 0.0,
+                  "blackboardKey": "heal_base",
+                  "levelValues": [
+                    300.0,
+                    360.0,
+                    420.0,
+                    480.0,
+                    510.0,
+                    540.0,
+                    570.0,
+                    600.0,
+                    630.0,
+                    645.0,
+                    660.0,
+                    675.0
+                  ]
+                },
+                "tagIds": [
+                  -1517158118
+                ]
+              }
             }
           ],
           "failActions": []

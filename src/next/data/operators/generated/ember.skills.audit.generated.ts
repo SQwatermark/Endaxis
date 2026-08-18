@@ -105,6 +105,15 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '10:comboSkill6:direct27:chr_0009_azrila_combo_skill11:actionOrder2:28'),
+          sequence(
+            step('heal', {
+              target: 'controlledOperator',
+              attribute: 'will',
+              multiplier: { kind: 'blackboard', key: 'will_additive' },
+              addition: { kind: 'blackboard', key: 'heal_base' },
+              tagIds: [-1517158118],
+            }),
+          ),
           branch(
             {
               kind: 'actionValueCompare',
@@ -122,6 +131,13 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 key: 'heal_base',
                 operation: 'multiply',
                 value: { kind: 'blackboard', key: 'extracure' },
+              }),
+              step('heal', {
+                target: 'lowestHealthRatioOperatorExceptControlled',
+                attribute: 'will',
+                multiplier: { kind: 'blackboard', key: 'will_additive' },
+                addition: { kind: 'blackboard', key: 'heal_base' },
+                tagIds: [-1517158118],
               }),
             ),
           ),

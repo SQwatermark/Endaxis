@@ -754,6 +754,7 @@ class HealthConditionSource:
     comparison: str
     isRatio: bool
     value: ScalarSource
+    characterTeamSelectionRole: str | None = None
 
 
 @dataclass(frozen=True)
@@ -964,6 +965,17 @@ class SkillCooldownAdjustmentPayload:
     functionType: str
     isPercentage: bool
     value: ScalarSource
+
+
+@dataclass(frozen=True)
+class HealPayload:
+    healType: str
+    healer: str
+    target: "TargetReferenceSource"
+    attribute: str
+    multiplier: ScalarSource
+    addition: ScalarSource
+    tagIds: tuple[int, ...]
 
 
 @dataclass(frozen=True)
@@ -1209,6 +1221,7 @@ class ConditionalBranchActionSource:
     abilityEntityDurationAssignment: AbilityEntityDurationAssignmentPayload | None = None
     auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
+    heal: HealPayload | None = None
     keywordAction: TimedKeywordActionSource | None = None
 
 
@@ -1383,6 +1396,7 @@ class TargetGroupWriteSource:
     centerContextKey: str = ""
     selectorOwner: str | None = None
     selectorOwnerContextKey: str = ""
+    characterTeamSelectionRole: str | None = None
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@
  * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
+import type { DamageFeature, DamageTag, HealTarget } from '../../game-data/operatorDefinition';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import {
   createOperatorAttackAttributes,
@@ -49,6 +49,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
 import { gameplayTagId } from '../tags/gameplayTags';
+import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -142,6 +143,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
+  readonly #operatorVitals = new Map<string, CombatVitals>();
   #clock: CombatClock | null = null;
   #receipt: CombatReceiptSink | null = null;
   #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
@@ -160,8 +162,10 @@ export class StandardPlayerDamageEnvironment {
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
       },
-      createOperatorBuffRuntime: (operatorId, panel) =>
-        this.#operatorBuffRuntime(operatorId, panel),
+      createOperatorBuffRuntime: (operatorId, panel) => {
+        if (panel !== undefined) this.#ensureOperatorVitals(operatorId, panel);
+        return this.#operatorBuffRuntime(operatorId, panel);
+      },
       createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target) =>
         new BuffDefinitionOperationTarget(
           new CombatBuffContainer(
@@ -184,11 +188,10 @@ export class StandardPlayerDamageEnvironment {
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
-      resolveVitals: target => {
-        if (target !== 'enemy') {
-          throw new Error('standard player damage environment has no operator vitals');
-        }
-        return this.enemyVitals;
+      resolveVitals: (target, operatorId) => {
+        if (target === 'enemy') return this.enemyVitals;
+        if (target === 'caster') return this.#requireOperatorVitals(operatorId);
+        return this.#resolveHealTarget(target, operatorId, this.#requireClock().frame).vitals;
       },
     };
   }
@@ -218,12 +221,13 @@ export class StandardPlayerDamageEnvironment {
     this.#receipt = context.receipt;
     if (context.panel !== undefined) {
       this.#operatorPanels.set(context.program.operatorId, context.panel);
+      this.#ensureOperatorVitals(context.program.operatorId, context.panel);
     }
     const operatorBuffs = this.#operatorBuffRuntime(
       context.program.operatorId,
       context.panel,
     ).container;
-    return new PlayerDamageOperationExecutor({
+    const damage = new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
       castId: context.program.castId,
       targetId: 'enemy',
@@ -284,6 +288,22 @@ export class StandardPlayerDamageEnvironment {
         });
       },
       delegate: this.#createReactionExecutor(context),
+    });
+    return new HealOperationExecutor({
+      sourceOperatorId: context.program.operatorId,
+      clock: context.clock,
+      receipt: context.receipt,
+      resolveSourceAttribute: attribute => {
+        if (context.panel === undefined) {
+          throw new Error(
+            `operator '${context.program.operatorId}' requires a resolved panel for healing`,
+          );
+        }
+        return context.panel.attributes[attribute];
+      },
+      resolveTarget: target =>
+        this.#resolveHealTarget(target, context.program.operatorId, context.clock.frame),
+      delegate: damage,
     });
   }
 
@@ -364,6 +384,74 @@ export class StandardPlayerDamageEnvironment {
       receipt: context.receipt,
       emitOwnerEvent: event => this.#emit('enemy', event, {}),
     });
+  }
+
+  #ensureOperatorVitals(operatorId: string, panel: ResolvedOperatorPanel): CombatVitals {
+    const existing = this.#operatorVitals.get(operatorId);
+    if (existing !== undefined) return existing;
+    const vitals = new CombatVitals({
+      health: panel.health,
+      maxHealth: panel.health,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 0,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    this.#operatorVitals.set(operatorId, vitals);
+    return vitals;
+  }
+
+  #requireOperatorVitals(operatorId: string): CombatVitals {
+    const vitals = this.#operatorVitals.get(operatorId);
+    if (vitals === undefined) {
+      throw new Error(`operator '${operatorId}' has no resolved health ledger`);
+    }
+    return vitals;
+  }
+
+  #resolveHealTarget(
+    target: HealTarget,
+    sourceOperatorId: string,
+    frame: number,
+  ): ResolvedHealTarget {
+    if (target === 'caster') {
+      return {
+        operatorId: sourceOperatorId,
+        vitals: this.#requireOperatorVitals(sourceOperatorId),
+      };
+    }
+    const isControlled = this.options.isOperatorControlled;
+    if (isControlled === undefined) {
+      throw new Error(`heal target '${target}' requires the scenario control timeline`);
+    }
+    const controlled = [...this.#operatorVitals.keys()].filter(operatorId =>
+      isControlled(operatorId, frame),
+    );
+    if (controlled.length !== 1) {
+      throw new Error(`heal target '${target}' requires exactly one controlled operator`);
+    }
+    if (target === 'controlledOperator') {
+      const operatorId = controlled[0]!;
+      return { operatorId, vitals: this.#requireOperatorVitals(operatorId) };
+    }
+    const candidates = [...this.#operatorVitals.entries()].filter(
+      ([operatorId]) => target === 'lowestHealthRatioOperator' || operatorId !== controlled[0],
+    );
+    if (candidates.length === 0) {
+      throw new Error(`heal target '${target}' has no non-controlled operator`);
+    }
+    let selected = candidates[0]!;
+    for (const candidate of candidates.slice(1)) {
+      if (
+        candidate[1].health / candidate[1].maxHealth <
+        selected[1].health / selected[1].maxHealth
+      ) {
+        selected = candidate;
+      }
+    }
+    return { operatorId: selected[0], vitals: selected[1] };
   }
 
   #operatorBuffRuntime(

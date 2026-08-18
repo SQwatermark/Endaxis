@@ -25,6 +25,7 @@ from action_payload_parser import (
     parse_buff_stack_read_payload,
     parse_damage_units,
     parse_global_cooldown_application_payload,
+    parse_heal_payload,
     parse_infliction_payload,
     parse_interrupt_payload,
     parse_physical_infliction_payload,
@@ -75,7 +76,7 @@ from source_utils import (
     require_non_negative_int,
     require_server_action_index,
 )
-from target_parser import parse_target_reference
+from target_parser import parse_character_team_selection_role, parse_target_reference
 from keyword_action_parser import parse_keyword_action
 from time_dilation_parser import parse_time_dilation_action
 
@@ -246,6 +247,13 @@ def _parse_hp_condition(
             isRatio=is_ratio,
             value=parse_scalar(
                 condition.get("value"), f"{path}.value", inherited_blackboard
+            ),
+            characterTeamSelectionRole=(
+                parse_character_team_selection_role(
+                    target.get("selectorData"), f"{path}.hpOwner.selectorData"
+                )
+                if target_source == "InstantSearch"
+                else None
             ),
         ),
     )
@@ -1030,6 +1038,7 @@ def parse_conditional_actions(
                 damage_units = None
                 keyword_action = None
                 time_dilation = None
+                heal = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -1197,6 +1206,8 @@ def parse_conditional_actions(
                             source_path,
                             inherited_blackboard,
                         )
+                elif action_type == "HealAction":
+                    heal = parse_heal_payload(action, source_path, inherited_blackboard)
                 elif action_type == "SlowAction":
                     keyword_action = parse_keyword_action(
                         action,
@@ -1244,6 +1255,7 @@ def parse_conditional_actions(
                     "abilityEntitySpawn": ability_entity_spawn,
                     "abilityEntityDurationAssignment": ability_entity_duration_assignment,
                     "damageUnits": damage_units,
+                    "heal": heal,
                     "keywordAction": keyword_action,
                 }
                 if time_dilation is not None:
@@ -1475,6 +1487,30 @@ def parse_conditional_actions(
                     )
                 )
             # 内部动作已保存在一次性节点中，不能再提升到根调度。
+            return
+        if action_type == "HealAction":
+            action_path = f"{source_name}.{'.'.join(path)}"
+            action_index = require_server_action_index(value, action_path)
+            result.append(
+                UnconditionalActionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    actionPath=path,
+                    conditions=(),
+                    succeedActions=(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=action_index,
+                            actionPath=path,
+                            serverActionIndex=action_index,
+                            heal=parse_heal_payload(value, action_path, inherited_blackboard),
+                        ),
+                    ),
+                    failActions=(),
+                    executionFrames=execution_frames,
+                )
+            )
             return
         if action_type == "CreateTimedMarker":
             if id(value) in consumed_action_ids:

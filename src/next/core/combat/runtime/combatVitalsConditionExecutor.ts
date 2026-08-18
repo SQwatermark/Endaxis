@@ -2,14 +2,16 @@
  * 求值依赖实体生命账本的战斗条件，并把其他操作交给执行器链。
  * 调用方必须按目标身份提供同一场模拟中的 `CombatVitals`，不得用面板快照代替运行时生命。
  */
-import type { CombatCondition, CombatTarget } from '../../game-data/operatorDefinition';
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatVitals } from './combatVitals';
 import { compareCombatNumbers } from './numericComparison';
 
 export interface CombatVitalsConditionDependencies {
-  readonly resolveTarget: (target: CombatTarget) => CombatVitals;
+  readonly resolveTarget: (
+    target: Extract<CombatCondition, { kind: 'healthCompare' }>['target'],
+  ) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
 }
 

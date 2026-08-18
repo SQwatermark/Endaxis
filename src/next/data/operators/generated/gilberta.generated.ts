@@ -6319,7 +6319,8 @@ export const gilbertaGeneratedSource = {
                         "value": 0.99,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
+                      },
+                      "characterTeamSelectionRole": "controlledOperator"
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
@@ -6345,7 +6346,69 @@ export const gilbertaGeneratedSource = {
                     "serverActionIndex": 53,
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
-                    "buffIgnite": null
+                    "buffIgnite": null,
+                    "heal": {
+                      "healType": "Normal",
+                      "healer": "ActionSource",
+                      "target": {
+                        "targetSource": "InstantSearch",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": "CharacterTeamFinder",
+                        "validatorTypes": [
+                          "MainCharacterValidator"
+                        ],
+                        "postProcessorTypes": []
+                      },
+                      "attribute": "Wisd",
+                      "multiplier": {
+                        "value": 1.5,
+                        "blackboardKey": "heal_scale",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "addition": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_const",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "tagIds": [
+                        -320297214
+                      ]
+                    }
                   }
                 ],
                 "failActions": [
@@ -6427,7 +6490,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 57,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "CureTarget",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ],
                       "failActions": [
@@ -6452,7 +6577,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 58,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "InstantSearch",
+                              "targetGroupKey": "tar",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": "CharacterTeamFinder",
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ]
                     },
@@ -7268,7 +7455,8 @@ export const gilbertaGeneratedSource = {
             "PriorityFilter"
           ],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "lowestHealthRatioOperator"
         }
       ],
       "targetGroupControlFlowActions": [
@@ -7692,7 +7880,8 @@ export const gilbertaGeneratedSource = {
                         "value": 0.99,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
+                      },
+                      "characterTeamSelectionRole": "controlledOperator"
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
@@ -7718,7 +7907,69 @@ export const gilbertaGeneratedSource = {
                     "serverActionIndex": 53,
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
-                    "buffIgnite": null
+                    "buffIgnite": null,
+                    "heal": {
+                      "healType": "Normal",
+                      "healer": "ActionSource",
+                      "target": {
+                        "targetSource": "InstantSearch",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": "CharacterTeamFinder",
+                        "validatorTypes": [
+                          "MainCharacterValidator"
+                        ],
+                        "postProcessorTypes": []
+                      },
+                      "attribute": "Wisd",
+                      "multiplier": {
+                        "value": 1.5,
+                        "blackboardKey": "heal_scale",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "addition": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_const",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "tagIds": [
+                        -320297214
+                      ]
+                    }
                   }
                 ],
                 "failActions": [
@@ -7820,7 +8071,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 57,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "CureTarget",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ],
                       "failActions": [
@@ -7845,7 +8158,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 58,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "InstantSearch",
+                              "targetGroupKey": "tar",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": "CharacterTeamFinder",
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ]
                     },
@@ -8306,7 +8681,8 @@ export const gilbertaGeneratedSource = {
                         "value": 0.99,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
+                      },
+                      "characterTeamSelectionRole": "controlledOperator"
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
@@ -8332,7 +8708,69 @@ export const gilbertaGeneratedSource = {
                     "serverActionIndex": 31,
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
-                    "buffIgnite": null
+                    "buffIgnite": null,
+                    "heal": {
+                      "healType": "Normal",
+                      "healer": "ActionSource",
+                      "target": {
+                        "targetSource": "InstantSearch",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": "CharacterTeamFinder",
+                        "validatorTypes": [
+                          "MainCharacterValidator"
+                        ],
+                        "postProcessorTypes": []
+                      },
+                      "attribute": "Wisd",
+                      "multiplier": {
+                        "value": 1.5,
+                        "blackboardKey": "heal_scale",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "addition": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_const",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "tagIds": [
+                        -320297214
+                      ]
+                    }
                   }
                 ],
                 "failActions": [
@@ -8414,7 +8852,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 35,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "CureTarget",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ],
                       "failActions": [
@@ -8439,7 +8939,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 36,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "InstantSearch",
+                              "targetGroupKey": "tar",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": "CharacterTeamFinder",
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ]
                     },
@@ -9038,7 +9600,8 @@ export const gilbertaGeneratedSource = {
             "PriorityFilter"
           ],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "lowestHealthRatioOperator"
         },
         {
           "startFrame": 0,
@@ -9281,7 +9844,8 @@ export const gilbertaGeneratedSource = {
                         "value": 0.99,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
+                      },
+                      "characterTeamSelectionRole": "controlledOperator"
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
@@ -9307,7 +9871,69 @@ export const gilbertaGeneratedSource = {
                     "serverActionIndex": 31,
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
-                    "buffIgnite": null
+                    "buffIgnite": null,
+                    "heal": {
+                      "healType": "Normal",
+                      "healer": "ActionSource",
+                      "target": {
+                        "targetSource": "InstantSearch",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": "CharacterTeamFinder",
+                        "validatorTypes": [
+                          "MainCharacterValidator"
+                        ],
+                        "postProcessorTypes": []
+                      },
+                      "attribute": "Wisd",
+                      "multiplier": {
+                        "value": 1.5,
+                        "blackboardKey": "heal_scale",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "addition": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_const",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "tagIds": [
+                        -320297214
+                      ]
+                    }
                   }
                 ],
                 "failActions": [
@@ -9409,7 +10035,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 35,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "CureTarget",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ],
                       "failActions": [
@@ -9434,7 +10122,69 @@ export const gilbertaGeneratedSource = {
                           "serverActionIndex": 36,
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
-                          "buffIgnite": null
+                          "buffIgnite": null,
+                          "heal": {
+                            "healType": "Normal",
+                            "healer": "ActionSource",
+                            "target": {
+                              "targetSource": "InstantSearch",
+                              "targetGroupKey": "tar",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": "CharacterTeamFinder",
+                              "validatorTypes": [
+                                "MainCharacterValidator"
+                              ],
+                              "postProcessorTypes": []
+                            },
+                            "attribute": "Wisd",
+                            "multiplier": {
+                              "value": 1.5,
+                              "blackboardKey": "heal_scale",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "addition": {
+                              "value": 0.0,
+                              "blackboardKey": "heal_const",
+                              "levelValues": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            },
+                            "tagIds": [
+                              -320297214
+                            ]
+                          }
                         }
                       ]
                     },

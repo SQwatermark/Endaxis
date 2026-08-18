@@ -11,6 +11,7 @@ import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityTargetQueryEditorSource from './AbilityEntityTargetQueryEditor.vue?raw';
 import timeDilationStepEditorSource from './TimeDilationStepEditor.vue?raw';
+import healStepEditorSource from './HealStepEditor.vue?raw';
 import { COMBAT_STEP_KINDS } from '../../../core/game-data/operatorDefinition';
 import { EDITABLE_COMBAT_STEP_KINDS } from '../skillDefinitionEditorViewModel';
 import { STEP_TYPE_GROUPS } from '../stepTypePickerCatalog';
@@ -109,6 +110,14 @@ describe('SkillDefinitionEditor structure', () => {
     expect(abilityEntityTargetQueryEditorSource).not.toContain('bornTag');
   });
 
+  it('治疗步骤使用正常技能表单编辑完整公式与目标', () => {
+    expect(stepEditorSource).toContain('HealStepEditor');
+    expect(healStepEditorSource).toContain('HEAL_TARGETS');
+    expect(healStepEditorSource).toContain('OPERATOR_ATTRIBUTES');
+    expect(healStepEditorSource).toContain('ActionValueOperandEditor');
+    expect(healStepEditorSource).toContain('tagIds');
+  });
+
   it('Next 属性面板只使用自身完整的翻译命名空间', () => {
     expect(inspectorSource).not.toContain("t('propertiesPanel.sections.");
     expect(inspectorSource).not.toContain("t('propertiesPanel.labels.");
@@ -187,6 +196,7 @@ describe('SkillDefinitionEditor structure', () => {
       'BuffManagementStepEditor',
       'BranchStepEditor',
       'EventListenerStepEditor',
+      'HealStepEditor',
     ]) {
       expect(stepEditorSource).toContain(component);
     }

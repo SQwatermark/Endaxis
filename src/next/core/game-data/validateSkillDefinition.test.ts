@@ -23,6 +23,40 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('validates the evidence-backed heal target and attribute formula', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'heal',
+              parameters: {
+                target: 'controlledOperator',
+                attribute: 'will',
+                multiplier: [1, 2],
+                addition: { kind: 'blackboard', key: 'base' },
+                tagIds: [-1],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+    const parameters = (
+      definition.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters;
+    parameters.target = 'enemy';
+    expect(validateSkillDefinition(definition)).toContainEqual(
+      expect.objectContaining({ path: expect.stringContaining('.parameters.target') }),
+    );
+  });
+
   it('只接受已知的敌人原生 rank，并允许原生空集合表达永不匹配', () => {
     const definition = baseSkill();
     definition.scheduledSequences = [

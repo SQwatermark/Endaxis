@@ -13,6 +13,45 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('resolves heal multiplier and addition at the selected skill level', () => {
+    const skill = {
+      key: 'heal',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'heal',
+                parameters: {
+                  target: 'controlledOperator',
+                  attribute: 'will',
+                  multiplier: [1, 2],
+                  addition: [10, 20],
+                  tagIds: [-1],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    expect(
+      compileSkill({
+        operatorId: 'fixture',
+        skillGroupKey: 'comboSkill',
+        skillType: 'comboSkill',
+        skillLevel: 2,
+        skill,
+      }).timelineActions[0]?.sequence.steps[0],
+    ).toMatchObject({
+      kind: 'heal',
+      parameters: { multiplier: 2, addition: 20 },
+    });
+  });
+
   it('compiles an embedded AbilityEntity child timeline at the parent skill level', () => {
     const skill = {
       key: 'entity-parent',

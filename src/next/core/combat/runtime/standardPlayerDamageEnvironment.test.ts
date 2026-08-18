@@ -279,6 +279,61 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(environment.enemyVitals.health).toBe(vitals.health);
   });
 
+  it('creates full-health operator ledgers and resolves the controlled heal target', () => {
+    const environment = new StandardPlayerDamageEnvironment({
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      enemyVitals: createEnemyCombatVitals(testEnemy),
+      isOperatorControlled: operatorId => operatorId === 'operator:b',
+    });
+    const sourceBase = createContext();
+    const sourceReceipt = new CombatReceiptCollector();
+    const source: CombatOperationExecutorContext = {
+      ...sourceBase,
+      receipt: sourceReceipt,
+      program: { ...sourceBase.program, operatorId: 'operator:a' },
+      panel: {
+        ...sourceBase.panel!,
+        operatorId: 'operator:a',
+        attributes: { ...sourceBase.panel!.attributes, will: 100 },
+      },
+    };
+    const targetBase = createContext();
+    const target: CombatOperationExecutorContext = {
+      ...targetBase,
+      program: { ...targetBase.program, operatorId: 'operator:b' },
+      panel: { ...targetBase.panel!, operatorId: 'operator:b' },
+    };
+    const sourceExecutor = environment.runtimeOptions.createOperationExecutor(source);
+    environment.runtimeOptions.createOperationExecutor(target);
+    const targetVitals = environment.runtimeOptions.resolveVitals!('caster', 'operator:b');
+    targetVitals.takeDamage(250);
+
+    expect(
+      sourceExecutor.execute({
+        kind: 'heal',
+        parameters: {
+          target: 'controlledOperator',
+          attribute: 'will',
+          multiplier: 2,
+          addition: 0,
+          tagIds: [],
+        },
+      }),
+    ).toBe(true);
+    expect(targetVitals.health).toBe(4950);
+    expect(sourceReceipt.entries.at(-1)).toMatchObject({
+      event: 'HealingApplied',
+      sourceId: 'operator:a',
+      targetId: 'operator:b',
+      data: { requestedHealing: 200, actualHealing: 200, overhealing: 0 },
+    });
+  });
+
   it('evaluates health conditions against the shared post-damage vitals', () => {
     const environment = createEnvironment();
     const executor = environment.runtimeOptions.createOperationExecutor(createContext());

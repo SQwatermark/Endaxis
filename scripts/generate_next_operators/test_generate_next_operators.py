@@ -184,6 +184,7 @@ from generate_next_operators import (
 )
 from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
 from time_dilation_parser import parse_time_dilation_target
+from action_payload_parser import parse_heal_payload
 
 
 def target_settings_fixture(
@@ -1978,6 +1979,55 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
             "sequence()",
         )
+
+    def test_heal_payload_compiles_controlled_target_formula_and_tags(self) -> None:
+        action = {
+            "$type": "Example.HealAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 7,
+            "alwaysNext": True,
+            "healType": "Normal",
+            "healer": "ActionSource",
+            "contextKey": "",
+            "target": target_settings_fixture(
+                "InstantSearch",
+                finder_type="CharacterTeamFinder",
+                validator_types=("MainCharacterValidator",),
+            ),
+            "healCalculation": {
+                "$type": "Example.MultiplyAttributeCalculation, Example",
+                "valueSource": "AttackerOrHealer",
+                "attributeType": "Will",
+                "multiplier": {
+                    "useBlackboardKey": True,
+                    "value": 1,
+                    "blackboardKey": "scale",
+                },
+                "addition": {
+                    "useBlackboardKey": False,
+                    "value": 10,
+                    "blackboardKey": "",
+                },
+            },
+            "showHealText": True,
+            "playHealEffect": True,
+            "effectData": {},
+            "onlyPlayEffectOnActualHeal": False,
+            "useHealTags": True,
+            "healTags": {"predefinedTag": [{"tagId": -1}]},
+        }
+        payload = parse_heal_payload(action, "fixture.heal", {"scale": (1.5,)})
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource("HealAction", 0, heal=payload),
+            "fixture.heal",
+        )
+
+        self.assertIn("target: 'controlledOperator'", compiled)
+        self.assertIn("attribute: 'will'", compiled)
+        self.assertIn("key: 'scale'", compiled)
+        self.assertIn("tagIds: [-1]", compiled)
 
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")

@@ -1,6 +1,6 @@
 # 当前任务快照
 
-> 更新时间：2026-08-18（Asia/Shanghai）
+> 更新时间：2026-08-19（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 ## 1. 当前目标与边界
@@ -15,7 +15,7 @@
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 分支：`feature/next`
-- 本文更新前的 HEAD：`879683d2 feat(next): advance generated combat and timeline simulation`；实际 HEAD 始终以 `git log` 为准。
+- 本文更新前的 HEAD：`1f7ae2f2 feat(next): audit healing and add external hit facts`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -114,7 +114,7 @@ step('spawnAbilityEntity', {
 - 能力实体 `TimeDilationAction.effectTargets` 已从源解析阻塞改为类型化审计：保留 owner-spawned 与可选 GameplayTag 查询。生成器现在可用 54 个模板的 born-tag 与引用文件证据证明单标签查询闭包，并要求全部匹配生成点都有逻辑实体、带战斗动作的子图均使用动态时钟。Li Zhiyan 连携的 `-1480463572` 只匹配本技能封印模板，四个生成点均闭合，已生成正式 `abilityEntityTargets`；Tangtang、Yvonne、Liino 的查询仍在各自证据边界失败关闭。
 - `spawnAbilityEntity` 已贯通 DSL、严格校验、编译、标准模拟和生成器。正式生成产物目前覆盖 Arclight 终结技、Gilberta 战技/终结技、Lifeng 终结技；庄方宜审计产物也保存了对应步骤。DSL/编译器/运行时可在生成步骤内携带已解析子时间轴；每个实例独占游标，复用统一序列解释器，以实体黑板为回退，并消费与寿命相同的实体局部时间。生成器已把 Arclight、Gilberta 的严格子图，以及庄方宜普攻二/四的固定周期子图和普攻五的伤害/回能/黑板修改，原子迁入局部时间轴并删除父时间轴投影；原生 `assignBlackboard` 会先复制生成动作黑板，再应用显式实体赋值。Lifeng 终结技仍生成逻辑实体，但其子时间轴因新发现的条件跳转已退出内嵌，暂留父投影；该回退不代表跳过语义已经模拟。
 - 子时间线直接 `FinishOwnerAction(Owner)` 已经按原生 RVA `0x06CF5E28` 的目标解析证据接入统一实体目录。运行时允许子技能结束自己的宿主并对称收尾；生成器只接受字段精确的 plain Owner 形状，保留但不解释 `skipDieDisplay`，同帧等价结束去重。庄方宜普攻二、四、五的审计输出新增局部帧 897 结束。条件结束仍未闭环；Buff 生命周期结束只开放下述 Gilberta 严格组合。
-- 能力实体 Buff 的运行时所有权桥已接入：`currentAbilityEntity` 目标只允许出现在已有实体作用域内；首次施加时惰性创建标准 Buff 容器，与子技能共享实体黑板并消费该实体的四路时钟，宿主结束时统一清理。Buff 生命周期上下文保留同一实体句柄。Gilberta 战技的 `buff_chr_0013_aglina_normal_skill_monitor` 已作为首个真实 Owner-Buff 严格迁移：只接受字段精确的 `OnBuffTrigger -> CheckHp(Source ratio <= 0) -> FinishOwnerAction(Owner)`，每 0.15 秒查询已登记的来源死亡事实并结束宿主。标准装配回归直接编译真实生成技能、使用正式实体模板，并验证 cast identity、Buff 周期、来源死亡通知、宿主清理和 `sourceDied` 回执的完整链路。标准玩家伤害环境没有干员生命账本，不会猜测死亡；Yvonne 与 Li Zhiyan 的复杂 Owner-Buff 仍因未建模动作/Aura 失败关闭。
+- 能力实体 Buff 的运行时所有权桥已接入：`currentAbilityEntity` 目标只允许出现在已有实体作用域内；首次施加时惰性创建标准 Buff 容器，与子技能共享实体黑板并消费该实体的四路时钟，宿主结束时统一清理。Buff 生命周期上下文保留同一实体句柄。Gilberta 战技的 `buff_chr_0013_aglina_normal_skill_monitor` 已作为首个真实 Owner-Buff 严格迁移：只接受字段精确的 `OnBuffTrigger -> CheckHp(Source ratio <= 0) -> FinishOwnerAction(Owner)`，每 0.15 秒查询已登记的来源死亡事实并结束宿主。标准装配回归直接编译真实生成技能、使用正式实体模板，并验证 cast identity、Buff 周期、来源死亡通知、宿主清理和 `sourceDied` 回执的完整链路。标准玩家伤害环境现为已解析面板的干员建立初始满血账本，供治疗与生命条件读取，但不会猜测或自行制造受击/死亡；Yvonne 与 Li Zhiyan 的复杂 Owner-Buff 仍因未建模动作/Aura 失败关闭。
 - 桌面 `GameAssembly.dll`（SHA-256 `0C5573679BC6DEC2D068A14335466DB7CCF20AF9BAE2B983FB9D45677D80FFCE`）的静态反汇编进一步确认：`FinishOwnerAction.ExecuteInternal` 解析目标后按 Entity `ObjectType` 分派；`AbilityEntityInfo.type` 原生返回 `0x200`，走通用完成路径，而不是 `0x20` 的 Release 或 `0x40` 的投射物路径。Fluorite 表面上的 90 帧结束后仍有 149 帧伤害并非反证：子技能在 0–89 帧还有两条 `JumpToAction`，分别以目标死亡跳到 89、目标持有终结技 Buff 跳到 149，两个结束属于替代路径。Lifeng 终结技也在局部 67 帧以 `isCombo == 0` 跳到 150，跳过后续 121 帧动作。`JumpToAction` 在首次执行时立即检查直接条件，此后在动作存续期间每 Tick 重试，首次成功后置位并只调用一次宿主 `Skill.JumpTo`；空条件立即成功。原生 `TimelineActionProcessor.JumpTo` 对起始时间严格早于目的帧的待执行序列调用 `SequenceAction.JumpToEnd`，后者逐个把尚未执行的子 Action 标为结束；已开始且结束时间不晚于目的帧的序列会 End（动画序列另有下一帧完成队列），跨越目的帧的活动序列保留，起始时间恰等于目的帧的序列不被跳过。原生 `TimelineActionProcessor.OnTick` 还确认 `m_jumpedInThisFrame` 会立即终止本帧内部处理，目的帧动作在下一 Tick 进入。Next 现有统一 `jumpTimeline` 控制步骤：首次执行检查可选条件，失败后在区间内每 Tick 重试，成功只请求一次；普通技能和能力实体子技能均通过宿主端口改写各自局部帧，并由支持执行中重入的 `TimelineActionProcessor.jumpTo` 迁移调度游标。当前 1.4.4 公共 SkillData 共找到 436 条跳转、其中 413 条启用；297 条没有直接条件，其余条件和外层容器形状很多，不能用两个干员样本概括。生成审计现保留精确 `actionPath`、结构化直接条件、解析支持状态以及根/分支唯一动作证明。生成器对直接根跳转只放行“唯一根动作 + 精确根路径 + 前向目的地 + 全部直接条件可编译 + 每个目的区段显式结束”的子集，Fluorite 两条跳转满足该证明。外层 `IfElse` 成功分支跳转则要求根容器和成功分支各自唯一、跳转直接条件为空、外层条件可编译且路径精确关联；它被生成成同帧一次性 `conditional -> jumpTimeline`，先求值跳转，失败时才执行原失败分支，不能扩展成逐 Tick 重试。Lifeng 已命中该证明：第 58 帧生成实体，局部保留 6/66/121 帧伤害和 67 帧失败写入，父时间轴 64/124/179 帧固定投影已删除。线性子图的首结束守卫继续保留，跳转子图则逐目的区段验证终止性；Lifeng `ultimate` 的其他显式行为缺口仍保留。
 - `OwnerSpawnedEntityFinder + TagValidator` 的 Context 来源证据仍完整保留。统一 `findOwnerSpawnedAbilityEntities` 步骤已经能够按当前干员和原生标签查询逻辑目录，把完整组写入本次施法 Context，并可把数量写入动作黑板复用现有比较条件。Avywenna 三组长枪与 Tangtang 水体四个守卫仍需实体目标 Buff、投射物来源和生成器转换，不能提前宣称闭环。完整盘点见 `docs/research/ability-entity-context-target-audit.md`。
 - Context 组现在可按稳定句柄同步迭代；body 通过显式 `currentTarget` 读取、比较或 `Assign` 有限剩余时长。若 body 返回 false，运行时会因原生跨实例短路规则尚未证明而显式失败，不能猜测继续/终止。原始语料共有 10 个时长设置、2 个当前时长检查和 1 个目标设置；当前只接入全部已观察时长动作共有的 `Assign` 子集，目标设置仍阻塞。
@@ -173,14 +173,14 @@ step('spawnAbilityEntity', {
 1. Last Rite 普通战技已经完整穿过生成、场景编译和生产模拟；下一项不再扩展这条已闭环链，而是逐项审计庄方宜与诀仍处于 `outputStage: audit` 的干员级缺口。诀优先核对形态展示、形态感知连携注册、天赋和潜能；庄方宜继续以首个未闭环来源动作为准。任一层未闭环都不能把审计产物提升为正式定义；
 2. 后续若出现新的集合 Buff，必须复用已建立的来源施法、当前创建来源和实际宿主三重身份：施法快照定位原程序，干员宿主优先成为执行主体，敌方/能力实体上的后代 Buff 则由当前创建来源干员归因；不得重新把三者压成单一 caster；
 3. 扩大能力实体子图动态迁移的严格覆盖，并为原生 owner/tag 查询建立干员级匹配生成点闭包；查询只在生成期使用标签证据，只有闭包内所有生成点都已迁移时才输出实体 ID 形式的 `effectAbilityEntityTargets`；
-4. Endaxis 的敌人永久按木桩处理，不建立敌方技能、攻击或动画时钟，也不自动产生玩家受击。硬依赖敌方主动行为的原生监听器应优先改写为用户在时间轴上显式放置的外部“干员受击”事实；没有标记时监听器保持注册但永不触发，不能仅因标准场景没有事件生产者就把干员判为转换不完整。若真实消费者要求伤害标签、特征或数值，必须先取得载荷证据再扩展标记，不能猜测；无法表达且不影响主动输出链的敌方行为允许明确放弃；
+4. Endaxis 的敌人永久按木桩处理，不建立敌方技能、攻击或动画时钟，也不自动产生玩家受击。外部事件只用于正常技能/Buff/资源/治疗等操作链客观无法产生的事实；硬依赖敌方主动行为的原生监听器可由用户在时间轴上显式放置最小“干员受击”事实。没有标记时监听器保持注册但永不触发，不能仅因标准场景没有事件生产者就把干员判为转换不完整。若真实消费者要求伤害标签、特征或数值，必须先取得载荷证据再扩展标记，不能猜测；无法表达且不影响主动输出链的敌方行为允许明确放弃；
 5. 在 `/next/timeline` 手工验收冻屏拖动和能力实体递归编辑：Arclight 终结技应位于鼠标落点，阴影同步移动，松手不回弹；`Pulse` 的 `SkillSetting` 必须等原生导出证据，不做默认值；
 6. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
 7. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 
-治疗不以敌方主动行为或玩家先受伤为前置。后续治疗链应在干员满血时仍计算并记录原始治疗量；若接入极简干员生命账本，则另行记录实际治疗与溢出治疗。外部受击标记可以选择性制造缺失生命，但不是治疗动作、治疗快照和治疗事件成立的必要条件。
+治疗正常链已经接入：`heal` 步骤由施法者四维属性、倍率和加值计算，按执行帧解析主控或最低生命比例目标，写入场景级干员生命账本，并在满血时仍记录原始治疗量、实际治疗量和溢出治疗。Ember 连携与 Gilberta 战技/连携已从 `unmodeledActionTypes` 退出；Gilberta 外层 `explo >= 2` 在唯一敌人模型下严格折叠为假，因此对应分支虽完整保留在生成定义中，标准单敌人场景不会触发。外部受击事实不是治疗动作、快照或回执成立的前置，也不应为展示治疗而扩展。
 
-本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 301/301、Next 类型检查通过、Next 全量 Vitest 175 个文件 1046/1046。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
+本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前治疗阶段验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 303/303、Next 类型检查通过、Next 全量 Vitest 177 个文件 1058/1058。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
 
 Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍保留在 audit；生成器现保存 stack effect 动作类别，并且只有定义完整证明“唯一行为是非空 `EffectAction` stack effect”时才自动从战斗序列剔除，不能按 ID 或命名泛化。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
 

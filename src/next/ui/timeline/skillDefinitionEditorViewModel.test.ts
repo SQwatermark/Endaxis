@@ -397,6 +397,7 @@ describe('skillDefinitionEditorViewModel', () => {
       'dealDamage',
       'dealFixedDamage',
       'dealStagger',
+      'heal',
       'applyElementalInfliction',
       'applyElementalReaction',
       'consumeElementalReaction',
@@ -424,12 +425,13 @@ describe('skillDefinitionEditorViewModel', () => {
     }
 
     expect(validateSkillDefinition(draft)).toEqual([]);
-    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-27).map(step => step.kind)).toEqual([
+    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-28).map(step => step.kind)).toEqual([
       'startTimeDilation',
       'startUltimateTimeDilation',
       'dealDamage',
       'dealFixedDamage',
       'dealStagger',
+      'heal',
       'applyElementalInfliction',
       'applyElementalReaction',
       'consumeElementalReaction',

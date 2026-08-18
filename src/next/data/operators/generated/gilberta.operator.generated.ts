@@ -559,6 +559,69 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '11:battleSkill6:direct28:chr_0013_aglina_normal_skill11:actionOrder2:44'),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'heal_const' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                { kind: 'not', condition: { kind: 'singleEnemyPresent' } },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'healthCompare',
+                  target: 'controlledOperator',
+                  valueType: 'ratio',
+                  operator: 'less',
+                  value: { kind: 'constant', value: 0.99 },
+                },
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    attribute: 'intellect',
+                    multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                    addition: { kind: 'blackboard', key: 'heal_const' },
+                    tagIds: [-320297214],
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'healthCompare',
+                      target: 'lowestHealthRatioOperator',
+                      valueType: 'ratio',
+                      operator: 'less',
+                      value: { kind: 'constant', value: 0.99 },
+                    },
+                    sequence(
+                      step('heal', {
+                        target: 'lowestHealthRatioOperator',
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                        tagIds: [-320297214],
+                      }),
+                    ),
+                    sequence(
+                      step('heal', {
+                        target: 'controlledOperator',
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                        tagIds: [-320297214],
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     ],
@@ -617,6 +680,69 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 5,
           }, '10:comboSkill6:direct27:chr_0013_aglina_combo_skill11:actionOrder2:23'),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'heal_const' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                { kind: 'not', condition: { kind: 'singleEnemyPresent' } },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'healthCompare',
+                  target: 'controlledOperator',
+                  valueType: 'ratio',
+                  operator: 'less',
+                  value: { kind: 'constant', value: 0.99 },
+                },
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    attribute: 'intellect',
+                    multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                    addition: { kind: 'blackboard', key: 'heal_const' },
+                    tagIds: [-320297214],
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'healthCompare',
+                      target: 'lowestHealthRatioOperator',
+                      valueType: 'ratio',
+                      operator: 'less',
+                      value: { kind: 'constant', value: 0.99 },
+                    },
+                    sequence(
+                      step('heal', {
+                        target: 'lowestHealthRatioOperator',
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                        tagIds: [-320297214],
+                      }),
+                    ),
+                    sequence(
+                      step('heal', {
+                        target: 'controlledOperator',
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                        tagIds: [-320297214],
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           step('changeResourceByActionValue', {
             resource: 'ultimateEnergy',
             amount: { kind: 'blackboard', key: 'usp' },

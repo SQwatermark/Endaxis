@@ -11,6 +11,7 @@ import { CaretBottom, CaretRight } from '@element-plus/icons-vue';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 import ActionValueStepEditor from './ActionValueStepEditor.vue';
 import DamageStepEditor from './DamageStepEditor.vue';
+import HealStepEditor from './HealStepEditor.vue';
 import ElementalReactionStepEditor from './ElementalReactionStepEditor.vue';
 import BuffStepEditor from './BuffStepEditor.vue';
 import BuffManagementStepEditor from './BuffManagementStepEditor.vue';
@@ -87,6 +88,9 @@ function forward(step: CombatStepDefinition): void {
         "
       >
         <DamageStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'heal'">
+        <HealStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'"

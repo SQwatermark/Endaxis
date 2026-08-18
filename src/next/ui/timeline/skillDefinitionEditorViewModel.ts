@@ -344,6 +344,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
+  'heal',
   'applyElementalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
@@ -496,6 +497,17 @@ export function createSkillEditorStep(
       };
     case 'dealStagger':
       return { kind, parameters: { value: 0 } };
+    case 'heal':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          attribute: 'will',
+          multiplier: 1,
+          addition: 0,
+          tagIds: [],
+        },
+      };
     case 'applyElementalInfliction':
       return { kind, parameters: { element: 'heat', isExtra: false } };
     case 'applyElementalReaction':

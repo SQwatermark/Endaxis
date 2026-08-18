@@ -18,11 +18,101 @@ from source_schema import (
 from source_utils import require_bool, require_dict, require_list
 
 __all__ = [
+    "parse_character_team_selection_role",
     "parse_selector_summary",
     "parse_spawned_entity_selector_identity",
     "parse_target_reference",
     "selector_component_name",
 ]
+
+
+def parse_character_team_selection_role(value: Any, path: str) -> str | None:
+    """只识别治疗已取证的主控与“排除主控后最低生命比例”选择器。"""
+    selector = require_dict(value, path)
+    finder = selector.get("finderData")
+    if not isinstance(finder, dict) or selector_component_name(finder, f"{path}.finderData") != "CharacterTeamFinder":
+        return None
+    if set(finder) != {"$type"}:
+        raise ValueError(f"{path}.finderData: unexpected CharacterTeamFinder fields")
+    validators = require_list(selector.get("validatorData"), f"{path}.validatorData")
+    processors = require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+    if len(validators) == 1 and not processors:
+        validator = require_dict(validators[0], f"{path}.validatorData[0]")
+        if (
+            selector_component_name(validator, f"{path}.validatorData[0]")
+            == "MainCharacterValidator"
+            and set(validator) == {"$type"}
+        ):
+            return "controlledOperator"
+        return None
+    if validators or len(processors) not in {1, 2}:
+        return None
+    excludes_controlled = len(processors) == 2
+    priority_index = 1 if excludes_controlled else 0
+    if excludes_controlled:
+        exclusion = require_dict(processors[0], f"{path}.postProcessorData[0]")
+        if selector_component_name(exclusion, f"{path}.postProcessorData[0]") != "ExcludeTarget":
+            return None
+        if set(exclusion) != {"$type", "excludedTargetSettings"}:
+            raise ValueError(f"{path}.postProcessorData[0]: unexpected ExcludeTarget fields")
+        excluded = parse_target_reference(
+            exclusion.get("excludedTargetSettings"),
+            f"{path}.postProcessorData[0].excludedTargetSettings",
+        )
+        if not (
+            excluded.targetSource == "Context"
+            and excluded.targetGroupKey == "Main"
+            and excluded.finderType is None
+            and not excluded.validatorTypes
+            and not excluded.postProcessorTypes
+        ):
+            return None
+    priority_path = f"{path}.postProcessorData[{priority_index}]"
+    priority = require_dict(processors[priority_index], priority_path)
+    if selector_component_name(priority, priority_path) != "PriorityFilter":
+        return None
+    expected_priority_fields = {
+        "$type", "filterType", "onlyReserveMaxPriorityTargets", "limitMaxNum",
+        "maxNum", "buffFilterSettings",
+    }
+    if set(priority) != expected_priority_fields:
+        raise ValueError(f"{priority_path}: unexpected PriorityFilter fields")
+    if not (
+        priority.get("filterType") == "CurHpRatioAsc"
+        and priority.get("onlyReserveMaxPriorityTargets") is False
+        and priority.get("limitMaxNum") is True
+        and priority.get("maxNum") == 1
+    ):
+        return None
+    buff_filter = require_dict(
+        priority.get("buffFilterSettings"),
+        f"{priority_path}.buffFilterSettings",
+    )
+    if set(buff_filter) != {"buffSettings", "buffStackNumType"}:
+        raise ValueError(f"{priority_path}.buffFilterSettings: unexpected fields")
+    buff_settings = require_dict(
+        buff_filter.get("buffSettings"),
+        f"{priority_path}.buffFilterSettings.buffSettings",
+    )
+    tag_query = require_dict(
+        buff_settings.get("tagQuery"),
+        f"{priority_path}.buffFilterSettings.buffSettings.tagQuery",
+    )
+    if not (
+        set(buff_settings) == {"checkType", "buffIdList", "tagQuery"}
+        and buff_settings.get("checkType") == "Id"
+        and buff_settings.get("buffIdList") == []
+        and set(tag_query) == {"queryType", "tags"}
+        and tag_query.get("queryType") == "HasAny"
+        and tag_query.get("tags") == []
+        and buff_filter.get("buffStackNumType") == "BuffCount"
+    ):
+        return None
+    return (
+        "lowestHealthRatioOperatorExceptControlled"
+        if excludes_controlled
+        else "lowestHealthRatioOperator"
+    )
 
 
 def parse_spawned_entity_selector_identity(

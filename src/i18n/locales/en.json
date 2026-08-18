@@ -1402,6 +1402,15 @@
       "damageTypesLabel": "Affected damage types",
       "attributeScaling": "Add attribute scaling",
       "attribute": "Attribute",
+      "healMultiplier": "Attribute multiplier",
+      "healAddition": "Flat addition",
+      "healTagIds": "Healing tag IDs",
+      "healTargets": {
+        "caster": "Caster",
+        "controlledOperator": "Controlled operator",
+        "lowestHealthRatioOperator": "Lowest health-ratio operator",
+        "lowestHealthRatioOperatorExceptControlled": "Lowest health-ratio non-controlled operator"
+      },
       "scalingCoefficient": "Scaling coefficient",
       "enableCap": "Set susceptibility cap",
       "cap": "Susceptibility cap",
@@ -1697,7 +1706,12 @@
         "buffStackValue": "Total Buff stacks to compare. Scalar values are editable; dynamic operands remain read-only here.",
         "buffStackValueKind": "Use a direct stack count or resolve the comparison value from a constant/action blackboard operand.",
         "conditionElement": "Elemental infliction to inspect on the enemy. Physical normally does not form an infliction.",
-        "operatorAttribute": "Final build value of one of the operator's four primary attributes."
+        "operatorAttribute": "Final build value of one of the operator's four primary attributes.",
+        "healTarget": "The controlled operator is resolved from the control timeline at the execution frame; equal health ratios use stable scenario order.",
+        "healAttribute": "Primary caster attribute read from the current resolved panel for the healing formula.",
+        "healMultiplier": "Multiplies the selected attribute; it may vary by skill level or read this cast's action blackboard.",
+        "healAddition": "Flat healing added after the attribute multiplication; it may vary by level or read the action blackboard.",
+        "healTagIds": "Signed integer identities of native healing tags, separated by commas, spaces, or lines."
       },
       "stepHelp": {
         "findOwnerSpawnedAbilityEntities": "Finds logical ability entities by the current operator and native GameplayTags, saving the full group and optional count in this cast context.",
@@ -1714,6 +1728,7 @@
         "dealDamage": "Deals one Attack-scaled hit and may resolve stagger in the same step.",
         "dealFixedDamage": "Deals damage from a fixed base without multiplying Attack; later modifiers still apply.",
         "dealStagger": "Deals stagger only, with no health damage.",
+        "heal": "Heals an operator from the caster's primary attribute and records raw, actual, and overhealing even at full health.",
         "applyBuff": "Creates a Buff instance from the definition embedded in this step and may override initial blackboard values.",
         "readBuffBlackboard": "Reads one value from a matching Buff into this cast's action blackboard.",
         "readBuffStackCount": "Counts matching Buff stacks into this cast's action blackboard.",
@@ -1793,6 +1808,7 @@
         "dealDamage": "Deal damage",
         "dealFixedDamage": "Deal fixed damage",
         "dealStagger": "Deal stagger",
+        "heal": "Heal operator",
         "applyBuff": "Apply buff",
         "readBuffBlackboard": "Read buff blackboard",
         "readBuffStackCount": "Read buff stacks",

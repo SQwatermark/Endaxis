@@ -32,6 +32,24 @@ describe('CombatVitals', () => {
     });
   });
 
+  it('records raw, actual, and overhealing even when already full', () => {
+    const wounded = createVitals({ health: 900 });
+    expect(wounded.heal(150)).toEqual({
+      requestedHealing: 150,
+      actualHealing: 100,
+      overhealing: 50,
+      previousHealth: 900,
+      currentHealth: 1000,
+    });
+    expect(wounded.heal(80)).toEqual({
+      requestedHealing: 80,
+      actualHealing: 0,
+      overhealing: 80,
+      previousHealth: 1000,
+      currentHealth: 1000,
+    });
+  });
+
   it('clamps poise damage, starts recovery, and supports pausing', () => {
     const vitals = createVitals({ poise: 80, poiseRecoveryTimeMultiplier: 0.5 });
     expect(vitals.applyPoiseDelta(-120)).toBe(-80);

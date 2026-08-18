@@ -26,6 +26,15 @@ export interface HealthDamageResult {
   readonly currentHealth: number;
 }
 
+/** 一次治疗写入的原始值、实际值、溢出值和前后状态。 */
+export interface HealthHealResult {
+  readonly requestedHealing: number;
+  readonly actualHealing: number;
+  readonly overhealing: number;
+  readonly previousHealth: number;
+  readonly currentHealth: number;
+}
+
 /** 失衡计时器跨越边界时可能发布的状态转换。 */
 export type PoiseTimerTransition = 'poiseRecovered' | 'poiseBrokenTagEnded';
 
@@ -106,6 +115,21 @@ export class CombatVitals {
     return {
       requestedDamage,
       actualDamage: previousHealth - this.#health,
+      previousHealth,
+      currentHealth: this.#health,
+    };
+  }
+
+  heal(value: number): HealthHealResult {
+    if (!Number.isFinite(value)) throw new RangeError('healing must be finite');
+    const previousHealth = this.#health;
+    const requestedHealing = Math.max(0, value);
+    this.#health = Math.min(this.#maxHealth, this.#health + requestedHealing);
+    const actualHealing = this.#health - previousHealth;
+    return {
+      requestedHealing,
+      actualHealing,
+      overhealing: requestedHealing - actualHealing,
       previousHealth,
       currentHealth: this.#health,
     };

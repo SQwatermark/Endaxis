@@ -202,7 +202,13 @@ export interface CombatRuntimeAssemblyOptions {
    * 返回本次模拟中的生命账本。只有技能包含生命条件时才会调用；
    * `operatorId` 用于解析 caster，enemy 则指向当前单敌人。
    */
-  readonly resolveVitals?: (target: CombatTarget, operatorId: string) => CombatVitals;
+  readonly resolveVitals?: (
+    target: Extract<
+      import('../../game-data/operatorDefinition').CombatCondition,
+      { kind: 'healthCompare' }
+    >['target'],
+    operatorId: string,
+  ) => CombatVitals;
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
    * 共享技力与战技扣费转能由装配器统一包在该执行器外层。

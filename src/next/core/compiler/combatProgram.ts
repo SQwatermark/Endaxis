@@ -123,6 +123,13 @@ export interface ResolvedCombatStepParameters {
     stagger?: number | ActionValueOperand;
   };
   dealStagger: { value: number | ActionValueOperand };
+  heal: {
+    target: CombatStepParameters['heal']['target'];
+    attribute: OperatorAttribute;
+    multiplier: number | ActionValueOperand;
+    addition: number | ActionValueOperand;
+    tagIds: readonly number[];
+  };
   applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition'> & {
     readonly definition?: ResolvedSkillBuffDefinition;
   };

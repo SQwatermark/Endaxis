@@ -22,6 +22,7 @@ from source_models import (
     DamageUnitSource,
     EntityBlackboardAssignmentSource,
     GlobalCooldownApplicationPayload,
+    HealPayload,
     InflictionPayload,
     InterruptPayload,
     PhysicalInflictionPayload,
@@ -57,6 +58,7 @@ __all__ = [
     "parse_damage_units",
     "parse_entity_blackboard_assignments",
     "parse_global_cooldown_application_payload",
+    "parse_heal_payload",
     "parse_infliction_payload",
     "parse_interrupt_payload",
     "parse_physical_infliction_payload",
@@ -361,6 +363,70 @@ def parse_buff_application_payload(
         targetFinderType=target_finder_type,
         targetValidatorTypes=target_validator_types,
         targetPostProcessorTypes=target_post_processor_types,
+    )
+
+
+def parse_heal_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> HealPayload:
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "alwaysNext", "healType", "healer", "contextKey", "target",
+        "healCalculation", "showHealText", "playHealEffect", "effectData",
+        "onlyPlayEffectOnActualHeal", "useHealTags", "healTags",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected HealAction fields {sorted(action)}")
+    if action.get("alwaysNext") is not True:
+        raise ValueError(f"{path}.alwaysNext: only true is supported")
+    if action.get("healType") != "Normal" or action.get("healer") != "ActionSource":
+        raise ValueError(f"{path}: unsupported healing type or healer identity")
+    if action.get("contextKey") != "":
+        raise ValueError(f"{path}.contextKey: expected empty string")
+    calculation = require_dict(action.get("healCalculation"), f"{path}.healCalculation")
+    if set(calculation) != {"$type", "valueSource", "attributeType", "multiplier", "addition"}:
+        raise ValueError(
+            f"{path}.healCalculation: unexpected fields {sorted(calculation)}"
+        )
+    if action_name(str(calculation.get("$type", ""))) != "MultiplyAttributeCalculation":
+        raise ValueError(f"{path}.healCalculation: unsupported calculation type")
+    if calculation.get("valueSource") != "AttackerOrHealer":
+        raise ValueError(f"{path}.healCalculation.valueSource: unsupported value")
+    attribute = calculation.get("attributeType")
+    if attribute not in {"Str", "Agi", "Wisd", "Will"}:
+        raise ValueError(f"{path}.healCalculation.attributeType: unsupported value {attribute!r}")
+    use_tags = require_bool(action.get("useHealTags"), f"{path}.useHealTags")
+    tags = require_dict(action.get("healTags"), f"{path}.healTags")
+    if set(tags) != {"predefinedTag"}:
+        raise ValueError(f"{path}.healTags: unexpected fields {sorted(tags)}")
+    tag_ids: list[int] = []
+    for index, raw_tag in enumerate(
+        require_list(tags.get("predefinedTag"), f"{path}.healTags.predefinedTag")
+    ):
+        tag_path = f"{path}.healTags.predefinedTag[{index}]"
+        tag = require_dict(raw_tag, tag_path)
+        if set(tag) != {"tagId"}:
+            raise ValueError(f"{tag_path}: unexpected fields {sorted(tag)}")
+        tag_id = tag.get("tagId")
+        if not isinstance(tag_id, int) or isinstance(tag_id, bool):
+            raise ValueError(f"{tag_path}.tagId: expected integer")
+        tag_ids.append(tag_id)
+    if not use_tags and tag_ids:
+        raise ValueError(f"{path}: disabled heal tags must be empty")
+    return HealPayload(
+        healType="Normal",
+        healer="ActionSource",
+        target=parse_target_reference(action.get("target"), f"{path}.target"),
+        attribute=str(attribute),
+        multiplier=parse_scalar(
+            calculation.get("multiplier"), f"{path}.healCalculation.multiplier", inherited_blackboard
+        ),
+        addition=parse_scalar(
+            calculation.get("addition"), f"{path}.healCalculation.addition", inherited_blackboard
+        ),
+        tagIds=tuple(tag_ids) if use_tags else (),
     )
 
 

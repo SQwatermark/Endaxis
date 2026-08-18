@@ -1399,6 +1399,15 @@
       "damageTypesLabel": "生效伤害类型",
       "attributeScaling": "按属性追加易伤",
       "attribute": "四维属性",
+      "healMultiplier": "属性倍率",
+      "healAddition": "固定加值",
+      "healTagIds": "治疗标签 ID",
+      "healTargets": {
+        "caster": "施法者",
+        "controlledOperator": "当前主控干员",
+        "lowestHealthRatioOperator": "生命比例最低的干员",
+        "lowestHealthRatioOperatorExceptControlled": "除主控外生命比例最低的干员"
+      },
       "scalingCoefficient": "属性换算系数",
       "enableCap": "设置易伤上限",
       "cap": "易伤上限",
@@ -1689,7 +1698,12 @@
         "buffStackValue": "要比较的 Buff 总层数。当前单值可编辑，动态操作数会保留为只读。",
         "buffStackValueKind": "直接填写层数，或在执行时通过常量/动作黑板操作数取得比较值。",
         "conditionElement": "检查敌人当前是否持有该元素附着；物理通常不会形成元素附着。",
-        "operatorAttribute": "比较干员构筑中两项四维属性的最终面板值。"
+        "operatorAttribute": "比较干员构筑中两项四维属性的最终面板值。",
+        "healTarget": "主控身份按步骤执行帧的控制时间线解析；生命比例相同时按场景干员顺序稳定选择。",
+        "healAttribute": "治疗公式读取施法者当前面板中的这一项四维属性。",
+        "healMultiplier": "治疗量先以四维属性乘此值；可按技能等级配置或从本次释放的动作黑板读取。",
+        "healAddition": "属性乘算后追加的固定治疗量；可按技能等级配置或从动作黑板读取。",
+        "healTagIds": "原生治疗标签的有符号整数身份。可用逗号、空格或换行分隔。"
       },
       "stepHelp": {
         "findOwnerSpawnedAbilityEntities": "按当前干员与原生 GameplayTag 查询场景中的逻辑能力实体，把完整结果组和可选数量保存到本次释放上下文。",
@@ -1706,6 +1720,7 @@
         "dealDamage": "以攻击力和倍率为基础造成一次伤害，可在同一步骤中结算失衡值。",
         "dealFixedDamage": "以固定基础值造成伤害，不乘攻击力，但仍经过后续伤害修正与防御抗性。",
         "dealStagger": "只造成失衡，不造成生命伤害。数值仍会经过失衡倍率。",
+        "heal": "按施法者四维属性计算治疗，即使目标满血也记录原始治疗量与溢出治疗。",
         "applyBuff": "按当前步骤内联的 Buff 定义创建实例，并可覆盖其初始黑板值。",
         "readBuffBlackboard": "查找目标身上的 Buff，把其中一个黑板值写入当前技能动作黑板。",
         "readBuffStackCount": "统计匹配 Buff 的总层数并写入当前技能动作黑板。",
@@ -1785,6 +1800,7 @@
         "dealDamage": "造成伤害",
         "dealFixedDamage": "造成固定伤害",
         "dealStagger": "造成失衡",
+        "heal": "治疗干员",
         "applyBuff": "施加 Buff",
         "readBuffBlackboard": "读取 Buff 黑板",
         "readBuffStackCount": "读取 Buff 层数",

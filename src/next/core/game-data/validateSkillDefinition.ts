@@ -22,6 +22,7 @@ import {
   DAMAGE_TAGS,
   DAMAGE_TYPES,
   ELEMENTAL_REACTIONS,
+  HEAL_TARGETS,
   INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
   RESOURCE_RECIPIENTS,
@@ -49,8 +50,10 @@ const DAMAGE_FEATURES_SET = new Set<string>(DAMAGE_FEATURES);
 const DAMAGE_ELEMENTS_SET = new Set<string>(DAMAGE_ELEMENTS);
 const INFLICTION_ELEMENTS_SET = new Set<string>(INFLICTION_ELEMENTS);
 const ELEMENTAL_REACTIONS_SET = new Set<string>(ELEMENTAL_REACTIONS);
+const HEAL_TARGETS_SET = new Set<string>(HEAL_TARGETS);
 const COMBAT_RESOURCES_SET = new Set<string>(COMBAT_RESOURCES);
 const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
+const HEALTH_TARGETS_SET = new Set<string>([...COMBAT_TARGETS, ...HEAL_TARGETS]);
 const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
@@ -458,7 +461,7 @@ function validateCombatCondition(
       requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
       break;
     case 'healthCompare':
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'target', HEALTH_TARGETS_SET, path, out);
       requireEnum(record, 'valueType', HEALTH_VALUE_TYPES_SET, path, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
@@ -911,6 +914,29 @@ function validateCombatStep(
     }
     case 'dealStagger':
       validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
+      break;
+    case 'heal':
+      requireEnum(parameters, 'target', HEAL_TARGETS_SET, `${path}.parameters`, out);
+      requireEnum(parameters, 'attribute', OPERATOR_ATTRIBUTES_SET, `${path}.parameters`, out);
+      validateLevelValuesOrActionValueOperand(
+        parameters.multiplier,
+        `${path}.parameters.multiplier`,
+        out,
+      );
+      validateLevelValuesOrActionValueOperand(
+        parameters.addition,
+        `${path}.parameters.addition`,
+        out,
+      );
+      if (!Array.isArray(parameters.tagIds)) {
+        push(out, `${path}.parameters.tagIds`, 'expected an array');
+      } else {
+        parameters.tagIds.forEach((value, index) => {
+          if (typeof value !== 'number' || !Number.isInteger(value)) {
+            push(out, `${path}.parameters.tagIds[${index}]`, 'expected an integer');
+          }
+        });
+      }
       break;
     case 'applyBuff': {
       const buffId = requireString(parameters, 'buffId', `${path}.parameters`, out);

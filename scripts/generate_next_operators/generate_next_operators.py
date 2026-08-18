@@ -179,6 +179,7 @@ from source_schema import (
     TARGET_GROUP_MERGE_INPUT_FIELDS,
 )
 from target_parser import (
+    parse_character_team_selection_role,
     parse_selector_summary,
     parse_spawned_entity_selector_identity,
     parse_target_reference,
@@ -292,6 +293,8 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "keywordAction",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
+        "characterTeamSelectionRole",
+        "heal",
     }
 )
 
@@ -5848,6 +5851,14 @@ def parse_target_group_writes(
                     finderCheckAlive=finder_check_alive,
                     validatorTypes=validators,
                     postProcessorTypes=post_processors,
+                    characterTeamSelectionRole=(
+                        parse_character_team_selection_role(
+                            value.get("selectorData"),
+                            f"{source_name}.{'.'.join(path)}.selectorData",
+                        )
+                        if target_group_key == "CureTarget"
+                        else None
+                    ),
                     inputTargets=(),
                     intervalSeconds=interval,
                     finderSpawnedObjectType=spawned_object_type,
@@ -5933,6 +5944,7 @@ def parse_target_group_writes(
                     finderCheckAlive=None,
                     validatorTypes=(),
                     postProcessorTypes=(),
+                    characterTeamSelectionRole=None,
                     inputTargets=tuple(input_targets),
                     intervalSeconds=None,
                 )
@@ -6688,6 +6700,37 @@ def compile_combat_condition(
         source, action=action, target_group_writes=target_group_writes
     ):
         return "{ kind: 'singleEnemyPresent' }"
+    entity_count = getattr(source, "entityCount", None)
+    if (
+        source.sourceType == "CheckEntityNum"
+        and entity_count is not None
+        and entity_count.targetSource == "Context"
+        and entity_count.targetGroupKey
+        and not entity_count.containsHittableTarget
+        and not entity_count.storeKey
+        and (
+            entity_write := resolve_latest_target_group_write(
+                action, entity_count.targetGroupKey, target_group_writes
+            )
+        )
+        is not None
+        and target_group_write_guarantees_single_enemy(entity_write)
+    ):
+        result = {
+            "LT": 1 < entity_count.minimumCount,
+            "LE": 1 <= entity_count.minimumCount,
+            "GT": 1 > entity_count.minimumCount,
+            "GE": 1 >= entity_count.minimumCount,
+            "Equals": 1 == entity_count.minimumCount,
+            "NotEquals": 1 != entity_count.minimumCount,
+        }.get(entity_count.comparison)
+        if result is None:
+            raise ValueError(f"{path}: unsupported entity-count comparison")
+        return (
+            "{ kind: 'singleEnemyPresent' }"
+            if result
+            else "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }"
+        )
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
     if source.sourceType == "CheckAbilityEntityCurDuration":
@@ -6813,14 +6856,30 @@ def compile_combat_condition(
         operator = COMPARISON_OPERATOR_MAP.get(health.comparison)
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {health.comparison!r}")
-        target = resolve_fixed_combat_target(
-            health.targetSource,
-            health.targetGroupKey,
-            action=action,
-            target_group_writes=target_group_writes,
-            root_skill_context=root_skill_context,
-            input_target=input_target,
-        )
+        target = getattr(health, "characterTeamSelectionRole", None)
+        if (
+            target is None
+            and action is not None
+            and health.targetSource == "Context"
+            and health.targetGroupKey
+        ):
+            write = resolve_latest_target_group_write_at(
+                read_frame=action.startFrame,
+                read_action_index=action.actionIndex,
+                read_action_path=action.actionPath,
+                target_group_key=health.targetGroupKey,
+                writes=target_group_writes,
+            )
+            target = None if write is None else write.characterTeamSelectionRole
+        if target is None:
+            target = resolve_fixed_combat_target(
+                health.targetSource,
+                health.targetGroupKey,
+                action=action,
+                target_group_writes=target_group_writes,
+                root_skill_context=root_skill_context,
+                input_target=input_target,
+            )
         if target is None:
             raise ValueError(
                 f"{path}: unsupported health target "
@@ -8260,6 +8319,51 @@ def compile_conditional_branch_action(
                 f"  target: {ts_inline_literal(ignite_target)},",
                 f"  source: {ts_inline_literal(source_target)},",
                 f"  igniteType: {ts_inline_literal(buff_ignite.igniteType)},",
+                "})",
+            ]
+        )
+    heal = getattr(action, "heal", None)
+    if heal is not None:
+        target_role: str | None = None
+        if (
+            heal.target.targetSource == "InstantSearch"
+            and heal.target.finderType == "CharacterTeamFinder"
+            and heal.target.validatorTypes == ("MainCharacterValidator",)
+            and not heal.target.postProcessorTypes
+        ):
+            target_role = "controlledOperator"
+        elif heal.target.targetSource == "Context" and heal.target.targetGroupKey:
+            write = resolve_latest_target_group_write_at(
+                read_frame=context_action.startFrame if context_action is not None else 0,
+                read_action_index=(
+                    getattr(action, "serverActionIndex", None)
+                    if getattr(action, "serverActionIndex", None) is not None
+                    else context_action.actionIndex if context_action is not None else action.actionIndex
+                ),
+                read_action_path=(
+                    getattr(action, "actionPath", ())
+                    or (context_action.actionPath if context_action is not None else ())
+                ),
+                target_group_key=heal.target.targetGroupKey,
+                writes=target_group_writes,
+            )
+            target_role = None if write is None else write.characterTeamSelectionRole
+        if target_role is None:
+            raise ValueError(f"{path}: HealAction target identity is unresolved")
+        attribute = {
+            "Str": "strength",
+            "Agi": "agility",
+            "Wisd": "intellect",
+            "Will": "will",
+        }[heal.attribute]
+        return "\n".join(
+            [
+                "step('heal', {",
+                f"  target: {ts_inline_literal(target_role)},",
+                f"  attribute: {ts_inline_literal(attribute)},",
+                f"  multiplier: {compile_condition_operand(heal.multiplier, f'{path}.multiplier')},",
+                f"  addition: {compile_condition_operand(heal.addition, f'{path}.addition')},",
+                f"  tagIds: {ts_inline_literal(heal.tagIds)},",
                 "})",
             ]
         )
@@ -10751,6 +10855,8 @@ def collect_compilable_conditional_action_types(
                 result.add("SpellInfliction")
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
+            if getattr(branch_action, "heal", None) is not None:
+                result.add("HealAction")
             if getattr(branch_action, "keywordAction", None) is not None:
                 result.add("SlowAction")
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:

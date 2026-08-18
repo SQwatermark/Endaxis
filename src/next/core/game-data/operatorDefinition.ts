@@ -217,7 +217,7 @@ export type CombatCondition =
   | {
       /** 比较目标当前生命值或当前/最大生命比例。 */
       kind: 'healthCompare';
-      target: CombatTarget;
+      target: CombatTarget | HealTarget;
       valueType: 'current' | 'ratio';
       operator: ComparisonOperator;
       value: ActionValueOperand;
@@ -384,6 +384,15 @@ export const RESOURCE_RECIPIENTS = ['caster', 'team'] as const;
 /** 资源变化步骤当前允许作用的施法者或全队范围。 */
 export type ResourceRecipient = (typeof RESOURCE_RECIPIENTS)[number];
 
+export const HEAL_TARGETS = [
+  'caster',
+  'controlledOperator',
+  'lowestHealthRatioOperator',
+  'lowestHealthRatioOperatorExceptControlled',
+] as const;
+/** 当前原生治疗样本能够严格归约的队伍目标身份。 */
+export type HealTarget = (typeof HEAL_TARGETS)[number];
+
 export const SP_GAIN_KINDS = ['gain', 'refund'] as const;
 /** 技力增加是否计入返还技力；返还部分再次被消耗时不会重复转化为终结技能量。 */
 export type SpGainKind = (typeof SP_GAIN_KINDS)[number];
@@ -502,6 +511,15 @@ export interface CombatStepParameters {
   dealFixedDamage: DealFixedDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
   dealStagger: { value: LevelValues | ActionValueOperand };
+  /** 按施法者四维属性计算，并写入干员生命账本的普通治疗。 */
+  heal: {
+    target: HealTarget;
+    attribute: OperatorAttribute;
+    multiplier: LevelValues | ActionValueOperand;
+    addition: LevelValues | ActionValueOperand;
+    /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
+    tagIds: readonly number[];
+  };
   applyBuff: {
     buffId: string;
     /** 本步骤施加的完整 Buff 蓝图；运行时实例创建后不再被后续同 key 步骤改写。 */
@@ -732,6 +750,7 @@ export const COMBAT_STEP_KINDS = [
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
+  'heal',
   'applyBuff',
   'readBuffBlackboard',
   'readBuffStackCount',
