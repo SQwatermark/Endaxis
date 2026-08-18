@@ -7,17 +7,16 @@
   },
   "summary": {
     "parsedCount": 317,
-    "compiledCount": 283,
+    "compiledCount": 287,
     "completeOperatorCount": 12,
     "blockerKinds": {
       "projectile-child-actions": 2,
       "root-action-coverage": 5,
       "projectile-data": 5,
       "other": 6,
-      "buff-source-or-target": 10,
+      "conditional-leaf": 5,
       "condition-other": 4,
-      "condition-distance": 1,
-      "conditional-leaf": 3,
+      "buff-source-or-target": 5,
       "condition-entity-count": 1
     },
     "unresolvedActionPresence": {
@@ -961,7 +960,7 @@
       "complete": false,
       "blockerKinds": {
         "other": 1,
-        "buff-source-or-target": 1
+        "conditional-leaf": 1
       }
     },
     {
@@ -1023,7 +1022,7 @@
       "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "condition-distance": 1
+        "conditional-leaf": 1
       }
     },
     {
@@ -1031,10 +1030,10 @@
       "operatorName": "Camille",
       "skillCount": 12,
       "parsedCount": 12,
-      "compiledCount": 9,
+      "compiledCount": 11,
       "complete": false,
       "blockerKinds": {
-        "buff-source-or-target": 3
+        "buff-source-or-target": 1
       }
     },
     {
@@ -1086,12 +1085,12 @@
       "operatorName": "Yvonne",
       "skillCount": 16,
       "parsedCount": 16,
-      "compiledCount": 12,
+      "compiledCount": 13,
       "complete": false,
       "blockerKinds": {
         "other": 1,
         "condition-other": 1,
-        "buff-source-or-target": 2
+        "buff-source-or-target": 1
       }
     },
     {
@@ -1138,11 +1137,10 @@
       "operatorName": "Ardelia",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 7,
+      "compiledCount": 8,
       "complete": false,
       "blockerKinds": {
-        "projectile-data": 1,
-        "buff-source-or-target": 1
+        "projectile-data": 1
       }
     },
     {
@@ -2427,8 +2425,8 @@
       "skillId": "chr_0027_tangtang_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[4].conditionalAction.succeedActions[0].nestedCondition.succeedActions[1].buffs[0]: unsupported Buff target 'Context'/'water'",
+      "blockerKind": "conditional-leaf",
+      "blocker": "normal_skill.schedule[4].conditionalAction.succeedActions[2]: unsupported conditional leaf 'SpawnAbilityEntity'",
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",
@@ -2437,7 +2435,7 @@
         "ObtainCostAction",
         "SpawnAbilityEntity"
       ],
-      "conditionCount": 6,
+      "conditionCount": 7,
       "referencedBuffCount": 5,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
@@ -3631,15 +3629,15 @@
       "skillId": "chr_0012_avywen_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "condition-distance",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['CheckDistanceCondition']",
+      "blockerKind": "conditional-leaf",
+      "blocker": "normal_skill.schedule[4].conditionalAction.succeedActions[0].nestedCondition.succeedActions[1]: unsupported conditional leaf 'LaunchProjectile'",
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",
         "DamageAction",
         "LaunchProjectile"
       ],
-      "conditionCount": 0,
+      "conditionCount": 3,
       "referencedBuffCount": 3,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
@@ -3679,9 +3677,9 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill.schedule[3].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3704,9 +3702,9 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_combo_skill_2",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "combo_skill_2.schedule[7].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'Camille_Bat'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -5126,9 +5124,9 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_ult_attack_end",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ult_attack_end.schedule[7].buffApplication: unsupported Buff target 'Context'/'robots'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "FinishBuffAction", "IfElseAction"],
       "conditionCount": 3,
       "referencedBuffCount": 3,
@@ -5986,9 +5984,9 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_plunging_attack_end",
       "skillType": "plungingAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "plunging_attack_end.schedule[0].buffApplication: unsupported Buff target 'Context'/'Sheep'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 1,

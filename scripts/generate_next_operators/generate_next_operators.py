@@ -7483,10 +7483,13 @@ def compile_buff_application_values(
     inherit_source_skill_cast_info: bool,
     root_skill_context: bool,
     path: str,
-    context_application_target: Literal["enemy", "party", "partyExceptCaster"] | None = None,
+    context_application_target: Literal[
+        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+    ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
     current_ability_entity_owner: bool = False,
+    current_ability_entity_target: bool = False,
     target_finder_type: str | None = None,
     target_validator_types: tuple[str, ...] = (),
     target_post_processor_types: tuple[str, ...] = (),
@@ -7534,6 +7537,12 @@ def compile_buff_application_values(
     ):
         target = buff_owner_target
     elif target_source == "Owner" and current_ability_entity_owner:
+        target = "currentAbilityEntity"
+    elif (
+        target_source == "Target"
+        and not target_group_key
+        and current_ability_entity_target
+    ):
         target = "currentAbilityEntity"
     else:
         target = resolve_fixed_combat_target(
@@ -7645,7 +7654,9 @@ def compile_buff_application(
     path: str,
     *,
     root_skill_context: bool = True,
-    context_application_target: Literal["enemy", "party", "partyExceptCaster"] | None = None,
+    context_application_target: Literal[
+        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+    ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     current_ability_entity_owner: bool = False,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
@@ -7839,12 +7850,15 @@ def compile_conditional_buff_application(
     ignored_buff_ids: frozenset[str],
     *,
     root_skill_context: bool = False,
-    context_application_target: Literal["enemy", "party", "partyExceptCaster"] | None = None,
+    context_application_target: Literal[
+        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+    ] | None = None,
     input_target: Literal["enemy"] | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    current_ability_entity_target: bool = False,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     has_dynamic_count = payload.count.blackboardKey is not None or payload.count.value != 1
@@ -7887,6 +7901,7 @@ def compile_conditional_buff_application(
             ignored_buff_ids=ignored_buff_ids,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_ability_entity_target=current_ability_entity_target,
         )
 
     compiled = [
@@ -8336,7 +8351,7 @@ def compile_conditional_branch_action(
     if heal is not None:
         target_role: str | None = None
         if (
-            heal.target.targetSource == "InstantSearch"
+            heal.target.targetSource in {"InstantSearch", "Source"}
             and heal.target.finderType == "CharacterTeamFinder"
             and heal.target.validatorTypes == ("MainCharacterValidator",)
             and not heal.target.postProcessorTypes
@@ -8441,6 +8456,7 @@ def compile_conditional_branch_action(
     if getattr(action, "buffApplication", None) is not None:
         buff_application = action.buffApplication
         context_application_target = None
+        ability_entity_collection_key = None
         if buff_application.targetSource == "Context":
             write = resolve_latest_target_group_write_at(
                 read_frame=context_action.startFrame if context_action is not None else 0,
@@ -8457,7 +8473,21 @@ def compile_conditional_branch_action(
                 writes=target_group_writes,
             )
             context_application_target = target_group_write_buff_application_target(write)
-        return compile_conditional_buff_application(
+            if (
+                context_application_target is None
+                and (
+                    buff_application.targetGroupKey
+                    in singleton_ability_entity_context_keys
+                    or (
+                        write is not None
+                        and target_group_write_ability_entity_collection_identity(write)
+                        is not None
+                    )
+                )
+            ):
+                context_application_target = "currentAbilityEntity"
+                ability_entity_collection_key = buff_application.targetGroupKey
+        compiled_buff = compile_conditional_buff_application(
             buff_application,
             path,
             ignored_buff_ids,
@@ -8468,6 +8498,21 @@ def compile_conditional_branch_action(
             invoked_child_context=invoked_child_context,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_ability_entity_target=ability_entity_current_target,
+        )
+        if ability_entity_collection_key is None or compiled_buff == "sequence()":
+            return compiled_buff
+        buff_lines = indent_source(compiled_buff, 4)
+        buff_lines[-1] += ","
+        return "\n".join(
+            [
+                "forEachContextTarget(",
+                f"  {ts_inline_literal(ability_entity_collection_key)},",
+                "  sequence(",
+                *buff_lines,
+                "  ),",
+                ")",
+            ]
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
         return compile_timed_marker_application(
@@ -8669,6 +8714,24 @@ def compile_conditional_action(
             ]
         )
     if isinstance(action, ForEachContextActionSource):
+        write = resolve_latest_target_group_write(
+            action,
+            action.contextKey,
+            target_group_writes,
+        )
+        requires_ability_entity_provenance = any(
+            condition.sourceType == "CheckDistanceCondition"
+            for current in iter_conditional_actions((action,))
+            for condition in current.conditions
+        )
+        if requires_ability_entity_provenance and (
+            write is None
+            or target_group_write_ability_entity_collection_identity(write) is None
+        ):
+            raise ValueError(
+                f"{path}: Context ForEach target group does not have proven "
+                "owner-spawned AbilityEntity provenance"
+            )
         body = compile_conditional_branch(
             action.succeedActions,
             f"{path}.succeedActions",
@@ -9844,7 +9907,9 @@ def target_group_write_ability_entity_collection_identity(
         write.producerType not in {"FindTargetAction", "ContinuousFindTargetAction"}
         or write.finderType != "OwnerSpawnedEntityFinder"
         or write.finderSpawnedObjectType != "AbilityEntity"
-        or write.postProcessorTypes
+        or any(
+            processor != "PriorityFilter" for processor in write.postProcessorTypes
+        )
         or not write.validatorTypes
         or any(validator != "TagValidator" for validator in write.validatorTypes)
         or len(write.validatorTagQueries) != len(write.validatorTypes)
@@ -9901,13 +9966,20 @@ def target_identity_reference_guarantees_single_enemy(
     reference: TargetReferenceSource,
 ) -> bool:
     """仅接受不带筛选或重定向、且必然指向唯一敌人的目标引用。"""
-    if not target_reference_is_plain(reference):
+    if not target_reference_has_plain_selector(reference):
         return False
+    if (
+        reference.targetSource == "Context"
+        and reference.targetGroupKey == "smart_target"
+        and reference.finderType is None
+    ):
+        return True
     return (
         reference.targetSource in {"Target", "MainTarget"}
         and reference.finderType is None
     ) or (
         reference.targetSource == "InstantSearch"
+        and not reference.targetGroupKey
         and reference.finderType == "MainTargetFinder"
     )
 
@@ -10741,14 +10813,20 @@ def evaluate_zero_distance_condition(
             and reference.finderType is None
         ):
             return root_skill_context
+        # 原生 Target 读取当前动作输入；序列化中的 targetGroupKey
+        # 是无效残留，不能据此否定 ForEach 当前实体。
+        if reference.targetSource == "Target":
+            return (
+                root_skill_context
+                or input_target == "enemy"
+                or ability_entity_current_target
+            )
         if reference.targetGroupKey:
             return False
         if reference.targetSource in {"MainCharacter", "Source"}:
             return True
         if reference.targetSource == "Owner":
             return root_skill_context or ability_entity_current_target
-        if reference.targetSource == "Target":
-            return root_skill_context or input_target == "enemy"
         if reference.targetSource == "MainTarget":
             return root_skill_context
         return (
@@ -12231,6 +12309,7 @@ def compile_resolved_sequence(
         elif item.itemType == "buffApplication":
             payload = cast(AuxiliaryActionSource, item.payload)
             context_application_target = None
+            ability_entity_collection_key = None
             if (
                 item.sourcePath == (skill.skillId,)
                 and payload.targetSource == "Context"
@@ -12246,6 +12325,20 @@ def compile_resolved_sequence(
                     root_skill_context=True,
                 )
                 context_application_target = target_group_write_buff_application_target(write)
+                if (
+                    context_application_target is None
+                    and (
+                        payload.targetGroupKey
+                        in singleton_ability_entity_context_keys
+                        or (
+                            write is not None
+                            and target_group_write_ability_entity_collection_identity(write)
+                            is not None
+                        )
+                    )
+                ):
+                    context_application_target = "currentAbilityEntity"
+                    ability_entity_collection_key = payload.targetGroupKey
             if payload.classification == "skillCostUltimateEnergyGain":
                 # buff_common_obtain_ultimate_sp 的 CreateBuffAction 是原生
                 # “按非返还技力消耗为全队回能”的载体；不展开为 Buff 实例。
@@ -12263,6 +12356,17 @@ def compile_resolved_sequence(
                     invoked_child_context=(skill, config),
                     ignored_buff_ids=ignored_buff_ids,
                 ).splitlines()
+                if ability_entity_collection_key is not None:
+                    nested_lines = [f"    {line}" for line in step_lines]
+                    nested_lines[-1] += ","
+                    step_lines = [
+                        "forEachContextTarget(",
+                        f"  {ts_inline_literal(ability_entity_collection_key)},",
+                        "  sequence(",
+                        *nested_lines,
+                        "  ),",
+                        ")",
+                    ]
                 relation = next(
                     (
                         candidate

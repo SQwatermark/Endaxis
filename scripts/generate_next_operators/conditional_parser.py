@@ -956,21 +956,85 @@ def parse_conditional_actions(
                         )
                     )
             elif action_type == "ForEachAction":
-                # 固定单敌人模型下，逐目标容器只执行一次；目标形状仍由严格遍历器校验。
-                tuple(
-                    walk_single_enemy_actions(
-                        action, f"{source_name}.{'.'.join(action_path)}"
-                    )
+                target = require_dict(
+                    action.get("target"),
+                    f"{source_name}.{'.'.join(action_path)}.target",
                 )
-                actions.extend(
-                    parse_branch(
-                        action.get("action"),
-                        start_frame,
-                        end_frame,
-                        (*action_path, "action"),
-                        execution_frames,
-                    )
+                nested_actions = parse_branch(
+                    action.get("action"),
+                    start_frame,
+                    end_frame,
+                    (*action_path, "action"),
+                    execution_frames,
                 )
+                target_source = target.get("targetSource")
+                target_group_key = target.get("targetGroupKey")
+                nested_container = require_dict(
+                    action.get("action"),
+                    f"{source_name}.{'.'.join(action_path)}.action",
+                )
+                nested_items = require_list(
+                    nested_container.get("actionData"),
+                    f"{source_name}.{'.'.join(action_path)}.action.actionData",
+                )
+                has_direct_guard = any(
+                    isinstance(item, dict)
+                    and item.get("isEnable") is not False
+                    and action_name(str(item.get("$type", "")))
+                    in SEQUENCE_GUARD_ACTION_NAMES
+                    for item in nested_items
+                )
+                def contains_distance_condition(current: Any) -> bool:
+                    if isinstance(current, list):
+                        return any(contains_distance_condition(item) for item in current)
+                    if not isinstance(current, dict) or current.get("isEnable") is False:
+                        return False
+                    if action_name(str(current.get("$type", ""))) == "CheckDistanceCondition":
+                        return True
+                    return any(
+                        contains_distance_condition(item) for item in current.values()
+                    )
+
+                if (
+                    target_source == "Context"
+                    and isinstance(target_group_key, str)
+                    and target_group_key
+                    and (
+                        has_direct_guard
+                        or contains_distance_condition(action.get("action"))
+                    )
+                ):
+                    if nested_actions:
+                        action_index = require_server_action_index(
+                            action, f"{source_name}.{'.'.join(action_path)}"
+                        )
+                        actions.append(
+                            ConditionalBranchActionSource(
+                                actionType=action_type,
+                                actionIndex=index,
+                                actionPath=action_path,
+                                serverActionIndex=action_index,
+                                nestedCondition=ForEachContextActionSource(
+                                    startFrame=start_frame,
+                                    endFrame=end_frame,
+                                    actionIndex=action_index,
+                                    actionPath=action_path,
+                                    conditions=(),
+                                    succeedActions=nested_actions,
+                                    failActions=(),
+                                    executionFrames=execution_frames,
+                                    contextKey=target_group_key,
+                                ),
+                            )
+                        )
+                else:
+                    # 固定单敌人模型下，直接 Target 容器只执行一次。
+                    tuple(
+                        walk_single_enemy_actions(
+                            action, f"{source_name}.{'.'.join(action_path)}"
+                        )
+                    )
+                    actions.extend(nested_actions)
             elif action_type == "SwitchAction":
                 nested = parse_switch(
                     action,
@@ -1280,9 +1344,9 @@ def parse_conditional_actions(
             )
             return
         if action_type == "ForEachAction" and include_for_each_sequence_guards:
-            # 只有直接遍历技能输入目标时，固定单敌人模型才能把容器退化为
-            # 一次顺序执行。Context 组可能装的是能力实体或队伍成员；在取得
-            # 显式生产者身份前不能把其中的 Target 近似成敌人。
+            # 直接遍历技能输入目标时，固定单敌人模型可以把容器退化为
+            # 一次顺序执行。Context 组不能做同样的身份假设；但可以保留
+            # 显式的遍历节点，稍后由编译器核对它的生产者是 AbilityEntity。
             target = require_dict(
                 value.get("target"), f"{source_name}.{'.'.join(path)}.target"
             )
@@ -1298,11 +1362,31 @@ def parse_conditional_actions(
                         return True
                     return any(contains_duration_assignment(item) for item in current.values())
 
-                if not contains_duration_assignment(value.get("action")):
+                action_container = require_dict(
+                    value.get("action"), f"{source_name}.{'.'.join(path)}.action"
+                )
+                action_items = require_list(
+                    action_container.get("actionData"),
+                    f"{source_name}.{'.'.join(path)}.action.actionData",
+                )
+                has_direct_guard = any(
+                    isinstance(action, dict)
+                    and action.get("isEnable") is not False
+                    and action_name(str(action.get("$type", "")))
+                    in SEQUENCE_GUARD_ACTION_NAMES
+                    for action in action_items
+                )
+                has_duration_assignment = contains_duration_assignment(
+                    value.get("action")
+                )
+                if not (has_duration_assignment or has_direct_guard):
                     for key, child in value.items():
                         visit(child, start_frame, end_frame, (*path, key), execution_frames)
                     return
-                parse_target_reference(target, f"{source_name}.{'.'.join(path)}.target")
+                if has_duration_assignment:
+                    parse_target_reference(
+                        target, f"{source_name}.{'.'.join(path)}.target"
+                    )
                 actions = parse_branch(
                     value.get("action"),
                     start_frame,

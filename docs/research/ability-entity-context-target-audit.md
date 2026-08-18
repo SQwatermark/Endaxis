@@ -325,9 +325,18 @@ resources and blackboard operations. Li Zhiyan's listener finishes another
 Buff and owner/tag-selected entities, while its child graph also contains an
 Aura. Each must pass the existing strict inline-definition/lifecycle compiler;
 a separate entity-only Buff map would lose observed behavior. Li Zhiyan's
-combo-skill entity time-dilation closure can follow independently. Avywenna's projectile launch-point semantics, Camille's target
-mutation, replacement/stacking policy, and non-numeric entity blackboard
-values remain blocked until direct native evidence and consumers are closed.
+combo-skill entity time-dilation closure can follow independently. The skill
+compiler now also accepts a named Context only when its dominating producer is
+an owner-spawned AbilityEntity query with explicit tag evidence. It then keeps
+the `ForEach` scope, folds proven positive distance upper bounds under the
+zero-distance model, and applies Context-targeted Buffs through the stable
+`currentAbilityEntity` handle. This closes Yvonne's ultimate-attack-end Buff,
+Ardelia's plunge Buff, and Camille's two combo skills. Avywenna's three lance
+guards now pass the same proof but expose a later hit/reach projectile child
+graph; Tangtang similarly advances to a later conditional entity spawn.
+Camille's remaining battle-skill target mutation, replacement/stacking policy,
+and non-numeric entity blackboard values remain blocked until direct native
+evidence and consumers are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed
 replacement rule.
 

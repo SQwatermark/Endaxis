@@ -100,6 +100,7 @@ from generate_next_operators import (
     BuffFinishPayload,
     SkillEventActionSequenceSource,
     SkillEventListenerSource,
+    ForEachContextActionSource,
     SequenceGuardActionSource,
     UnconditionalActionSource,
     ConditionSource,
@@ -1614,6 +1615,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             target_group_write_ability_entity_collection_identity(write),
             (("HasAny", (-549424863,)),),
         )
+        self.assertEqual(
+            target_group_write_ability_entity_collection_identity(
+                replace(write, postProcessorTypes=("PriorityFilter",))
+            ),
+            (("HasAny", (-549424863,)),),
+        )
+        self.assertIsNone(
+            target_group_write_ability_entity_collection_identity(
+                replace(write, postProcessorTypes=("RandomFilter",))
+            )
+        )
 
         action["selectorData"]["finderData"]["unexpected"] = True
         with self.assertRaisesRegex(ValueError, "owner-spawned finder fields"):
@@ -2028,6 +2040,18 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("attribute: 'will'", compiled)
         self.assertIn("key: 'scale'", compiled)
         self.assertIn("tagIds: [-1]", compiled)
+
+        action["target"]["targetSource"] = "Source"
+        source_selector_payload = parse_heal_payload(
+            action, "fixture.heal", {"scale": (1.5,)}
+        )
+        source_selector_compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "HealAction", 0, heal=source_selector_payload
+            ),
+            "fixture.heal",
+        )
+        self.assertIn("target: 'controlledOperator'", source_selector_compiled)
 
     def test_legacy_buff_finish_compiles_in_root_skill_context(self) -> None:
         source = parse_target_reference(target_settings_fixture("Source"), "fixture.source")
@@ -5937,6 +5961,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'singleEnemyPresent' }",
         )
 
+        condition["firstTargetSettings"]["targetGroupKey"] = "tar"
+        condition["secondTargetSettings"] = target_settings_fixture(
+            "Context", target_group_key="smart_target"
+        )
+        residual_keys = parse_conditional_actions(
+            root, "fixture.json", {}
+        )[0].conditions[0]
+        self.assertTrue(is_guaranteed_single_enemy_condition(residual_keys))
+
         condition["secondTargetSettings"]["selectorData"]["validatorData"] = [
             {"$type": "Example.Selector+TagValidator+Data, Example"}
         ]
@@ -6334,7 +6367,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("applyElementalInfliction", compiled)
 
-    def test_for_each_context_group_guard_is_not_assumed_to_target_enemy(self) -> None:
+    def test_for_each_context_group_guard_requires_ability_entity_provenance(self) -> None:
         root = {
             "actionGroupData": {
                 "timelineActions": [
@@ -6383,15 +6416,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
         }
 
-        self.assertEqual(
-            parse_conditional_actions(
-                root,
-                "fixture.json",
-                {},
-                include_for_each_sequence_guards=True,
-            ),
-            (),
+        parsed = parse_conditional_actions(
+            root,
+            "fixture.json",
+            {},
+            include_for_each_sequence_guards=True,
         )
+        self.assertEqual(len(parsed), 1)
+        self.assertIsInstance(parsed[0], ForEachContextActionSource)
+        with self.assertRaisesRegex(ValueError, "AbilityEntity provenance"):
+            compile_conditional_action(parsed[0], "fixture.forEach")
+
+        write = TargetGroupWriteSource(
+            startFrame=7,
+            endFrame=7,
+            actionIndex=0,
+            actionPath=("timelineActions[0]", "_sequenceActionData", "actionData", "[0]"),
+            targetGroupKey="spawned_entities",
+            producerType="FindTargetAction",
+            finderType="OwnerSpawnedEntityFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=("TagValidator",),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+            finderSpawnedObjectType="AbilityEntity",
+            validatorTagQueries=(("HasAny", (123,)),),
+        )
+        compiled = compile_conditional_action(
+            parsed[0],
+            "fixture.forEach",
+            target_group_writes=(write,),
+        )
+        self.assertIn("forEachContextTarget", compiled)
+        self.assertIn("applyElementalInfliction", compiled)
         unresolved = collect_unresolved_combat_actions(parse_timeline(root, "fixture.json"))
         self.assertIn("CheckDistanceCondition", unresolved)
         self.assertIn("SpellInfliction", unresolved)
@@ -8784,6 +8844,32 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_ability_entity_owner=True,
         )
         self.assertIn("target: 'currentAbilityEntity'", source)
+
+    def test_context_ability_entity_collection_buff_uses_current_entity_target(self) -> None:
+        application = AuxiliaryActionSource(
+            startFrame=4,
+            endFrame=4,
+            actionIndex=9,
+            actionType="CreateBuffAction",
+            sourceId="buff.fixture",
+            classification=None,
+            targetSource="Context",
+            targetGroupKey="lances",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        source = compile_buff_application(
+            application,
+            "fixture",
+            context_application_target="currentAbilityEntity",
+        )
+
+        self.assertIn("target: 'currentAbilityEntity'", source)
+        self.assertNotIn("target: 'enemy'", source)
 
     def test_invoked_ability_entity_child_target_buff_uses_proven_caster_input(self) -> None:
         application = AuxiliaryActionSource(
