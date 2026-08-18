@@ -2058,6 +2058,65 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", compile_target("Owner"))
         self.assertIn("target: 'enemy'", compile_target("Target"))
 
+    def test_store_max_health_reads_runtime_panel_blackboard(self) -> None:
+        scalar = lambda value: {
+            "useBlackboardKey": False,
+            "value": value,
+            "blackboardKey": "",
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 0,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": []},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.StoreAttributeValue+Data, Example",
+                                                "isEnable": True,
+                                                "priorityLevel": "Default",
+                                                "priorityOffset": 0,
+                                                "serverActionIndex": 2,
+                                                "targetSettings": target_settings_fixture("Owner"),
+                                                "primaryAttributeType": "Specific",
+                                                "attributeType": "MaxHp",
+                                                "storeAttributeType": "FinalNonConverted",
+                                                "useFloor": False,
+                                                "divisorValue": scalar(1),
+                                                "multiplierValue": scalar(1),
+                                                "baseValue": scalar(0),
+                                                "key": "shield",
+                                            }
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "fixture.json", {})[0]
+        compiled = compile_conditional_branch_action(
+            action.succeedActions[0],
+            "fixture.succeed",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertEqual(action.succeedActions[0].blackboardCalculation.left.blackboardKey, "maxHealth")
+        self.assertIn("step('calculateActionValue'", compiled)
+        self.assertIn("key: 'maxHealth'", compiled)
+
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
         branch = ConditionalBranchActionSource(

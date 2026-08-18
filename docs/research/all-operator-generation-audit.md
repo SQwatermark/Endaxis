@@ -11,7 +11,7 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：317 个。
-- 无角色专用声明即可进入通用 DSL：280 个。
+- 无角色专用声明即可进入通用 DSL：281 个。
 - 当前整名干员完整直转：11 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：11 个。
@@ -51,7 +51,7 @@
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 
 ## 共通阻塞簇
@@ -66,7 +66,7 @@
 | `root-action-coverage`     |      6 |
 | `projectile-data`          |      5 |
 | `condition-other`          |      4 |
-| `conditional-leaf`         |      4 |
+| `conditional-leaf`         |      3 |
 | `projectile-child-actions` |      2 |
 | `condition-distance`       |      1 |
 | `condition-entity-count`   |      1 |

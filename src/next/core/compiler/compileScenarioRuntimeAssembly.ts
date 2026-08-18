@@ -69,6 +69,9 @@ export function compileOperatorEntityBlackboardInitialValues(
   const initializers = operator.entityBlackboardInitializers ?? [];
   const values: Record<string, number> = {
     level: panel.level,
+    // StoreAttributeValue(MaxHp/FinalNonConverted) 与四维使用同一静态面板投影；
+    // 动作执行时从实体黑板读取，不能在生成期烘焙具体构筑数值。
+    maxHealth: Math.fround(panel.health),
     strength: Math.fround(panel.attributes.strength),
     agility: Math.fround(panel.attributes.agility),
     intellect: Math.fround(panel.attributes.intellect),

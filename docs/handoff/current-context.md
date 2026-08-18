@@ -134,7 +134,7 @@ step('spawnAbilityEntity', {
 当前验证结果：
 
 - Python 生成器规则测试最近基线：301 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
-- 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前全量审计基线仍为 30 名、320 个入口、318 个可解析、281 个可编译，完整干员 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
+- 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前严格全量审计基线为 30 名、320 个入口、317 个可解析、281 个可编译，零专用声明直转 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
 - 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 175 个文件、1046 项全部通过。新增回归覆盖 Buff 点燃、队伍排除来源目标、技能冷却调整、旧式 Buff 结束、延迟接续施放的 `beforeCastSkill` 顺序与装配接线、Endministrator 冻结点燃生产场景、伤害修正复合条件、Buff 成功加入事件边界，以及 Last Rite 队伍 Buff 的宿主相对生产模拟。
@@ -180,9 +180,9 @@ step('spawnAbilityEntity', {
 
 治疗正常链已经接入：`heal` 步骤由施法者四维属性、倍率和加值计算，按执行帧解析主控或最低生命比例目标，写入场景级干员生命账本，并在满血时仍记录原始治疗量、实际治疗量和溢出治疗。Ember 连携与 Gilberta 战技/连携已从 `unmodeledActionTypes` 退出；Gilberta 外层 `explo >= 2` 在唯一敌人模型下严格折叠为假，因此对应分支虽完整保留在生成定义中，标准单敌人场景不会触发。外部受击事实不是治疗动作、快照或回执成立的前置，也不应为展示治疗而扩展。
 
-根技能条件树中的旧式 `FinishBuffAction` 已复用正式 `finishBuffsById` 链：只接受非空 ID、关闭来源限制、plain Source 来源/结束来源，以及可严格归约为施法者或唯一敌人的 Owner/Target。Pogranichnik 连携、Xaihi 战技和 Mifu 二段战技由此转为可编译；Mifu 三段继续停在 `CheckTwoDirectionAngle`，不能借零距离模型猜测方向。Mifu 连携的 `StoreAttributeValue(MaxHp/FinalNonConverted)` 也继续阻塞，因为当前动作黑板面板端口没有最大生命运行时读取，不能伪装成四维或导入期常量。最新严格全量审计为 317/320 可解析、280/320 可编译、11 名零专用声明直转；Liino 非乘属性治疗公式被新严格 parser 暴露为解析缺口，解释了统计相对旧快照的下降。
+根技能条件树中的旧式 `FinishBuffAction` 已复用正式 `finishBuffsById` 链：只接受非空 ID、关闭来源限制、plain Source 来源/结束来源，以及可严格归约为施法者或唯一敌人的 Owner/Target。Pogranichnik 连携、Xaihi 战技和 Mifu 二段战技由此转为可编译；Mifu 三段继续停在 `CheckTwoDirectionAngle`，不能借零距离模型猜测方向。Mifu 连携的 `StoreAttributeValue(MaxHp/FinalNonConverted)` 现由场景把 resolved panel 的 `maxHealth` 写入共享实体黑板，并在动作帧复用 `calculateActionValue` 写入本次释放黑板；它不把具体构筑生命值固化进生成产物。最新严格全量审计为 317/320 可解析、281/320 可编译、11 名零专用声明直转；Liino 非乘属性治疗公式被新严格 parser 暴露为解析缺口，解释了统计相对旧快照的下降。
 
-本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前治疗阶段验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 304/304、Next 类型检查通过、Next 全量 Vitest 177 个文件 1058/1058；根技能 Buff 结束扩展不新增 TypeScript 运行时类型。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
+本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 305/305、Next 类型检查通过、Next 全量 Vitest 177 个文件 1058/1058。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
 
 Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍保留在 audit；生成器现保存 stack effect 动作类别，并且只有定义完整证明“唯一行为是非空 `EffectAction` stack effect”时才自动从战斗序列剔除，不能按 ID 或命名泛化。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
 

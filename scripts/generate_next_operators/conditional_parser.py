@@ -1059,7 +1059,7 @@ def parse_conditional_actions(
                             f"{source_path}: unexpected StoreAttributeValue fields {sorted(action)}"
                         )
                     target = parse_target_reference(action.get("targetSettings"), source_path)
-                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will", "Level": "level"}.get(
+                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will", "Level": "level", "MaxHp": "maxHealth"}.get(
                         action.get("attributeType")
                     )
                     divisor = parse_scalar(action.get("divisorValue"), source_path, inherited_blackboard)
