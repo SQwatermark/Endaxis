@@ -124,6 +124,25 @@ AURA_SEQUENCE_FIELDS = {
     "onlyExecuteWhenSourceIsMainChar",
     "onlyExecuteWhenSourceIsGuard",
 }
+AIRBORNE_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "source",
+    "target",
+    "forceAirborne",
+    "floatingDuration",
+    "floatingHeight",
+    "speedFactorMultiplier",
+    "faceDirection",
+    "airborneEffect",
+    "immobilizedTime",
+    "isExtra",
+    "deadOption",
+    "returnTrueWhen",
+}
 KNOWN_TARGET_FINDER_TYPES = {
     "CharacterTeamFinder",
     "FixedPointFinder",

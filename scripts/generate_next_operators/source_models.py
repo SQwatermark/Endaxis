@@ -1079,6 +1079,24 @@ class AuraTargetFilterSource:
 
 
 @dataclass(frozen=True)
+class AirborneOutputSource:
+    """原生 AirborneAction 的可审计战斗事实；空间与表现参数不进入木桩状态。"""
+
+    actionIndex: int
+    source: TargetReferenceSource
+    target: TargetReferenceSource
+    forceAirborne: bool
+    floatingDuration: ScalarSource
+    floatingHeight: ScalarSource
+    speedFactorMultiplier: float
+    faceDirectionType: str
+    immobilizedTime: float
+    isExtra: bool
+    deadOption: str
+    returnTrueWhen: str
+
+
+@dataclass(frozen=True)
 class AuraActionSource:
     """区域持续动作的审计事实；在生命周期语义闭环前不直接生成 DSL。"""
 
@@ -1116,6 +1134,7 @@ class AuraActionSource:
     actionWhenExitAuraOnlyGuard: bool
     actionWhenExitAuraTypes: tuple[str, ...]
     nestedCombatActions: tuple[str, ...]
+    airborneOutputs: tuple[AirborneOutputSource, ...] = ()
 
 
 @dataclass(frozen=True)

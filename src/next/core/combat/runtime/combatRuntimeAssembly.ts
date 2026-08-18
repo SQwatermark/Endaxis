@@ -64,6 +64,7 @@ import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
 import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
 import { SkillCooldownOperationExecutor } from './skillCooldownOperationExecutor';
+import { CombatSemanticOutputOperationExecutor } from './combatSemanticOutputOperationExecutor';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
@@ -904,6 +905,14 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
+    const semanticOutputDelegate = new CombatSemanticOutputOperationExecutor({
+      sourceOperatorId: operatorId,
+      resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
+      semanticEvents: this.semanticEvents,
+      clock: this.clock,
+      receipt: this.receipt,
+      delegate: terminalDelegate,
+    });
     const cooldownDelegate = new SkillCooldownOperationExecutor({
       reduceByBaseDurationRatio: (skill, ratio) =>
         this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
@@ -911,7 +920,7 @@ export class CombatRuntimeAssembly {
         this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
       setByAbsoluteFrames: (skill, frames) =>
         this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
-      delegate: terminalDelegate,
+      delegate: semanticOutputDelegate,
     });
     const baseDelegate = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey) => {
@@ -1052,6 +1061,14 @@ export class CombatRuntimeAssembly {
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
     const operatorId = operator.operatorId;
+    const semanticOutputOperations = new CombatSemanticOutputOperationExecutor({
+      sourceOperatorId: operatorId,
+      resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
+      semanticEvents: this.semanticEvents,
+      clock: this.clock,
+      receipt: this.receipt,
+      delegate: terminal,
+    });
     const slotOperations = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey) => {
         this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
@@ -1063,7 +1080,7 @@ export class CombatRuntimeAssembly {
           data: { skillGroupKey, targetSkillKey },
         });
       },
-      delegate: terminal,
+      delegate: semanticOutputOperations,
     });
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       slotOperations,

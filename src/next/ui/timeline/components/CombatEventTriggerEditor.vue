@@ -18,6 +18,7 @@ const emit = defineEmits<{ update: [event: CombatEventTrigger] }>();
 const { t } = useI18n({ useScope: 'global' });
 const KINDS = [
   'buffApplied',
+  'airborneOutput',
   'damageTagHit',
   'elementalInflictionApplied',
   'skillHit',
@@ -30,6 +31,7 @@ const SCOPES = ['operator', 'team'] as const;
 function setKind(kind: CombatEventTrigger['kind']): void {
   switch (kind) {
     case 'buffApplied':
+    case 'airborneOutput':
       emit('update', { kind });
       break;
     case 'damageTagHit':

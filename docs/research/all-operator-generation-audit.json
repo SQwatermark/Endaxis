@@ -7,13 +7,13 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 291,
-    "completeOperatorCount": 13,
+    "compiledCount": 292,
+    "completeOperatorCount": 14,
     "blockerKinds": {
       "projectile-child-actions": 2,
-      "other": 6,
       "projectile-data": 5,
       "root-action-coverage": 2,
+      "other": 5,
       "conditional-leaf": 6,
       "condition-other": 4,
       "condition-entity-count": 1,
@@ -917,11 +917,9 @@
       "operatorName": "Chen Qianyu",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "other": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0019_karin",
@@ -1556,9 +1554,9 @@
       "operatorName": "Chen Qianyu",
       "skillId": "chr_0005_chen_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "combo_skill.schedule[1].eventListener: unsupported native skill event 'OnBeforeOutputAirborne'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["AuraAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 0,

@@ -78,6 +78,7 @@ from source_models import (
     AuraShapeSource,
     AuraTargetFilterSource,
     AuraActionSource,
+    AirborneOutputSource,
     TimedMarkerApplicationPayload,
     GlobalCooldownApplicationPayload,
     ResourceGainPayload,
@@ -169,6 +170,7 @@ from conditional_parser import (
 )
 from source_schema import (
     AURA_ACTION_FIELDS,
+    AIRBORNE_ACTION_FIELDS,
     AURA_SEQUENCE_FIELDS,
     AURA_SHAPE_FIELDS,
     AURA_TARGET_FILTER_FIELDS,
@@ -3287,7 +3289,9 @@ def parse_aura_actions(
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
     result: list[AuraActionSource] = []
 
-    def parse_sequence(value: Any, path: str) -> tuple[dict[str, Any], tuple[str, ...]]:
+    def parse_sequence(
+        value: Any, path: str
+    ) -> tuple[dict[str, Any], tuple[str, ...], tuple[dict[str, Any], ...]]:
         sequence = require_dict(value, path)
         if set(sequence) != AURA_SEQUENCE_FIELDS:
             raise ValueError(f"{path}: unexpected fields {sorted(sequence)}")
@@ -3300,10 +3304,53 @@ def parse_aura_actions(
         for index, action in enumerate(actions):
             if not isinstance(action.get("$type"), str):
                 raise ValueError(f"{path}.actionData[{index}].$type: expected string")
+        enabled = tuple(action for action in actions if action.get("isEnable") is not False)
         return sequence, tuple(
             action_name(str(action["$type"]))
-            for action in actions
-            if action.get("isEnable") is not False
+            for action in enabled
+        ), enabled
+
+    def parse_airborne_output(action: dict[str, Any], path: str) -> AirborneOutputSource:
+        if set(action) != AIRBORNE_ACTION_FIELDS:
+            raise ValueError(f"{path}: unexpected AirborneAction fields {sorted(action)}")
+        priority_level = action.get("priorityLevel")
+        priority_offset = action.get("priorityOffset")
+        if not isinstance(priority_level, str) or not priority_level:
+            raise ValueError(f"{path}.priorityLevel: expected non-empty string")
+        if not isinstance(priority_offset, int) or isinstance(priority_offset, bool):
+            raise ValueError(f"{path}.priorityOffset: expected integer")
+        face_direction = require_dict(action.get("faceDirection"), f"{path}.faceDirection")
+        direction_type = face_direction.get("directionType")
+        if not isinstance(direction_type, str) or not direction_type:
+            raise ValueError(f"{path}.faceDirection.directionType: expected non-empty string")
+        # airborneEffect is presentation-only in Endaxis, but its container must still exist.
+        require_dict(action.get("airborneEffect"), f"{path}.airborneEffect")
+        dead_option = action.get("deadOption")
+        return_true_when = action.get("returnTrueWhen")
+        for key, item in (("deadOption", dead_option), ("returnTrueWhen", return_true_when)):
+            if not isinstance(item, str) or not item:
+                raise ValueError(f"{path}.{key}: expected non-empty string")
+        return AirborneOutputSource(
+            actionIndex=require_server_action_index(action, path),
+            source=parse_target_reference(action.get("source"), f"{path}.source"),
+            target=parse_target_reference(action.get("target"), f"{path}.target"),
+            forceAirborne=require_bool(action.get("forceAirborne"), f"{path}.forceAirborne"),
+            floatingDuration=parse_scalar(
+                action.get("floatingDuration"), f"{path}.floatingDuration", inherited_blackboard
+            ),
+            floatingHeight=parse_scalar(
+                action.get("floatingHeight"), f"{path}.floatingHeight", inherited_blackboard
+            ),
+            speedFactorMultiplier=require_number(
+                action.get("speedFactorMultiplier"), f"{path}.speedFactorMultiplier"
+            ),
+            faceDirectionType=direction_type,
+            immobilizedTime=require_number(
+                action.get("immobilizedTime"), f"{path}.immobilizedTime"
+            ),
+            isExtra=require_bool(action.get("isExtra"), f"{path}.isExtra"),
+            deadOption=dead_option,
+            returnTrueWhen=return_true_when,
         )
 
     def visit(
@@ -3419,11 +3466,18 @@ def parse_aura_actions(
             if not isinstance(timed_marker_id, str):
                 raise ValueError(f"{icon_path}.timedMarkerId: expected string")
 
-            in_sequence, in_types = parse_sequence(
+            in_sequence, in_types, in_actions = parse_sequence(
                 value.get("actionInAura"), f"{action_path}.actionInAura"
             )
-            exit_sequence, exit_types = parse_sequence(
+            exit_sequence, exit_types, _exit_actions = parse_sequence(
                 value.get("actionWhenExitAura"), f"{action_path}.actionWhenExitAura"
+            )
+            airborne_outputs = tuple(
+                parse_airborne_output(
+                    action, f"{action_path}.actionInAura.actionData[{index}]"
+                )
+                for index, action in enumerate(in_actions)
+                if action_name(str(action["$type"])) == "AirborneAction"
             )
             nested_combat_actions = tuple(
                 sorted(
@@ -3585,6 +3639,7 @@ def parse_aura_actions(
                     ),
                     actionWhenExitAuraTypes=exit_types,
                     nestedCombatActions=nested_combat_actions,
+                    airborneOutputs=airborne_outputs,
                 )
             )
 
@@ -7753,14 +7808,13 @@ def compile_aura_action(
     target_filter = aura.targetFilter
     if aura.activationSource != "timeline" or aura.startFrame is None or aura.endFrame is None:
         raise ValueError(f"{path}: only timeline Aura actions are supported")
-    if not (
+    common_fixed_enemy = (
         aura.auraType in {"GlobalAura", "RangedAura"}
         and aura.root.targetSource == "Owner"
         and not aura.root.targetGroupKey
         and not aura.root.validatorTypes
         and not aura.root.postProcessorTypes
         and aura.excludeColliderOptions == 0
-        and aura.targetObjectType in {"Enemy", "EnemyAll"}
         and target_filter.checkAlive
         and target_filter.autoSetTargetFaction
         and target_filter.factionTarget == "Anti"
@@ -7769,16 +7823,57 @@ def compile_aura_action(
         and not target_filter.filterGameplayTag
         and not target_filter.tagIds
         and not aura.includeUnmarkable
-        and not aura.limitInfluenceCountPerTarget
         and aura.buffSource == "ActionSource"
         and not aura.overrideBuffIconDuration
         and not aura.actionInAuraOnlyMainOperator
         and not aura.actionInAuraOnlyGuard
-        and not aura.actionInAuraTypes
         and not aura.actionWhenExitAuraOnlyMainOperator
         and not aura.actionWhenExitAuraOnlyGuard
         and not aura.actionWhenExitAuraTypes
+    )
+    if (
+        common_fixed_enemy
+        and aura.excludeOwner
+        and aura.targetObjectType == 0
+        and aura.limitInfluenceCountPerTarget
+        and aura.maxInfluenceCountPerTarget == 1
+        and not aura.buffs
+        and aura.actionInAuraTypes == ("AirborneAction", "DamageAction")
+        and aura.nestedCombatActions == ("DamageAction",)
+        and len(aura.airborneOutputs) == 1
+    ):
+        airborne = aura.airborneOutputs[0]
+        if not (
+            airborne.source.targetSource == "Owner"
+            and not airborne.source.targetGroupKey
+            and not airborne.source.validatorTypes
+            and not airborne.source.postProcessorTypes
+            and airborne.target.targetSource == "Target"
+            and airborne.target.targetGroupKey == "tar"
+            and not airborne.target.validatorTypes
+            and not airborne.target.postProcessorTypes
+            and not airborne.forceAirborne
+            and airborne.floatingDuration.value == 0
+            and airborne.floatingDuration.blackboardKey is None
+            and airborne.floatingHeight.value == 0
+            and airborne.floatingHeight.blackboardKey is None
+            and airborne.speedFactorMultiplier == 1
+            and airborne.faceDirectionType == "TargetToSource"
+            and airborne.immobilizedTime == 1
+            and not airborne.isExtra
+            and airborne.deadOption == "AllValid"
+            and airborne.returnTrueWhen == "Always"
+        ):
+            raise ValueError(f"{path}: unsupported AirborneAction payload")
+        # DamageAction is independently projected by the recursive hit parser at the same frame.
+        return "step('outputAirborne', { target: 'enemy' })"
+    if not (
+        common_fixed_enemy
+        and aura.targetObjectType in {"Enemy", "EnemyAll"}
+        and not aura.limitInfluenceCountPerTarget
+        and not aura.actionInAuraTypes
         and not aura.nestedCombatActions
+        and not aura.airborneOutputs
     ):
         raise ValueError(f"{path}: Aura target or lifecycle shape is not closed")
     if not aura.buffs:
@@ -8371,7 +8466,8 @@ def compile_conditional_branch_action(
     cooldown_adjustment = getattr(action, "skillCooldownAdjustment", None)
     if cooldown_adjustment is not None:
         if (
-            cooldown_adjustment.target.targetSource != "Owner"
+            cooldown_adjustment.target.targetSource
+            not in ({"Owner", "Source"} if root_skill_context else {"Owner"})
             or cooldown_adjustment.target.targetGroupKey
             or cooldown_adjustment.target.validatorTypes
             or cooldown_adjustment.target.postProcessorTypes
@@ -11965,6 +12061,7 @@ def compile_skill_event_listener(
         return None
     event = {
         "OnAddedBuff": {"kind": "buffApplied"},
+        "OnBeforeOutputAirborne": {"kind": "airborneOutput"},
         "OnBeforeTakeDamage": {"kind": "operatorHit"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
     }.get(listener.event)

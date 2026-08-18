@@ -204,6 +204,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
 
+### 2026-08-19：主动浮空事实与陈千语连携闭环
+
+- 陈千语连携的 `OnBeforeOutputAirborne` 已核对为技能自身 Aura 内部 `AirborneAction` 的同步前置事件，不是伤害装饰位，也不是敌人主动行为或外部事件。Aura 随后执行的 `DamageAction` 仍由既有递归命中解析器独立投影。
+- Next 新增极小 `outputAirborne(target)` 步骤与 `airborneOutput` 语义事件。它记录来源、目标和 `AirborneOutput` 回执，并在同一动作序列继续前同步派发监听器；木桩模型不保存位移、高度、朝向、动画或控制状态。
+- 生成器只接受当前已证明的严格形状：根时间轴 `RangedAura`、plain Owner、唯一敌对目标、每目标最多一次、直接 `AirborneAction -> DamageAction`，以及陈千语原始浮空载荷。监听响应继续复用正式 `adjustSkillCooldown`，`Source` 在根技能事件上下文中严格归约为施法者。
+- 编辑器可创建和编辑浮空输出目标，也可选择浮空输出监听事件。全量审计提升为 320/320 可解析、292/320 可编译、14 名完整直转；陈千语达到 10/10。
+- 本轮门禁使用 `type-check:next`。全仓 `type-check` 当前被笔记本带回的旧版既有类型错误阻塞，未修改旧版代码来消除它们。
+
 ## 8. 恢复工作清单
 
 1. `git status --short`，确认没有把 `tmp/` 或用户文件带入提交；

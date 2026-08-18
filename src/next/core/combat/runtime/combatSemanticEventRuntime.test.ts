@@ -50,6 +50,27 @@ describe('CombatSemanticEventRuntime', () => {
     expect(received).toEqual(['operator:b']);
   });
 
+  it('routes airborne output to the source operator regardless of its target', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    for (const ownerOperatorId of ['operator:a', 'operator:b']) {
+      runtime.register({
+        ownerOperatorId,
+        trigger: { kind: 'airborneOutput' },
+        phase: 'skill',
+        handle: () => received.push(ownerOperatorId),
+      });
+    }
+
+    runtime.emit({
+      kind: 'airborneOutput',
+      sourceOperatorId: 'operator:a',
+      targetId: 'enemy',
+    });
+
+    expect(received).toEqual(['operator:a']);
+  });
+
   it('distinguishes operator and team scopes while preserving registration order', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

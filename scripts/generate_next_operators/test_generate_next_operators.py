@@ -6836,6 +6836,68 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
+    def test_zero_space_enemy_aura_outputs_airborne_before_recursive_damage(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = 0
+        action["buffInput"] = []
+        action["limitInfluenceCountPerTarget"] = True
+        target = target_settings_fixture("Target")
+        target["targetGroupKey"] = "tar"
+        action["actionInAura"] = {
+            "actionData": [
+                {
+                    "$type": "Example.AirborneAction+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 28,
+                    "source": target_settings_fixture("Owner"),
+                    "target": target,
+                    "forceAirborne": False,
+                    "floatingDuration": {
+                        "useBlackboardKey": False,
+                        "value": 0,
+                        "blackboardKey": "",
+                    },
+                    "floatingHeight": {
+                        "useBlackboardKey": False,
+                        "value": 0,
+                        "blackboardKey": "",
+                    },
+                    "speedFactorMultiplier": 1,
+                    "faceDirection": {"directionType": "TargetToSource"},
+                    "airborneEffect": {},
+                    "immobilizedTime": 1,
+                    "isExtra": False,
+                    "deadOption": "AllValid",
+                    "returnTrueWhen": "Always",
+                },
+                {"$type": "Example.DamageAction+Data, Example", "isEnable": True},
+            ],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 17,
+                        "_endFrame": 27,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(aura.actionInAuraTypes, ("AirborneAction", "DamageAction"))
+        self.assertEqual(aura.airborneOutputs[0].actionIndex, 28)
+        self.assertEqual(
+            compile_aura_action(aura, "fixture.aura", buff_definitions=None),
+            "step('outputAirborne', { target: 'enemy' })",
+        )
+
     def test_aura_action_rejects_unknown_fields(self) -> None:
         action = aura_action_fixture()
         action["unexpected"] = True
@@ -11317,6 +11379,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             step_key_prefix="fixture",
         )
         self.assertIn("kind: 'operatorHit'", hit_compiled)
+
+        airborne_compiled = compile_skill_event_listener(
+            replace(
+                parse_skill_event_listeners(root, "fixture.json", {"enabled": (1,)})[0],
+                event="OnBeforeOutputAirborne",
+            ),
+            "fixture.airborneEventListener",
+            runtime_blackboard_keys=frozenset({"enabled", "kill_num"}),
+            step_key_prefix="fixture",
+        )
+        self.assertIn("kind: 'airborneOutput'", airborne_compiled)
 
     def test_skill_event_listener_preserves_event_context_condition_payloads(self) -> None:
         root = {

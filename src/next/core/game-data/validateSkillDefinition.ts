@@ -1257,6 +1257,9 @@ function validateCombatStep(
       }
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;
+    case 'outputAirborne':
+      requireTarget();
+      break;
     case 'holdBuffsById':
       if (parameters.target !== 'caster') {
         push(out, `${path}.parameters.target`, "expected 'caster'");
@@ -1618,6 +1621,7 @@ function validateEventTrigger(
   switch (kind) {
     case 'operatorHit':
     case 'buffApplied':
+    case 'airborneOutput':
       break;
     case 'damageTagHit':
       requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);

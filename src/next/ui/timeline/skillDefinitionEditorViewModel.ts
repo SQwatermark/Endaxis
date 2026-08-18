@@ -348,6 +348,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'applyElementalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
+  'outputAirborne',
   'spawnAbilityEntity',
   'applyBuff',
   'readBuffBlackboard',
@@ -523,6 +524,8 @@ export function createSkillEditorStep(
       };
     case 'consumeElementalReaction':
       return { kind, parameters: { reaction: 'electrification', target: 'enemy' } };
+    case 'outputAirborne':
+      return { kind, parameters: { target: 'enemy' } };
     case 'spawnAbilityEntity':
       return {
         kind,

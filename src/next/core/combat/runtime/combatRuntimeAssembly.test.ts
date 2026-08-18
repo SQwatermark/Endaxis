@@ -1125,6 +1125,56 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.resources.sp).toBe(107);
   });
 
+  it('dispatches active airborne output before continuing the authored sequence', () => {
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 2,
+          sequence: {
+            steps: [
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    {
+                      key: 'before-output-airborne',
+                      event: { kind: 'airborneOutput' },
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'changeResource',
+                            parameters: { resource: 'sp', amount: 9, recipient: 'team' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              { kind: 'outputAirborne', parameters: { target: 'enemy' } },
+              {
+                kind: 'changeResource',
+                parameters: { resource: 'sp', amount: 1, recipient: 'team' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly([program]);
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(assembly.resources.sp).toBe(110);
+    expect(
+      assembly.receipt.entries
+        .map(entry => entry.event)
+        .filter(event => event === 'AirborneOutput' || event === 'SpChanged'),
+    ).toEqual(['AirborneOutput', 'SpChanged', 'SpChanged']);
+  });
+
   it('executes party Buff lifecycle steps relative to each actual operator owner', () => {
     const sourceBuffs = new CombatBuffContainer<string>('source', new CombatAttributeSet<string>());
     const allyBuffs = new CombatBuffContainer<string>('ally', new CombatAttributeSet<string>());

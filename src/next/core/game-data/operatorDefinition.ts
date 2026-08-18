@@ -517,6 +517,8 @@ export interface CombatStepParameters {
     reaction: ElementalReaction;
     target: 'enemy';
   };
+  /** 报告一次对固定目标成功输出浮空；木桩模型不保存位移、朝向或控制状态。 */
+  outputAirborne: { target: CombatTarget };
   dealDamage: DealDamageParameters;
   dealFixedDamage: DealFixedDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
@@ -777,6 +779,7 @@ export const COMBAT_STEP_KINDS = [
   'applyElementalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
+  'outputAirborne',
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
@@ -871,6 +874,7 @@ export type SkillTriggerScope = 'operator' | 'team';
 export type CombatEventTrigger =
   | { kind: 'operatorHit' }
   | { kind: 'buffApplied' }
+  | { kind: 'airborneOutput' }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
       kind: 'elementalInflictionApplied';

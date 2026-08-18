@@ -557,6 +557,21 @@ export interface GeneratedAuraTargetFilterSource {
   readonly tagIds: readonly number[];
 }
 
+export interface GeneratedAirborneOutputSource {
+  readonly actionIndex: number;
+  readonly source: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly forceAirborne: boolean;
+  readonly floatingDuration: GeneratedScalarSource;
+  readonly floatingHeight: GeneratedScalarSource;
+  readonly speedFactorMultiplier: number;
+  readonly faceDirectionType: string;
+  readonly immobilizedTime: number;
+  readonly isExtra: boolean;
+  readonly deadOption: string;
+  readonly returnTrueWhen: string;
+}
+
 /** 区域持续动作的审计事实；生命周期闭环前不得直接近似成一次 Buff 应用。 */
 export interface GeneratedAuraActionSource {
   readonly startFrame: number | null;
@@ -593,6 +608,7 @@ export interface GeneratedAuraActionSource {
   readonly actionWhenExitAuraOnlyGuard: boolean;
   readonly actionWhenExitAuraTypes: readonly string[];
   readonly nestedCombatActions: readonly string[];
+  readonly airborneOutputs: readonly GeneratedAirborneOutputSource[];
 }
 
 export interface GeneratedTargetIdentityConditionSource {
