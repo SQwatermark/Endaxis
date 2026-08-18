@@ -67,6 +67,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       };
     case 'timedMarkerPresent':
       return { kind, target: 'caster', markerId: 'custom-marker' };
+    case 'abilityEntityTimedMarkerPresent':
+      return { kind, markerId: 'custom-marker' };
     case 'eventDamageTagsMatch':
       return { kind, match: 'hasAny', tags: ['normalSkill'] };
     case 'eventDamageFeaturesMatch':

@@ -334,6 +334,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly extendTagIds: readonly number[];
   /** Buff 启用期间注册到原生八槽属性公式的修正；目标属性名仍保留原生身份。 */
   readonly attributeModifiers: readonly GeneratedBuffAttributeModifierSource[];
+  /** true 表示这些修正保留原生 converted 来源身份。 */
+  readonly attributeModifiersConverted?: boolean;
   /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
   readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
@@ -351,6 +353,46 @@ export interface GeneratedBuffDefinitionSource {
   readonly unparsedPayloads: readonly GeneratedUnparsedBuffPayloadSource[];
   /** Buff 生效期间注册的区域持续动作；仍需专用运行时消费。 */
   readonly auraActions: readonly GeneratedAuraActionSource[];
+  /** Buff 事件通过 CastSkill 在既有能力实体上启动的隐藏子技能。 */
+  readonly invokedAbilityEntitySkills?: readonly GeneratedAbilityEntityHitSource[];
+  /** Buff 自身时间线中的生成、子 Buff 等辅助动作证据。 */
+  readonly auxiliaryActions?: readonly GeneratedAuxiliaryActionSource[];
+  /** Buff 动作树对 Context 目标组的写入证据。 */
+  readonly targetGroupWrites?: readonly GeneratedTargetGroupWriteSource[];
+  /** Buff 启用期间对角色稳定技能槽的原生替换关系；尚未接入运行时选择。 */
+  readonly skillReplacements?: readonly GeneratedBuffSkillReplacementSource[];
+}
+
+export interface GeneratedBuffSkillReplacementSource {
+  readonly eventSource: 'buff' | 'ability';
+  readonly event: string;
+  readonly actionIndex: number;
+  readonly skillSource: GeneratedTargetReferenceSource;
+  readonly skillSlot: string;
+  readonly targetSkillId: string;
+  readonly overrideCacheTime: boolean;
+  readonly cacheTime: GeneratedScalarSource;
+  readonly lifeTimeType: string;
+  readonly duration: GeneratedScalarSource;
+  readonly inheritOriginSkillCooldownProgress: boolean;
+  readonly specificRevertedSkillId: boolean;
+  readonly revertedSkillId: string;
+}
+
+export interface GeneratedTimedSkillReplacementSource {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly skillSource: GeneratedTargetReferenceSource;
+  readonly skillSlot: string;
+  readonly targetSkillId: string;
+  readonly overrideCacheTime: boolean;
+  readonly cacheTime: GeneratedScalarSource;
+  readonly lifeTimeType: string;
+  readonly duration: GeneratedScalarSource;
+  readonly inheritOriginSkillCooldownProgress: boolean;
+  readonly specificRevertedSkillId: boolean;
+  readonly revertedSkillId: string;
 }
 
 export interface GeneratedUnparsedBuffPayloadSource {
@@ -360,8 +402,7 @@ export interface GeneratedUnparsedBuffPayloadSource {
     | 'healModifier'
     | 'igniteEventAction'
     | 'poiseModifier'
-    | 'shieldConfigs'
-    | 'attributeModifier.isConvertedAttribute';
+    | 'shieldConfigs';
   readonly entryCount: number;
 }
 
@@ -617,6 +658,17 @@ export interface GeneratedConditionSource {
   readonly damageDecorateMask?: GeneratedDamageDecorateMaskConditionSource | null;
   readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
   readonly abilityEntityDuration?: GeneratedAbilityEntityDurationConditionSource;
+  readonly deckAttributeCompare?: GeneratedDeckAttributeCompareConditionSource | null;
+}
+
+export interface GeneratedDeckAttributeCompareConditionSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly leftAttribute: string;
+  readonly leftValue: GeneratedScalarSource;
+  readonly comparison: string;
+  readonly rightAttribute: string;
+  readonly rightValue: GeneratedScalarSource;
 }
 
 export interface GeneratedConditionalActionSource {
@@ -941,6 +993,9 @@ export interface GeneratedBuffEventTargetGroupWriteSource {
   readonly actionIndex: number;
   readonly targetGroupKey: string;
   readonly finderType: string;
+  readonly finderFactionTarget?: string | null;
+  readonly finderTargetObjectType?: string | number | null;
+  readonly finderCheckAlive?: boolean | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly spawnedObjectType: string | null;
@@ -1089,6 +1144,8 @@ export interface GeneratedSkillSource {
   readonly eventListeners: readonly GeneratedSkillEventListenerSource[];
   readonly timeDilations: readonly GeneratedTimedTimeDilationSource[];
   readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
+  /** 技能释放时对稳定技能槽执行的原生替换/还原关系。 */
+  readonly skillReplacements?: readonly GeneratedTimedSkillReplacementSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */
   readonly unresolvedCombatActions: readonly string[];
 }

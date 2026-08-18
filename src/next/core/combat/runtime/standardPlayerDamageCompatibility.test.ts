@@ -64,7 +64,7 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
-  it('accepts the closed standard damage, poise, infliction, action value and resource subset', () => {
+  it('accepts the closed standard damage, Buff, poise, infliction, action value and resource subset', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
         operator({
@@ -103,6 +103,56 @@ describe('standardPlayerDamageCompatibility', () => {
             {
               kind: 'consumeElementalReaction',
               parameters: { reaction: 'electrification', target: 'enemy' },
+            },
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'entityTagMatch',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  tagIds: [1466867135],
+                },
+              },
+              whenTrue: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'buff:inline',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'stack',
+                        priority: 0,
+                        maxStackCount: 1,
+                        lifecycleSequences: {
+                          enhanceChanged: {
+                            steps: [
+                              {
+                                kind: 'finishBuffsById',
+                                parameters: {
+                                  target: 'caster',
+                                  buffIds: ['buff:old'],
+                                  reason: 'other',
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                  {
+                    kind: 'finishBuffsByTag',
+                    parameters: {
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      buffTagIds: [1466867135],
+                      reason: 'early',
+                    },
+                  },
+                ],
+              },
             },
             {
               kind: 'conditional',
@@ -199,7 +249,29 @@ describe('standardPlayerDamageCompatibility', () => {
                       steps: [
                         {
                           kind: 'applyBuff',
-                          parameters: { buffId: 'buff:missing', target: 'enemy' },
+                          parameters: {
+                            buffId: 'buff:inline',
+                            target: 'enemy',
+                            definition: {
+                              stackingType: 'stack',
+                              priority: 0,
+                              maxStackCount: 1,
+                              lifecycleSequences: {
+                                enable: {
+                                  steps: [
+                                    {
+                                      kind: 'setContextFlag',
+                                      parameters: {
+                                        flag: 'unsupported-nested-operation',
+                                        value: true,
+                                        target: 'caster',
+                                      },
+                                    },
+                                  ],
+                                },
+                              },
+                            },
+                          },
                         },
                       ],
                     },
@@ -214,7 +286,9 @@ describe('standardPlayerDamageCompatibility', () => {
 
     expect(issues.map(issue => issue.code)).toEqual(['unsupported-condition', 'unsupported-step']);
     expect(issues[0]?.path).toContain('.parameters.condition.conditions[1].condition');
-    expect(issues[1]?.path).toContain('.whenFalse.steps[0].body.steps[0]');
+    expect(issues[1]?.path).toContain(
+      '.whenFalse.steps[0].body.steps[0].parameters.definition.lifecycleSequences.enable.steps[0]',
+    );
   });
 
   it('does not reject unsupported skills that cannot run before the requested end frame', () => {
@@ -379,7 +453,7 @@ describe('standardPlayerDamageCompatibility', () => {
       throw new Error('expected compatibility assertion to fail');
     } catch (error) {
       expect(error).toBeInstanceOf(StandardPlayerDamageCompatibilityError);
-      expect((error as StandardPlayerDamageCompatibilityError).issues).toHaveLength(2);
+      expect((error as StandardPlayerDamageCompatibilityError).issues).toHaveLength(1);
     }
   });
 });

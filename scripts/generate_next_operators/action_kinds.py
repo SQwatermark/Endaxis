@@ -78,10 +78,11 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "ModifyDynamicBlackboard",
     "SaveBuffStackNumAdvanced",
     "SimpleCalcBBAction",
+    "StoreAttributeValue",
     "TimeDilationAction",
     "UltimateTimeAction",
     "SetAbilityEntityDuration",
-    # 中断的具体运行时语义尚未闭环，但它会改变后续行为，不能从有序事件树中消失。
-    # 保留为无 payload 的叶子，使编译器继续以 unsupported conditional leaf 显式阻塞。
+    # 中断载荷必须留在有序事件树供审计；当前模拟器没有敌方主动技能、红圈状态或
+    # 行动时间线，因此正式编译会把它归约为恒成功的零效果动作，不创建伪控制状态。
     "InterruptAction",
 }

@@ -1,0 +1,52 @@
+import { describe, expect, it } from 'vitest';
+import source from './NextTimelineEditor.vue?raw';
+
+function projectionSource(startMarker: string, endMarker: string): string {
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker, start);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  return source.slice(start, end);
+}
+
+describe('Next timeline simulation projection retention', () => {
+  it('keeps the last successful time mapping and cast starts while a drag simulation is pending', () => {
+    const projections = projectionSource(
+      'const displayTime = computed',
+      '\nconst timelineWidth = computed',
+    );
+
+    expect(projections).toContain('simulationRun.value?.timelineTimeMapping ?? null');
+    expect(projections).toContain('projectSkillCastActualStartFrames');
+    expect(projections).toContain('projectTimelineTimeDilationBands');
+    expect(projections).not.toContain('simulationStale.value');
+  });
+
+  it('does not independently clear hit projections while the published snapshot is stale', () => {
+    const hitProjection = projectionSource(
+      'const castHitEffects = computed',
+      '\n/** 敌人效果面板数据',
+    );
+
+    expect(hitProjection).toContain('const current = simulationRun.value');
+    expect(hitProjection).not.toContain('simulationStale.value');
+  });
+
+  it('freezes the display-time mapping for the full cast-move gesture', () => {
+    const gesture = projectionSource(
+      'interface TimelineCastMoveGesture',
+      '\nconst castMoveGesture',
+    );
+    const projection = projectionSource(
+      'function castActualStartFrame',
+      '\nfunction gaugeCurveFor',
+    );
+    const movement = projectionSource('function beginCastMove', '\nasync function finishCastMove');
+
+    expect(gesture).toContain('readonly displayTime: TimelineDisplayTime');
+    expect(movement).toContain('displayTime: displayTime.value');
+    expect(projection).toContain('return gesture.previewActualFrame');
+    expect(movement).toContain('pointerOffsetActualFrames');
+    expect(movement).toContain('resolveTimelineCastMoveFrame');
+  });
+});

@@ -82,6 +82,38 @@ describe('compileScenarioTimeline', () => {
     ]);
   });
 
+  it('compiles replacement variants for the same stable cast identity without extra inputs', () => {
+    const scenario = place(createScenario(), 'battleSkill', 60);
+    const base = requireSingleSkill('battleSkill');
+    const operator = {
+      ...perlica,
+      skillGroups: perlica.skillGroups.map(group =>
+        group.key === 'battleSkill'
+          ? { ...group, replacementSkills: [{ ...base, key: 'battleSkillVariant' }] }
+          : group,
+      ),
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+
+    expect(compiled.inputs).toEqual([
+      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
+    ]);
+    expect(compiled.operators[0]!.skills.map(skill => [skill.skillId, skill.castId])).toEqual([
+      ['battleSkill', 'skillCast:1'],
+      ['battleSkillVariant', 'skillCast:1'],
+    ]);
+    expect(compiled.operators[0]!.skillSlotGroups).toEqual([
+      {
+        skillGroupKey: 'battleSkill',
+        baseSkillKey: 'battleSkill',
+        replacementSkillKeys: ['battleSkillVariant'],
+      },
+    ]);
+  });
+
   it('preserves the declaration order of same-frame inputs', () => {
     let scenario = place(createScenario(), 'battleSkill', 60);
     scenario = place(scenario, 'ultimate', 60);

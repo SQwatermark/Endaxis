@@ -38,6 +38,16 @@ describe('arclight generated operator', () => {
     expect(steps).toContain('gainSquadUltimateEnergyFromSkillCost');
   });
 
+  it('keeps the stack-triggered party electric damage buff as converted runtime behavior', () => {
+    const battleSkill = findSkill('battleSkill');
+    const source = JSON.stringify(battleSkill);
+
+    expect(source).toContain('enhanceChanged');
+    expect(source).toContain('electricDamageIncrease');
+    expect(source).toContain('converted');
+    expect(source).not.toContain('buff_common_vfx_char_atk_up');
+  });
+
   it('owns ultimate AbilityEntity damage on the child local timeline only', () => {
     const ultimate = findSkill('ultimate');
     const spawn = ultimate.scheduledSequences

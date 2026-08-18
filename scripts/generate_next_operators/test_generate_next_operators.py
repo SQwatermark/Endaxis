@@ -37,6 +37,9 @@ from generate_next_operators import (
     compile_buff_application_values,
     parse_skill_event_listeners,
     parse_buff_event_actions,
+    parse_buff_start_vulnerability,
+    parse_buff_skill_replacements,
+    parse_timed_skill_replacements,
     parse_ordered_action_sequence,
     compile_buff_stack_read,
     compile_resolved_damage_sequence,
@@ -49,6 +52,10 @@ from generate_next_operators import (
     compile_combat_condition_group,
     compile_conditional_action,
     compile_conditional_branch_action,
+    compile_inline_buff_event_responses,
+    compile_inline_buff_behaviors,
+    compile_inline_buff_scheduled_sequences,
+    compile_timed_marker_application,
     compile_immediate_projectile_children,
     compile_logical_ability_entity_spawn,
     logical_ability_entity_spawn_payload_for_compile,
@@ -83,6 +90,7 @@ from generate_next_operators import (
     TimedDamageSource,
     TimedInflictionSource,
     TimedMarkerGateSource,
+    TimedMarkerApplicationPayload,
     TimedResourceGainSource,
     TimedTimelineJumpSource,
     TargetGroupWriteSource,
@@ -164,6 +172,11 @@ from generate_next_operators import (
     typescript_identifier,
     validate_skill_groups,
     parse_combo_skill_registrations,
+    derive_entity_blackboard_initializers,
+    derive_skill_slot_replacement_relations,
+    select_runtime_skill_slot_replacement_relations,
+    render_skill_groups,
+    parse_base_passive_skill_ids,
     serialize_audit_value,
     walk_actions,
     walk_single_enemy_actions,
@@ -396,6 +409,66 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_projects_strict_buff_vulnerability_event_into_damage_modifier(self) -> None:
+        buff = {
+            "duration": {
+                "useBlackboardKey": True,
+                "value": 12.0,
+                "blackboardKey": "duration",
+            },
+            "buffEventAction": [
+                {
+                    "buffEvent": "DuringBuffEnable",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    "$type": "Beyond.Gameplay.Core.VulnerableAction+Data, Gameplay.Beyond",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 0,
+                                    "source": target_settings_fixture("Source"),
+                                    "target": target_settings_fixture("Owner"),
+                                    "duration": {
+                                        "useBlackboardKey": True,
+                                        "value": 0.0,
+                                        "blackboardKey": "duration",
+                                    },
+                                    "rate": {
+                                        "useBlackboardKey": True,
+                                        "value": 0.0,
+                                        "blackboardKey": "rate",
+                                    },
+                                    "overrideChildBuffId": False,
+                                    "childBuffId": {
+                                        "useBlackboardKey": False,
+                                        "value": "",
+                                        "blackboardKey": "",
+                                    },
+                                    "asChildBuff": True,
+                                    "enhancingList": [],
+                                    "autoFinishByAction": False,
+                                    "subType": "Physical",
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ],
+        }
+
+        modifiers = parse_buff_start_vulnerability(
+            buff,
+            "fixture",
+            {"duration": (6.0,), "rate": (0.15,)},
+        )
+
+        self.assertEqual(len(modifiers), 1)
+        self.assertEqual(modifiers[0].enabledSide, "Defender")
+        self.assertEqual(modifiers[0].processors[0].zone, "VulnerableDmgIncreace")
+        self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "rate")
+
     def test_current_akedb_time_scale_curve_projection_is_preserved(self) -> None:
         curve = parse_time_scale_curve(
             [
@@ -8354,6 +8427,154 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'currentAbilityEntity'", source)
 
+    def test_invoked_ability_entity_child_target_buff_uses_proven_caster_input(self) -> None:
+        application = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff.fixture",
+            classification=None,
+            targetSource="Target",
+            targetGroupKey="ignored_for_target",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        self.assertFalse(ability_entity_child_buff_can_compile(application))
+        self.assertTrue(
+            ability_entity_child_buff_can_compile(
+                application,
+                input_target="caster",
+            )
+        )
+        source = compile_buff_application(
+            application,
+            "fixture",
+            root_skill_context=False,
+            current_ability_entity_owner=True,
+            input_target="caster",
+        )
+        self.assertIn("target: 'caster'", source)
+        self.assertNotIn("ignored_for_target", source)
+
+    def test_buff_trigger_starts_hidden_skill_on_each_existing_entity(self) -> None:
+        context_target = target_settings_fixture("Context")
+        context_target["targetGroupKey"] = "bunshin"
+        child = SimpleNamespace(
+            inheritsSourceBlackboard=True,
+            cycleTruncated=False,
+            spawnFrame=0,
+            actionOrder=(14,),
+            abilityEntityId="<existingAbilityEntity>",
+            skillId="hidden_end",
+            sourceFile="hidden_end.json",
+            entityBlackboardAssignments=(),
+            directDamageHits=(),
+            intervalDamageHits=(),
+            explicitFinishes=(
+                SimpleNamespace(
+                    startFrame=1,
+                    actionIndex=2,
+                    sequenceIndex=1,
+                    target=parse_target_reference(target_settings_fixture("Owner"), "finish"),
+                ),
+            ),
+            timelineJumps=(),
+            conditionalActions=(),
+            inflictions=(TimedInflictionSource(0, 0, 1, "heat", False),),
+            auxiliaryActions=(),
+            resourceGains=(),
+            projectileLaunches=(),
+            projectileTriggeredSkills=(),
+            nestedAbilityEntityHits=(),
+            combatActions=("FinishBuffAdvanced", "FinishOwnerAction", "SpellInfliction"),
+            declaredBlackboard=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(
+                BuffFinishSource(
+                    startFrame=0,
+                    endFrame=0,
+                    actionIndex=1,
+                    targetSource="Target",
+                    targetGroupKey="",
+                    buffCheckType="Id",
+                    buffIds=("enemy.listener",),
+                    tagQueryType="hasAny",
+                    buffTagIds=(),
+                    finishAll=True,
+                    limitSource=False,
+                    isFinishedEarly=True,
+                    isAbsorbed=False,
+                ),
+            ),
+            auraActions=(),
+            keywordActions=(),
+            localTargetGroupWrites=(),
+        )
+        skill_cast = SimpleNamespace(
+            actionIndex=14,
+            caster=parse_target_reference(target_settings_fixture("Target"), "caster"),
+            target=parse_target_reference(target_settings_fixture("Owner"), "target"),
+            skillId="hidden_end",
+            skipApplyCost=False,
+            inheritSourceSkillCastId=True,
+        )
+        event = SimpleNamespace(
+            eventSource="buff",
+            event="OnBuffTrigger",
+            forEachActions=(
+                SimpleNamespace(
+                    target=parse_target_reference(context_target, "loop"),
+                    orderedActionTypes=("CastSkill",),
+                    buffApplications=(),
+                    skillCasts=(skill_cast,),
+                ),
+            ),
+            targetGroupWrites=(
+                SimpleNamespace(
+                    targetGroupKey="bunshin",
+                    finderType="OwnerSpawnedEntityFinder",
+                    spawnedObjectType="AbilityEntity",
+                    validatorTypes=("TagValidator", "SkillCastIdValidator"),
+                    postProcessorTypes=(),
+                    center="ActionSource",
+                    selectorOwner="ActionSource",
+                    tagQueries=(("HasAny", (10,)),),
+                ),
+            ),
+        )
+        source = SimpleNamespace(
+            buffId="seal",
+            blackboard=(),
+            eventActions=(event,),
+            invokedAbilityEntitySkills=(child,),
+        )
+
+        with patch(
+            "generate_next_operators.load_ability_entity_template_evidence",
+            return_value={"seal_entity": {"bornTagIds": [10]}},
+        ):
+            compiled = compile_inline_buff_behaviors(
+                source,
+                "seal.eventActions",
+                buff_owner_target="enemy",
+                buff_definitions={},
+                invoked_child_context=(SimpleNamespace(key="combo"), {"tags": ["comboSkill"]}),
+            )
+
+        self.assertIn("sameSourceSkillCast: true", compiled)
+        self.assertIn("abilityEntityIds: ['seal_entity']", compiled)
+        self.assertIn("forEachContextTarget(\n      'bunshin'", compiled)
+        self.assertIn("step('startCurrentAbilityEntityChildSkill'", compiled)
+        self.assertIn("skillId: 'hidden_end'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+
     def test_ability_entity_child_finish_must_be_terminal(self) -> None:
         terminal = SimpleNamespace(
             explicitFinishes=(SimpleNamespace(startFrame=90),),
@@ -9095,6 +9316,372 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 operator,
                 [SimpleNamespace(key="comboSkill")],
             )
+
+    def test_base_passive_skill_ids_are_strict_identity_inputs(self) -> None:
+        self.assertEqual(
+            parse_base_passive_skill_ids(
+                {"slug": "operator", "basePassiveSkillIds": ["operator_passive"]}
+            ),
+            ("operator_passive",),
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate skill id"):
+            parse_base_passive_skill_ids(
+                {"slug": "operator", "basePassiveSkillIds": ["passive", "passive"]}
+            )
+
+    def test_derives_entity_blackboard_initializer_from_passive_buff_start(self) -> None:
+        def mutation(value: int, server_index: int) -> dict:
+            return {
+                "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                "isEnable": True,
+                "priorityLevel": "Default",
+                "priorityOffset": 0,
+                "serverActionIndex": server_index,
+                "key": "EntityBB_wisd_greater_will",
+                "operation": "Assign",
+                "directValue": True,
+                "value": {"useBlackboardKey": False, "value": value, "blackboardKey": ""},
+            }
+
+        condition_target = target_settings_fixture("Owner")
+        actions = parse_ordered_action_sequence(
+            [
+                {
+                    "$type": "Example.IfElseAction+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 0,
+                    "conditionAction": {
+                        "actionData": [
+                            {
+                                "$type": "Example.CompareDeckAttr+Data, Example",
+                                "isEnable": True,
+                                "priorityLevel": "Default",
+                                "priorityOffset": 0,
+                                "serverActionIndex": 1,
+                                "target": condition_target,
+                                "lhsType": "Wisd",
+                                "lhsValue": {
+                                    "useBlackboardKey": False,
+                                    "value": 0,
+                                    "blackboardKey": "",
+                                },
+                                "compare": "GE",
+                                "rhsType": "Will",
+                                "rhsValue": {
+                                    "useBlackboardKey": False,
+                                    "value": 0,
+                                    "blackboardKey": "",
+                                },
+                            }
+                        ]
+                    },
+                    "succeedActions": {"actionData": [mutation(1, 2)]},
+                    "failActions": {"actionData": [mutation(0, 3)]},
+                }
+            ],
+            "passive.OnBuffStart",
+            {},
+        )
+        passive = SimpleNamespace(referenced_buff_ids=("buff_passive",))
+        definition = SimpleNamespace(
+            buffId="buff_passive",
+            eventActions=(
+                SimpleNamespace(
+                    eventSource="buff",
+                    event="OnBuffStart",
+                    sequences=(SimpleNamespace(actions=actions),),
+                ),
+            ),
+        )
+
+        self.assertEqual(
+            derive_entity_blackboard_initializers({"passive": passive}, (definition,)),
+            [
+                {
+                    "key": "EntityBB_wisd_greater_will",
+                    "condition": {
+                        "kind": "deckAttributeCompare",
+                        "left": "intellect",
+                        "operator": "greaterOrEqual",
+                        "right": "will",
+                    },
+                    "trueValue": 1,
+                    "falseValue": 0,
+                }
+            ],
+        )
+
+    def test_buff_skill_replacement_keeps_stable_slot_and_revert_identity(self) -> None:
+        buff = {
+            "buffEventAction": [
+                {
+                    "buffEvent": "DuringBuffEnable",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    "$type": "Example.ChangeSkillAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 6,
+                                    "skillSource": target_settings_fixture("Source"),
+                                    "skillSlot": "UltimateSkill",
+                                    "targetSkillId": "ultimate_stage_2",
+                                    "overrideCacheTime": False,
+                                    "cacheTime": {
+                                        "useBlackboardKey": False,
+                                        "value": 0.1,
+                                        "blackboardKey": "",
+                                    },
+                                    "lifeTimeType": "FinishByAction",
+                                    "duration": {
+                                        "useBlackboardKey": False,
+                                        "value": 10,
+                                        "blackboardKey": "",
+                                    },
+                                    "inheritOriginSkillCdProgress": False,
+                                    "specificRevertedSkillId": True,
+                                    "revertedSkillId": "ultimate_stage_1",
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ],
+            "abilityEventAction": [],
+        }
+
+        replacements = parse_buff_skill_replacements(buff, "buff", {})
+
+        self.assertEqual(len(replacements), 1)
+        self.assertEqual(
+            (
+                replacements[0].event,
+                replacements[0].skillSlot,
+                replacements[0].targetSkillId,
+                replacements[0].revertedSkillId,
+                replacements[0].lifeTimeType,
+            ),
+            (
+                "DuringBuffEnable",
+                "UltimateSkill",
+                "ultimate_stage_2",
+                "ultimate_stage_1",
+                "FinishByAction",
+            ),
+        )
+
+        timed = parse_timed_skill_replacements(
+            {
+                "actionGroupData": {
+                    "timelineActions": [
+                        {
+                            "_startFrame": 0,
+                            "_endFrame": 3,
+                            "_sequenceActionData": buff["buffEventAction"][0]["actions"][0],
+                        }
+                    ]
+                }
+            },
+            "skill",
+            {},
+        )
+        self.assertEqual(len(timed), 1)
+        self.assertEqual((timed[0].startFrame, timed[0].endFrame), (0, 3))
+
+        source = SimpleNamespace(targetSource="Source", targetGroupKey="")
+        base = SimpleNamespace(
+            key="ultimate",
+            skillId="ultimate_stage_1",
+            skillType="ultimate",
+            referencedBuffIds=("replacement_buff",),
+            skillReplacements=(),
+        )
+        revert = replace(
+            timed[0],
+            targetSkillId="ultimate_stage_1",
+            lifeTimeType="Infinite",
+            specificRevertedSkillId=False,
+            revertedSkillId="",
+        )
+        stage2 = SimpleNamespace(
+            key="arcana",
+            skillId="ultimate_stage_2",
+            skillType="ultimate",
+            referencedBuffIds=(),
+            skillReplacements=(revert,),
+        )
+        replacement = SimpleNamespace(
+            eventSource="buff",
+            event="DuringBuffEnable",
+            skillSource=source,
+            revertedSkillId="ultimate_stage_1",
+            specificRevertedSkillId=True,
+            lifeTimeType="FinishByAction",
+            targetSkillId="ultimate_stage_2",
+            skillSlot="UltimateSkill",
+            actionIndex=6,
+            inheritOriginSkillCooldownProgress=False,
+        )
+        definition = SimpleNamespace(
+            buffId="replacement_buff", skillReplacements=(replacement,)
+        )
+
+        self.assertEqual(
+            derive_skill_slot_replacement_relations([base, stage2], (definition,)),
+            [
+                {
+                    "skillSlot": "UltimateSkill",
+                    "baseSkillKey": "ultimate",
+                    "replacementSkillKey": "arcana",
+                    "activatedByBuffId": "replacement_buff",
+                    "activationEvent": "DuringBuffEnable",
+                    "activationActionIndex": 6,
+                    "revertOnReplacementCastFrame": 0,
+                    "revertActionIndex": 6,
+                    "inheritOriginSkillCooldownProgress": False,
+                }
+            ],
+        )
+
+    def test_proven_skill_replacement_renders_runtime_steps_and_group_shape(self) -> None:
+        relation = {
+            "skillSlot": "UltimateSkill",
+            "baseSkillKey": "ultimate",
+            "replacementSkillKey": "arcana",
+            "activatedByBuffId": "replacement_buff",
+            "activationEvent": "DuringBuffEnable",
+            "activationActionIndex": 6,
+            "revertOnReplacementCastFrame": 0,
+            "revertActionIndex": 62,
+            "inheritOriginSkillCooldownProgress": False,
+        }
+
+        def skill_fixture(key: str, skill_id: str, **fields: object) -> SimpleNamespace:
+            values = dict(
+                key=key,
+                skillId=skill_id,
+                skillType="ultimate",
+                timelineBlockFrames=20,
+                patch=SimpleNamespace(
+                    cooldownSeconds=(10,) * 12,
+                    costTypes=(0,) * 12,
+                    costValues=(100,) * 12,
+                ),
+                costFrame=0,
+                auxiliaryActions=(),
+                resourceGains=(),
+                inflictions=(),
+                projectileLaunches=(),
+                conditionalActions=(),
+                blackboardCalculations=(),
+                blackboardMutations=(),
+                buffBlackboardReads=(),
+                buffFinishes=(),
+                buffHolds=(),
+                unresolvedCombatActions=(),
+                directDamageHits=(),
+                projectileTriggeredSkills=(),
+                abilityEntityHits=(),
+                skillReplacements=(),
+            )
+            values.update(fields)
+            return SimpleNamespace(**values)
+
+        activation = AuxiliaryActionSource(
+            startFrame=47,
+            endFrame=47,
+            actionIndex=12,
+            actionType="CreateBuffAction",
+            sourceId="replacement_buff",
+            classification=None,
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+        revert = SimpleNamespace(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=62,
+            sequenceIndex=3,
+        )
+        base = skill_fixture(
+            "ultimate",
+            "ultimate_stage_1",
+            auxiliaryActions=(activation,),
+            unresolvedCombatActions=("CreateBuffAction",),
+        )
+        replacement = skill_fixture(
+            "arcana",
+            "ultimate_stage_2",
+            skillReplacements=(revert,),
+        )
+
+        compiled_base = compile_resolved_sequence(
+            base,
+            {},
+            require_damage=False,
+            skill_slot_replacement_relations=(relation,),
+        )
+        compiled_replacement = compile_resolved_sequence(
+            replacement,
+            {},
+            require_damage=False,
+            skill_slot_replacement_relations=(relation,),
+        )
+
+        self.assertIn("buffId: 'replacement_buff'", compiled_base)
+        self.assertIn("targetSkillKey: 'arcana'", compiled_base)
+        self.assertIn("scheduled(\n        0,", compiled_replacement)
+        self.assertIn("targetSkillKey: 'ultimate'", compiled_replacement)
+        self.assertEqual(
+            render_skill_groups(
+                {
+                    "slug": "fixture",
+                    "skillGroups": [
+                        {
+                            "key": "ultimate",
+                            "skillType": "ultimate",
+                            "levelSource": "ultimate",
+                            "skillKeys": ["ultimate", "arcana"],
+                        }
+                    ],
+                },
+                [base, replacement],
+                (relation,),
+            ),
+            [
+                "{ key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', "
+                "skills: fixtureUltimate, replacementSkills: [fixtureArcana] }"
+            ],
+        )
+
+        self.assertEqual(
+            select_runtime_skill_slot_replacement_relations(
+                {
+                    "slug": "fixture",
+                    "runtimeReplacementSkillKeys": ["arcana"],
+                },
+                [base, replacement],
+                [relation],
+            ),
+            [relation],
+        )
+        self.assertEqual(
+            select_runtime_skill_slot_replacement_relations(
+                {"slug": "fixture"},
+                [base, replacement],
+                [relation],
+            ),
+            [],
+        )
 
     def test_if_else_with_identical_combat_branches_is_folded_once(self) -> None:
         spawn = lambda server_index: {
@@ -10494,7 +11081,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("sameSourceSkillCast: true", result)
         self.assertIn("saveToContextKey: 'bunshin'", result)
 
-    def test_buff_event_ordered_tree_keeps_target_write_and_requires_interrupt_provenance(self) -> None:
+    def test_buff_event_ordered_tree_keeps_interrupt_provenance_but_compiles_it_as_no_effect(self) -> None:
         target_write = {
             "$type": "Example.FindTargetAction+Data, Example",
             "serverActionIndex": 3,
@@ -10564,6 +11151,183 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             compile_conditional_branch_action(inner.succeedActions[1], "buff-listener"),
             "sequence()",
         )
+
+    def test_buff_event_finish_queries_bind_owner_and_current_environment(self) -> None:
+        owner_finish = ConditionalBranchActionSource(
+            actionType="FinishBuffAdvanced",
+            actionIndex=0,
+            buffFinish=BuffFinishPayload(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Id",
+                buffIds=("seal", "seal-effect"),
+                tagQueryType="hasAny",
+                buffTagIds=(),
+                finishAll=True,
+                limitSource=False,
+                isFinishedEarly=True,
+                isAbsorbed=False,
+            ),
+        )
+        environment_finish = ConditionalBranchActionSource(
+            actionType="FinishBuffAdvanced",
+            actionIndex=1,
+            buffFinish=BuffFinishPayload(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Environment",
+                buffIds=(),
+                tagQueryType="hasAny",
+                buffTagIds=(),
+                finishAll=True,
+                limitSource=False,
+                isFinishedEarly=True,
+                isAbsorbed=False,
+            ),
+        )
+        event = SimpleNamespace(
+            eventSource="ability",
+            event="OnBeforeTakeDamage",
+            damageUnits=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("FinishBuffAdvanced", "FinishBuffAdvanced"),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(owner_finish, environment_finish),
+                    priority=7,
+                ),
+            ),
+        )
+        source = SimpleNamespace(
+            buffId="listener",
+            blackboard=(),
+            eventActions=(event,),
+        )
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "listener.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={},
+        )
+
+        self.assertIn("event: 'beforeTakeDamage'", compiled)
+        self.assertIn("priority: 7", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("buffIds: ['seal', 'seal-effect']", compiled)
+        self.assertIn("step('finishCurrentBuff', { reason: 'early' })", compiled)
+
+    def test_buff_local_timeline_compiles_on_instance_frames(self) -> None:
+        calculation = SimpleNamespace(
+            startFrame=2,
+            endFrame=3,
+            actionIndex=7,
+            sequenceIndex=1,
+            key="duration_effect",
+            operation="Add",
+            left=ScalarSource(0, "duration", None),
+            right=ScalarSource(-0.2, None, None),
+        )
+        source = SimpleNamespace(
+            buffId="controller",
+            blackboard=(),
+            auxiliaryActions=(),
+            blackboardCalculations=(calculation,),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            resourceGains=(),
+            conditionalActions=(),
+            directDamageHits=(),
+            targetGroupWrites=(),
+            combatActions=("SimpleCalcBBAction",),
+        )
+
+        compiled = compile_inline_buff_scheduled_sequences(
+            source,
+            "controller.scheduledSequences",
+            buff_owner_target="caster",
+            buff_definitions={},
+        )
+
+        self.assertIn("scheduledSequences: [", compiled)
+        self.assertIn("scheduled(\n    2,", compiled)
+        self.assertIn("step('calculateActionValue'", compiled)
+        self.assertIn("key: 'duration_effect'", compiled)
+
+    def test_context_target_identity_uses_explicit_prior_enemy_write(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckTargetsEqual",
+            targetIdentity=SimpleNamespace(
+                first=parse_target_reference(target_settings_fixture("Target"), "first"),
+                second=parse_target_reference(
+                    target_settings_fixture("Context", target_group_key="trigger"),
+                    "second",
+                ),
+            ),
+        )
+        action = SimpleNamespace(
+            startFrame=2,
+            actionIndex=3,
+            actionPath=("timelineActions[0]", "_sequenceActionData", "actionData", "[0]"),
+        )
+        write = TargetGroupWriteSource(
+            startFrame=-1,
+            endFrame=-1,
+            actionIndex=-1,
+            actionPath=(),
+            targetGroupKey="trigger",
+            producerType="FindTargetAction",
+            finderType="MainTargetFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+
+        self.assertEqual(
+            compile_combat_condition(
+                condition,
+                "controller.identity",
+                action=action,
+                target_group_writes=(write,),
+            ),
+            "{ kind: 'singleEnemyPresent' }",
+        )
+
+    def test_ability_entity_time_dilated_marker_uses_entity_local_clock(self) -> None:
+        payload = TimedMarkerApplicationPayload(
+            targetSource="Owner",
+            targetGroupKey="",
+            markerId="lizhiyan_bunshin_end",
+            duration=ScalarSource(1.0, None, None),
+            autoFinishByAction=False,
+            useTimeDilationDt=True,
+        )
+
+        compiled = compile_timed_marker_application(
+            payload,
+            "abilityentity_end.marker",
+            root_skill_context=False,
+            input_target="enemy",
+            ability_entity_current_target=True,
+        )
+
+        self.assertIn("step('createAbilityEntityTimedMarker'", compiled)
+        self.assertIn("markerId: 'lizhiyan_bunshin_end'", compiled)
+        with self.assertRaisesRegex(ValueError, "unsupported time-dilated timed marker target"):
+            compile_timed_marker_application(
+                payload,
+                "root.marker",
+                root_skill_context=True,
+                input_target="enemy",
+            )
 
 
 if __name__ == "__main__":

@@ -37,6 +37,7 @@ from action_payload_parser import (
 )
 from source_models import (
     AbilityEntityDurationConditionSource,
+    BlackboardCalculationPayload,
     BuffIdInContextConditionSource,
     BuffStackConditionSource,
     ConditionSource,
@@ -44,6 +45,7 @@ from source_models import (
     ConditionalBranchActionSource,
     ConditionalTimeDilationActionSource,
     DamageDecorateMaskConditionSource,
+    DeckAttributeCompareConditionSource,
     DistanceConditionSource,
     DoOnceActionSource,
     EntityCountConditionSource,
@@ -54,6 +56,7 @@ from source_models import (
     HealthConditionSource,
     MainOperatorConditionSource,
     SequenceGuardActionSource,
+    ScalarSource,
     SkillHasHitConditionSource,
     SwitchActionSource,
     TargetIdentityConditionSource,
@@ -237,6 +240,46 @@ def parse_conditional_actions(
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
         condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "CompareDeckAttr":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "target", "lhsType", "lhsValue",
+                "compare", "rhsType", "rhsValue",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            target = parse_target_reference(condition.get("target"), f"{path}.target")
+            left_attribute = condition.get("lhsType")
+            right_attribute = condition.get("rhsType")
+            comparison = condition.get("compare")
+            if not isinstance(left_attribute, str) or not left_attribute:
+                raise ValueError(f"{path}.lhsType: expected non-empty string")
+            if not isinstance(right_attribute, str) or not right_attribute:
+                raise ValueError(f"{path}.rhsType: expected non-empty string")
+            if not isinstance(comparison, str) or not comparison:
+                raise ValueError(f"{path}.compare: expected non-empty string")
+            return ConditionSource(
+                sourceType=condition_type,
+                # 能否归约为构筑初值还需要由消费方严格检查目标、属性枚举和偏移量。
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                deckAttributeCompare=DeckAttributeCompareConditionSource(
+                    targetSource=target.targetSource,
+                    targetGroupKey=target.targetGroupKey,
+                    leftAttribute=left_attribute,
+                    leftValue=parse_scalar(
+                        condition.get("lhsValue"), f"{path}.lhsValue", inherited_blackboard
+                    ),
+                    comparison=comparison,
+                    rightAttribute=right_attribute,
+                    rightValue=parse_scalar(
+                        condition.get("rhsValue"), f"{path}.rhsValue", inherited_blackboard
+                    ),
+                ),
+            )
         if condition_type == "CheckAbilityEntityCurDuration":
             expected_fields = {
                 "$type", "isEnable", "priorityLevel", "priorityOffset",
@@ -949,6 +992,53 @@ def parse_conditional_actions(
                     mutation = parse_blackboard_mutation_payload(
                         action, source_path, inherited_blackboard
                     )
+                elif action_type == "StoreAttributeValue":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "targetSettings", "primaryAttributeType",
+                        "attributeType", "storeAttributeType", "useFloor", "divisorValue",
+                        "multiplierValue", "baseValue", "key",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected StoreAttributeValue fields {sorted(action)}"
+                        )
+                    target = parse_target_reference(action.get("targetSettings"), source_path)
+                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will"}.get(
+                        action.get("attributeType")
+                    )
+                    divisor = parse_scalar(action.get("divisorValue"), source_path, inherited_blackboard)
+                    base = parse_scalar(action.get("baseValue"), source_path, inherited_blackboard)
+                    output_key = action.get("key")
+                    supported_store_shape = (
+                        target.targetSource == "Source"
+                        and not target.targetGroupKey
+                        and not target.validatorTypes
+                        and not target.postProcessorTypes
+                        and action.get("primaryAttributeType") == "Specific"
+                        and attribute_key is not None
+                        # Next 当前只把构筑期已解析面板放入共享动作黑板；没有
+                        # 运行时四维 converted 修正。因此 BaseNonConverted 与
+                        # FinalNonConverted 在这个边界都投影为同一静态面板值。
+                        and action.get("storeAttributeType")
+                        in {"BaseNonConverted", "FinalNonConverted"}
+                        and action.get("useFloor") is False
+                        and divisor.blackboardKey is None
+                        and divisor.value == 1
+                        and base.blackboardKey is None
+                        and base.value == 0
+                        and isinstance(output_key, str)
+                        and output_key
+                    )
+                    if supported_store_shape:
+                        calculation = BlackboardCalculationPayload(
+                            key=output_key,
+                            operation="Multiply",
+                            left=ScalarSource(0, attribute_key, None),
+                            right=parse_scalar(
+                                action.get("multiplierValue"), source_path, inherited_blackboard
+                            ),
+                        )
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)
                 elif action_type == "FinishBuffAdvanced":

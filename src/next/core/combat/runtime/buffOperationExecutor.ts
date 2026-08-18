@@ -193,16 +193,25 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'finishBuffsByTag') {
-      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const target = this.#resolveSingleTarget(step.parameters.target, context);
       const tags = step.parameters.buffTagIds.map(gameplayTagId);
       target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
       return true;
     }
 
     if (step.kind === 'finishBuffsById') {
-      this.dependencies
-        .resolveTarget(step.parameters.target)
-        .finishByIds(step.parameters.buffIds, step.parameters.reason);
+      this.#resolveSingleTarget(step.parameters.target, context).finishByIds(
+        step.parameters.buffIds,
+        step.parameters.reason,
+      );
+      return true;
+    }
+
+    if (step.kind === 'finishCurrentBuff') {
+      if (context?.finishCurrentBuff === undefined) {
+        throw new Error('finishCurrentBuff requires a Buff operation context');
+      }
+      context.finishCurrentBuff(step.parameters.reason);
       return true;
     }
 
@@ -295,5 +304,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
+  }
+
+  #resolveSingleTarget(
+    target: CombatTarget | 'currentAbilityEntity',
+    context: Parameters<CombatOperationExecutor['execute']>[1],
+  ): BuffOperationTarget {
+    if (target !== 'currentAbilityEntity') return this.dependencies.resolveTarget(target);
+    if (context?.currentTarget?.kind !== 'abilityEntity') {
+      throw new Error(
+        'currentAbilityEntity Buff operation requires a current AbilityEntity target',
+      );
+    }
+    const resolve = this.dependencies.resolveCurrentAbilityEntityTarget;
+    if (resolve === undefined) {
+      throw new Error('currentAbilityEntity Buff operation runtime is not configured');
+    }
+    return resolve(context.currentTarget);
   }
 }

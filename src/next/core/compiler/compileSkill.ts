@@ -106,6 +106,18 @@ function resolveStep(
     case 'finishCurrentAbilityEntity':
     case 'finishCurrentAbilityEntityWhenSourceDies':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'startCurrentAbilityEntityChildSkill':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          childSkill: compileAbilityEntityChildSkill(
+            step.parameters.childSkill,
+            skillLevel,
+            `${path}.parameters.childSkill`,
+          ),
+        },
+      };
     case 'jumpTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
@@ -353,9 +365,13 @@ function resolveStep(
       };
     case 'finishBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'finishCurrentBuff':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'holdBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createTimedMarker':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'createAbilityEntityTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startTimeDilation':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -425,6 +441,7 @@ function resolveStep(
     case 'consumeStatus':
     case 'setContextFlag':
     case 'openComboWindow':
+    case 'changeSkillSlot':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
     case 'listenForCombatEvents':
       return {
@@ -451,9 +468,22 @@ function resolveSkillBuffDefinition(
   skillLevel: number,
   path: string,
 ): ResolvedSkillBuffDefinition {
-  const { lifecycleSequences, abilityEventResponses, ...fields } = definition;
+  const { scheduledSequences, lifecycleSequences, abilityEventResponses, ...fields } = definition;
   return {
     ...fields,
+    ...(scheduledSequences === undefined
+      ? {}
+      : {
+          scheduledSequences: scheduledSequences.map((scheduled, index) => ({
+            startFrame: scheduled.startFrame,
+            ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
+            sequence: compileActionSequence(
+              scheduled.sequence,
+              skillLevel,
+              `${path}.scheduledSequences[${index}].sequence`,
+            ),
+          })),
+        }),
     ...(lifecycleSequences === undefined
       ? {}
       : {

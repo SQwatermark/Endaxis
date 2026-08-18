@@ -123,6 +123,23 @@ describe('compileSkill', () => {
                   target: 'caster',
                   definition: {
                     stackingType: 'unique',
+                    scheduledSequences: [
+                      {
+                        startFrame: 2,
+                        sequence: {
+                          steps: [
+                            {
+                              kind: 'dealDamage',
+                              parameters: {
+                                damageType: 'nature',
+                                attackScale: [5, 6],
+                                tags: ['comboSkill'],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                     lifecycleSequences: {
                       start: {
                         steps: [
@@ -175,6 +192,12 @@ describe('compileSkill', () => {
     expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
       parameters: {
         definition: {
+          scheduledSequences: [
+            {
+              startFrame: 2,
+              sequence: { steps: [{ parameters: { attackScale: 6 } }] },
+            },
+          ],
           lifecycleSequences: {
             start: { steps: [{ parameters: { attackScale: 2 } }] },
           },

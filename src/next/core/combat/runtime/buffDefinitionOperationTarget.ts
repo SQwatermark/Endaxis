@@ -92,12 +92,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
     // 显示信息随技能定义保存，但不进入战斗运行时。
     const {
       presentation: _presentation,
+      scheduledSequences,
       lifecycleSequences,
       abilityEventResponses,
       ...runtimeDefinition
     } = source;
     if (
-      (lifecycleSequences !== undefined || abilityEventResponses !== undefined) &&
+      (scheduledSequences !== undefined ||
+        lifecycleSequences !== undefined ||
+        abilityEventResponses !== undefined) &&
       this.#resolveLifecycleOperations === null
     ) {
       throw new Error(
@@ -105,6 +108,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       );
     }
     if (
+      scheduledSequences === undefined &&
       lifecycleSequences === undefined &&
       abilityEventResponses === undefined &&
       this.definitions.compile === undefined
@@ -121,7 +125,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
     const entry: CombatBuffDefinitionEntry = { id, ...runtimeDefinition };
     const baseDefinition = this.definitions.compile(entry);
     const definition =
-      lifecycleSequences === undefined && abilityEventResponses === undefined
+      scheduledSequences === undefined &&
+      lifecycleSequences === undefined &&
+      abilityEventResponses === undefined
         ? baseDefinition
         : attachBuffLifecycleSequences(
             baseDefinition,
@@ -130,6 +136,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             this.currentTarget,
             abilityEventResponses,
             this.registerAbilityEventAction,
+            scheduledSequences,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

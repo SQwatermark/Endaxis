@@ -3,12 +3,21 @@
  * 每个 Buff 实例独占动作黑板和 once 状态；调用方仍需提供完整战斗操作链。
  */
 import type {
+  CompiledTimelineAction,
   ResolvedActionSequence,
   ResolvedSkillBuffAbilityEventResponse,
   ResolvedSkillBuffLifecycleSequences,
 } from '../../compiler/combatProgram';
-import type { BuffLifecycleActions, CombatBuff, CombatBuffDefinition } from '../buffs/combatBuffs';
+import type {
+  BuffDuringEnableAction,
+  BuffLifecycleActions,
+  CombatBuff,
+  CombatBuffDefinition,
+} from '../buffs/combatBuffs';
+import type { CombatExecutionContext } from '../actions/combatStep';
+import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
+import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { RuntimeTargetContext } from './runtimeTargetContext';
@@ -22,6 +31,57 @@ export type RegisterBuffAbilityEventAction = (
   handle: (payload: unknown) => void,
 ) => AbilityEventRegistration;
 
+class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
+  readonly #context: CombatExecutionContext = {};
+  readonly #actions: readonly CompiledTimelineAction[];
+  readonly #runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime;
+  #timeline: TimelineActionProcessor | null = null;
+  #passedFrames = 0;
+
+  constructor(
+    actions: readonly CompiledTimelineAction[],
+    runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime,
+  ) {
+    this.#actions = actions;
+    this.#runtimeFor = runtimeFor;
+  }
+
+  createRuntimeInstance(): BuffDuringEnableAction<Key> {
+    return new BuffScheduledSequenceAction(this.#actions, this.#runtimeFor);
+  }
+
+  tryExecute(buff: CombatBuff<Key>): boolean {
+    if (this.#timeline !== null) throw new Error(`Buff '${buff.definition.id}' timeline is active`);
+    const runtime = this.#runtimeFor(buff);
+    this.#timeline = new TimelineActionProcessor(
+      this.#actions.map(action => ({
+        startFrame: action.startFrame,
+        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
+        sequence: runtime.createSequence(action.sequence),
+      })),
+    );
+    this.#passedFrames = 0;
+    this.#timeline.reset(this.#context);
+    this.#timeline.tick(0, 0, this.#context);
+    return true;
+  }
+
+  tick(deltaTime: number): void {
+    if (this.#timeline === null || this.#timeline.isComplete) return;
+    this.#passedFrames += deltaTime * COMBAT_FRAMES_PER_SECOND;
+    this.#timeline.tick(this.#passedFrames, deltaTime, this.#context);
+  }
+
+  end(): void {
+    this.#timeline?.end(this.#passedFrames, this.#context);
+  }
+
+  reset(): void {
+    this.#timeline = null;
+    this.#passedFrames = 0;
+  }
+}
+
 /** 为一份已编译 Buff 定义安装同步生命周期序列。 */
 export function attachBuffLifecycleSequences<Key extends string>(
   definition: CombatBuffDefinition<Key>,
@@ -30,6 +90,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   currentTarget?: RuntimeTargetRef,
   abilityEventResponses: readonly ResolvedSkillBuffAbilityEventResponse[] = [],
   registerAbilityEventAction?: RegisterBuffAbilityEventAction,
+  scheduledSequences: readonly CompiledTimelineAction[] = [],
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -48,6 +109,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ...(currentTarget === undefined ? {} : { currentTarget }),
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
+      finishCurrentBuff: reason => buff.finish(reason),
     };
     runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);
     runtimes.set(buff, runtime);
@@ -92,6 +154,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
     eventRegistrations.set(buff, registrations);
   };
   const actions: BuffLifecycleActions<Key> = {
+    ...(scheduledSequences.length === 0
+      ? {}
+      : {
+          duringEnable: new BuffScheduledSequenceAction(scheduledSequences, runtimeFor),
+        }),
     ...(sequences.start === undefined ? {} : { start: buff => execute(sequences.start, buff) }),
     ...(sequences.enable === undefined && abilityEventResponses.length === 0
       ? {}

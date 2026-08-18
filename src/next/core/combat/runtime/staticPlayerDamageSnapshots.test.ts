@@ -11,6 +11,11 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createOperatorAttackAttributes } from '../attributes/operatorAttackAttributes';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  attributeModifierValues,
+  CombatAttributeModifier,
+} from '../attributes/combatAttributes';
 
 const enemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
@@ -159,6 +164,26 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       electricDamageIncrease: 0.09,
       cryoDamageIncrease: 0.1,
     });
+  });
+
+  it('把运行时 Buff 的伤害属性修正叠加到静态构筑增伤', () => {
+    const attributes = createOperatorAttackAttributes(panel);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'electricDamageIncrease',
+        attributeModifierValues('baseAddition', 0.12),
+        ATTRIBUTE_MODIFIER_SOURCES.converted,
+        'runtime',
+      ),
+    );
+
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext(),
+      electricDamage,
+      attributes,
+    );
+
+    expect(snapshots.attacker.electricDamageIncrease).toBeCloseTo(0.32);
   });
 
   it('缺少已解析面板时明确失败', () => {

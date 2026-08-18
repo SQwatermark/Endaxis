@@ -21,6 +21,7 @@ const props = defineProps<{
   disabled?: boolean;
   locked?: boolean;
   edited?: boolean;
+  moving?: boolean;
   color?: string | null;
   connectionToolEnabled?: boolean;
   /** 合法性诊断归约到该技能块的警告标记。 */
@@ -29,9 +30,9 @@ const props = defineProps<{
   hits?: readonly TimelineHitMarkerView[];
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [event: MouseEvent];
-  dragstart: [event: DragEvent];
+  movePointerDown: [event: PointerEvent];
   contextmenu: [event: MouseEvent];
   connectionPointerDown: [event: PointerEvent, port: TimelineConnectionPort];
   hitClick: [hitId: string];
@@ -44,6 +45,11 @@ const blockStyle = computed(() => ({
   width: `${Math.max(1, props.width)}px`,
   ...(props.color ? { '--action-accent': props.color } : {}),
 }));
+
+function beginMove(event: PointerEvent): void {
+  if (props.locked || props.connectionToolEnabled) return;
+  emit('movePointerDown', event);
+}
 
 function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   const width = Math.max(1, props.width);
@@ -61,15 +67,16 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       'is-selected': selected,
       'is-disabled': disabled,
       'is-locked': locked,
+      'is-moving': moving,
       'is-connection-tool': connectionToolEnabled,
     }"
     :data-skill-type="skillType"
     :style="blockStyle"
     :title="label"
-    :draggable="!locked && !connectionToolEnabled"
+    :draggable="false"
+    @pointerdown="beginMove"
     @click.stop="$emit('select', $event)"
     @contextmenu.prevent.stop="$emit('contextmenu', $event)"
-    @dragstart="$emit('dragstart', $event)"
   >
     <span class="action-label">{{ label }}</span>
     <span
@@ -81,6 +88,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       :data-connection-action-id="actionId"
       :data-connection-port="`hit:${hit.hitId}`"
       draggable="false"
+      @pointerdown.stop
       @mousedown.stop.prevent
       @click.stop="$emit('hitClick', hit.hitId)"
     ></span>
@@ -139,6 +147,13 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   border: 2px dashed var(--ea-action-selected, #fff);
   box-shadow: 0 0 10px color-mix(in srgb, var(--action-accent) 50%, transparent);
   z-index: 2;
+}
+
+.timeline-action-block.is-moving {
+  z-index: 4;
+  cursor: grabbing;
+  filter: brightness(1.25);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--action-accent) 65%, transparent);
 }
 
 .timeline-action-block.is-disabled {

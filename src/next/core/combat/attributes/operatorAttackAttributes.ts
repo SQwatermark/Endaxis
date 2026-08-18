@@ -8,6 +8,10 @@ import {
   SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
 } from '../../game-data/battleConstants';
 import { CombatAttributeSet } from './combatAttributes';
+import {
+  DAMAGE_SCALE_ATTRIBUTE_KEYS,
+  type DamageScaleAttributeKey,
+} from '../damage/damageScaleAttributes';
 
 export const ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE = {
   strength: 'AtkIncreaseFactorFromStr',
@@ -18,7 +22,8 @@ export const ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE = {
 
 export type AttackFactorAttribute =
   (typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[OperatorAttribute];
-export type OperatorRuntimeAttribute = OperatorAttribute | AttackFactorAttribute;
+export type OperatorRuntimeAttribute =
+  OperatorAttribute | AttackFactorAttribute | DamageScaleAttributeKey;
 
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
@@ -41,6 +46,9 @@ export function createOperatorAttackAttributes(
     if (input.mainAttribute === attribute) baseFactor += MAIN_ATTRIBUTE_ATTACK_FACTOR;
     if (input.secondaryAttribute === attribute) baseFactor += SECONDARY_ATTRIBUTE_ATTACK_FACTOR;
     result.define(factorAttribute, 0, { otherAttributeBaseAddition: baseFactor });
+  }
+  for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) {
+    result.define(attribute, 0, {});
   }
   return result;
 }

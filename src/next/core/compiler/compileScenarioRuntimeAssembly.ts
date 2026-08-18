@@ -26,6 +26,9 @@ import { compileScenarioEnemy } from './compileScenarioEnemy';
 import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 import { resolveControlTimeline } from '../project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../combat/runtime/operatorControlTimeline';
+import { compareCombatNumbers } from '../combat/runtime/numericComparison';
+import type { OperatorDefinition } from '../game-data/operatorDefinition';
+import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
 
 type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'>;
 
@@ -56,6 +59,45 @@ export interface CompileScenarioRuntimeAssemblyOptions {
   readonly environment: CombatRuntimeEnvironmentOptions;
   /** 以 `OperatorInstanceDocument.id` 为键，不接受未上场干员。 */
   readonly operatorRuntimeBindings?: ReadonlyMap<string, CombatOperatorRuntimeBindings>;
+}
+
+export function compileOperatorEntityBlackboardInitialValues(
+  operator: OperatorDefinition,
+  panel: ResolvedOperatorPanel,
+): Readonly<Record<string, number>> {
+  const initializers = operator.entityBlackboardInitializers ?? [];
+  const values: Record<string, number> = {
+    strength: Math.fround(panel.attributes.strength),
+    agility: Math.fround(panel.attributes.agility),
+    intellect: Math.fround(panel.attributes.intellect),
+    will: Math.fround(panel.attributes.will),
+  };
+  for (const [index, initializer] of initializers.entries()) {
+    if (!initializer.key.startsWith('EntityBB_') || initializer.key.length === 9) {
+      throw new Error(
+        `operator '${operator.slug}'.entityBlackboardInitializers[${index}].key must be a non-empty EntityBB_ key`,
+      );
+    }
+    if (initializer.key in values) {
+      throw new Error(
+        `operator '${operator.slug}' duplicates entity blackboard initializer '${initializer.key}'`,
+      );
+    }
+    const condition = initializer.condition;
+    const matched = compareCombatNumbers(
+      panel.attributes[condition.left],
+      panel.attributes[condition.right],
+      condition.operator,
+    );
+    const value = matched ? initializer.trueValue : initializer.falseValue;
+    if (!Number.isFinite(value)) {
+      throw new TypeError(
+        `operator '${operator.slug}'.entityBlackboardInitializers[${index}] resolved a non-finite value`,
+      );
+    }
+    values[initializer.key] = Math.fround(value);
+  }
+  return values;
 }
 
 function bindOperatorRuntimes(
@@ -118,17 +160,25 @@ export function compileScenarioRuntimeAssembly(
     ),
   });
   const operators = bindOperatorRuntimes(
-    timeline.operators.map(operator => ({
-      ...operator,
-      panel: panels.get(operator.operatorId),
-      equipmentContributions: equipment.get(operator.operatorId) ?? [],
-    })),
+    timeline.operators.map(operator => {
+      const build = builds.find(candidate => candidate.track.id === operator.operatorId);
+      const panel = panels.get(operator.operatorId);
+      if (build === undefined || panel === undefined) {
+        throw new Error(`timeline operator '${operator.operatorId}' has no resolved build panel`);
+      }
+      return {
+        ...operator,
+        panel,
+        initialEntityBlackboard: compileOperatorEntityBlackboardInitialValues(
+          build.operator,
+          panel,
+        ),
+        equipmentContributions: equipment.get(operator.operatorId) ?? [],
+      };
+    }),
     options.operatorRuntimeBindings,
   );
-  const controlTimeline = resolveControlTimeline(
-    scenario.tracks,
-    scenario.battle.controlSwitches,
-  );
+  const controlTimeline = resolveControlTimeline(scenario.tracks, scenario.battle.controlSwitches);
 
   return {
     ...options.environment,

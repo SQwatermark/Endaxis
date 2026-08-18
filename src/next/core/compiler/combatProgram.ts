@@ -57,8 +57,9 @@ export type ResolvedSkillBuffAbilityEventResponse = Omit<
 /** 技能等级已经展开、可用于创建 Buff 实例的内联定义。 */
 export type ResolvedSkillBuffDefinition = Omit<
   SkillBuffDefinition,
-  'lifecycleSequences' | 'abilityEventResponses'
+  'scheduledSequences' | 'lifecycleSequences' | 'abilityEventResponses'
 > & {
+  readonly scheduledSequences?: readonly CompiledTimelineAction[];
   readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
   readonly abilityEventResponses?: readonly ResolvedSkillBuffAbilityEventResponse[];
 };
@@ -77,6 +78,9 @@ export interface ResolvedCombatStepParameters {
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
   finishCurrentAbilityEntity: CombatStepParameters['finishCurrentAbilityEntity'];
   finishCurrentAbilityEntityWhenSourceDies: CombatStepParameters['finishCurrentAbilityEntityWhenSourceDies'];
+  startCurrentAbilityEntityChildSkill: {
+    readonly childSkill: CompiledAbilityEntityChildSkillProgram;
+  };
   spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'definition'> & {
     readonly definition: Omit<
       CombatStepParameters['spawnAbilityEntity']['definition'],
@@ -117,8 +121,10 @@ export interface ResolvedCombatStepParameters {
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
+  finishCurrentBuff: CombatStepParameters['finishCurrentBuff'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
   createTimedMarker: CombatStepParameters['createTimedMarker'];
+  createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
@@ -157,6 +163,7 @@ export interface ResolvedCombatStepParameters {
   once: CombatStepParameters['once'];
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
+  changeSkillSlot: CombatStepParameters['changeSkillSlot'];
   listenForCombatEvents: {
     responses: readonly {
       readonly key: string;
@@ -237,6 +244,13 @@ export interface CompiledSkillProgram {
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];
   readonly timelineActions: readonly CompiledTimelineAction[];
+}
+
+/** 一个稳定技能组可在释放之间切换的已编译技能身份。 */
+export interface CompiledSkillSlotGroup {
+  readonly skillGroupKey: string;
+  readonly baseSkillKey: string;
+  readonly replacementSkillKeys: readonly string[];
 }
 
 /** 角色级首段连携入口的单等级编译结果；运行时不得再读取养成配置。 */

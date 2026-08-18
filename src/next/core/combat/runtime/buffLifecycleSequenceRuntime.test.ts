@@ -146,6 +146,56 @@ describe('attachBuffLifecycleSequences', () => {
     expect(reached).toEqual([11, 12]);
   });
 
+  it('按 Buff 实例局部时钟推进时间线，并在停用后从头重新启用', () => {
+    const reached: number[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        reached.push(context!.blackboard.getNumber('instance')!);
+        return true;
+      },
+      evaluate: () => true,
+    };
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    const definition = attachBuffLifecycleSequences<never>(
+      {
+        id: 'scheduled',
+        stackingType: 'unlimited',
+        blackboard: { instance: 0 },
+      },
+      {},
+      () => operations,
+      undefined,
+      [],
+      undefined,
+      [
+        {
+          startFrame: 2,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'reached', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    );
+    const first = container.add(definition, 'source', { blackboardValues: { instance: 1 } })!;
+    container.add(definition, 'source', { blackboardValues: { instance: 2 } });
+
+    container.tick(1 / 30);
+    first.disable();
+    container.tick(1 / 30);
+    expect(reached).toEqual([2]);
+
+    first.enable();
+    container.tick(1 / 30);
+    expect(reached).toEqual([2]);
+    container.tick(1 / 30);
+    expect(reached).toEqual([2, 1]);
+  });
+
   it('只在 Buff 启用期间订阅承伤事件并把伤害属性交给事件条件', () => {
     const reached: string[] = [];
     const terminal: CombatOperationExecutor = {
@@ -229,5 +279,60 @@ describe('attachBuffLifecycleSequences', () => {
     dispatch(['normalSkill']);
 
     expect(reached).toEqual(['abilityDamage', 'abilityDamage']);
+  });
+
+  it('事件响应可以结束正在执行响应的 Buff 并立即注销自身订阅', () => {
+    let executions = 0;
+    const terminal: CombatOperationExecutor = {
+      execute: (step, context) => {
+        if (step.kind !== 'finishCurrentBuff') {
+          throw new Error(`unexpected operation '${step.kind}'`);
+        }
+        executions += 1;
+        return context!.finishCurrentBuff!(step.parameters.reason);
+      },
+      evaluate: condition => {
+        throw new Error(`unexpected condition '${condition.kind}'`);
+      },
+    };
+    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage', unknown>();
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'self-finishing-listener', stackingType: 'unique' },
+      {},
+      () => terminal,
+      undefined,
+      [
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence: {
+            steps: [{ kind: 'finishCurrentBuff', parameters: { reason: 'early' } }],
+          },
+        },
+      ],
+      (event, priority, handle) =>
+        dispatcher.registerAction(event, priority, context => handle(context.payload)),
+    );
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'seal')!;
+    const dispatch = () =>
+      dispatcher.dispatch(
+        {
+          event: 'beforeTakeDamage',
+          payload: {
+            sourceId: 'seal',
+            targetId: 'enemy',
+            tags: ['normalSkill'],
+            features: [],
+          },
+        },
+        [],
+      );
+
+    dispatch();
+    dispatch();
+
+    expect(executions).toBe(1);
+    expect(buff.isFinished).toBe(true);
   });
 });

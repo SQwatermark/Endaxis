@@ -32,7 +32,8 @@
 | `ultimate`            | `ultimate_skill` 与强化状态    | exact  |
 
 因此新版配置把普通和强化技能建模成不同的稳定施放身份，并用 `ultimateEnhancement` 控制可用性。项目存档记录用户实际拖入的
-技能身份，不需要在加载后根据当前状态篡改 `skillKey`。
+技能身份，不需要在加载后根据当前状态篡改 `skillKey`。这些强化技能是编辑器中可直接拖放的独立技能组，不能放进只供同槽位
+运行时形态使用的 `replacementSkills`，也不能自动生成 `changeSkillSlot`。
 
 ## 普攻
 

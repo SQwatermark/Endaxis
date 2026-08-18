@@ -56,7 +56,11 @@
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0015_lifeng_purify",
@@ -113,7 +117,28 @@
       "applyTagIds": [],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -130,14 +155,33 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "VulnerableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0015_lifeng_talent_1",
@@ -224,7 +268,11 @@
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -292,7 +340,11 @@
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -365,14 +417,33 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -449,14 +520,33 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -518,7 +608,11 @@
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "passiveSkills": [
@@ -649,7 +743,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -726,7 +821,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1016,6 +1112,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -1090,7 +1187,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1279,6 +1377,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -1353,7 +1452,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1551,6 +1651,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -1681,7 +1782,8 @@
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1866,7 +1968,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckEntityNum",
@@ -1885,7 +1988,8 @@
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2185,6 +2289,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -2501,6 +2606,7 @@
       ],
       "targetGroupWrites": [],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -2574,7 +2680,8 @@
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2763,6 +2870,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -2970,7 +3078,8 @@
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3497,6 +3606,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3638,7 +3748,8 @@
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3715,7 +3826,8 @@
                       "containsHittableObject": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -4399,6 +4511,7 @@
           "effectAbilityEntityTargets": []
         }
       ],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -4440,7 +4553,8 @@
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4498,7 +4612,8 @@
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4888,7 +5003,8 @@
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [],
@@ -5611,6 +5727,7 @@
           "effectAbilityEntityTargets": []
         }
       ],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "SpawnAbilityEntity"

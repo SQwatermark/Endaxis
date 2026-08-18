@@ -304,6 +304,8 @@
       "exportName": "arcaneGeneratedSource",
       "charId": "chr_0032_lizhiyan",
       "outputStage": "audit",
+      "runtimeReplacementSkillKeys": ["arcana"],
+      "basePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
       "skills": [
         {
           "key": "comboSkill",
@@ -539,7 +541,8 @@
           "source": "chr_0007_ikut_normal_skill.json",
           "compile": {
             "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
+            "tags": ["normalSkill"],
+            "ignoreBuffIds": ["buff_common_vfx_char_atk_up"]
           }
         },
         {

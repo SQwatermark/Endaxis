@@ -92,7 +92,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -213,7 +217,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -351,6 +359,9 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 1,
               "targetGroupKey": "swordTar",
               "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
               "validatorTypes": [],
               "postProcessorTypes": [],
               "spawnedObjectType": null,
@@ -362,6 +373,9 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 5,
               "targetGroupKey": "sword",
               "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
               "validatorTypes": [
                 "TagValidator"
               ],
@@ -486,7 +500,8 @@ export const zhuangFangyiGeneratedSource = {
                           "storeKey": ""
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -751,7 +766,8 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -885,6 +901,9 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 11,
               "targetGroupKey": "thunderTar",
               "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
               "validatorTypes": [],
               "postProcessorTypes": [],
               "spawnedObjectType": null,
@@ -956,7 +975,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -1055,6 +1078,9 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 1,
               "targetGroupKey": "fakePos",
               "finderType": "FixedPointFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
               "validatorTypes": [],
               "postProcessorTypes": [],
               "spawnedObjectType": null,
@@ -1143,6 +1169,9 @@ export const zhuangFangyiGeneratedSource = {
               "actionIndex": 3,
               "targetGroupKey": "nextTar",
               "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
               "validatorTypes": [
                 "DistanceValidator"
               ],
@@ -1227,7 +1256,8 @@ export const zhuangFangyiGeneratedSource = {
                           "storeKey": ""
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -1329,7 +1359,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -1412,7 +1446,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -1618,7 +1656,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1701,7 +1740,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -1829,7 +1869,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -1909,7 +1950,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2025,7 +2067,227 @@ export const zhuangFangyiGeneratedSource = {
         "SwitchAction"
       ],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 3,
+          "endFrame": 6,
+          "actionIndex": 16,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 4
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 9,
+          "actionIndex": 34,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0030_zhuangfy_talent1_mark",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 6
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 0,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderTar",
+          "producerType": "FindTargetAction",
+          "finderType": "SmartTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "DistanceValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderTar",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "TagValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -1913169726
+              ]
+            ]
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 4,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderTarVFX",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 5,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderTarVFX",
+          "producerType": "FindTargetAction",
+          "finderType": "RandomPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "thunderTarVFX",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 6,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderTarDmg",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 9,
+          "actionIndex": 30,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "thunderTarDmg",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -2081,7 +2343,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -2137,7 +2403,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -2678,7 +2948,89 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "skillReplacements": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "actionIndex": 13,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "NormalSkill",
+          "targetSkillId": "chr_0030_zhuangfy_normal_skill_ult",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "FinishByAction",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": false,
+          "specificRevertedSkillId": false,
+          "revertedSkillId": ""
+        },
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "actionIndex": 14,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "ComboSkill",
+          "targetSkillId": "chr_0030_zhuangfy_combo_skill_ult",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "FinishByAction",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": true,
+          "specificRevertedSkillId": false,
+          "revertedSkillId": ""
+        }
+      ],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -2881,7 +3233,8 @@ export const zhuangFangyiGeneratedSource = {
                             "buff_common_dash_immune_teammate"
                           ],
                           "queryType": "HasAny"
-                        }
+                        },
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -2924,7 +3277,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "targetGroupKey": ""
                               },
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -2979,7 +3333,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -3064,7 +3422,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -3147,7 +3509,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -3316,7 +3682,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -3383,7 +3753,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -3451,7 +3825,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -3546,7 +3924,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -3645,7 +4027,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3707,7 +4093,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -3985,7 +4375,8 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -4100,7 +4491,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
@@ -4417,6 +4812,20 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "actions": [
                 {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 10
+                },
+                {
                   "actionType": "ModifyDynamicBlackboard",
                   "actionIndex": 2,
                   "actionPath": [
@@ -4541,7 +4950,11 @@ export const zhuangFangyiGeneratedSource = {
           "entryCount": 4
         }
       ],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_pulse_triggered_fx",
@@ -4632,7 +5045,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_pulse_triggered_start",
@@ -4715,7 +5132,11 @@ export const zhuangFangyiGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -5458,7 +5879,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5569,7 +5991,8 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6035,7 +6458,8 @@ export const zhuangFangyiGeneratedSource = {
                   "right": null,
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -6563,7 +6987,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6702,7 +7127,8 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7051,7 +7477,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7791,7 +8218,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8092,7 +8520,8 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8334,7 +8763,8 @@ export const zhuangFangyiGeneratedSource = {
                   "right": null,
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -8799,7 +9229,8 @@ export const zhuangFangyiGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9142,7 +9573,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9219,7 +9651,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -9302,7 +9735,8 @@ export const zhuangFangyiGeneratedSource = {
                             "containsHittableObject": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -10370,7 +10804,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10447,7 +10882,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -10530,7 +10966,8 @@ export const zhuangFangyiGeneratedSource = {
                             "containsHittableObject": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -11121,7 +11558,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11198,7 +11636,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11421,7 +11860,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11672,7 +12112,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11719,7 +12160,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11916,7 +12358,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -12141,7 +12584,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12188,7 +12632,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -12385,7 +12830,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -12610,7 +13056,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12657,7 +13104,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -12854,7 +13302,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -13940,7 +14389,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14017,7 +14467,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14201,7 +14652,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14374,7 +14826,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14421,7 +14874,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14579,7 +15033,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14726,7 +15181,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14773,7 +15229,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14931,7 +15388,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -15078,7 +15536,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15125,7 +15584,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -15283,7 +15743,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -15650,7 +16111,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15727,7 +16189,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -15950,7 +16413,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -16201,7 +16665,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16248,7 +16713,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -16445,7 +16911,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -16670,7 +17137,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16717,7 +17185,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -16914,7 +17383,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -17139,7 +17609,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17186,7 +17657,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -17383,7 +17855,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -18455,7 +18928,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18532,7 +19006,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -18716,7 +19191,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -18889,7 +19365,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18936,7 +19413,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19094,7 +19572,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19241,7 +19720,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19288,7 +19768,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19446,7 +19927,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19593,7 +20075,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19640,7 +20123,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19798,7 +20282,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -20118,7 +20603,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20195,7 +20681,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -20365,7 +20852,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -20971,7 +21459,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -21048,7 +21537,8 @@ export const zhuangFangyiGeneratedSource = {
                       "containsHittableObject": true
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -21188,7 +21678,8 @@ export const zhuangFangyiGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -22171,7 +22662,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -22611,7 +23103,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "saveCurrentDuration": false,
                       "outputKey": ""
-                    }
+                    },
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -22686,7 +23179,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22749,7 +23243,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22839,7 +23334,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -23017,7 +23513,8 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [],
@@ -23176,7 +23673,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -23298,7 +23796,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -23355,7 +23854,8 @@ export const zhuangFangyiGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -23545,7 +24045,8 @@ export const zhuangFangyiGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -23932,7 +24433,8 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -24028,7 +24530,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -24150,7 +24653,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -24207,7 +24711,8 @@ export const zhuangFangyiGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -24397,7 +24902,8 @@ export const zhuangFangyiGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -24781,7 +25287,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -25079,7 +25586,8 @@ export const zhuangFangyiGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -25162,7 +25670,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -25862,7 +26371,8 @@ export const zhuangFangyiGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -25911,7 +26421,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -26011,7 +26522,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "saveCurrentDuration": false,
                       "outputKey": ""
-                    }
+                    },
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -26086,7 +26598,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -26149,7 +26662,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -26239,7 +26753,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -26417,7 +26932,8 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [],
@@ -26576,7 +27092,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -26758,7 +27275,8 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -26854,7 +27372,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -27033,7 +27552,8 @@ export const zhuangFangyiGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -27331,7 +27851,8 @@ export const zhuangFangyiGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -27414,7 +27935,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -27800,7 +28322,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "saveCurrentDuration": false,
                       "outputKey": ""
-                    }
+                    },
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -27866,7 +28389,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -27956,7 +28480,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -28019,7 +28544,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -28113,7 +28639,8 @@ export const zhuangFangyiGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -28170,7 +28697,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -28360,7 +28888,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -28775,7 +29304,8 @@ export const zhuangFangyiGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -28832,7 +29362,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -29022,7 +29553,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -29409,7 +29941,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -29605,7 +30138,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [],
@@ -29776,7 +30310,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -29906,7 +30441,8 @@ export const zhuangFangyiGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -29963,7 +30499,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -30153,7 +30690,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -30551,7 +31089,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -30656,7 +31195,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -30786,7 +31326,8 @@ export const zhuangFangyiGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -30843,7 +31384,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -31033,7 +31575,8 @@ export const zhuangFangyiGeneratedSource = {
                                               "limitSkillCastId": false
                                             },
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -31417,7 +31960,8 @@ export const zhuangFangyiGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -31500,7 +32044,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -31789,7 +32334,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -31931,7 +32477,8 @@ export const zhuangFangyiGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -32093,7 +32640,8 @@ export const zhuangFangyiGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -33048,7 +33596,8 @@ export const zhuangFangyiGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -33097,7 +33646,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -33197,7 +33747,8 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "saveCurrentDuration": false,
                       "outputKey": ""
-                    }
+                    },
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -33263,7 +33814,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -33353,7 +33905,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -33416,7 +33969,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -33656,7 +34210,8 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -33852,7 +34407,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [],
@@ -34023,7 +34579,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -34223,7 +34780,8 @@ export const zhuangFangyiGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -34328,7 +34886,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -34514,7 +35073,8 @@ export const zhuangFangyiGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -34597,7 +35157,8 @@ export const zhuangFangyiGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -35000,7 +35561,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -35107,7 +35669,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -35184,7 +35747,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -35288,7 +35852,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -35799,7 +36364,8 @@ export const zhuangFangyiGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -35857,7 +36423,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -35964,7 +36531,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -36041,7 +36609,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -36145,7 +36714,8 @@ export const zhuangFangyiGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -36715,7 +37285,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -36822,7 +37393,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -36899,7 +37471,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -37340,7 +37913,8 @@ export const zhuangFangyiGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -37398,7 +37972,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -37505,7 +38080,8 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -37582,7 +38158,8 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -38080,7 +38657,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -38493,7 +39071,8 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [

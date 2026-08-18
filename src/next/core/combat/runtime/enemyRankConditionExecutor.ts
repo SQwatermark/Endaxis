@@ -12,8 +12,14 @@ export class EnemyRankConditionExecutor implements CombatOperationExecutor {
   execute: CombatOperationExecutor['execute'] = (step, context) =>
     this.delegate.execute(step, context);
 
-  evaluate(condition: CombatCondition): boolean {
+  end: NonNullable<CombatOperationExecutor['end']> = (step, context) =>
+    this.delegate.end?.(step, context);
+
+  evaluate(
+    condition: CombatCondition,
+    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
+  ): boolean {
     if (condition.kind === 'enemyRankIn') return condition.ranks.includes(this.rank);
-    return this.delegate.evaluate(condition);
+    return this.delegate.evaluate(condition, context);
   }
 }

@@ -5,6 +5,7 @@
 import type {
   CompiledComboSkillRegistration,
   CompiledOperatorPassiveProgram,
+  CompiledSkillSlotGroup,
   CompiledSkillProgram,
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
@@ -61,6 +62,7 @@ import { CombatTimelineClock } from './combatTimelineClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
+import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
@@ -78,6 +80,8 @@ export type OperatorBuffRuntime = FrameRuntime &
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 稳定技能组的基础形态与不可直接放置的运行时替换形态。 */
+  readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
   /** 构筑启用的常驻被动；按声明顺序在战斗装配完成后启用一次。 */
   readonly passivePrograms?: readonly CompiledOperatorPassiveProgram[];
   /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
@@ -86,6 +90,8 @@ export interface CombatOperatorProgram {
   readonly equipmentContributions?: readonly CompiledEquipmentContribution[];
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
   readonly panel?: ResolvedOperatorPanel;
+  /** 已由场景编译器从静态构筑条件求值；运行时只负责在技能创建前安装。 */
+  readonly initialEntityBlackboard?: Readonly<Record<string, number>>;
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
   readonly buffRuntime?: OperatorBuffRuntime;
   /** 通用语义状态与 Buff 分属两个显式所有者；容器只在本次模拟中使用。 */
@@ -259,11 +265,11 @@ export class CombatRuntimeAssembly {
   readonly #reactiveOperationBindings = new Map<string, CombatOperationExecutor>();
   readonly #castOperationBindings = new Map<
     string,
-    {
+    readonly {
       readonly operator: CombatOperatorProgram;
       readonly program: CompiledSkillProgram;
       readonly statusRuntime?: CombatStatusRuntime;
-    }
+    }[]
   >();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
@@ -354,6 +360,7 @@ export class CombatRuntimeAssembly {
       const runtimeOperator =
         buffRuntime === operator.buffRuntime ? operator : { ...operator, buffRuntime };
       const entityBlackboard = buffRuntime?.entityBlackboard ?? new ActionBlackboard();
+      entityBlackboard.assign(operator.initialEntityBlackboard);
       this.#operatorOrder.push(operator.operatorId);
       if (buffRuntime !== undefined) {
         this.#operatorBuffs.set(operator.operatorId, buffRuntime);
@@ -384,14 +391,20 @@ export class CombatRuntimeAssembly {
         }
         this.#skillPrograms.set(programKey, program);
         if (program.castId === undefined) continue;
-        if (this.#castOperationBindings.has(program.castId)) {
-          throw new Error(`duplicate combat skill cast '${program.castId}'`);
+        const bindings = this.#castOperationBindings.get(program.castId) ?? [];
+        if (bindings.some(binding => binding.program.skillId === program.skillId)) {
+          throw new Error(
+            `duplicate combat skill cast variant '${program.castId}/${program.skillId}'`,
+          );
         }
-        this.#castOperationBindings.set(program.castId, {
-          operator: runtimeOperator,
-          program,
-          ...(statusRuntime === undefined ? {} : { statusRuntime }),
-        });
+        this.#castOperationBindings.set(program.castId, [
+          ...bindings,
+          {
+            operator: runtimeOperator,
+            program,
+            ...(statusRuntime === undefined ? {} : { statusRuntime }),
+          },
+        ]);
       }
       const skills = runtimeOperator.skills.map(program =>
         this.#createSkillRuntime(
@@ -410,6 +423,7 @@ export class CombatRuntimeAssembly {
         new AbilitySystemRuntime({
           buffRuntime,
           skills,
+          skillSlotGroups: runtimeOperator.skillSlotGroups,
           actionRuntime: operator.actionRuntime,
           ...(this.timeDilation === null
             ? {}
@@ -705,7 +719,13 @@ export class CombatRuntimeAssembly {
   ): CombatOperationExecutor {
     const cast = source.skillCastInfo;
     const castId = cast?.originCastId ?? source.sourceActionId;
-    const binding = this.#castOperationBindings.get(castId);
+    const candidates = this.#castOperationBindings.get(castId) ?? [];
+    const binding =
+      cast === null
+        ? candidates.length === 1
+          ? candidates[0]
+          : undefined
+        : candidates.find(candidate => candidate.program.skillId === cast.originSkillId);
     if (binding === undefined && cast?.originCastId === undefined) {
       const operations = this.#reactiveOperationBindings.get(
         `${source.sourceId}\u0000${source.sourceActionId}`,
@@ -756,7 +776,7 @@ export class CombatRuntimeAssembly {
       getNonReturnedSpCost,
     } = options;
     const operatorId = operator.operatorId;
-    const baseDelegate = createDelegate({
+    const terminalDelegate = createDelegate({
       program,
       enemy,
       equipmentContributions: operator.equipmentContributions ?? [],
@@ -765,6 +785,19 @@ export class CombatRuntimeAssembly {
       resources: this.resources,
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
+    });
+    const baseDelegate = new SkillSlotOperationExecutor({
+      changeSkillSlot: (skillGroupKey, targetSkillKey) => {
+        this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'SkillSlotChanged',
+          sourceId: operatorId,
+          data: { skillGroupKey, targetSkillKey },
+        });
+      },
+      delegate: terminalDelegate,
     });
     let rootOperations: CombatOperationExecutor | undefined;
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
@@ -820,6 +853,7 @@ export class CombatRuntimeAssembly {
         target === 'enemy'
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
+      resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
       delegate: statusOperations,
     });
     const rankConditions = new EnemyRankConditionExecutor(enemy.rank, timedMarkerOperations);
@@ -891,8 +925,21 @@ export class CombatRuntimeAssembly {
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
     const operatorId = operator.operatorId;
+    const slotOperations = new SkillSlotOperationExecutor({
+      changeSkillSlot: (skillGroupKey, targetSkillKey) => {
+        this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'SkillSlotChanged',
+          sourceId: operatorId,
+          data: { skillGroupKey, targetSkillKey },
+        });
+      },
+      delegate: terminal,
+    });
     const timeDilationOperations = this.#wrapTimeDilationOperations(
-      terminal,
+      slotOperations,
       operatorId,
       sourceActionId,
       options.isOperatorControlled,
@@ -929,6 +976,7 @@ export class CombatRuntimeAssembly {
         target === 'enemy'
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
+      resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
       delegate: statusOperations,
     });
     const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, markerOperations);

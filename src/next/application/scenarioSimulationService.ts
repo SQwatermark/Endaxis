@@ -65,7 +65,27 @@ export interface ScenarioSimulationServiceOptions {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  /** 仅用于性能计时；测试可注入单调时钟，产品环境默认使用 performance.now()。 */
+  readonly performanceNow?: () => number;
 }
+
+export type ScenarioSimulationPerformanceOutcome = 'completed' | 'aborted' | 'failed';
+
+/** 一次 simulate 调用的墙钟耗时；各阶段互斥，可直接堆叠展示。 */
+export interface ScenarioSimulationPerformanceSample {
+  readonly totalMs: number;
+  readonly cacheLookupMs: number;
+  readonly simulationMs: number;
+  readonly projectionMs: number;
+  readonly cacheHit: boolean;
+  readonly outcome: ScenarioSimulationPerformanceOutcome;
+  readonly endFrame: number;
+  readonly receiptCount: number | null;
+}
+
+export type ScenarioSimulationPerformanceSubscriber = (
+  sample: ScenarioSimulationPerformanceSample,
+) => void;
 
 export interface ScenarioSimulationRun extends StandardPlayerDamageScenarioResult {
   /** 与本次模拟同一份回执投影的敌人生命曲线。 */
@@ -124,6 +144,8 @@ export class ScenarioSimulationService {
   readonly #repositoryRevision: string;
   readonly #cache = new Map<string, MutableCacheEntry>();
   readonly #cacheLimit: number;
+  readonly #performanceNow: () => number;
+  readonly #performanceSubscribers = new Set<ScenarioSimulationPerformanceSubscriber>();
 
   constructor(options: ScenarioSimulationServiceOptions, cacheLimit: number = DEFAULT_CACHE_LIMIT) {
     if (!Number.isInteger(cacheLimit) || cacheLimit < 1) {
@@ -138,6 +160,13 @@ export class ScenarioSimulationService {
     };
     this.#repositoryRevision = options.repositoryRevision ?? 'definitions';
     this.#cacheLimit = cacheLimit;
+    this.#performanceNow = options.performanceNow ?? (() => globalThis.performance.now());
+  }
+
+  /** 订阅每次模拟调用的耗时样本；返回值用于解除订阅。 */
+  subscribePerformance(subscriber: ScenarioSimulationPerformanceSubscriber): () => void {
+    this.#performanceSubscribers.add(subscriber);
+    return () => this.#performanceSubscribers.delete(subscriber);
   }
 
   /** 执行一次标准玩家伤害模拟，并在同一份回执上完成全部投影。 */
@@ -146,66 +175,126 @@ export class ScenarioSimulationService {
     endFrame: number,
     signal?: AbortSignal,
   ): Promise<ScenarioSimulationRun> {
-    assertNotAborted(signal);
-    const key = this.#cacheKey(scenario, endFrame);
-    const cached = this.#cache.get(key);
-    if (cached !== undefined) {
-      this.#cache.delete(key);
-      this.#cache.set(key, cached);
-      return cached.run;
-    }
+    const startedAt = this.#performanceNow();
+    let lookupEndedAt: number | null = null;
+    let simulationStartedAt: number | null = null;
+    let simulationEndedAt: number | null = null;
+    let projectionStartedAt: number | null = null;
+    let cacheHit = false;
+    let receiptCount: number | null = null;
+    try {
+      assertNotAborted(signal);
+      const key = this.#cacheKey(scenario, endFrame);
+      const cached = this.#cache.get(key);
+      lookupEndedAt = this.#performanceNow();
+      if (cached !== undefined) {
+        cacheHit = true;
+        receiptCount = cached.run.receiptEntries.length;
+        this.#cache.delete(key);
+        this.#cache.set(key, cached);
+        const endedAt = this.#performanceNow();
+        this.#publishPerformance({
+          totalMs: endedAt - startedAt,
+          cacheLookupMs: endedAt - startedAt,
+          simulationMs: 0,
+          projectionMs: 0,
+          cacheHit,
+          outcome: 'completed',
+          endFrame,
+          receiptCount,
+        });
+        return cached.run;
+      }
 
-    const result = runStandardPlayerDamageScenarioSimulation({
-      scenario,
-      endFrame,
-      criticalSamples: this.#options.criticalSamples!,
-      resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
-      elementalInflictionDocument: this.#options.elementalInflictionDocument,
-      ...(this.#options.spellInflictionSettings === undefined
-        ? {}
-        : { spellInflictionSettings: this.#options.spellInflictionSettings }),
-      options: {
-        index: this.#options.index,
-        resources: this.#options.resources,
-      },
-    });
-
-    const run = Object.freeze({
-      ...result,
-      enemyHealthCurve: projectEnemyHealthCurveFromReceipt(
-        {
-          health: result.enemyVitals.initialHealth,
-          maxHealth: result.enemyVitals.maxHealth,
+      simulationStartedAt = lookupEndedAt;
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario,
+        endFrame,
+        criticalSamples: this.#options.criticalSamples!,
+        resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
+        elementalInflictionDocument: this.#options.elementalInflictionDocument,
+        ...(this.#options.spellInflictionSettings === undefined
+          ? {}
+          : { spellInflictionSettings: this.#options.spellInflictionSettings }),
+        options: {
+          index: this.#options.index,
+          resources: this.#options.resources,
         },
-        result.receiptEntries,
-      ),
-      // 失衡曲线初始值同样来自本次模拟唯一的敌人账本，而不是重新从静态敌人推导。
-      poiseCurve: projectPoiseCurveFromReceipt(
-        {
-          poise: result.enemyVitals.initialPoise,
-          maxPoise: result.enemyVitals.maxPoise,
-        },
-        result.receiptEntries,
-      ),
-      availabilityDiagnostics: freezeDiagnostics(
-        projectSkillAvailabilityDiagnostics(result.receiptEntries),
-      ),
-      executionDiagnostics: freezeDiagnostics(
-        projectSkillExecutionDiagnostics(result.receiptEntries),
-      ),
-      comboWindowDiagnostics: freezeDiagnostics(
-        projectComboWindowDiagnostics(result.receiptEntries),
-      ),
-    }) as ScenarioSimulationRun;
+      });
+      simulationEndedAt = this.#performanceNow();
+      projectionStartedAt = simulationEndedAt;
+      receiptCount = result.receiptEntries.length;
 
-    assertNotAborted(signal);
-    this.#cache.set(key, { key, run });
-    while (this.#cache.size > this.#cacheLimit) {
-      const oldest = this.#cache.keys().next().value as string | undefined;
-      if (oldest === undefined) break;
-      this.#cache.delete(oldest);
+      const run = Object.freeze({
+        ...result,
+        enemyHealthCurve: projectEnemyHealthCurveFromReceipt(
+          {
+            health: result.enemyVitals.initialHealth,
+            maxHealth: result.enemyVitals.maxHealth,
+          },
+          result.receiptEntries,
+        ),
+        // 失衡曲线初始值同样来自本次模拟唯一的敌人账本，而不是重新从静态敌人推导。
+        poiseCurve: projectPoiseCurveFromReceipt(
+          {
+            poise: result.enemyVitals.initialPoise,
+            maxPoise: result.enemyVitals.maxPoise,
+          },
+          result.receiptEntries,
+        ),
+        availabilityDiagnostics: freezeDiagnostics(
+          projectSkillAvailabilityDiagnostics(result.receiptEntries),
+        ),
+        executionDiagnostics: freezeDiagnostics(
+          projectSkillExecutionDiagnostics(result.receiptEntries),
+        ),
+        comboWindowDiagnostics: freezeDiagnostics(
+          projectComboWindowDiagnostics(result.receiptEntries),
+        ),
+      }) as ScenarioSimulationRun;
+
+      assertNotAborted(signal);
+      this.#cache.set(key, { key, run });
+      while (this.#cache.size > this.#cacheLimit) {
+        const oldest = this.#cache.keys().next().value as string | undefined;
+        if (oldest === undefined) break;
+        this.#cache.delete(oldest);
+      }
+      const endedAt = this.#performanceNow();
+      this.#publishPerformance({
+        totalMs: endedAt - startedAt,
+        cacheLookupMs: lookupEndedAt - startedAt,
+        simulationMs: simulationEndedAt - simulationStartedAt,
+        projectionMs: endedAt - projectionStartedAt,
+        cacheHit,
+        outcome: 'completed',
+        endFrame,
+        receiptCount,
+      });
+      return run;
+    } catch (error) {
+      const endedAt = this.#performanceNow();
+      const lookupEnd = lookupEndedAt ?? endedAt;
+      const simulationEnd = simulationEndedAt ?? (simulationStartedAt === null ? null : endedAt);
+      const projectionEnd = projectionStartedAt === null ? null : endedAt;
+      this.#publishPerformance({
+        totalMs: endedAt - startedAt,
+        cacheLookupMs: lookupEnd - startedAt,
+        simulationMs:
+          simulationStartedAt === null || simulationEnd === null
+            ? 0
+            : simulationEnd - simulationStartedAt,
+        projectionMs:
+          projectionStartedAt === null || projectionEnd === null
+            ? 0
+            : projectionEnd - projectionStartedAt,
+        cacheHit,
+        outcome: signal?.aborted === true ? 'aborted' : 'failed',
+        endFrame,
+        receiptCount,
+      });
+      throw error;
     }
-    return run;
   }
 
   /** 按场景内容与目标帧查找已冻结运行结果，供需要同步读取的投影复用。 */
@@ -220,5 +309,16 @@ export class ScenarioSimulationService {
 
   #cacheKey(scenario: ScenarioDocument, endFrame: number): string {
     return `${this.#repositoryRevision}\u0000${buildScenarioRevision(scenario)}\u0000${endFrame}`;
+  }
+
+  #publishPerformance(sample: ScenarioSimulationPerformanceSample): void {
+    const frozen = Object.freeze({
+      ...sample,
+      totalMs: Math.max(0, sample.totalMs),
+      cacheLookupMs: Math.max(0, sample.cacheLookupMs),
+      simulationMs: Math.max(0, sample.simulationMs),
+      projectionMs: Math.max(0, sample.projectionMs),
+    });
+    for (const subscriber of this.#performanceSubscribers) subscriber(frozen);
   }
 }

@@ -11,6 +11,7 @@ import { perlica } from '../../data/operators/perlica';
 import type { WeaponDefinition } from '../game-data/equipmentDefinition';
 import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import {
+  compileOperatorEntityBlackboardInitialValues,
   compileScenarioRuntimeAssembly,
   type CompileScenarioRuntimeAssemblyOptions,
 } from './compileScenarioRuntimeAssembly';
@@ -87,6 +88,73 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
 }
 
 describe('compileScenarioRuntimeAssembly', () => {
+  it('derives entity blackboard values from final deck attributes, including equality', () => {
+    const panel = compileScenarioRuntimeAssembly(createScenario(), options()).operators[0]!.panel!;
+    const operator = {
+      ...perlica,
+      entityBlackboardInitializers: [
+        {
+          key: 'EntityBB_form',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+          trueValue: 1,
+          falseValue: 0,
+        },
+      ],
+    } as const;
+
+    expect(
+      compileOperatorEntityBlackboardInitialValues(operator, {
+        ...panel,
+        attributes: { ...panel.attributes, intellect: 20, will: 20 },
+      }),
+    ).toEqual({
+      strength: panel.attributes.strength,
+      agility: panel.attributes.agility,
+      intellect: 20,
+      will: 20,
+      EntityBB_form: 1,
+    });
+    expect(
+      compileOperatorEntityBlackboardInitialValues(operator, {
+        ...panel,
+        attributes: { ...panel.attributes, intellect: 19, will: 20 },
+      }),
+    ).toEqual({
+      strength: panel.attributes.strength,
+      agility: panel.attributes.agility,
+      intellect: 19,
+      will: 20,
+      EntityBB_form: 0,
+    });
+  });
+
+  it('rejects duplicate entity blackboard initializer keys', () => {
+    const panel = compileScenarioRuntimeAssembly(createScenario(), options()).operators[0]!.panel!;
+    const initializer = {
+      key: 'EntityBB_form',
+      condition: {
+        kind: 'deckAttributeCompare',
+        left: 'intellect',
+        operator: 'greaterOrEqual',
+        right: 'will',
+      },
+      trueValue: 1,
+      falseValue: 0,
+    } as const;
+
+    expect(() =>
+      compileOperatorEntityBlackboardInitialValues(
+        { ...perlica, entityBlackboardInitializers: [initializer, initializer] },
+        panel,
+      ),
+    ).toThrow("duplicates entity blackboard initializer 'EntityBB_form'");
+  });
+
   it('combines existing timeline and resource compilers into executable assembly options', () => {
     const settings = options();
     const compiled = compileScenarioRuntimeAssembly(createScenario(), settings);

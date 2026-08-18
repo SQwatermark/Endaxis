@@ -60,6 +60,24 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("durationSeconds: 10", result)
         self.assertNotIn("buff.example", result)
 
+    def test_maps_converted_pulse_modifier_to_runtime_damage_attribute(self) -> None:
+        source = definition(
+            attributeModifiers=(
+                SimpleNamespace(
+                    targetType="Specific",
+                    attributeType="PulseDamageIncrease",
+                    slot="BaseAddition",
+                    value=scalar(0, "pulse_up"),
+                ),
+            ),
+            attributeModifiersConverted=True,
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("attribute: 'electricDamageIncrease'", result)
+        self.assertIn("source: 'converted'", result)
+
     def test_rejects_lifecycle_behavior_that_would_be_lost(self) -> None:
         source = definition(eventActions=(SimpleNamespace(event="OnBuffStart"),))
 

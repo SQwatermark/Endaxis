@@ -460,6 +460,7 @@ ResolvedScheduleItemType = Literal[
     "eventListener",
     "timeDilation",
     "keywordAction",
+    "skillSlotReplacement",
 ]
 
 
@@ -484,6 +485,7 @@ class ResolvedScheduleItemSource:
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"
+        " | TimedSkillReplacementSource"
         " | AbilityEntitySpawnPayload"
         " | AbilityEntityHitSource"
     )
@@ -534,6 +536,45 @@ class BuffDefinitionSource:
     combatActions: tuple[str, ...]
     unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
     auraActions: tuple["AuraActionSource", ...] = ()
+    invokedAbilityEntitySkills: tuple[AbilityEntityHitSource, ...] = ()
+    auxiliaryActions: tuple[AuxiliaryActionSource, ...] = ()
+    targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
+    skillReplacements: tuple["BuffSkillReplacementSource", ...] = ()
+    attributeModifiersConverted: bool = False
+
+
+@dataclass(frozen=True)
+class BuffSkillReplacementSource:
+    eventSource: Literal["buff", "ability"]
+    event: str
+    actionIndex: int
+    skillSource: TargetReferenceSource
+    skillSlot: str
+    targetSkillId: str
+    overrideCacheTime: bool
+    cacheTime: ScalarSource
+    lifeTimeType: str
+    duration: ScalarSource
+    inheritOriginSkillCooldownProgress: bool
+    specificRevertedSkillId: bool
+    revertedSkillId: str
+
+
+@dataclass(frozen=True)
+class TimedSkillReplacementSource:
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    skillSource: TargetReferenceSource
+    skillSlot: str
+    targetSkillId: str
+    overrideCacheTime: bool
+    cacheTime: ScalarSource
+    lifeTimeType: str
+    duration: ScalarSource
+    inheritOriginSkillCooldownProgress: bool
+    specificRevertedSkillId: bool
+    revertedSkillId: str
 
 
 @dataclass(frozen=True)
@@ -819,6 +860,18 @@ class ConditionSource:
     damageDecorateMask: "DamageDecorateMaskConditionSource | None" = None
     contextBuffId: "BuffIdInContextConditionSource | None" = None
     abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
+    deckAttributeCompare: "DeckAttributeCompareConditionSource | None" = None
+
+
+@dataclass(frozen=True)
+class DeckAttributeCompareConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    leftAttribute: str
+    leftValue: ScalarSource
+    comparison: str
+    rightAttribute: str
+    rightValue: ScalarSource
 
 
 @dataclass(frozen=True)
@@ -1317,3 +1370,4 @@ class SkillSource:
     eventListeners: tuple[SkillEventListenerSource, ...] = ()
     timeDilations: tuple[TimedTimeDilationSource, ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    skillReplacements: tuple[TimedSkillReplacementSource, ...] = ()

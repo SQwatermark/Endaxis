@@ -197,13 +197,12 @@ export const arclightGeneratedSource = {
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "attributeModifier.isConvertedAttribute",
-          "entryCount": 1
-        }
-      ],
-      "auraActions": []
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": true
     },
     {
       "buffId": "buff_chr_0007_ikut_combo_skill_tutorial_marker",
@@ -259,7 +258,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0007_ikut_normal_skill_extra_count",
@@ -445,6 +448,36 @@ export const arclightGeneratedSource = {
               ],
               "actions": [
                 {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "blackboardCalculation": {
+                    "key": "final_pulse_up",
+                    "operation": "Multiply",
+                    "left": {
+                      "value": 0,
+                      "blackboardKey": "intellect",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": "pulse_up",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  }
+                },
+                {
                   "actionType": "CreateBuffAction",
                   "actionIndex": 2,
                   "actionPath": [
@@ -531,7 +564,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -599,7 +636,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -694,7 +735,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -793,7 +838,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -855,7 +904,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_vfx_char_atk_up",
@@ -911,7 +964,11 @@ export const arclightGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -1124,7 +1181,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1367,7 +1425,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1629,7 +1688,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1872,7 +1932,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2232,7 +2293,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2309,7 +2371,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2596,7 +2659,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2673,7 +2737,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3165,7 +3230,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3242,7 +3308,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3319,7 +3386,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3879,7 +3947,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3956,7 +4025,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4033,7 +4103,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4363,7 +4434,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4635,7 +4707,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5419,7 +5492,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5662,7 +5736,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6614,7 +6689,8 @@ export const arclightGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6711,7 +6787,8 @@ export const arclightGeneratedSource = {
                       ]
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -6777,7 +6854,8 @@ export const arclightGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -7469,7 +7547,8 @@ export const arclightGeneratedSource = {
                 ]
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8090,7 +8169,8 @@ export const arclightGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8187,7 +8267,8 @@ export const arclightGeneratedSource = {
                       ]
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8253,7 +8334,8 @@ export const arclightGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -8945,7 +9027,8 @@ export const arclightGeneratedSource = {
                 ]
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10142,7 +10225,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10243,7 +10327,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -10633,7 +10718,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckSkillCameraMotionFree",
@@ -10643,7 +10729,8 @@ export const arclightGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -11264,7 +11351,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11312,7 +11400,8 @@ export const arclightGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11381,7 +11470,8 @@ export const arclightGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckSkillCameraMotionFree",
@@ -11391,7 +11481,8 @@ export const arclightGeneratedSource = {
               "right": null,
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],

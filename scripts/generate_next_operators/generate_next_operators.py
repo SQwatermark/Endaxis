@@ -9,6 +9,7 @@ import textwrap
 from collections import Counter
 from dataclasses import asdict, fields, is_dataclass, replace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Iterable, Iterator, Literal, cast
 
 from source_models import (
@@ -38,6 +39,8 @@ from source_models import (
     ResolvedScheduleItemSource,
     BuffLifecycleSource,
     BuffDefinitionSource,
+    BuffSkillReplacementSource,
+    TimedSkillReplacementSource,
     BuffSourceDeathFinishSource,
     UnparsedBuffPayloadSource,
     BuffAttributeModifierSource,
@@ -296,6 +299,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "targetValidatorTypes",
         "targetPostProcessorTypes",
         "validatorTagQueries",
+        "skillReplacements",
     }
 )
 
@@ -1742,8 +1746,8 @@ def parse_buff_attribute_modifiers(
         raise ValueError(
             f"{source_name}.attributeModifier.isConvertedAttribute: expected boolean"
         )
-    # true 只表示该 Buff 的修正来自“已转换属性”，ConvertToServer 仍逐个转换
-    # attributeModifiers；本层保留字段事实为 unparsedPayloads，避免把它当作普通修正放行。
+    # true 表示该 Buff 的修正来自“已转换属性”；具体来源身份由 BuffDefinitionSource
+    # 继续传给运行时，attributeModifiers 本身仍按同一八槽公式逐项解析。
 
     result: list[BuffAttributeModifierSource] = []
     for index, raw_modifier in enumerate(
@@ -1900,6 +1904,84 @@ def parse_buff_damage_modifiers(
             )
         )
     return tuple(result), unsupported_count
+
+
+def parse_buff_start_vulnerability(
+    buff: dict[str, Any], source_name: str, blackboard: dict[str, tuple[float, ...]]
+) -> tuple[BuffDamageModifierSource, ...]:
+    """把严格的 OnBuffStart VulnerableAction 投影为 Buff 生命周期伤害修正。"""
+    result: list[BuffDamageModifierSource] = []
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    ):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        if event.get("buffEvent") not in {"OnBuffStart", "DuringBuffEnable"}:
+            continue
+        for sequence_index, raw_sequence in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            raw_action_data = sequence.get("actionData")
+            if not isinstance(raw_action_data, list):
+                continue
+            for action_index, raw_action in enumerate(
+                raw_action_data
+            ):
+                action_path = f"{sequence_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(str(action.get("$type", ""))) != "VulnerableAction":
+                    continue
+                expected_fields = {
+                    "$type", "isEnable", "priorityLevel", "priorityOffset",
+                    "serverActionIndex", "source", "target", "duration", "rate",
+                    "overrideChildBuffId", "childBuffId", "asChildBuff",
+                    "enhancingList", "autoFinishByAction", "subType",
+                }
+                if set(action) != expected_fields:
+                    continue
+                source = parse_target_reference(action.get("source"), f"{action_path}.source")
+                target = parse_target_reference(action.get("target"), f"{action_path}.target")
+                duration = parse_scalar(action.get("duration"), f"{action_path}.duration", blackboard)
+                lifecycle_duration = parse_scalar(
+                    buff.get("duration"), f"{source_name}.duration", blackboard
+                )
+                if not (
+                    action.get("isEnable") is True
+                    and source.targetSource == "Source"
+                    and target.targetSource == "Owner"
+                    and target_reference_is_plain(source)
+                    and target_reference_is_plain(target)
+                    and duration.blackboardKey is not None
+                    and duration.blackboardKey == lifecycle_duration.blackboardKey
+                    and duration.levelValues == lifecycle_duration.levelValues
+                    and isinstance(action.get("overrideChildBuffId"), bool)
+                    and action.get("asChildBuff") is True
+                    and action.get("enhancingList") == []
+                    and action.get("autoFinishByAction") is False
+                    and action.get("subType") == "Physical"
+                ):
+                    continue
+                result.append(
+                    BuffDamageModifierSource(
+                        enabledSide="Defender",
+                        targetSource="Owner",
+                        targetGroupKey="",
+                        tagQueryType="hasAny",
+                        tagIds=(),
+                        processors=(
+                            BuffDamageScaleProcessorSource(
+                                side="Defender",
+                                zone="VulnerableDmgIncreace",
+                                addition=parse_scalar(
+                                    action.get("rate"), f"{action_path}.rate", blackboard
+                                ),
+                            ),
+                        ),
+                    )
+                )
+    return tuple(result)
 
 
 ABILITY_ACTION_PRIORITY_LEVELS = {
@@ -2196,6 +2278,101 @@ def parse_buff_event_actions(
     return tuple(result)
 
 
+def parse_buff_skill_replacements(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffSkillReplacementSource, ...]:
+    """严格保留 Buff 事件顶层对稳定技能槽的替换关系。"""
+    result: list[BuffSkillReplacementSource] = []
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "skillSource", "skillSlot", "targetSkillId", "overrideCacheTime", "cacheTime",
+        "lifeTimeType", "duration", "inheritOriginSkillCdProgress",
+        "specificRevertedSkillId", "revertedSkillId",
+    }
+    for event_source, field, event_key in (
+        ("buff", "buffEventAction", "buffEvent"),
+        ("ability", "abilityEventAction", "abilityEvent"),
+    ):
+        for event_index, raw_event in enumerate(
+            require_list(buff.get(field, []), f"{source_name}.{field}")
+        ):
+            event_path = f"{source_name}.{field}[{event_index}]"
+            event = require_dict(raw_event, event_path)
+            event_name = event.get(event_key)
+            if not isinstance(event_name, str) or not event_name:
+                raise ValueError(f"{event_path}.{event_key}: expected non-empty string")
+            for sequence_index, raw_sequence in enumerate(
+                require_list(event.get("actions"), f"{event_path}.actions")
+            ):
+                sequence_path = f"{event_path}.actions[{sequence_index}]"
+                sequence = require_dict(raw_sequence, sequence_path)
+                raw_actions = (
+                    [sequence]
+                    if "$type" in sequence
+                    else require_list(sequence.get("actionData"), f"{sequence_path}.actionData")
+                )
+                for action_index, raw_action in enumerate(
+                    raw_actions
+                ):
+                    action_path = f"{sequence_path}.actionData[{action_index}]"
+                    action = require_dict(raw_action, action_path)
+                    if (
+                        action.get("isEnable") is False
+                        or action_name(str(action.get("$type", ""))) != "ChangeSkillAction"
+                    ):
+                        continue
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{action_path}: expected fields {sorted(expected_fields)}, "
+                            f"got {sorted(action)}"
+                        )
+                    string_fields = {
+                        name: action.get(name)
+                        for name in ("skillSlot", "targetSkillId", "lifeTimeType")
+                    }
+                    for name, value in string_fields.items():
+                        if not isinstance(value, str) or not value:
+                            raise ValueError(f"{action_path}.{name}: expected non-empty string")
+                    reverted_skill_id = action.get("revertedSkillId")
+                    if not isinstance(reverted_skill_id, str):
+                        raise ValueError(f"{action_path}.revertedSkillId: expected string")
+                    result.append(
+                        BuffSkillReplacementSource(
+                            eventSource=cast(Literal["buff", "ability"], event_source),
+                            event=event_name,
+                            actionIndex=require_server_action_index(action, action_path),
+                            skillSource=parse_target_reference(
+                                action.get("skillSource"), f"{action_path}.skillSource"
+                            ),
+                            skillSlot=cast(str, string_fields["skillSlot"]),
+                            targetSkillId=cast(str, string_fields["targetSkillId"]),
+                            overrideCacheTime=require_bool(
+                                action.get("overrideCacheTime"),
+                                f"{action_path}.overrideCacheTime",
+                            ),
+                            cacheTime=parse_scalar(
+                                action.get("cacheTime"), f"{action_path}.cacheTime", blackboard
+                            ),
+                            lifeTimeType=cast(str, string_fields["lifeTimeType"]),
+                            duration=parse_scalar(
+                                action.get("duration"), f"{action_path}.duration", blackboard
+                            ),
+                            inheritOriginSkillCooldownProgress=require_bool(
+                                action.get("inheritOriginSkillCdProgress"),
+                                f"{action_path}.inheritOriginSkillCdProgress",
+                            ),
+                            specificRevertedSkillId=require_bool(
+                                action.get("specificRevertedSkillId"),
+                                f"{action_path}.specificRevertedSkillId",
+                            ),
+                            revertedSkillId=reverted_skill_id,
+                        )
+                    )
+    return tuple(result)
+
+
 def parse_skill_event_listeners(
     root: dict[str, Any],
     source_name: str,
@@ -2356,19 +2533,11 @@ def collect_unparsed_buff_payloads(
         entries = require_list(value, f"{source_name}.{field}")
         if entries:
             result.append(UnparsedBuffPayloadSource(field=field, entryCount=len(entries)))
-    attribute_modifier = buff.get("attributeModifier")
     if unsupported_damage_modifiers:
         result.append(
             UnparsedBuffPayloadSource(
                 field="damageModifier",
                 entryCount=unsupported_damage_modifiers,
-            )
-        )
-    if isinstance(attribute_modifier, dict) and attribute_modifier.get("isConvertedAttribute") is True:
-        result.append(
-            UnparsedBuffPayloadSource(
-                field="attributeModifier.isConvertedAttribute",
-                entryCount=1,
             )
         )
     return tuple(result)
@@ -2377,6 +2546,7 @@ def collect_unparsed_buff_payloads(
 def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
     buff_source_dirs: Path | Iterable[Path],
+    skill_source_dir: Path | None = None,
 ) -> tuple[BuffDefinitionSource, ...]:
     """解析传递 Buff 依赖的定义事实；应用参数不得污染定义自身的黑板默认值。
 
@@ -2439,6 +2609,50 @@ def resolve_buff_definitions(
         damage_modifiers, unsupported_damage_modifiers = parse_buff_damage_modifiers(
             buff, source_file, blackboard
         )
+        damage_modifiers = (
+            *damage_modifiers,
+            *parse_buff_start_vulnerability(buff, source_file, blackboard),
+        )
+        event_actions = parse_buff_event_actions(buff, source_file, blackboard)
+        auxiliary_actions = parse_auxiliary_actions(
+            adapted_root,
+            source_file,
+            skill_source_dir or source_path.parent,
+            blackboard,
+        )
+        invoked_skills: list[AbilityEntityHitSource] = []
+        invoked_skill_ids: set[str] = set()
+        if skill_source_dir is not None:
+            for event in event_actions:
+                for loop in event.forEachActions:
+                    for skill_cast in loop.skillCasts:
+                        if skill_cast.skillId in invoked_skill_ids:
+                            continue
+                        invoked_skill_ids.add(skill_cast.skillId)
+                        child_name = f"{skill_cast.skillId}.json"
+                        child_path = skill_source_dir / child_name
+                        if not child_path.is_file():
+                            raise FileNotFoundError(
+                                f"{source_file}: missing invoked AbilityEntity skill {child_path}"
+                            )
+                        child = load_projected_skill_data(child_path, child_name)
+                        invoked_skills.append(
+                            resolve_ability_entity_payload(
+                                AbilityEntitySpawnPayload(
+                                    abilityEntityId="<existingAbilityEntity>",
+                                    skillId=skill_cast.skillId,
+                                    assignBlackboard=True,
+                                    sourceType="ActionSource",
+                                ),
+                                child,
+                                child_name,
+                                skill_source_dir,
+                                0,
+                                (),
+                                blackboard,
+                                (skill_cast.actionIndex,),
+                            )
+                        )
         result[buff_id] = BuffDefinitionSource(
             buffId=buff_id,
             sourceFile=source_file,
@@ -2459,7 +2673,7 @@ def resolve_buff_definitions(
             blackboardMutations=mutations,
             buffBlackboardReads=reads,
             buffFinishes=finishes,
-            eventActions=parse_buff_event_actions(buff, source_file, blackboard),
+            eventActions=event_actions,
             sourceDeathFinish=parse_buff_source_death_finish(buff, source_file, blackboard),
             resourceGains=parse_resource_gains(adapted_root, source_file, blackboard),
             combatActions=tuple(
@@ -2475,11 +2689,25 @@ def resolve_buff_definitions(
                 buff, source_file, unsupported_damage_modifiers
             ),
             auraActions=parse_buff_aura_actions(buff, source_file, blackboard),
+            invokedAbilityEntitySkills=tuple(invoked_skills),
+            auxiliaryActions=auxiliary_actions,
+            targetGroupWrites=parse_target_group_writes(adapted_root, source_file),
+            skillReplacements=parse_buff_skill_replacements(buff, source_file, blackboard),
+            attributeModifiersConverted=require_dict(
+                buff.get("attributeModifier"), f"{source_file}.attributeModifier"
+            ).get("isConvertedAttribute")
+            is True,
         )
         pending.extend(
             child_id
             for child_id in collect_created_buff_ids(buff, source_file)
             if child_id not in result
+        )
+        pending.extend(
+            action.sourceId
+            for child in invoked_skills
+            for action in child.auxiliaryActions
+            if action.actionType == "CreateBuffAction" and action.sourceId not in result
         )
     return tuple(result[buff_id] for buff_id in sorted(result))
 
@@ -2487,6 +2715,7 @@ def resolve_buff_definitions(
 def resolve_operator_buff_definitions(
     skills: Iterable[SkillSource],
     buff_source_dir: Path,
+    skill_source_dir: Path | None = None,
 ) -> tuple[BuffDefinitionSource, ...]:
     """按干员汇总技能引用，生成一份共享且去重的 Buff 定义目录。"""
     def nested_buff_targets(node: Any) -> dict[str, set[str]]:
@@ -2515,7 +2744,11 @@ def resolve_operator_buff_definitions(
     source_dirs = (buff_source_dir, buff_source_dir.parent / "buff-data-current")
     definitions = {
         definition.buffId: definition
-        for definition in resolve_buff_definitions(tuple(sorted(root_ids)), source_dirs)
+        for definition in resolve_buff_definitions(
+            tuple(sorted(root_ids)),
+            source_dirs,
+            skill_source_dir,
+        )
     }
     owner_ids = tuple(
         sorted(
@@ -2524,7 +2757,11 @@ def resolve_operator_buff_definitions(
             if "Owner" in targets and buff_id not in definitions
         )
     )
-    for definition in resolve_buff_definitions(owner_ids, source_dirs):
+    for definition in resolve_buff_definitions(
+        owner_ids,
+        source_dirs,
+        skill_source_dir,
+    ):
         if definition.buffId in owner_ids and definition.sourceDeathFinish is not None:
             definitions[definition.buffId] = definition
     return tuple(definitions[buff_id] for buff_id in sorted(definitions))
@@ -2534,10 +2771,13 @@ def resolve_operator_buff_definitions_for_stage(
     skills: Iterable[SkillSource],
     buff_source_dir: Path,
     output_stage: Literal["audit", "complete"],
+    skill_source_dir: Path | None = None,
 ) -> tuple[tuple[BuffDefinitionSource, ...], tuple[str, ...]]:
     """审计产物记录 Buff 缺口；正式产物继续对同一缺口失败关闭。"""
     try:
-        return resolve_operator_buff_definitions(skills, buff_source_dir), ()
+        return resolve_operator_buff_definitions(
+            skills, buff_source_dir, skill_source_dir
+        ), ()
     except ValueError as error:
         if output_stage != "audit":
             raise
@@ -2576,6 +2816,7 @@ def collect_operator_passive_skills(
     potential_table: dict[str, Any],
     effects: dict[str, Any],
     source_dir: Path,
+    base_passive_skill_ids: Iterable[str] = (),
 ) -> dict[str, PassiveSkillSource]:
     """收集该干员养成效果引用的隐藏技能，供 Buff 解析、审计和 DSL 生成共用。"""
     effect_ids: set[str] = set()
@@ -2593,7 +2834,7 @@ def collect_operator_passive_skills(
         unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[{index}]")
         effect_ids.add(str(unlock["potentialEffectId"]))
 
-    skill_ids: set[str] = set()
+    skill_ids: set[str] = set(base_passive_skill_ids)
     for effect_id in effect_ids:
         effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
         for index, raw_entry in enumerate(
@@ -2611,6 +2852,19 @@ def collect_operator_passive_skills(
         skill_id: parse_passive_skill(skill_id, source_dir)
         for skill_id in sorted(skill_ids)
     }
+
+
+def parse_base_passive_skill_ids(operator: dict[str, Any]) -> tuple[str, ...]:
+    path = f"{operator['slug']}.basePassiveSkillIds"
+    values = require_list(operator.get("basePassiveSkillIds", []), path)
+    result: list[str] = []
+    for index, value in enumerate(values):
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"{path}[{index}]: expected non-empty string")
+        result.append(value)
+    if len(result) != len(set(result)):
+        raise ValueError(f"{path}: duplicate skill id")
+    return tuple(result)
 
 
 def audit_passive_skill_generation(
@@ -5467,6 +5721,55 @@ def derive_timeline_block(exclusive_frame: int, allow_windows: tuple[dict[str, A
     return frame, source
 
 
+def parse_timed_skill_replacements(
+    root: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedSkillReplacementSource, ...]:
+    """解析技能根时间线上的直接技能槽替换；嵌套替换仍保留为未建模控制流。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedSkillReplacementSource] = []
+    for index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.timelineActions")
+    ):
+        path = f"{source_name}.timelineActions[{index}]"
+        timeline = require_dict(raw_timeline, path)
+        start_frame = require_non_negative_int(timeline.get("_startFrame"), f"{path}._startFrame")
+        end_frame = require_non_negative_int(timeline.get("_endFrame"), f"{path}._endFrame")
+        sequence = require_dict(
+            timeline.get("_sequenceActionData"), f"{path}._sequenceActionData"
+        )
+        parsed = parse_buff_skill_replacements(
+            {
+                "buffEventAction": [
+                    {"buffEvent": "Timeline", "actions": [sequence]}
+                ],
+                "abilityEventAction": [],
+            },
+            source_name,
+            blackboard,
+        )
+        result.extend(
+            TimedSkillReplacementSource(
+                startFrame=start_frame,
+                endFrame=end_frame,
+                actionIndex=item.actionIndex,
+                skillSource=item.skillSource,
+                skillSlot=item.skillSlot,
+                targetSkillId=item.targetSkillId,
+                overrideCacheTime=item.overrideCacheTime,
+                cacheTime=item.cacheTime,
+                lifeTimeType=item.lifeTimeType,
+                duration=item.duration,
+                inheritOriginSkillCooldownProgress=item.inheritOriginSkillCooldownProgress,
+                specificRevertedSkillId=item.specificRevertedSkillId,
+                revertedSkillId=item.revertedSkillId,
+            )
+            for item in parsed
+        )
+    return tuple(result)
+
+
 def parse_skill_patch(raw: Any, skill_id: str) -> SkillPatchSource:
     entry = require_dict(raw, f"SkillPatchTable.{skill_id}")
     bundles = require_list(entry.get("SkillPatchDataBundle"), f"SkillPatchTable.{skill_id}.SkillPatchDataBundle")
@@ -5658,6 +5961,9 @@ def parse_skill(entry: dict[str, Any], source_dir: Path, patch_table: dict[str, 
         ),
         timeDilations=parse_time_dilations(root, source_name, resolved_blackboard),
         keywordActions=parse_timed_keyword_actions(
+            root, source_name, resolved_blackboard
+        ),
+        skillReplacements=parse_timed_skill_replacements(
             root, source_name, resolved_blackboard
         ),
     )
@@ -5966,9 +6272,9 @@ def resolve_fixed_combat_target(
         return "caster"
     if root_skill_context and target_source == "Owner":
         return "caster"
-    if target_source == "Target" and input_target == "enemy":
+    if target_source == "Target" and input_target is not None:
         # 原生 Target 直接读取动作输入目标，命名目标组对该来源没有作用。
-        return "enemy"
+        return input_target
     if target_source == "Context" and (
         target_group_key == "smart_target" or context_target_is_enemy
     ):
@@ -6276,6 +6582,18 @@ def compile_combat_condition(
             raise ValueError(f"{path}: dynamic timed marker IDs are not supported")
         if not marker.markerId:
             raise ValueError(f"{path}: timed marker ID is empty")
+        if (
+            ability_entity_current_target
+            and marker.targetSource == "Target"
+            and not marker.targetGroupKey
+        ):
+            condition = (
+                "{ kind: 'abilityEntityTimedMarkerPresent', markerId: "
+                f"{ts_inline_literal(marker.markerId)} }}"
+            )
+            if marker.returnTrueIfNotExists:
+                return f"{{ kind: 'not', condition: {condition} }}"
+            return condition
         target = resolve_fixed_combat_target(
             marker.targetSource,
             marker.targetGroupKey,
@@ -6485,8 +6803,10 @@ def compile_buff_finish(
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     context_target_is_enemy: bool = False,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
 ) -> str:
     """编译目标身份和 Buff 查询方式均已闭环的全量结束分支。"""
     if not finish.finishAll or finish.limitSource:
@@ -6494,14 +6814,31 @@ def compile_buff_finish(
     if finish.isFinishedEarly and finish.isAbsorbed:
         raise ValueError(f"{path}: conflicting finish reasons")
     reason = "early" if finish.isFinishedEarly else "absorbed" if finish.isAbsorbed else "other"
-    target = resolve_fixed_combat_target(
-        finish.targetSource,
-        finish.targetGroupKey,
-        action=action,
-        target_group_writes=target_group_writes,
-        root_skill_context=root_skill_context,
-        input_target=input_target,
-        context_target_is_enemy=context_target_is_enemy,
+    if (
+        current_buff_environment
+        and finish.buffCheckType == "Environment"
+        and finish.targetSource == "Owner"
+        and not finish.targetGroupKey
+        and not finish.buffIds
+        and not finish.buffTagIds
+    ):
+        return "step('finishCurrentBuff', { reason: " + ts_inline_literal(reason) + " })"
+    target = (
+        buff_owner_target
+        if (
+            buff_owner_target is not None
+            and finish.targetSource == "Owner"
+            and not finish.targetGroupKey
+        )
+        else resolve_fixed_combat_target(
+            finish.targetSource,
+            finish.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            context_target_is_enemy=context_target_is_enemy,
+        )
     )
     if (
         target is not None
@@ -6749,13 +7086,15 @@ def compile_buff_application_values(
     root_skill_context: bool,
     path: str,
     context_application_target: Literal["enemy", "party"] | None = None,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
     current_ability_entity_owner: bool = False,
     target_finder_type: str | None = None,
     target_validator_types: tuple[str, ...] = (),
     target_post_processor_types: tuple[str, ...] = (),
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    ignored_buff_ids: frozenset[str] = frozenset(),
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
@@ -6777,6 +7116,14 @@ def compile_buff_application_values(
         and not target_post_processor_types
     ):
         target = "party"
+    elif (
+        target_source == "InstantSearch"
+        and target_finder_type == "HitBoxFinder"
+        and not target_validator_types
+        and not target_post_processor_types
+    ):
+        # 固定单敌人模型中，无额外筛选的即时命中盒只可能返回该敌人。
+        target = "enemy"
     elif target_source == "Owner" and current_ability_entity_owner:
         target = "currentAbilityEntity"
     else:
@@ -6799,7 +7146,66 @@ def compile_buff_application_values(
         definition = buff_definitions.get(buff_id)
         if definition is None:
             raise ValueError(f"{path}: Buff definition {buff_id!r} was not resolved")
-        definition_lines = compile_inline_buff_definition(definition, path).splitlines()
+        has_event_sequences = any(
+            sequence.actions
+            for event in definition.eventActions
+            for sequence in event.sequences
+        )
+        has_scheduled_sequences = any(
+            getattr(definition, field, ())
+            for field in (
+                "directDamageHits",
+                "conditionalActions",
+                "blackboardCalculations",
+                "blackboardMutations",
+                "buffBlackboardReads",
+                "buffFinishes",
+                "resourceGains",
+                "auxiliaryActions",
+            )
+        )
+        def compile_event_behaviors(
+            event_source: BuffDefinitionSource, event_path: str
+        ) -> str:
+            compiled = compile_inline_buff_behaviors(
+                event_source,
+                event_path,
+                # 队伍 Buff 仅在事件被显式忽略成空序列后才能通过。这里的
+                # caster 只用于完成严格编译；任何剩余行为都会在下方被拒绝。
+                buff_owner_target=cast(
+                    Literal["caster", "enemy", "currentAbilityEntity"],
+                    "caster" if target == "party" else target,
+                ),
+                buff_definitions=buff_definitions,
+                invoked_child_context=invoked_child_context,
+                ignored_buff_ids=ignored_buff_ids,
+            )
+            if target == "party" and compiled:
+                raise ValueError(f"{path}: party Buff event owner is not supported")
+            return compiled
+
+        definition_lines = compile_inline_buff_definition(
+            definition,
+            path,
+            (
+                compile_event_behaviors
+                if has_event_sequences
+                else None
+            ),
+            (
+                lambda scheduled_source, scheduled_path: compile_inline_buff_scheduled_sequences(
+                    scheduled_source,
+                    scheduled_path,
+                    buff_owner_target=cast(
+                        Literal["caster", "enemy", "currentAbilityEntity"], target
+                    ),
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=invoked_child_context,
+                )
+                if has_scheduled_sequences
+                else None
+            ),
+        ).splitlines()
         lines.append("  definition: {")
         lines.extend(f"    {line}" for line in definition_lines)
         lines.append("  },")
@@ -6830,9 +7236,11 @@ def compile_buff_application(
     *,
     root_skill_context: bool = True,
     context_application_target: Literal["enemy", "party"] | None = None,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     current_ability_entity_owner: bool = False,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    ignored_buff_ids: frozenset[str] = frozenset(),
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
@@ -6855,6 +7263,8 @@ def compile_buff_application(
         target_validator_types=action.targetValidatorTypes,
         target_post_processor_types=action.targetPostProcessorTypes,
         buff_definitions=buff_definitions,
+        invoked_child_context=invoked_child_context,
+        ignored_buff_ids=ignored_buff_ids,
         path=path,
     )
 
@@ -6865,10 +7275,27 @@ def compile_timed_marker_application(
     *,
     root_skill_context: bool,
     input_target: Literal["enemy"] | None,
+    ability_entity_current_target: bool = False,
 ) -> str:
-    """编译固定身份、普通战斗时间增量的原生定时标记创建。"""
+    """编译固定身份的原生定时标记，并严格区分全局与能力实体局部时间。"""
     if payload.useTimeDilationDt:
-        raise ValueError(f"{path}: time-dilated timed markers are not supported")
+        if not (
+            ability_entity_current_target
+            and payload.targetSource == "Owner"
+            and not payload.targetGroupKey
+        ):
+            raise ValueError(f"{path}: unsupported time-dilated timed marker target")
+        return "\n".join(
+            [
+                "step('createAbilityEntityTimedMarker', {",
+                f"  markerId: {ts_inline_literal(payload.markerId)},",
+                "  durationSeconds: "
+                f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
+                "  autoFinishByAction: "
+                f"{ts_inline_literal(payload.autoFinishByAction)},",
+                "})",
+            ]
+        )
     target = resolve_fixed_combat_target(
         payload.targetSource,
         payload.targetGroupKey,
@@ -6981,6 +7408,7 @@ def compile_conditional_buff_application(
     context_application_target: Literal["enemy", "party"] | None = None,
     input_target: Literal["enemy"] | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     has_dynamic_count = payload.count.blackboardKey is not None or payload.count.value != 1
@@ -6988,8 +7416,21 @@ def compile_conditional_buff_application(
         raise ValueError(
             f"{path}: repeated multi-Buff application requires a grouped repeat sequence"
         )
-    compiled = [
-        compile_buff_application_values(
+    def compile_entry(buff: BuffApplicationEntryPayload, index: int) -> str:
+        if getattr(buff, "classification", None) == "skillCostUltimateEnergyGain":
+            if not (
+                buff.buffId == "buff_common_obtain_ultimate_sp"
+                and not buff.blackboardAssignments
+                and payload.targetSource in {"Owner", "Source"}
+                and not payload.targetGroupKey
+                and payload.buffSource == "ActionSource"
+                and payload.inheritSourceSkillCastInfo
+                and payload.count.blackboardKey is None
+                and payload.count.value == 1
+            ):
+                raise ValueError(f"{path}.buffs[{index}]: unsupported skill-cost SP carrier")
+            return "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })"
+        return compile_buff_application_values(
             buff_id=buff.buffId,
             blackboard_assignments=buff.blackboardAssignments,
             target_source=payload.targetSource,
@@ -7006,7 +7447,12 @@ def compile_conditional_buff_application(
             target_validator_types=payload.targetValidatorTypes,
             target_post_processor_types=payload.targetPostProcessorTypes,
             buff_definitions=buff_definitions,
+            invoked_child_context=invoked_child_context,
+            ignored_buff_ids=ignored_buff_ids,
         )
+
+    compiled = [
+        compile_entry(buff, index)
         for index, buff in enumerate(payload.buffs)
         if buff.buffId not in ignored_buff_ids
     ]
@@ -7128,6 +7574,10 @@ def compile_conditional_branch_action(
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     ability_entity_current_target: bool = False,
     singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
+    buff_ability_damage_event: bool = False,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     if action.actionType in {
@@ -7151,6 +7601,10 @@ def compile_conditional_branch_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -7173,6 +7627,10 @@ def compile_conditional_branch_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -7315,6 +7773,8 @@ def compile_conditional_branch_action(
             target_group_writes=target_group_writes,
             root_skill_context=root_skill_context,
             input_target=input_target,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
         )
     if getattr(action, "buffStackRead", None) is not None:
         return compile_buff_stack_read(
@@ -7353,6 +7813,8 @@ def compile_conditional_branch_action(
             root_skill_context=root_skill_context,
             context_application_target=context_application_target,
             input_target=input_target,
+            buff_definitions=buff_definitions,
+            invoked_child_context=invoked_child_context,
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
         return compile_timed_marker_application(
@@ -7360,6 +7822,7 @@ def compile_conditional_branch_action(
             path,
             root_skill_context=root_skill_context,
             input_target=input_target,
+            ability_entity_current_target=ability_entity_current_target,
         )
     if getattr(action, "globalCooldownApplication", None) is not None:
         return compile_global_cooldown_application(
@@ -7399,6 +7862,10 @@ def compile_conditional_branch(
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     ability_entity_current_target: bool = False,
     singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
+    buff_ability_damage_event: bool = False,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -7425,6 +7892,10 @@ def compile_conditional_branch(
             singleton_ability_entity_context_keys=frozenset(
                 available_singleton_keys
             ),
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
         ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
         if (
@@ -7498,6 +7969,10 @@ def compile_conditional_action(
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     ability_entity_current_target: bool = False,
     singleton_ability_entity_context_keys: frozenset[str] = frozenset(),
+    buff_ability_damage_event: bool = False,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     if isinstance(action, DoOnceActionSource):
@@ -7517,6 +7992,10 @@ def compile_conditional_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
         if body == "sequence()":
             return body
@@ -7547,6 +8026,10 @@ def compile_conditional_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=True,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -7575,6 +8058,10 @@ def compile_conditional_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
     if len(action.conditions) == 1 and is_guaranteed_non_empty_target_group_condition(
         action.conditions[0],
@@ -7599,6 +8086,10 @@ def compile_conditional_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
@@ -7615,6 +8106,7 @@ def compile_conditional_action(
         input_target,
         skill_has_output_damage,
         ability_entity_current_target,
+        buff_ability_damage_event,
     )
     succeed = compile_conditional_branch(
         action.succeedActions,
@@ -7632,6 +8124,10 @@ def compile_conditional_action(
         buff_definitions=buff_definitions,
         ability_entity_current_target=ability_entity_current_target,
         singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+        buff_ability_damage_event=buff_ability_damage_event,
+        buff_owner_target=buff_owner_target,
+        current_buff_environment=current_buff_environment,
+        invoked_child_context=invoked_child_context,
     )
     fail = (
         compile_conditional_branch(
@@ -7650,6 +8146,10 @@ def compile_conditional_action(
             buff_definitions=buff_definitions,
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
         )
         if action.failActions
         else None
@@ -7669,6 +8169,257 @@ def compile_conditional_action(
         lines.extend(fail_lines)
     lines.append(")")
     return "\n".join(lines)
+
+
+def compile_inline_buff_event_responses(
+    source: BuffDefinitionSource,
+    path: str,
+    *,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    ignored_buff_ids: frozenset[str] = frozenset(),
+) -> str:
+    """编译证据已闭环的 Buff Ability 承伤事件响应。"""
+    runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
+    lines = ["abilityEventResponses: ["]
+    compiled_count = 0
+    for event_index, event in enumerate(source.eventActions):
+        if not event.sequences:
+            continue
+        event_path = f"{path}[{event_index}]"
+        damage_tags: list[str] = []
+        for damage_index, damage in enumerate(event.damageUnits):
+            tags, _ = decode_damage_decorate_mask(
+                damage.damageDecorateMask,
+                f"{event_path}.damageUnits[{damage_index}].damageDecorateMask",
+            )
+            for tag in tags:
+                if tag not in damage_tags:
+                    damage_tags.append(tag)
+        for sequence_index, event_sequence in enumerate(event.sequences):
+            sequence_path = f"{event_path}.sequences[{sequence_index}]"
+            if event_sequence.onlyMainOperator or event_sequence.onlyGuard:
+                raise ValueError(f"{sequence_path}: restricted Buff event sequence is unsupported")
+            if not event_sequence.actions:
+                # 清理、表现或敌方部件事件没有投影成当前模拟器中的战斗动作。
+                continue
+            compiled = compile_conditional_branch(
+                event_sequence.actions,
+                f"{sequence_path}.actions",
+                ignored_buff_ids=ignored_buff_ids,
+                damage_tags=tuple(damage_tags),
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                step_key_prefix=f"{source.buffId}:beforeTakeDamage:{sequence_index}",
+                buff_definitions=buff_definitions,
+                buff_ability_damage_event=True,
+                buff_owner_target=buff_owner_target,
+                current_buff_environment=True,
+            )
+            if compiled == "sequence()":
+                continue
+            if event.eventSource != "ability" or event.event != "OnBeforeTakeDamage":
+                raise ValueError(
+                    f"{event_path}: unsupported Buff event "
+                    f"{event.eventSource!r}/{event.event!r}"
+                )
+            compiled_lines = indent_source(compiled, 6)
+            compiled_lines[-1] += ","
+            lines.extend(
+                [
+                    "  {",
+                    "    event: 'beforeTakeDamage',",
+                    f"    priority: {event_sequence.priority},",
+                    "    sequence:",
+                    *compiled_lines,
+                    "  },",
+                ]
+            )
+            compiled_count += 1
+    if compiled_count == 0:
+        return ""
+    lines.append("],")
+    return "\n".join(lines)
+
+
+def compile_inline_buff_behaviors(
+    source: BuffDefinitionSource,
+    path: str,
+    *,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    ignored_buff_ids: frozenset[str] = frozenset(),
+) -> str:
+    """编译 Buff 的已闭环事件行为；隐藏实体技能只允许由周期触发同步启动。"""
+    enhance_events = tuple(
+        event
+        for event in source.eventActions
+        if event.eventSource == "buff" and event.event == "OnBuffEnhanceChanged"
+    )
+    trigger_events = tuple(
+        event
+        for event in source.eventActions
+        if event.eventSource == "buff"
+        and event.event == "OnBuffTrigger"
+        and event.forEachActions
+    )
+    if enhance_events:
+        other_events = tuple(
+            event
+            for event in source.eventActions
+            if event not in enhance_events
+            and any(sequence.actions for sequence in event.sequences)
+        )
+        if len(enhance_events) != 1 or other_events:
+            raise ValueError(f"{path}: unsupported mixed Buff enhance events")
+        runtime_blackboard_keys = frozenset(
+            (*[item.key for item in source.blackboard], "strength", "agility", "intellect", "will")
+        )
+        compiled_sequences: list[str] = []
+        for sequence_index, event_sequence in enumerate(enhance_events[0].sequences):
+            if event_sequence.onlyMainOperator or event_sequence.onlyGuard:
+                raise ValueError(f"{path}: restricted Buff enhance event is unsupported")
+            compiled = compile_conditional_branch(
+                event_sequence.actions,
+                f"{path}.enhanceChanged.sequences[{sequence_index}].actions",
+                ignored_buff_ids=ignored_buff_ids,
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                step_key_prefix=f"{source.buffId}:enhanceChanged:{sequence_index}",
+                buff_definitions=buff_definitions,
+                buff_owner_target=buff_owner_target,
+                current_buff_environment=True,
+                invoked_child_context=invoked_child_context,
+            )
+            if compiled != "sequence()":
+                compiled_sequences.append(compiled)
+        if not compiled_sequences:
+            return ""
+        lines = ["lifecycleSequences: {", "  enhanceChanged: sequence("]
+        for compiled in compiled_sequences:
+            compiled_lines = indent_source(compiled, 4)
+            compiled_lines[-1] += ","
+            lines.extend(compiled_lines)
+        lines.extend(["  ),", "},"])
+        return "\n".join(lines)
+    if not trigger_events:
+        return compile_inline_buff_event_responses(
+            source,
+            path,
+            buff_owner_target=buff_owner_target,
+            buff_definitions=buff_definitions,
+            ignored_buff_ids=ignored_buff_ids,
+        )
+    if invoked_child_context is None:
+        raise ValueError(f"{path}: invoked AbilityEntity child context is unavailable")
+    if buff_owner_target == "currentAbilityEntity":
+        raise ValueError(
+            f"{path}: invoked AbilityEntity child target cannot be the host AbilityEntity"
+        )
+    if len(trigger_events) != 1:
+        raise ValueError(f"{path}: expected one AbilityEntity trigger event")
+    event = trigger_events[0]
+    if len(event.targetGroupWrites) != 1 or len(event.forEachActions) != 1:
+        raise ValueError(f"{path}: expected one target-group producer and one foreach loop")
+    write = event.targetGroupWrites[0]
+    loop = event.forEachActions[0]
+    if (
+        loop.target.targetSource != "Context"
+        or loop.target.targetGroupKey != write.targetGroupKey
+        or not target_reference_has_plain_selector(loop.target)
+        or loop.orderedActionTypes != ("CastSkill",)
+        or loop.buffApplications
+        or len(loop.skillCasts) != 1
+    ):
+        raise ValueError(f"{path}: unsupported AbilityEntity foreach invocation")
+    skill_cast = loop.skillCasts[0]
+    if not (
+        skill_cast.caster.targetSource == "Target"
+        and target_reference_is_plain(skill_cast.caster)
+        and skill_cast.target.targetSource == "Owner"
+        and target_reference_is_plain(skill_cast.target)
+        and not skill_cast.skipApplyCost
+        and skill_cast.inheritSourceSkillCastId
+    ):
+        raise ValueError(f"{path}: unsupported AbilityEntity CastSkill identity")
+    children = tuple(
+        child
+        for child in source.invokedAbilityEntitySkills
+        if child.skillId == skill_cast.skillId
+    )
+    if len(children) != 1:
+        raise ValueError(f"{path}: invoked AbilityEntity child was not resolved uniquely")
+    child = children[0]
+    root_skill, config = invoked_child_context
+    child_damage_hits = collect_resolved_damage_hits(
+        SimpleNamespace(
+            skillId=f"{source.buffId}:trigger",
+            directDamageHits=(),
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(child,),
+        )
+    )
+    child_source = compile_ability_entity_child_skill(
+        child,
+        root_skill,
+        config,
+        child_damage_hits,
+        frozenset(item.key for item in child.declaredBlackboard),
+        input_target=buff_owner_target,
+        buff_definitions=buff_definitions,
+    )
+    find_source = compile_buff_event_target_group_write(
+        write,
+        load_ability_entity_template_evidence(),
+        f"{path}.targetGroupWrites[0]",
+    )
+    child_lines = indent_source(
+        "step('startCurrentAbilityEntityChildSkill', { childSkill: " + child_source + " })",
+        8,
+    )
+    lifecycle_fields: list[str] = []
+    enable_sequences: list[str] = []
+    runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
+    for event_index, enable_event in enumerate(source.eventActions):
+        if enable_event.eventSource != "buff" or enable_event.event != "DuringBuffEnable":
+            continue
+        for sequence_index, event_sequence in enumerate(enable_event.sequences):
+            if not event_sequence.actions:
+                continue
+            compiled_enable = compile_conditional_branch(
+                event_sequence.actions,
+                f"{path}[{event_index}].sequences[{sequence_index}].actions",
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                root_skill_context=False,
+                input_target="enemy",
+                step_key_prefix=f"{source.buffId}:enable:{sequence_index}",
+                buff_definitions=buff_definitions,
+                buff_owner_target=buff_owner_target,
+                current_buff_environment=True,
+                invoked_child_context=invoked_child_context,
+            )
+            if compiled_enable != "sequence()":
+                enable_sequences.append(compiled_enable)
+    if enable_sequences:
+        lifecycle_fields.append("  enable: sequence(")
+        for enable_sequence in enable_sequences:
+            enable_lines = indent_source(enable_sequence, 4)
+            enable_lines[-1] += ","
+            lifecycle_fields.extend(enable_lines)
+        lifecycle_fields.append("  ),")
+    lifecycle_fields.extend(
+        [
+            "  trigger: sequence(",
+            f"    {find_source},",
+            "    forEachContextTarget(",
+            f"      {ts_inline_literal(write.targetGroupKey)},",
+            "      sequence(",
+            *child_lines,
+            "      ),",
+            "    ),",
+            "  ),",
+        ]
+    )
+    return "\n".join(["lifecycleSequences: {", *lifecycle_fields, "},"])
 
 
 def target_group_branch_scopes(path: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
@@ -7980,6 +8731,218 @@ def target_group_is_guaranteed_non_empty_at(
     return True
 
 
+def compile_inline_buff_scheduled_sequences(
+    source: BuffDefinitionSource,
+    path: str,
+    *,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+) -> str:
+    """编译 Buff 实例本地帧时间线；Context/trigger 只由调用目标证据注入。"""
+    runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
+    damage_tags = (
+        tuple(
+            require_list(
+                invoked_child_context[1].get("tags", []),
+                f"{path}.invokedChildContext.tags",
+            )
+        )
+        if invoked_child_context is not None
+        else ()
+    )
+    trigger_write = TargetGroupWriteSource(
+        startFrame=-1,
+        endFrame=-1,
+        actionIndex=-1,
+        actionPath=(),
+        targetGroupKey="trigger",
+        producerType="FindTargetAction",
+        finderType="MainTargetFinder",
+        finderFactionTarget=None,
+        finderTargetObjectType=None,
+        finderCheckAlive=None,
+        validatorTypes=(),
+        postProcessorTypes=(),
+        inputTargets=(),
+        intervalSeconds=None,
+    )
+    target_group_writes = (trigger_write, *source.targetGroupWrites)
+    compiled: list[tuple[int, int, int, list[str]]] = []
+
+    for index, action in enumerate(source.auxiliaryActions):
+        if action.actionType != "CreateBuffAction":
+            raise ValueError(f"{path}.auxiliaryActions[{index}]: unsupported {action.actionType}")
+        context_target = (
+            "enemy"
+            if action.targetSource == "Context" and action.targetGroupKey == "trigger"
+            else None
+        )
+        step_lines = compile_buff_application(
+            action,
+            f"{path}.auxiliaryActions[{index}]",
+            root_skill_context=False,
+            context_application_target=context_target,
+            input_target="enemy",
+            buff_definitions=buff_definitions,
+            invoked_child_context=invoked_child_context,
+        ).splitlines()
+        compiled.append(
+            (action.startFrame, action.sequenceIndex, action.actionIndex, step_lines)
+        )
+
+    for index, calculation in enumerate(source.blackboardCalculations):
+        compiled.append(
+            (
+                calculation.startFrame,
+                calculation.sequenceIndex,
+                calculation.actionIndex,
+                compile_blackboard_calculation(
+                    calculation, f"{path}.blackboardCalculations[{index}]"
+                ).splitlines(),
+            )
+        )
+    for index, mutation in enumerate(source.blackboardMutations):
+        compiled.append(
+            (
+                mutation.startFrame,
+                mutation.sequenceIndex,
+                mutation.actionIndex,
+                compile_blackboard_mutation(
+                    mutation, f"{path}.blackboardMutations[{index}]"
+                ).splitlines(),
+            )
+        )
+    for index, read in enumerate(source.buffBlackboardReads):
+        compiled.append(
+            (
+                read.startFrame,
+                read.sequenceIndex,
+                read.actionIndex,
+                compile_buff_blackboard_read(
+                    read,
+                    f"{path}.buffBlackboardReads[{index}]",
+                    root_skill_context=False,
+                    input_target="enemy",
+                    context_target_is_enemy=(
+                        read.targetSource == "Context"
+                        and read.targetGroupKey == "trigger"
+                    ),
+                ).splitlines(),
+            )
+        )
+    for index, finish in enumerate(source.buffFinishes):
+        compiled.append(
+            (
+                finish.startFrame,
+                finish.sequenceIndex,
+                finish.actionIndex,
+                compile_buff_finish(
+                    finish,
+                    f"{path}.buffFinishes[{index}]",
+                    root_skill_context=False,
+                    input_target="enemy",
+                    buff_owner_target=buff_owner_target,
+                    current_buff_environment=True,
+                ).splitlines(),
+            )
+        )
+    for index, gain in enumerate(source.resourceGains):
+        if not resource_gain_can_change_value(gain, f"{path}.resourceGains[{index}]"):
+            continue
+        compiled.append(
+            (
+                gain.startFrame,
+                gain.sequenceIndex,
+                gain.actionIndex,
+                compile_resource_gain(
+                    gain, f"{path}.resourceGains[{index}]"
+                ).splitlines(),
+            )
+        )
+    for index, condition in enumerate(source.conditionalActions):
+        compiled_condition = compile_conditional_action(
+            condition,
+            f"{path}.conditionalActions[{index}]",
+            damage_tags=damage_tags,
+            runtime_blackboard_keys=runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=False,
+            input_target="enemy",
+            step_key_prefix=source.buffId,
+            buff_definitions=buff_definitions,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=True,
+            invoked_child_context=invoked_child_context,
+        )
+        if compiled_condition != "sequence()":
+            compiled.append(
+                (
+                    condition.startFrame,
+                    int(condition.actionPath[0][len("timelineActions[") : -1]),
+                    condition.actionIndex,
+                    compiled_condition.splitlines(),
+                )
+            )
+    for index, damage in enumerate(source.directDamageHits):
+        compiled.append(
+            (
+                damage.startFrame,
+                damage.sequenceIndex,
+                damage.actionIndex,
+                compile_damage_units_step(
+                    damage.damageUnits,
+                    damage_tags,
+                    f"{path}.directDamageHits[{index}]",
+                    runtime_blackboard_keys,
+                    encode_damage_step_key(
+                        source.buffId, "buff", (source.buffId,), (damage.actionIndex,)
+                    ),
+                ),
+            )
+        )
+
+    covered_actions = collect_compilable_conditional_action_types(
+        source.conditionalActions
+    )
+    if source.auxiliaryActions:
+        covered_actions.add("CreateBuffAction")
+    if source.directDamageHits:
+        covered_actions.add("DamageAction")
+    if source.blackboardCalculations:
+        covered_actions.add("SimpleCalcBBAction")
+    if source.blackboardMutations:
+        covered_actions.add("ModifyDynamicBlackboard")
+    if source.buffBlackboardReads:
+        covered_actions.add("GetTargetBuffBBAdvanced")
+    if source.buffFinishes:
+        covered_actions.add("FinishBuffAdvanced")
+    if source.resourceGains:
+        covered_actions.add("ObtainCostAction")
+    uncovered_actions = sorted(set(source.combatActions) - covered_actions)
+    if uncovered_actions:
+        raise ValueError(
+            f"{path}: Buff timeline combat actions are not covered: {uncovered_actions}"
+        )
+
+    if not compiled:
+        return ""
+    grouped: dict[tuple[int, int], list[tuple[int, list[str]]]] = {}
+    for frame, sequence_index, action_index, lines in compiled:
+        grouped.setdefault((frame, sequence_index), []).append((action_index, lines))
+    result = ["scheduledSequences: ["]
+    for frame, sequence_index in sorted(grouped):
+        result.extend(["  scheduled(", f"    {frame},", "    sequence("])
+        for _, lines in sorted(grouped[(frame, sequence_index)], key=lambda item: item[0]):
+            result.extend(
+                f"      {line}," if line.endswith(")") else f"      {line}"
+                for line in lines
+            )
+        result.extend(["    ),", "  ),"])
+    result.append("],")
+    return "\n".join(result)
+
+
 def is_guaranteed_non_empty_target_group_condition(
     condition: ConditionSource,
     *,
@@ -8265,12 +9228,13 @@ def compile_logical_ability_entity_spawn(
 def ability_entity_child_buff_can_compile(
     action: AuxiliaryActionSource,
     *,
+    input_target: Literal["caster", "enemy"] | None = None,
     ignored_auxiliary_classifications: frozenset[str] = frozenset(),
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
 ) -> bool:
-    """Accept only child Buff actions whose native source chain resolves to the caster."""
+    """Accept only child Buff actions whose receiver identity is proven by its invocation."""
     if (
         action.classification in ignored_auxiliary_classifications
         or action.sourceId in ignored_buff_ids
@@ -8281,7 +9245,7 @@ def ability_entity_child_buff_can_compile(
         return True
     if not (
         action.actionType == "CreateBuffAction"
-        and action.targetSource in {"Source", "Owner"}
+        and action.targetSource in {"Source", "Owner", "Target"}
         and action.buffSource == "ActionSource"
         and action.inheritSourceSkillCastInfo is not None
         and action.count is not None
@@ -8291,6 +9255,8 @@ def ability_entity_child_buff_can_compile(
         return False
     if action.targetSource == "Source":
         return True
+    if action.targetSource == "Target":
+        return input_target is not None
     definition = None if buff_definitions is None else buff_definitions.get(action.sourceId)
     return definition is not None and definition.sourceDeathFinish is not None
 
@@ -8383,6 +9349,8 @@ def timeline_jump_outer_condition(
 def timeline_jump_can_compile(
     jump: TimedTimelineJumpSource,
     hit: AbilityEntityHitSource | None = None,
+    *,
+    input_target: Literal["caster", "enemy"] = "enemy",
 ) -> bool:
     """只接受唯一根动作、前向目的地和完整直接条件的已证实跳转形状。"""
     sequence_index = getattr(jump, "sequenceIndex", -1)
@@ -8408,7 +9376,7 @@ def timeline_jump_can_compile(
                 getattr(jump, "directConditions"),
                 "timelineJump.condition",
                 root_skill_context=False,
-                input_target="enemy",
+                input_target=input_target,
             )
         except ValueError:
             return False
@@ -8421,7 +9389,7 @@ def timeline_jump_can_compile(
             "timelineJump.outerCondition",
             target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
             root_skill_context=False,
-            input_target="enemy",
+            input_target=input_target,
         )
     except ValueError:
         return False
@@ -8432,7 +9400,9 @@ def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource)
     """核对能力实体子图中的原生战斗动作均有对应的共享编译路径。"""
     allowed = {
         "CreateBuffAction",
+        "CreateTimedMarker",
         "DamageAction",
+        "FinishBuffAdvanced",
         "FinishOwnerAction",
         "JumpToAction",
         "ObtainCostAction",
@@ -8448,6 +9418,7 @@ def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource)
 def ability_entity_child_timeline_can_compile(
     hit: AbilityEntityHitSource,
     *,
+    input_target: Literal["caster", "enemy"] = "enemy",
     ignored_auxiliary_classifications: frozenset[str] = frozenset(),
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
@@ -8468,6 +9439,7 @@ def ability_entity_child_timeline_can_compile(
         and all(
             ability_entity_child_buff_can_compile(
                 action,
+                input_target=input_target,
                 ignored_auxiliary_classifications=ignored_auxiliary_classifications,
                 ignored_buff_ids=ignored_buff_ids,
                 unmodeled_buff_ids=unmodeled_buff_ids,
@@ -8479,14 +9451,22 @@ def ability_entity_child_timeline_can_compile(
             finish.target.targetSource == "Owner" and target_reference_is_plain(finish.target)
             for finish in getattr(hit, "explicitFinishes", ())
         )
-        and all(timeline_jump_can_compile(jump, hit) for jump in getattr(hit, "timelineJumps", ()))
+        and all(
+            timeline_jump_can_compile(jump, hit, input_target=input_target)
+            for jump in getattr(hit, "timelineJumps", ())
+        )
         and ability_entity_child_finishes_are_terminal(hit)
         and not getattr(hit, "projectileLaunches", ())
         and not getattr(hit, "projectileTriggeredSkills", ())
         and not getattr(hit, "nestedAbilityEntityHits", ())
         and not getattr(hit, "blackboardCalculations", ())
         and not getattr(hit, "buffBlackboardReads", ())
-        and not getattr(hit, "buffFinishes", ())
+        and all(
+            finish.targetSource in {"Owner", "Target"}
+            and not finish.targetGroupKey
+            and finish.buffCheckType in {"Id", "Tag"}
+            for finish in getattr(hit, "buffFinishes", ())
+        )
         and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
         and ability_entity_child_combat_actions_can_compile(hit)
@@ -8598,6 +9578,7 @@ def compile_ability_entity_child_skill(
     all_damage_hits: tuple[ResolvedDamageHitSource, ...],
     runtime_blackboard_keys: frozenset[str],
     *,
+    input_target: Literal["caster", "enemy"] = "enemy",
     ignored_auxiliary_classifications: frozenset[str] = frozenset(),
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
@@ -8606,6 +9587,7 @@ def compile_ability_entity_child_skill(
     """Render a proven child graph in entity-local frames without a second action protocol."""
     if not ability_entity_child_timeline_can_compile(
         hit,
+        input_target=input_target,
         ignored_auxiliary_classifications=ignored_auxiliary_classifications,
         ignored_buff_ids=ignored_buff_ids,
         unmodeled_buff_ids=unmodeled_buff_ids,
@@ -8666,6 +9648,21 @@ def compile_ability_entity_child_skill(
             )
         )
 
+    for finish in hit.buffFinishes:
+        compiled.append(
+            (
+                finish.startFrame,
+                native_sequence_order(finish, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, finish.actionIndex),
+                compile_buff_finish(
+                    finish,
+                    f"{skill.key}.{hit.skillId}.buffFinish",
+                    input_target=input_target,
+                    buff_owner_target="currentAbilityEntity",
+                ).splitlines(),
+            )
+        )
+
     resource_gains = sorted(
         hit.resourceGains, key=lambda item: (item.startFrame, item.actionIndex)
     )
@@ -8699,6 +9696,7 @@ def compile_ability_entity_child_skill(
                 f"{skill.key}.{hit.skillId}.auxiliaryActions[{index}]",
                 root_skill_context=False,
                 current_ability_entity_owner=True,
+                input_target=input_target,
                 buff_definitions=buff_definitions,
             )
         compiled.append(
@@ -8746,7 +9744,7 @@ def compile_ability_entity_child_skill(
                 runtime_blackboard_keys=runtime_blackboard_keys,
                 target_group_writes=hit.localTargetGroupWrites,
                 root_skill_context=False,
-                input_target="enemy",
+                input_target=input_target,
                 skill_has_output_damage=any(
                     damage_frame < frame for damage_frame in child_damage_frames
                 ),
@@ -8789,7 +9787,7 @@ def compile_ability_entity_child_skill(
                 jump.directConditions,
                 f"{skill.key}.{hit.skillId}.timelineJump.condition",
                 root_skill_context=False,
-                input_target="enemy",
+                input_target=input_target,
             )
             condition_lines = condition.splitlines()
             condition_lines[0] = f"  condition: {condition_lines[0]}"
@@ -8808,7 +9806,7 @@ def compile_ability_entity_child_skill(
                 f"{skill.key}.{hit.skillId}.timelineJump.outerCondition",
                 target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
                 root_skill_context=False,
-                input_target="enemy",
+                input_target=input_target,
             )
             condition_lines = [f"  {line}" for line in condition.splitlines()]
             condition_lines[-1] += ","
@@ -8908,9 +9906,24 @@ def is_guaranteed_single_enemy_condition(
     """识别在 Endaxis 固定单个有效敌人模型下恒真的目标数量条件。"""
     identity = getattr(condition, "targetIdentity", None)
     if condition.sourceType == "CheckTargetsEqual" and identity is not None:
-        return target_identity_reference_guarantees_single_enemy(
-            identity.first
-        ) and target_identity_reference_guarantees_single_enemy(identity.second)
+        def reference_is_single_enemy(reference: TargetReferenceSource) -> bool:
+            if target_identity_reference_guarantees_single_enemy(reference):
+                return True
+            if (
+                action is None
+                or reference.targetSource != "Context"
+                or not reference.targetGroupKey
+                or not target_reference_has_plain_selector(reference)
+            ):
+                return False
+            write = resolve_latest_target_group_write(
+                action, reference.targetGroupKey, target_group_writes
+            )
+            return write is not None and target_group_write_guarantees_single_enemy(write)
+
+        return reference_is_single_enemy(identity.first) and reference_is_single_enemy(
+            identity.second
+        )
 
     entity = getattr(condition, "entityCount", None)
     return (
@@ -9867,6 +10880,7 @@ def compile_resolved_sequence(
     *,
     require_damage: bool,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
 ) -> str:
     """将已闭环根动作统一编译为按原生顺序调度的序列。"""
     ignored_auxiliary_classifications = set(
@@ -9973,6 +10987,86 @@ def compile_resolved_sequence(
     if require_damage and not hits:
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
     resolved_schedule = collect_resolved_schedule(skill)
+    replacement_relations = tuple(skill_slot_replacement_relations)
+    activation_relations = tuple(
+        relation
+        for relation in replacement_relations
+        if relation["baseSkillKey"] == skill.key
+    )
+    revert_relations = tuple(
+        relation
+        for relation in replacement_relations
+        if relation["replacementSkillKey"] == skill.key
+    )
+    if len({relation["activatedByBuffId"] for relation in activation_relations}) != len(
+        activation_relations
+    ):
+        raise ValueError(f"{skill.key}: duplicate slot replacement activation Buff")
+    activation_actions = {
+        relation["activatedByBuffId"]: [
+            action
+            for action in skill.auxiliaryActions
+            if action.actionType == "CreateBuffAction"
+            and action.sourceId == relation["activatedByBuffId"]
+        ]
+        for relation in activation_relations
+    }
+    for buff_id, actions in activation_actions.items():
+        if len(actions) != 1:
+            raise ValueError(
+                f"{skill.key}: proven slot replacement Buff {buff_id!r} must have one "
+                f"direct application, got {len(actions)}"
+            )
+        if (
+            buff_id in ignored_buff_ids
+            or buff_id in unmodeled_buff_ids
+            or actions[0].classification in ignored_auxiliary_classifications
+        ):
+            raise ValueError(
+                f"{skill.key}: proven slot replacement Buff {buff_id!r} cannot be ignored"
+            )
+
+    matched_revert_actions: set[tuple[int, int]] = set()
+    replacement_schedule_items: list[ResolvedScheduleItemSource] = []
+    for relation in revert_relations:
+        matches = [
+            action
+            for action in getattr(skill, "skillReplacements", ())
+            if action.startFrame == relation["revertOnReplacementCastFrame"]
+            and action.actionIndex == relation["revertActionIndex"]
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"{skill.key}: proven slot replacement revert must match one native action, "
+                f"got {len(matches)}"
+            )
+        action = matches[0]
+        matched_revert_actions.add((action.startFrame, action.actionIndex))
+        replacement_schedule_items.append(
+            ResolvedScheduleItemSource(
+                frame=action.startFrame,
+                actionOrder=(action.actionIndex,),
+                itemType="skillSlotReplacement",
+                sourcePath=(skill.skillId,),
+                payload=action,
+                sequenceOrder=native_sequence_order(action, (), skill.skillId),
+            )
+        )
+    unmatched_reverts = [
+        action
+        for action in getattr(skill, "skillReplacements", ())
+        if (action.startFrame, action.actionIndex) not in matched_revert_actions
+    ]
+    if revert_relations and unmatched_reverts:
+        raise ValueError(
+            f"{skill.key}: ChangeSkillAction is not covered by a proven stable slot relation"
+        )
+    resolved_schedule = tuple(
+        sorted(
+            (*resolved_schedule, *replacement_schedule_items),
+            key=lambda item: (item.frame, item.sequenceOrder, item.actionOrder),
+        )
+    )
 
     def collect_reachable_ability_entities() -> tuple[AbilityEntityHitSource, ...]:
         result: list[AbilityEntityHitSource] = []
@@ -9996,6 +11090,7 @@ def compile_resolved_sequence(
     migrated_ability_entities = tuple(
         entity
         for entity in reachable_ability_entities
+        if logical_ability_entity_spawn_payload_for_compile(entity, skill) is not None
         if ability_entity_child_timeline_can_compile(
             entity,
             ignored_auxiliary_classifications=frozenset(
@@ -10249,7 +11344,44 @@ def compile_resolved_sequence(
                     context_application_target=context_application_target,
                     input_target=item.inputTarget,
                     buff_definitions=buff_definitions,
+                    invoked_child_context=(skill, config),
+                    ignored_buff_ids=ignored_buff_ids,
                 ).splitlines()
+                relation = next(
+                    (
+                        candidate
+                        for candidate in activation_relations
+                        if candidate["activatedByBuffId"] == payload.sourceId
+                    ),
+                    None,
+                )
+                if relation is not None:
+                    step_lines.extend(
+                        [
+                            "step('changeSkillSlot', {",
+                            f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                            f"  targetSkillKey: {ts_inline_literal(relation['replacementSkillKey'])},",
+                            "})",
+                        ]
+                    )
+        elif item.itemType == "skillSlotReplacement":
+            relation = next(
+                (
+                    candidate
+                    for candidate in revert_relations
+                    if candidate["revertOnReplacementCastFrame"] == item.frame
+                    and candidate["revertActionIndex"] == item.actionOrder[0]
+                ),
+                None,
+            )
+            if relation is None:
+                raise AssertionError(f"{skill.key}: missing proven slot replacement relation")
+            step_lines = [
+                "step('changeSkillSlot', {",
+                f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                f"  targetSkillKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                "})",
+            ]
         elif item.itemType == "eventListener":
             payload = cast(SkillEventListenerSource, item.payload)
             compiled_listener = compile_skill_event_listener(
@@ -10362,6 +11494,7 @@ def compile_resolved_damage_sequence(
     skill: SkillSource,
     config: dict[str, Any],
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
 ) -> str:
     """兼容要求至少一个伤害命中的严格入口。"""
     return compile_resolved_sequence(
@@ -10369,6 +11502,7 @@ def compile_resolved_damage_sequence(
         config,
         require_damage=True,
         buff_definitions=buff_definitions,
+        skill_slot_replacement_relations=skill_slot_replacement_relations,
     )
 
 
@@ -10376,8 +11510,10 @@ def compile_skill_entries(
     operator: dict[str, Any],
     skills: list[SkillSource],
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
 ) -> tuple[list[tuple[SkillSource, str]], set[str]]:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
+    replacement_relations = tuple(skill_slot_replacement_relations)
     compiled: list[tuple[SkillSource, str]] = []
     damage_type_factories: set[str] = set()
     for entry, skill in zip(entries, skills, strict=True):
@@ -10386,6 +11522,18 @@ def compile_skill_entries(
             continue
         config = require_dict(config, f"{skill.key}.compile")
         kind = config.get("kind")
+        has_slot_relation = any(
+            relation["baseSkillKey"] == skill.key
+            or relation["replacementSkillKey"] == skill.key
+            for relation in replacement_relations
+        )
+        if has_slot_relation and kind not in {
+            "resolvedDamageSequence",
+            "resolvedSequence",
+        }:
+            raise ValueError(
+                f"{skill.key}: stable slot replacement requires a resolved sequence compiler"
+            )
         if skill.conditionalActions and kind not in {
             "resolvedDamageSequence",
             "resolvedSequence",
@@ -10412,7 +11560,15 @@ def compile_skill_entries(
             compiled.append((skill, compile_projectile_damage(skill, config)))
         elif kind == "resolvedDamageSequence":
             compiled.append(
-                (skill, compile_resolved_damage_sequence(skill, config, buff_definitions))
+                (
+                    skill,
+                    compile_resolved_damage_sequence(
+                        skill,
+                        config,
+                        buff_definitions,
+                        replacement_relations,
+                    ),
+                )
             )
         elif kind == "resolvedSequence":
             compiled.append(
@@ -10423,6 +11579,7 @@ def compile_skill_entries(
                         config,
                         require_damage=False,
                         buff_definitions=buff_definitions,
+                        skill_slot_replacement_relations=replacement_relations,
                     ),
                 )
             )
@@ -10567,24 +11724,63 @@ def render_compiled_skills(
     operator: dict[str, Any],
     skills: list[SkillSource],
     buff_definitions: tuple[BuffDefinitionSource, ...] | None = None,
+    entity_blackboard_initializers: list[dict[str, Any]] | None = None,
+    skill_slot_replacement_relations: list[dict[str, Any]] | None = None,
 ) -> str:
     definitions_by_id = (
         None
         if buff_definitions is None
         else {definition.buffId: definition for definition in buff_definitions}
     )
+    initializers = entity_blackboard_initializers or []
+    derived_replacement_relations = skill_slot_replacement_relations
+    if derived_replacement_relations is None:
+        derived_replacement_relations = (
+            []
+            if buff_definitions is None
+            else derive_skill_slot_replacement_relations(skills, buff_definitions)
+        )
+    replacement_relations = select_runtime_skill_slot_replacement_relations(
+        operator,
+        skills,
+        derived_replacement_relations,
+    )
     compiled, damage_type_factories = compile_skill_entries(
         operator,
         skills,
         definitions_by_id,
+        replacement_relations,
     )
     helper_imports = collect_definition_helpers(compiled, damage_type_factories)
+    type_imports = (
+        "OperatorEntityBlackboardInitializerDefinition, SkillDefinition"
+        if initializers
+        else "SkillDefinition"
+    )
+    identifier = typescript_identifier(str(operator["slug"]))
+    initializer_source = (
+        "\n"
+        f"export const {identifier}EntityBlackboardInitializers = "
+        f"{ts_inline_literal(initializers)} as const satisfies readonly "
+        "OperatorEntityBlackboardInitializerDefinition[];\n"
+        if initializers
+        else ""
+    )
+    replacement_source = (
+        "\n"
+        f"export const {identifier}SkillSlotReplacementRelations = "
+        f"{ts_inline_literal(replacement_relations)} as const;\n"
+        if replacement_relations
+        else ""
+    )
     return (
         "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
-        "import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';\n"
+        f"import type {{ {type_imports} }} from '../../../core/game-data/operatorDefinition';\n"
         f"import {{ {helper_imports} }} from '../definitionHelpers';\n\n"
         "// prettier-ignore\n"
         + "\n".join(render_named_skills(operator, compiled))
+        + initializer_source
+        + replacement_source
     )
 
 
@@ -10732,6 +11928,7 @@ def typescript_identifier(slug: str) -> str:
 def render_skill_groups(
     operator: dict[str, Any],
     skills: list[SkillSource],
+    skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
 ) -> list[str]:
     skill_by_key = {skill.key: skill for skill in skills}
     if len(skill_by_key) != len(skills):
@@ -10751,12 +11948,45 @@ def render_skill_groups(
             raise ValueError(f"skillGroups.{key}: unknown skill key {error.args[0]!r}") from error
         if any(skill.skillType != skill_type for skill in referenced_skills):
             raise ValueError(f"skillGroups.{key}: skill type does not match referenced skills")
-        references = [generated_skill_name(operator, skill.key) for skill in referenced_skills]
+        group_relations = [
+            relation
+            for relation in skill_slot_replacement_relations
+            if relation["baseSkillKey"] in skill_keys
+            or relation["replacementSkillKey"] in skill_keys
+        ]
+        for relation in group_relations:
+            if not {
+                relation["baseSkillKey"],
+                relation["replacementSkillKey"],
+            }.issubset(skill_keys):
+                raise ValueError(
+                    f"skillGroups.{key}: stable slot relation must remain in one skill group"
+                )
+        replacement_keys = {
+            relation["replacementSkillKey"] for relation in group_relations
+        }
+        base_skills = [
+            skill for skill in referenced_skills if skill.key not in replacement_keys
+        ]
+        if not base_skills:
+            raise ValueError(f"skillGroups.{key}: expected at least one placeable skill")
+        references = [generated_skill_name(operator, skill.key) for skill in base_skills]
         skills_source = references[0] if len(references) == 1 else f"[{', '.join(references)}]"
+        replacement_references = [
+            generated_skill_name(operator, skill.key)
+            for skill in referenced_skills
+            if skill.key in replacement_keys
+        ]
         result.append(
             "{ "
             f"key: {ts_inline_literal(key)}, skillType: {ts_inline_literal(skill_type)}, "
-            f"levelSource: {ts_inline_literal(level_source)}, skills: {skills_source} "
+            f"levelSource: {ts_inline_literal(level_source)}, skills: {skills_source}"
+            + (
+                f", replacementSkills: [{', '.join(replacement_references)}]"
+                if replacement_references
+                else ""
+            )
+            + " "
             "}"
         )
     return result
@@ -10871,6 +12101,211 @@ def parse_combo_skill_registrations(
     return parsed
 
 
+DECK_ATTRIBUTE_TYPE_MAP = {
+    "Str": "strength",
+    "Agi": "agility",
+    "Wisd": "intellect",
+    "Will": "will",
+}
+
+
+def derive_entity_blackboard_initializers(
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_definitions: Iterable[BuffDefinitionSource],
+) -> list[dict[str, Any]]:
+    """从隐藏被动 OnBuffStart 的面板比较双分支赋值中归纳实体黑板初值。"""
+    referenced_ids = {
+        buff_id
+        for passive in passive_skills.values()
+        for buff_id in passive.referenced_buff_ids
+    }
+    definitions = {
+        definition.buffId: definition
+        for definition in buff_definitions
+        if definition.buffId in referenced_ids
+    }
+    result: list[dict[str, Any]] = []
+    seen_keys: set[str] = set()
+
+    def direct_number(value: ScalarSource) -> float | int | None:
+        if value.blackboardKey is not None or value.levelValues is not None:
+            return None
+        number = value.value
+        if (
+            not isinstance(number, (int, float))
+            or isinstance(number, bool)
+            or not math.isfinite(number)
+        ):
+            return None
+        return number
+
+    for buff_id in sorted(definitions):
+        definition = definitions[buff_id]
+        for event in definition.eventActions:
+            if event.eventSource != "buff" or event.event != "OnBuffStart":
+                continue
+            for sequence_source in event.sequences:
+                for action in sequence_source.actions:
+                    branch = action.nestedCondition
+                    if branch is None or len(branch.conditions) != 1:
+                        continue
+                    condition = branch.conditions[0].deckAttributeCompare
+                    if condition is None:
+                        continue
+                    if condition.targetSource != "Owner" or condition.targetGroupKey:
+                        continue
+                    left = DECK_ATTRIBUTE_TYPE_MAP.get(condition.leftAttribute)
+                    right = DECK_ATTRIBUTE_TYPE_MAP.get(condition.rightAttribute)
+                    comparison = COMPARISON_OPERATOR_MAP.get(condition.comparison)
+                    if left is None or right is None or comparison is None:
+                        continue
+                    if direct_number(condition.leftValue) != 0 or direct_number(condition.rightValue) != 0:
+                        continue
+                    if len(branch.succeedActions) != 1 or len(branch.failActions) != 1:
+                        continue
+                    succeed = branch.succeedActions[0].blackboardMutation
+                    fail = branch.failActions[0].blackboardMutation
+                    if succeed is None or fail is None:
+                        continue
+                    if (
+                        succeed.key != fail.key
+                        or not succeed.key.startswith("EntityBB_")
+                        or succeed.key == "EntityBB_"
+                        or succeed.operation != "Assign"
+                        or fail.operation != "Assign"
+                    ):
+                        continue
+                    true_value = direct_number(succeed.value)
+                    false_value = direct_number(fail.value)
+                    if true_value is None or false_value is None:
+                        continue
+                    if succeed.key in seen_keys:
+                        raise ValueError(
+                            f"duplicate derived entity blackboard initializer {succeed.key!r}"
+                        )
+                    seen_keys.add(succeed.key)
+                    result.append(
+                        {
+                            "key": succeed.key,
+                            "condition": {
+                                "kind": "deckAttributeCompare",
+                                "left": left,
+                                "operator": comparison,
+                                "right": right,
+                            },
+                            "trueValue": true_value,
+                            "falseValue": false_value,
+                        }
+                    )
+    return result
+
+
+def derive_skill_slot_replacement_relations(
+    skills: list[SkillSource],
+    buff_definitions: Iterable[BuffDefinitionSource],
+) -> list[dict[str, Any]]:
+    """从首段直接 Buff 与替换技能第 0 帧还原动作证明稳定技能槽闭环。"""
+    skill_by_id = {skill.skillId: skill for skill in skills}
+    definitions = {definition.buffId: definition for definition in buff_definitions}
+    result: list[dict[str, Any]] = []
+    seen_base_ids: set[str] = set()
+    for base in skills:
+        for buff_id in base.referencedBuffIds:
+            definition = definitions.get(buff_id)
+            if definition is None:
+                continue
+            for replacement in definition.skillReplacements:
+                replacement_skill = skill_by_id.get(replacement.targetSkillId)
+                if replacement_skill is None:
+                    continue
+                if (
+                    replacement.eventSource != "buff"
+                    or replacement.event != "DuringBuffEnable"
+                    or replacement.skillSource.targetSource != "Source"
+                    or replacement.skillSource.targetGroupKey
+                    or replacement.revertedSkillId != base.skillId
+                    or not replacement.specificRevertedSkillId
+                    or replacement.lifeTimeType != "FinishByAction"
+                    or replacement_skill.skillType != base.skillType
+                ):
+                    continue
+                reverts = [
+                    action
+                    for action in replacement_skill.skillReplacements
+                    if (
+                        action.startFrame == 0
+                        and action.skillSource.targetSource == "Source"
+                        and not action.skillSource.targetGroupKey
+                        and action.skillSlot == replacement.skillSlot
+                        and action.targetSkillId == base.skillId
+                        and action.lifeTimeType == "Infinite"
+                        and not action.specificRevertedSkillId
+                        and not action.revertedSkillId
+                    )
+                ]
+                if len(reverts) != 1:
+                    continue
+                if base.skillId in seen_base_ids:
+                    raise ValueError(
+                        f"skill {base.skillId!r} has multiple proven slot replacement relations"
+                    )
+                seen_base_ids.add(base.skillId)
+                revert = reverts[0]
+                result.append(
+                    {
+                        "skillSlot": replacement.skillSlot,
+                        "baseSkillKey": base.key,
+                        "replacementSkillKey": replacement_skill.key,
+                        "activatedByBuffId": buff_id,
+                        "activationEvent": replacement.event,
+                        "activationActionIndex": replacement.actionIndex,
+                        "revertOnReplacementCastFrame": revert.startFrame,
+                        "revertActionIndex": revert.actionIndex,
+                        "inheritOriginSkillCooldownProgress": (
+                            replacement.inheritOriginSkillCooldownProgress
+                        ),
+                    }
+                )
+    return result
+
+
+def select_runtime_skill_slot_replacement_relations(
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    derived_relations: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """只把 manifest 明确声明为不可直接放置的形态接入运行时换槽。"""
+    raw_keys = operator.get("runtimeReplacementSkillKeys", [])
+    keys = [
+        str(value)
+        for value in require_list(
+            raw_keys,
+            f"{operator['slug']}.runtimeReplacementSkillKeys",
+        )
+    ]
+    if len(keys) != len(set(keys)):
+        raise ValueError(
+            f"{operator['slug']}.runtimeReplacementSkillKeys: duplicate skill key"
+        )
+    known_keys = {skill.key for skill in skills}
+    unknown = sorted(set(keys).difference(known_keys))
+    if unknown:
+        raise ValueError(
+            f"{operator['slug']}.runtimeReplacementSkillKeys: unknown skills {unknown}"
+        )
+    relations = [
+        relation
+        for relation in derived_relations
+        if relation["replacementSkillKey"] in keys
+    ]
+    missing = sorted(set(keys).difference(relation["replacementSkillKey"] for relation in relations))
+    if missing:
+        raise ValueError(
+            f"{operator['slug']}.runtimeReplacementSkillKeys: no proven slot relation for {missing}"
+        )
+    return relations
+
+
 def render_operator_definition(
     operator: dict[str, Any],
     skills: list[SkillSource],
@@ -10880,6 +12315,7 @@ def render_operator_definition(
     effects: dict[str, Any],
     buff_definitions: tuple[BuffDefinitionSource, ...] = (),
     passive_skills: dict[str, PassiveSkillSource] | None = None,
+    entity_blackboard_initializers: list[dict[str, Any]] | None = None,
 ) -> str:
     char_id = str(operator["charId"])
     character = table_row(character_table, char_id, "CharacterTable")
@@ -10896,14 +12332,24 @@ def render_operator_definition(
     operator_export_name = f"{identifier}GeneratedOperator"
     definitions_by_id = {definition.buffId: definition for definition in buff_definitions}
     passive_skills = passive_skills or {}
+    skill_slot_replacement_relations = select_runtime_skill_slot_replacement_relations(
+        operator,
+        skills,
+        derive_skill_slot_replacement_relations(skills, buff_definitions),
+    )
     skill_entries, damage_type_factories = compile_skill_entries(
         operator,
         skills,
         definitions_by_id,
+        skill_slot_replacement_relations,
     )
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
-    groups = render_skill_groups(operator, skills)
+    groups = render_skill_groups(operator, skills, skill_slot_replacement_relations)
     combo_skill_registrations = parse_combo_skill_registrations(operator, skills)
+    if entity_blackboard_initializers is None:
+        entity_blackboard_initializers = derive_entity_blackboard_initializers(
+            passive_skills, buff_definitions
+        )
     talents = render_talents(
         operator, skills, growth, effects, passive_skills, definitions_by_id
     )
@@ -10961,6 +12407,14 @@ def render_operator_definition(
                 if combo_skill_registrations is not None
                 else []
             ),
+            *(
+                [
+                    "  entityBlackboardInitializers: "
+                    f"{ts_inline_literal(entity_blackboard_initializers)},"
+                ]
+                if entity_blackboard_initializers
+                else []
+            ),
             "  talents: [",
             *(textwrap.indent(talent, "    ") + "," for talent in talents),
             "  ],",
@@ -10979,11 +12433,26 @@ def render_report(
     passive_skills: dict[str, PassiveSkillSource] | None = None,
     passive_generation_issues: dict[str, tuple[str, ...]] | None = None,
     buff_definition_resolution_issues: tuple[str, ...] = (),
+    entity_blackboard_initializers: list[dict[str, Any]] | None = None,
 ) -> str:
     passive_skills = passive_skills or {}
     passive_generation_issues = passive_generation_issues or {}
     report = {
         "operator": slug,
+        **(
+            {"entityBlackboardInitializers": entity_blackboard_initializers}
+            if entity_blackboard_initializers
+            else {}
+        ),
+        **(
+            {"skillSlotReplacementRelations": replacement_relations}
+            if (
+                replacement_relations := derive_skill_slot_replacement_relations(
+                    skills, buff_definitions
+                )
+            )
+            else {}
+        ),
         "complete": all(
             not skill.unresolvedCombatActions
             and not skill.blackboardKeys
@@ -11064,6 +12533,9 @@ def render_report(
                     serialize_audit_value(write) for write in skill.targetGroupWrites
                 ],
                 "timeDilations": [asdict(action) for action in skill.timeDilations],
+                "skillReplacements": [
+                    serialize_audit_value(action) for action in skill.skillReplacements
+                ],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
             }
             for skill in skills
@@ -11131,6 +12603,7 @@ def main() -> None:
             loaded_tables["CharacterPotentialTable.json"],
             loaded_tables["PotentialTalentEffectTable.json"],
             args.source,
+            parse_base_passive_skill_ids(operator),
         )
         buff_source_dir = args.source.parent / "BuffData"
         skill_buff_definitions, buff_definition_resolution_issues = (
@@ -11138,6 +12611,7 @@ def main() -> None:
                 skills,
                 buff_source_dir,
                 output_stage,
+                args.source,
             )
         )
         passive_buff_definitions, passive_buff_resolution_issues = (
@@ -11179,6 +12653,9 @@ def main() -> None:
         buff_definitions = tuple(
             buff_definitions_by_id[key] for key in sorted(buff_definitions_by_id)
         )
+        entity_blackboard_initializers = derive_entity_blackboard_initializers(
+            passive_skills, audited_buff_definitions
+        )
         write_or_check(
             args.output / f"{slug}.generated.ts",
             render_typescript(str(operator["exportName"]), slug, skills, buff_definitions),
@@ -11193,6 +12670,7 @@ def main() -> None:
                 passive_skills,
                 passive_generation_issues,
                 buff_definition_resolution_issues,
+                entity_blackboard_initializers,
             ),
             args.check,
         )
@@ -11200,7 +12678,14 @@ def main() -> None:
             write_or_check(
                 args.output / f"{slug}.skills.audit.generated.ts",
                 # 审计产物允许保留尚未闭环的 Buff 身份；完整事实仍在同名 audit.json 中。
-                render_compiled_skills(operator, skills),
+                render_compiled_skills(
+                    operator,
+                    skills,
+                    entity_blackboard_initializers=entity_blackboard_initializers,
+                    skill_slot_replacement_relations=derive_skill_slot_replacement_relations(
+                        skills, audited_buff_definitions
+                    ),
+                ),
                 args.check,
             )
             generated += 1
@@ -11218,6 +12703,7 @@ def main() -> None:
                 loaded_tables["PotentialTalentEffectTable.json"],
                 buff_definitions,
                 renderable_passive_skills,
+                entity_blackboard_initializers,
             ),
             args.check,
         )

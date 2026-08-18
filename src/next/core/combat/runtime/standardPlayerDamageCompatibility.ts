@@ -2,7 +2,11 @@
  * 在启动模拟前检查编译产物是否完全落在标准玩家生命伤害环境的能力边界内。
  * 本模块只报告结构化问题，不读取运行时状态；环境扩展能力时应先更新这里，再接入执行器。
  */
-import type { CompiledSkillProgram, ResolvedActionSequence } from '../../compiler/combatProgram';
+import type {
+  CompiledSkillProgram,
+  ResolvedActionSequence,
+  ResolvedSkillBuffDefinition,
+} from '../../compiler/combatProgram';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
 import type { ScheduledSkillInput } from './combatInputRuntime';
@@ -74,6 +78,9 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'casterControlled':
     case 'enemyRankIn':
     case 'eventSourceMatchesBuffSource':
+    case 'buffStackCompare':
+    case 'buffIdStackCompare':
+    case 'entityTagMatch':
       return;
     case 'healthCompare':
       if (condition.target !== 'enemy') {
@@ -114,6 +121,7 @@ function inspectSequence(
       case 'setAbilityEntityRemainingDuration':
       case 'finishCurrentAbilityEntity':
       case 'finishCurrentAbilityEntityWhenSourceDies':
+      case 'startCurrentAbilityEntityChildSkill':
         return;
       case 'dealDamage': {
         if (source === 'equipment') {
@@ -185,6 +193,24 @@ function inspectSequence(
       case 'applyElementalReaction':
       case 'consumeElementalReaction':
         return;
+      case 'applyBuff':
+        if (step.parameters.definition !== undefined) {
+          inspectBuffDefinition(
+            step.parameters.definition,
+            `${stepPath}.parameters.definition`,
+            collect,
+            flags,
+            source,
+          );
+        }
+        return;
+      case 'readBuffBlackboard':
+      case 'readBuffStackCount':
+      case 'finishBuffsByTag':
+      case 'finishBuffsById':
+      case 'finishCurrentBuff':
+      case 'holdBuffsById':
+        return;
       case 'dealStagger':
       case 'spawnAbilityEntity':
       case 'modifyActionValue':
@@ -193,6 +219,7 @@ function inspectSequence(
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
       case 'openComboWindow':
+      case 'changeSkillSlot':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
         return;
@@ -234,6 +261,39 @@ function inspectSequence(
         report(collect, 'unsupported-step', stepPath, `step '${step.kind}'`);
     }
   });
+}
+
+/** 内联 Buff 会在施加后创建自己的时间线、生命周期和事件响应，必须一起预检。 */
+function inspectBuffDefinition(
+  definition: ResolvedSkillBuffDefinition,
+  path: string,
+  collect: IssueCollector,
+  flags: CompatibilityFlags,
+  source: 'skill' | 'equipment',
+): void {
+  definition.scheduledSequences?.forEach((scheduled, index) =>
+    inspectSequence(
+      scheduled.sequence,
+      `${path}.scheduledSequences[${index}].sequence`,
+      collect,
+      flags,
+      source,
+    ),
+  );
+  Object.entries(definition.lifecycleSequences ?? {}).forEach(([key, sequence]) => {
+    if (sequence !== undefined) {
+      inspectSequence(sequence, `${path}.lifecycleSequences.${key}`, collect, flags, source);
+    }
+  });
+  definition.abilityEventResponses?.forEach((response, index) =>
+    inspectSequence(
+      response.sequence,
+      `${path}.abilityEventResponses[${index}].sequence`,
+      collect,
+      flags,
+      source,
+    ),
+  );
 }
 
 function inspectProgram(

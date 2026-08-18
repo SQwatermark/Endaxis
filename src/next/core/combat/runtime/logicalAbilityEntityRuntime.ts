@@ -11,6 +11,7 @@ import type {
 import { ActionBlackboard, type ActionBlackboardValue } from './actionBlackboard';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
+import { TimedMarkerContainer } from './timedMarkers';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied';
@@ -75,9 +76,10 @@ interface LogicalAbilityEntityInstance {
   target?: RuntimeTargetRef;
   readonly dieWhenSourceDies: boolean;
   readonly blackboard: ActionBlackboard;
+  readonly timedMarkers: TimedMarkerContainer;
   remainingDurationSeconds: number | null;
   elapsedDurationSeconds: number;
-  childRuntime?: LogicalAbilityEntityChildRuntime;
+  readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
 }
 
 function requireDuration(value: number, name: string): number {
@@ -130,8 +132,10 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           ? request.definition.lifetime.durationSeconds
           : null
         : requireDuration(request.overrideDurationSeconds, 'override duration');
-    const instance: LogicalAbilityEntityInstance = {
-      instanceId: this.#nextInstanceId++,
+    const instanceId = this.#nextInstanceId++;
+    let instance!: LogicalAbilityEntityInstance;
+    instance = {
+      instanceId,
       abilityEntityId: request.abilityEntityId,
       definition: request.definition,
       ownerId: request.ownerId,
@@ -142,21 +146,46 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       ...(request.target === undefined ? {} : { target: request.target }),
       dieWhenSourceDies: request.dieWhenSourceDies ?? false,
       blackboard: new ActionBlackboard(request.blackboardAssignments),
+      timedMarkers: new TimedMarkerContainer(`abilityEntity:${instanceId}`, {
+        get time() {
+          return instance.elapsedDurationSeconds;
+        },
+      }),
       remainingDurationSeconds,
       elapsedDurationSeconds: 0,
+      childRuntimes: [],
     };
     this.#instances.set(instance.instanceId, instance);
     const snapshot = this.#snapshot(instance);
     this.#hooks.spawned?.(snapshot);
-    if (instance.definition.childSkill !== undefined) {
-      this.#hooks.childSkillRequested?.(snapshot, instance.definition.childSkill.skillId);
-    }
     const target = { kind: 'abilityEntity' as const, instanceId: instance.instanceId };
     if (request.createChildRuntime !== undefined) {
-      instance.childRuntime = request.createChildRuntime(target, instance.blackboard);
-      instance.childRuntime.start();
+      this.startChildSkill(
+        target,
+        instance.definition.childSkill?.skillId ?? '<spawn-child>',
+        request.createChildRuntime,
+      );
+    } else if (instance.definition.childSkill !== undefined) {
+      this.#hooks.childSkillRequested?.(snapshot, instance.definition.childSkill.skillId);
     }
     return target;
+  }
+
+  /** 在既有实例上启动额外子时间轴；调用者负责提供已经编译的隐藏技能。 */
+  startChildSkill(
+    entity: RuntimeTargetRef,
+    skillId: string,
+    createRuntime: (
+      entity: RuntimeTargetRef,
+      blackboard: ActionBlackboard,
+    ) => LogicalAbilityEntityChildRuntime,
+  ): void {
+    if (skillId.length === 0) throw new Error('AbilityEntity child skill id must not be empty');
+    const instance = this.#requireInstance(entity);
+    this.#hooks.childSkillRequested?.(this.#snapshot(instance), skillId);
+    const runtime = createRuntime(entity, instance.blackboard);
+    instance.childRuntimes.push(runtime);
+    runtime.start();
   }
 
   /** 零空间范围查找：返回全部活动实例，不应用距离、半径或形状裁剪。 */
@@ -200,6 +229,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return this.#requireInstance(target).blackboard;
   }
 
+  /** 能力实体标记使用已经过实体时间膨胀结算的局部 elapsed time。 */
+  timedMarkers(target: RuntimeTargetRef): TimedMarkerContainer {
+    return this.#requireInstance(target).timedMarkers;
+  }
+
   setTarget(entity: RuntimeTargetRef, target: RuntimeTargetRef): void {
     this.#requireInstance(entity).target = target;
   }
@@ -220,7 +254,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   finish(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
     this.#instances.delete(instance.instanceId);
-    instance.childRuntime?.finish();
+    for (const runtime of instance.childRuntimes) runtime.finish();
     this.#hooks.finished?.(this.#snapshot(instance), reason);
   }
 
@@ -258,7 +292,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           continue;
         }
       }
-      instance.childRuntime?.advance(delta);
+      for (const runtime of instance.childRuntimes) runtime.advance(delta);
     }
   }
 

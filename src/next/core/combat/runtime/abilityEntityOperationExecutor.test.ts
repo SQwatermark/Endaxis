@@ -369,6 +369,60 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.activeCount).toBe(0);
   });
 
+  it('starts a hidden child timeline on an existing iterated entity', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const entity = entities.spawn({
+      abilityEntityId: 'seal',
+      definition: { lifetime: { kind: 'infinite' } },
+      ownerId: 'arcane',
+      source: { kind: 'operator', operatorId: 'arcane' },
+    });
+    const execute = vi.fn(() => true);
+    let executor!: AbilityEntityOperationExecutor;
+    executor = new AbilityEntityOperationExecutor(
+      'arcane',
+      entities,
+      { execute, evaluate: () => false },
+      { resolveOperations: () => executor },
+    );
+
+    expect(
+      executor.execute(
+        {
+          kind: 'startCurrentAbilityEntityChildSkill',
+          parameters: {
+            childSkill: {
+              skillId: 'seal-end',
+              initialBlackboard: {},
+              timelineActions: [
+                {
+                  startFrame: 1,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'setContextFlag',
+                        parameters: { flag: 'hidden-child', value: true, target: 'caster' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+        { blackboard: new ActionBlackboard(), currentTarget: entity },
+      ),
+    ).toBe(true);
+    expect(execute).not.toHaveBeenCalled();
+
+    entities.advanceFrame();
+
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'setContextFlag' }),
+      expect.objectContaining({ currentTarget: entity }),
+    );
+  });
+
   it('keeps a source-death monitor alive until its recorded source dies', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('gilberta', entities, {

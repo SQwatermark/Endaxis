@@ -12,6 +12,76 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('finishes the Buff instance supplied by its lifecycle event context', () => {
+    const blackboard = new ActionBlackboard();
+    const reasons: string[] = [];
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('finishCurrentBuff must not resolve an entity Buff container');
+      },
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        { kind: 'finishCurrentBuff', parameters: { reason: 'early' } },
+        {
+          blackboard,
+          finishCurrentBuff: reason => {
+            reasons.push(reason);
+            return true;
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(reasons).toEqual(['early']);
+  });
+
+  it('finishes Buffs on the current ability entity without aliasing it to the caster', () => {
+    const finished: string[][] = [];
+    const entityTarget = {
+      ownerId: 'abilityEntity:7',
+      getCountByIds: () => 0,
+      finishByIds: (ids: readonly string[]) => {
+        finished.push([...ids]);
+        return ids.length;
+      },
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('current ability entity must not resolve through CombatTarget');
+      },
+      resolveCurrentAbilityEntityTarget: () => entityTarget,
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'finishBuffsById',
+          parameters: {
+            target: 'currentAbilityEntity',
+            buffIds: ['effect', 'effect-line'],
+            reason: 'other',
+          },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          currentTarget: { kind: 'abilityEntity', instanceId: 7 },
+        },
+      ),
+    ).toBe(true);
+    expect(finished).toEqual([['effect', 'effect-line']]);
+  });
+
   it('writes a matching Buff stack count to the action blackboard', () => {
     const blackboard = new ActionBlackboard();
     const executor = new BuffOperationExecutor({

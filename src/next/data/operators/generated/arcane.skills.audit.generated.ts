@@ -1,5 +1,5 @@
 /** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
-import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
+import type { OperatorEntityBlackboardInitializerDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
@@ -47,6 +47,12 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 sequence(
+                  step('calculateActionValue', {
+                    key: 'will',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'will' },
+                    right: { kind: 'constant', value: 1 },
+                  }),
                   step('calculateActionValue', {
                     key: 'rate_final',
                     operation: 'multiply',
@@ -120,6 +126,12 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 sequence(
+                  step('calculateActionValue', {
+                    key: 'will',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'will' },
+                    right: { kind: 'constant', value: 1 },
+                  }),
                   step('calculateActionValue', {
                     key: 'rate_final',
                     operation: 'multiply',
@@ -1027,11 +1039,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
                   20,
                   sequence(
                     sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
+                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     ),
                   ),
                 ),
@@ -1150,6 +1158,10 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
               'duration': { kind: 'blackboard', key: 'duration' },
               'isWisd': { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
             },
+          }),
+          step('changeSkillSlot', {
+            skillGroupKey: 'ultimate',
+            targetSkillKey: 'arcana',
           }),
         ),
       ),
@@ -1281,6 +1293,12 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                     query: { kind: 'id', buffIds: ['buff_chr_0032_lizhiyan_talent1'] },
                     desiredKey: 'spell_vul_rate_per_will',
                     outputKey: 'spell_vul_rate_per_will',
+                  }),
+                  step('calculateActionValue', {
+                    key: 'will',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'will' },
+                    right: { kind: 'constant', value: 1 },
                   }),
                   step('calculateActionValue', {
                     key: 'spell_vul_rate_calc',
@@ -1460,6 +1478,12 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                         outputKey: 'spell_vul_rate_per_will',
                       }),
                       step('calculateActionValue', {
+                        key: 'will',
+                        operation: 'multiply',
+                        left: { kind: 'blackboard', key: 'will' },
+                        right: { kind: 'constant', value: 1 },
+                      }),
+                      step('calculateActionValue', {
                         key: 'spell_vul_rate_calc',
                         operation: 'multiply',
                         left: { kind: 'blackboard', key: 'will' },
@@ -1557,6 +1581,15 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        0,
+        sequence(
+          step('changeSkillSlot', {
+            skillGroupKey: 'ultimate',
+            targetSkillKey: 'ultimate',
+          }),
+        ),
+      ),
+      scheduled(
         58,
         sequence(
           branch(
@@ -1631,3 +1664,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     'poise': 10,
   },
 );
+
+export const arcaneEntityBlackboardInitializers = [{ key: 'EntityBB_wisd_greater_will', condition: { kind: 'deckAttributeCompare', left: 'intellect', operator: 'greaterOrEqual', right: 'will' }, trueValue: 1, falseValue: 0 }] as const satisfies readonly OperatorEntityBlackboardInitializerDefinition[];
+
+export const arcaneSkillSlotReplacementRelations = [{ skillSlot: 'UltimateSkill', baseSkillKey: 'ultimate', replacementSkillKey: 'arcana', activatedByBuffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner', activationEvent: 'DuringBuffEnable', activationActionIndex: 6, revertOnReplacementCastFrame: 0, revertActionIndex: 62, inheritOriginSkillCooldownProgress: false }] as const;

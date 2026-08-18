@@ -16,6 +16,7 @@ describe('EnemyRankConditionExecutor', () => {
   });
 
   it('delegates unrelated conditions', () => {
+    const context = { blackboard: {} } as Parameters<CombatOperationExecutor['evaluate']>[1];
     const delegate: CombatOperationExecutor = {
       execute: vi.fn(() => true),
       evaluate: vi.fn(() => true),
@@ -23,7 +24,29 @@ describe('EnemyRankConditionExecutor', () => {
     const executor = new EnemyRankConditionExecutor('boss', delegate);
     const condition = { kind: 'combatActive' } as const;
 
-    expect(executor.evaluate(condition)).toBe(true);
-    expect(delegate.evaluate).toHaveBeenCalledWith(condition);
+    expect(executor.evaluate(condition, context)).toBe(true);
+    expect(delegate.evaluate).toHaveBeenCalledWith(condition, context);
+  });
+
+  it('forwards operation lifecycle end to the wrapped executor', () => {
+    const end = vi.fn();
+    const delegate: CombatOperationExecutor = {
+      execute: vi.fn(() => true),
+      end,
+      evaluate: vi.fn(() => true),
+    };
+    const executor = new EnemyRankConditionExecutor('boss', delegate);
+    const step = {
+      kind: 'startUltimateTimeDilation',
+      parameters: {
+        priority: 100,
+        targetScale: { kind: 'constant', value: 0 },
+        ignoredTargets: [],
+      },
+    } as const;
+
+    executor.end(step);
+
+    expect(end).toHaveBeenCalledWith(step, undefined);
   });
 });

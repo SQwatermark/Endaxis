@@ -60,7 +60,28 @@ export const estellaGeneratedSource = {
       "applyTagIds": [],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate",
+                "levelValues": [
+                  -0.3
+                ]
+              }
+            }
+          ]
+        }
+      ],
       "directDamageHits": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
@@ -77,14 +98,33 @@ export const estellaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "VulnerableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -152,7 +192,11 @@ export const estellaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -225,14 +269,33 @@ export const estellaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -294,7 +357,11 @@ export const estellaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -510,7 +577,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -753,7 +821,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1025,7 +1094,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1268,7 +1338,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1633,7 +1704,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1710,7 +1782,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2026,7 +2099,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2103,7 +2177,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2446,7 +2521,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2732,7 +2808,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3393,7 +3470,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3636,7 +3714,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3894,7 +3973,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3968,7 +4048,8 @@ export const estellaGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -4342,7 +4423,8 @@ export const estellaGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -4704,7 +4786,8 @@ export const estellaGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -5125,7 +5208,8 @@ export const estellaGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -5963,7 +6047,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -6012,7 +6097,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6071,7 +6157,8 @@ export const estellaGeneratedSource = {
                       "targetGroupKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -6126,7 +6213,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6487,7 +6575,8 @@ export const estellaGeneratedSource = {
                 ]
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6553,7 +6642,8 @@ export const estellaGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -7025,7 +7115,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7561,7 +7652,8 @@ export const estellaGeneratedSource = {
                 ]
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7627,7 +7719,8 @@ export const estellaGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8099,7 +8192,8 @@ export const estellaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8176,7 +8270,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -8944,7 +9039,8 @@ export const estellaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -9021,7 +9117,8 @@ export const estellaGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],

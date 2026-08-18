@@ -1,4 +1,4 @@
-import { effectScope, shallowRef } from 'vue';
+import { effectScope, nextTick, shallowRef } from 'vue';
 import { describe, expect, it } from 'vitest';
 import type { ScenarioDocument } from '../../core/project/schema';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
@@ -70,6 +70,37 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('场景变化后立即把旧模拟标记为过期', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef<ScenarioDocument>(initial);
+    const fakeRun = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    const fakeService = {
+      simulate: async () => fakeRun,
+    } as unknown as ScenarioSimulationService;
+    let result!: UseScenarioSimulationResult;
+    const scope = effectScope();
+    scope.run(() => {
+      result = useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 });
+    });
+    try {
+      result.simulateNow();
+      await waitFor(() => result.run.value !== null);
+      expect(result.stale.value).toBe(false);
+
+      scenario.value = { ...initial, name: '拖动预览' };
+      await nextTick();
+
+      expect(result.run.value).not.toBeNull();
+      expect(result.stale.value).toBe(true);
+    } finally {
+      scope.stop();
+    }
+  });
+
   it('场景变化后自动运行并保留防竞态的最新结果', async () => {
     const { session, result, stop } = createHarness(createPerlicaScenario());
     try {
@@ -100,10 +131,11 @@ describe('useScenarioSimulation', () => {
     }
   });
 
-  it('严格失败时丢弃旧结果并暴露错误', async () => {
+  it('严格失败时保留上一份完整快照并暴露错误', async () => {
     const { session, result, stop } = createHarness(createPerlicaScenario());
     try {
       await waitFor(() => result.run.value !== null);
+      const previous = result.published.value;
 
       // 庄方宜的普攻带语义状态条件与状态步骤，标准环境尚未接入，会触发严格失败。
       session.commit('placeUnsupportedOperator', () => {
@@ -134,10 +166,62 @@ describe('useScenarioSimulation', () => {
         }).scenario;
       });
       await waitFor(() => result.error.value !== null);
-      expect(result.run.value).toBeNull();
+      expect(result.published.value).toBe(previous);
+      expect(result.run.value).toBe(previous?.run ?? null);
+      expect(result.stale.value).toBe(true);
       expect(result.error.value?.length ?? 0).toBeGreaterThan(0);
     } finally {
       stop();
+    }
+  });
+
+  it('新模拟完成前不改动已发布快照，完成后只替换一次快照引用', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef<ScenarioDocument>(initial);
+    const firstRun = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    const secondRun = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    let resolveSecond!: (value: typeof secondRun) => void;
+    let calls = 0;
+    const fakeService = {
+      simulate: async () => {
+        calls += 1;
+        if (calls === 1) return firstRun;
+        return new Promise<typeof secondRun>(resolve => {
+          resolveSecond = resolve;
+        });
+      },
+    } as unknown as ScenarioSimulationService;
+    let result!: UseScenarioSimulationResult;
+    const scope = effectScope();
+    scope.run(() => {
+      result = useScenarioSimulation({ scenario, service: fakeService, debounceMs: 0 });
+    });
+    try {
+      await waitFor(() => result.published.value !== null);
+      const firstSnapshot = result.published.value;
+
+      scenario.value = { ...initial, name: '后台构造的新场景' };
+      await waitFor(() => calls === 2);
+      expect(result.running.value).toBe(true);
+      expect(result.stale.value).toBe(true);
+      expect(result.published.value).toBe(firstSnapshot);
+      expect(result.run.value).toBe(firstRun);
+
+      resolveSecond(secondRun);
+      await waitFor(() => result.published.value !== firstSnapshot);
+      expect(result.published.value).toEqual({ scenario: scenario.value, run: secondRun });
+      expect(result.run.value).toBe(secondRun);
+      expect(result.stale.value).toBe(false);
+    } finally {
+      scope.stop();
     }
   });
 

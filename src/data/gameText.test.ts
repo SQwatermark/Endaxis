@@ -4,6 +4,7 @@ import {
   getOperatorCombatSkillDescription,
   getOperatorCombatSkillFormKeys,
   getOperatorFormName,
+  getOperatorGameName,
   getOperatorUiLabel,
   getWeaponGameName,
   getWeaponSkillDescription,
@@ -39,6 +40,7 @@ describe('game text localization', () => {
   });
 
   test('zh reads operator form labels separately from form-specific skill descriptions', () => {
+    expect(getOperatorGameName('arcane', 'zh-CN')).toBe('诀');
     expect(getOperatorFormName('arcane', 'int', 'zh-CN')).toBe('阵诀·智');
     expect(getOperatorFormName('arcane', 'will', 'zh-CN')).toBe('阵诀·意');
     expect(getOperatorCombatSkillFormKeys('arcane', 'comboSkill', 'zh-CN')).toEqual([

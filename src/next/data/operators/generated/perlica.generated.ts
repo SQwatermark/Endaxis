@@ -71,7 +71,11 @@ export const perlicaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -166,7 +170,11 @@ export const perlicaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -265,7 +273,11 @@ export const perlicaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -327,7 +339,11 @@ export const perlicaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -612,7 +628,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -631,7 +648,8 @@ export const perlicaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1163,7 +1181,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1333,7 +1352,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1928,7 +1948,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1947,7 +1968,8 @@ export const perlicaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2117,7 +2139,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2136,7 +2159,8 @@ export const perlicaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2306,7 +2330,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2325,7 +2350,8 @@ export const perlicaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2950,7 +2976,8 @@ export const perlicaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2969,7 +2996,8 @@ export const perlicaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -5574,7 +5602,8 @@ export const perlicaGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckTagMatch",
@@ -5592,7 +5621,8 @@ export const perlicaGeneratedSource = {
                     ]
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -5610,7 +5640,8 @@ export const perlicaGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -5854,7 +5885,8 @@ export const perlicaGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             },
                             {
                               "sourceType": "CheckTagMatch",
@@ -5872,7 +5904,8 @@ export const perlicaGeneratedSource = {
                                 ]
                               },
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             },
                             {
                               "sourceType": "CompareFloat",
@@ -5890,7 +5923,8 @@ export const perlicaGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -6640,7 +6674,8 @@ export const perlicaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -6684,7 +6719,8 @@ export const perlicaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],

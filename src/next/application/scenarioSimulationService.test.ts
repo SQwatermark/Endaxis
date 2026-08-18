@@ -6,6 +6,7 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import {
   createDefaultCriticalSampleSource,
   ScenarioSimulationService,
+  type ScenarioSimulationPerformanceSample,
 } from './scenarioSimulationService';
 
 function createPerlicaScenario(): ScenarioDocument {
@@ -61,7 +62,10 @@ function createTwoOperatorComboScenario(): {
   return { scenario, attacker };
 }
 
-function createService(cacheLimit?: number): ScenarioSimulationService {
+function createService(
+  cacheLimit?: number,
+  performanceNow?: () => number,
+): ScenarioSimulationService {
   return new ScenarioSimulationService(
     {
       index: testIndex,
@@ -72,6 +76,7 @@ function createService(cacheLimit?: number): ScenarioSimulationService {
         ultimateEnergySystemUnlocked: true,
         normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
       },
+      ...(performanceNow === undefined ? {} : { performanceNow }),
     },
     cacheLimit,
   );
@@ -292,6 +297,35 @@ describe('ScenarioSimulationService', () => {
 
     expect(second).toBe(first);
     expect(Object.isFrozen(second.receiptEntries)).toBe(true);
+  });
+
+  it('发布可堆叠的模拟阶段耗时并区分缓存命中', async () => {
+    let now = 0;
+    const service = createService(undefined, () => now++);
+    const samples: ScenarioSimulationPerformanceSample[] = [];
+    const unsubscribe = service.subscribePerformance(sample => samples.push(sample));
+
+    await service.simulate(createPerlicaScenario(), 30);
+    await service.simulate(createPerlicaScenario(), 30);
+    unsubscribe();
+
+    expect(samples).toHaveLength(2);
+    expect(samples[0]).toMatchObject({
+      totalMs: 3,
+      cacheLookupMs: 1,
+      simulationMs: 1,
+      projectionMs: 1,
+      cacheHit: false,
+      outcome: 'completed',
+    });
+    expect(samples[1]).toMatchObject({
+      totalMs: 2,
+      cacheLookupMs: 2,
+      simulationMs: 0,
+      projectionMs: 0,
+      cacheHit: true,
+      outcome: 'completed',
+    });
   });
 
   it('场景内容变化后不再命中旧缓存', async () => {

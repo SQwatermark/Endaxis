@@ -49,6 +49,12 @@ export interface AbilitySystemRuntimeOptions {
   readonly buffRuntime?: AbilityBuffRuntime;
   /** 保持普通攻击、主动、被动、通用技能的原生构造顺序。 */
   readonly skills: readonly AbilitySkillRuntime[];
+  /** 同一放置身份下可由战斗动作切换的技能形态。 */
+  readonly skillSlotGroups?: readonly {
+    readonly skillGroupKey: string;
+    readonly baseSkillKey: string;
+    readonly replacementSkillKeys: readonly string[];
+  }[];
   readonly actionRuntime?: FrameRuntime;
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
 }
@@ -58,6 +64,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #buffRuntime?: AbilityBuffRuntime;
   readonly #skills: readonly AbilitySkillRuntime[];
   readonly #skillsById = new Map<string, AbilitySkillRuntime>();
+  readonly #skillSlotGroups = new Map<
+    string,
+    {
+      readonly baseSkillKey: string;
+      readonly allowedSkillKeys: ReadonlySet<string>;
+      currentSkillKey: string;
+    }
+  >();
+  readonly #slotGroupByBaseSkill = new Map<string, string>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   #currentSkill: AbilitySkillRuntime | null = null;
@@ -76,10 +91,42 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
       this.#skillsById.set(key, skill);
     }
+    for (const group of options.skillSlotGroups ?? []) {
+      if (this.#skillSlotGroups.has(group.skillGroupKey)) {
+        throw new Error(`duplicate ability skill slot group '${group.skillGroupKey}'`);
+      }
+      if (this.#slotGroupByBaseSkill.has(group.baseSkillKey)) {
+        throw new Error(`ability skill '${group.baseSkillKey}' owns multiple slot groups`);
+      }
+      const allowedSkillKeys = new Set([group.baseSkillKey, ...group.replacementSkillKeys]);
+      if (allowedSkillKeys.size !== group.replacementSkillKeys.length + 1) {
+        throw new Error(`ability skill slot group '${group.skillGroupKey}' has duplicate variants`);
+      }
+      this.#skillSlotGroups.set(group.skillGroupKey, {
+        baseSkillKey: group.baseSkillKey,
+        allowedSkillKeys,
+        currentSkillKey: group.baseSkillKey,
+      });
+      this.#slotGroupByBaseSkill.set(group.baseSkillKey, group.skillGroupKey);
+    }
   }
 
   get currentSkillId(): string | null {
     return this.#currentSkill?.skillId ?? null;
+  }
+
+  /** 只改变后续释放的槽位解析；已经进入 casting 的实例保持原引用。 */
+  changeSkillSlot(skillGroupKey: string, targetSkillKey: string): void {
+    const group = this.#skillSlotGroups.get(skillGroupKey);
+    if (group === undefined) {
+      throw new Error(`unknown ability skill slot group '${skillGroupKey}'`);
+    }
+    if (!group.allowedSkillKeys.has(targetSkillKey)) {
+      throw new Error(
+        `skill '${targetSkillKey}' is not a variant of ability skill slot group '${skillGroupKey}'`,
+      );
+    }
+    group.currentSkillKey = targetSkillKey;
   }
 
   canStartSkill(skillId: string, castId?: string): boolean {
@@ -151,10 +198,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   #requireSkill(skillId: string, castId?: string): AbilitySkillRuntime {
-    const skill = this.#skillsById.get(abilitySkillKey({ skillId, castId }));
+    const slotGroupKey = this.#slotGroupByBaseSkill.get(skillId);
+    const resolvedSkillId =
+      slotGroupKey === undefined
+        ? skillId
+        : this.#skillSlotGroups.get(slotGroupKey)!.currentSkillKey;
+    const skill = this.#skillsById.get(abilitySkillKey({ skillId: resolvedSkillId, castId }));
     if (skill === undefined) {
       const suffix = castId === undefined ? '' : ` (cast ${castId})`;
-      throw new Error(`unknown ability skill '${skillId}'${suffix}`);
+      throw new Error(`unknown ability skill '${resolvedSkillId}'${suffix}`);
     }
     return skill;
   }

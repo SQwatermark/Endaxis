@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from source_models import BuffDefinitionSource, ScalarSource
 from source_utils import ts_inline_literal
 
@@ -32,6 +34,15 @@ ATTRIBUTE_SLOTS = {
     "BaseFinalMultiplier": "baseFinalMultiplier",
 }
 
+# 原生 AttributeType 名称到 Next 伤害快照属性的已审计映射。
+BUFF_ATTRIBUTE_RUNTIME_KEYS = {
+    "NormalAttackDamageIncrease": "normalAttackDamageIncrease",
+    "NormalSkillDamageIncrease": "normalSkillDamageIncrease",
+    "PhysicalDamageIncrease": "physicalDamageIncrease",
+    "PulseDamageIncrease": "electricDamageIncrease",
+    "CrystDamageIncrease": "cryoDamageIncrease",
+}
+
 DAMAGE_SIDES = {"Attacker": "attacker", "Defender": "defender"}
 DAMAGE_SCALE_ZONES = {
     "ProdCalcZone": "product",
@@ -54,6 +65,22 @@ BEHAVIOR_FIELDS = (
     "resourceGains",
     "combatActions",
     "auraActions",
+    "auxiliaryActions",
+    "skillReplacements",
+)
+
+SCHEDULE_BEHAVIOR_FIELDS = frozenset(
+    {
+        "directDamageHits",
+        "conditionalActions",
+        "blackboardCalculations",
+        "blackboardMutations",
+        "buffBlackboardReads",
+        "buffFinishes",
+        "resourceGains",
+        "combatActions",
+        "auxiliaryActions",
+    }
 )
 
 PRESENTATION_EVENT_ACTION_TYPES = frozenset({"EffectAction"})
@@ -75,7 +102,27 @@ def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
     )
 
 
-def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> str:
+def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:
+    vulnerable_events = tuple(
+        event
+        for event in source.eventActions
+        if getattr(event, "eventSource", None) == "buff"
+        and getattr(event, "event", None) in {"OnBuffStart", "DuringBuffEnable"}
+        and getattr(event, "orderedActionTypes", ()) == ("VulnerableAction",)
+    )
+    return bool(vulnerable_events) and len(vulnerable_events) == len(source.eventActions) and any(
+        not modifier.tagIds
+        and any(processor.zone == "VulnerableDmgIncreace" for processor in modifier.processors)
+        for modifier in source.damageModifiers
+    )
+
+
+def compile_inline_buff_definition(
+    source: BuffDefinitionSource,
+    path: str,
+    compile_event_responses: Callable[[BuffDefinitionSource, str], str] | None = None,
+    compile_scheduled_sequences: Callable[[BuffDefinitionSource, str], str] | None = None,
+) -> str:
     """生成不含 Buff ID 的完整定义；无法无损表达时明确拒绝。"""
     if not source.sourceAvailable or source.lifecycle is None:
         raise ValueError(f"{path}: Buff {source.buffId!r} has no available source definition")
@@ -84,13 +131,18 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
     unsupported.extend(
         field
         for field in BEHAVIOR_FIELDS
-        if getattr(source, field)
+        if getattr(source, field, ())
         and not (
-            field == "eventActions"
-            and (
-                source_death_finish is not None
-                or _event_actions_are_presentation_only(source)
+            (
+                field == "eventActions"
+                and (
+                    source_death_finish is not None
+                    or _event_actions_are_presentation_only(source)
+                    or _event_actions_are_projected(source)
+                    or compile_event_responses is not None
+                )
             )
+            or (field in SCHEDULE_BEHAVIOR_FIELDS and compile_scheduled_sequences is not None)
         )
     )
     if unsupported:
@@ -146,9 +198,15 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
             fields.extend(
                 [
                     "  {",
-                    f"    attribute: {ts_inline_literal(modifier.attributeType)},",
+                    "    attribute: "
+                    f"{ts_inline_literal(BUFF_ATTRIBUTE_RUNTIME_KEYS.get(modifier.attributeType, modifier.attributeType))},",
                     f"    slot: {ts_inline_literal(ATTRIBUTE_SLOTS[modifier.slot])},",
                     f"    value: {_compile_scalar(modifier.value)},",
+                    *(
+                        ["    source: 'converted',"]
+                        if getattr(source, "attributeModifiersConverted", False)
+                        else []
+                    ),
                     "  },",
                 ]
             )
@@ -156,24 +214,27 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
     if source.damageModifiers:
         fields.append("damageModifiers: [")
         for modifier in source.damageModifiers:
-            if modifier.targetSource != "Target" or modifier.targetGroupKey:
+            if modifier.tagIds and (
+                modifier.targetSource != "Target" or modifier.targetGroupKey
+            ):
                 raise ValueError(
                     f"{path}: Buff {source.buffId!r} uses unsupported damage condition target "
                     f"{modifier.targetSource!r}/{modifier.targetGroupKey!r}"
                 )
-            fields.extend(
-                [
-                    "  {",
-                    f"    enabledSide: {ts_inline_literal(DAMAGE_SIDES[modifier.enabledSide])},",
+            fields.extend([
+                "  {",
+                f"    enabledSide: {ts_inline_literal(DAMAGE_SIDES[modifier.enabledSide])},",
+            ])
+            if modifier.tagIds:
+                fields.extend([
                     "    condition: {",
                     "      kind: 'entityTagMatch',",
                     "      target: 'enemy',",
                     f"      tagQueryType: {ts_inline_literal(modifier.tagQueryType)},",
                     f"      tagIds: {ts_inline_literal(modifier.tagIds)},",
                     "    },",
-                    "    processors: [",
-                ]
-            )
+                ])
+            fields.append("    processors: [")
             for processor in modifier.processors:
                 zone = DAMAGE_SCALE_ZONES.get(processor.zone)
                 if zone is None:
@@ -205,6 +266,14 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
                 "},",
             ]
         )
+    if source.eventActions and compile_event_responses is not None:
+        compiled_events = compile_event_responses(source, f"{path}.eventActions")
+        if compiled_events:
+            fields.extend(compiled_events.splitlines())
+    if compile_scheduled_sequences is not None:
+        compiled_schedule = compile_scheduled_sequences(source, f"{path}.scheduledSequences")
+        if compiled_schedule:
+            fields.extend(compiled_schedule.splitlines())
     return "\n".join(fields)
 
 

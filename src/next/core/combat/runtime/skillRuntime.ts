@@ -21,6 +21,7 @@ import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
+import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
@@ -52,6 +53,8 @@ export interface CombatOperationContext {
   readonly event?: CombatSemanticEvent | CombatAbilityDamageEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
+  /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
+  readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
   readonly requestTimelineJump?: (destinationFrame: number) => void;
 }

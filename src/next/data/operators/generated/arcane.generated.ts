@@ -112,7 +112,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
@@ -207,7 +211,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line",
@@ -290,7 +298,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_precheck",
@@ -591,7 +603,513 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [
+        {
+          "spawnFrame": 0,
+          "actionOrder": [
+            2
+          ],
+          "abilityEntityId": "<existingAbilityEntity>",
+          "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_end",
+          "sourceFile": "chr_0032_lizhiyan_combo_skill_abilityentity_end.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "<existingAbilityEntity>",
+            "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_end",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [],
+          "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 44,
+              "endFrame": 45,
+              "actionIndex": 4,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 4
+            }
+          ],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 14,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]"
+              ],
+              "conditions": [],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 10,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 10,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_end_not_finish",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 14,
+              "endFrame": 20,
+              "actionIndex": 12,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_hit",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "InterruptAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 16,
+                  "interrupt": {
+                    "attacker": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "defender": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "tar",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideSuperArmorLimit": -1.0,
+                    "immobilizedTime": 1.0
+                  }
+                },
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 17,
+                  "damageUnits": [
+                    {
+                      "damageType": "Natural",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_boom",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 12288
+                    },
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Poise",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": {
+                        "value": 0.0,
+                        "blackboardKey": "poise_boom",
+                        "levelValues": [
+                          5.0
+                        ]
+                      },
+                      "definiteValue": null,
+                      "damageDecorateMask": 0
+                    }
+                  ]
+                },
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 20,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_hit",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 22,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 22,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 22,
+                  "timedMarkerApplication": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_bunshin_end",
+                    "duration": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": true
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 14,
+              "endFrame": 17,
+              "actionIndex": 24,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckBuffStackNumAdvanced",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "buffStack": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "countType": "BuffCount",
+                    "comparison": "GE",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "limitSkillCastId": false
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "action",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 26,
+                  "buffFinish": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false
+                  }
+                }
+              ],
+              "failActions": []
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 14,
+              "actionIndex": 9,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
+              "classification": null,
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
+              "blackboardAssignments": {
+                "atk_scale_early_finish": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_scale_boom",
+                  "levelValues": [
+                    1.0
+                  ]
+                },
+                "poise_early_finish": {
+                  "value": 0.0,
+                  "blackboardKey": "poise_boom",
+                  "levelValues": [
+                    5.0
+                  ]
+                },
+                "atb_return_wisd": {
+                  "value": 0.0,
+                  "blackboardKey": "atb_return_wisd",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              },
+              "nestedCombatActions": [],
+              "buffSourceContextKey": "",
+              "sequenceIndex": 7
+            }
+          ],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atb_final",
+              "value": 50.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atb_return_wisd",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_boom",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "minAngle",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "number",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "owner_mainchar_alpha",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "owner_mainchar_distance",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "poise_boom",
+              "value": 5.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.0,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [
+            {
+              "startFrame": 9,
+              "endFrame": 12,
+              "actionIndex": 2,
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "sequenceIndex": 2
+            }
+          ],
+          "auraActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -830,7 +1348,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -1344,7 +1863,513 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [
+        {
+          "spawnFrame": 0,
+          "actionOrder": [
+            14
+          ],
+          "abilityEntityId": "<existingAbilityEntity>",
+          "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_end",
+          "sourceFile": "chr_0032_lizhiyan_combo_skill_abilityentity_end.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "<existingAbilityEntity>",
+            "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_end",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [],
+          "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 44,
+              "endFrame": 45,
+              "actionIndex": 4,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": false,
+              "sequenceIndex": 4
+            }
+          ],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 14,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]"
+              ],
+              "conditions": [],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 10,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 10,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_end_not_finish",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 14,
+              "endFrame": 20,
+              "actionIndex": 12,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_hit",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "InterruptAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 16,
+                  "interrupt": {
+                    "attacker": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "defender": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "tar",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideSuperArmorLimit": -1.0,
+                    "immobilizedTime": 1.0
+                  }
+                },
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 17,
+                  "damageUnits": [
+                    {
+                      "damageType": "Natural",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_boom",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 12288
+                    },
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Poise",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": {
+                        "value": 0.0,
+                        "blackboardKey": "poise_boom",
+                        "levelValues": [
+                          5.0
+                        ]
+                      },
+                      "definiteValue": null,
+                      "damageDecorateMask": 0
+                    }
+                  ]
+                },
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 20,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_hit",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 22,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 22,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 22,
+                  "timedMarkerApplication": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_bunshin_end",
+                    "duration": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": true
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 14,
+              "endFrame": 17,
+              "actionIndex": 24,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckBuffStackNumAdvanced",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "buffStack": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "countType": "BuffCount",
+                    "comparison": "GE",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "limitSkillCastId": false
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "action",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 26,
+                  "buffFinish": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false
+                  }
+                }
+              ],
+              "failActions": []
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 14,
+              "actionIndex": 9,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
+              "classification": null,
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
+              "blackboardAssignments": {
+                "atk_scale_early_finish": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_scale_boom",
+                  "levelValues": [
+                    1.0
+                  ]
+                },
+                "poise_early_finish": {
+                  "value": 0.0,
+                  "blackboardKey": "poise_boom",
+                  "levelValues": [
+                    5.0
+                  ]
+                },
+                "atb_return_wisd": {
+                  "value": 0.0,
+                  "blackboardKey": "atb_return_wisd",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              },
+              "nestedCombatActions": [],
+              "buffSourceContextKey": "",
+              "sequenceIndex": 7
+            }
+          ],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atb_final",
+              "value": 50.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atb_return_wisd",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_boom",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "minAngle",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "number",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "owner_mainchar_alpha",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "owner_mainchar_distance",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "poise_boom",
+              "value": 5.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.0,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [
+            {
+              "startFrame": 9,
+              "endFrame": 12,
+              "actionIndex": 2,
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "sequenceIndex": 2
+            }
+          ],
+          "auraActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal2",
@@ -1584,7 +2609,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -1626,7 +2652,8 @@ export const arcaneGeneratedSource = {
                                 "checkType": "HasAll",
                                 "mask": 256
                               },
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -1699,7 +2726,8 @@ export const arcaneGeneratedSource = {
                                       }
                                     },
                                     "damageDecorateMask": null,
-                                    "contextBuffId": null
+                                    "contextBuffId": null,
+                                    "deckAttributeCompare": null
                                   }
                                 ],
                                 "succeedActions": [
@@ -1932,7 +2960,525 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
+      "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 99.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false
+      },
+      "blackboard": [
+        {
+          "key": "atb_return_wisd",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_early_finish",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_early_finish",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius_early_finish",
+          "value": 5.67,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnBeforeTakeDamage",
+          "orderedActionTypes": [
+            "CheckTargetsEqual",
+            "CheckDamageDecorateMask",
+            "ObtainCostAction",
+            "FindTargetAction",
+            "InterruptAction",
+            "DamageAction",
+            "CreateTimedMarker",
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [
+            "CheckTargetsEqual",
+            "CreateTimedMarker",
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_early_finish",
+                "levelValues": [
+                  1.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Natural",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise_early_finish",
+                "levelValues": [
+                  1.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 3,
+              "targetGroupKey": "tar",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionOwner",
+              "selectorOwner": "ActionSource"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTargetsEqual",
+                "CheckDamageDecorateMask",
+                "ObtainCostAction",
+                "FindTargetAction",
+                "InterruptAction",
+                "DamageAction",
+                "CreateTimedMarker",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [
+                "CheckTargetsEqual",
+                "ObtainCostAction",
+                "DamageAction",
+                "CreateTimedMarker"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CheckTargetsEqual",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTargetsEqual",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "targetIdentity": {
+                          "first": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "second": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          }
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckDamageDecorateMask",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckDamageDecorateMask",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "damageDecorateMask": {
+                                "checkType": "HasAll",
+                                "mask": 256
+                              },
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "ObtainCostAction",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 2,
+                              "resourceGain": {
+                                "resource": "sp",
+                                "amount": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atb_return_wisd",
+                                  "levelValues": [
+                                    10.0
+                                  ]
+                                },
+                                "coefficient": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "spGainKind": "refund",
+                                "spGainSource": "default",
+                                "onlyMainOperator": false,
+                                "isPercentValue": false,
+                                "useUltimateRecoveryTag": false,
+                                "ultimateRecoveryTagId": 0,
+                                "ignoreUltimateGainScalar": false
+                              }
+                            },
+                            {
+                              "actionType": "FindTargetAction",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 3
+                            },
+                            {
+                              "actionType": "InterruptAction",
+                              "actionIndex": 4,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[4]"
+                              ],
+                              "serverActionIndex": 4,
+                              "interrupt": {
+                                "attacker": {
+                                  "targetSource": "Source",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "defender": {
+                                  "targetSource": "Context",
+                                  "targetGroupKey": "tar",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "overrideSuperArmorLimit": -1.0,
+                                "immobilizedTime": 1.0
+                              }
+                            },
+                            {
+                              "actionType": "DamageAction",
+                              "actionIndex": 5,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[5]"
+                              ],
+                              "serverActionIndex": 5,
+                              "damageUnits": [
+                                {
+                                  "damageType": "Natural",
+                                  "attributeType": "Hp",
+                                  "calculation": "standard",
+                                  "attackScale": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atk_scale_early_finish",
+                                    "levelValues": [
+                                      1.0
+                                    ]
+                                  },
+                                  "calculationMultiplier": null,
+                                  "poiseValue": null,
+                                  "definiteValue": null,
+                                  "damageDecorateMask": 12288
+                                },
+                                {
+                                  "damageType": "Natural",
+                                  "attributeType": "Poise",
+                                  "calculation": "standard",
+                                  "attackScale": {
+                                    "value": 0.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "calculationMultiplier": null,
+                                  "poiseValue": {
+                                    "value": 0.0,
+                                    "blackboardKey": "poise_early_finish",
+                                    "levelValues": [
+                                      1.0
+                                    ]
+                                  },
+                                  "definiteValue": null,
+                                  "damageDecorateMask": 0
+                                }
+                              ]
+                            },
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 6,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[6]"
+                              ],
+                              "serverActionIndex": 6,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_combo_hit",
+                                "duration": {
+                                  "value": 0.1,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            },
+                            {
+                              "actionType": "FinishBuffAdvanced",
+                              "actionIndex": 7,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[7]"
+                              ],
+                              "serverActionIndex": 7,
+                              "buffFinish": {
+                                "targetSource": "Owner",
+                                "targetGroupKey": "",
+                                "buffCheckType": "Environment",
+                                "buffIds": [],
+                                "tagQueryType": "hasAny",
+                                "buffTagIds": [],
+                                "finishAll": true,
+                                "limitSource": false,
+                                "isFinishedEarly": true,
+                                "isAbsorbed": false
+                              }
+                            }
+                          ],
+                          "failActions": []
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ]
+        }
+      ],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect",
@@ -2036,7 +3582,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect_again",
@@ -2189,7 +3739,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_listener",
@@ -2422,7 +3976,1045 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [
+        {
+          "spawnFrame": 0,
+          "actionOrder": [
+            3
+          ],
+          "abilityEntityId": "<existingAbilityEntity>",
+          "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_seal_again",
+          "sourceFile": "chr_0032_lizhiyan_combo_skill_abilityentity_seal_again.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "<existingAbilityEntity>",
+            "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_seal_again",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": null,
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [],
+          "intervalDamageHits": [],
+          "explicitFinishes": [
+            {
+              "startFrame": 240,
+              "endFrame": 243,
+              "actionIndex": 29,
+              "target": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "skipDieDisplay": true,
+              "sequenceIndex": 9
+            }
+          ],
+          "timelineJumps": [
+            {
+              "startFrame": 41,
+              "endFrame": 44,
+              "destFrame": 239,
+              "actionIndex": 21,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[3]"
+              ],
+              "conditionActionTypes": [],
+              "directConditions": [],
+              "directConditionsSupported": false,
+              "isOnlySequenceAction": false,
+              "isOnlyBranchAction": false,
+              "isRootContainerOnlySequenceAction": true,
+              "sequenceIndex": 6
+            },
+            {
+              "startFrame": 41,
+              "endFrame": 44,
+              "destFrame": 240,
+              "actionIndex": 22,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "conditionActionTypes": [],
+              "directConditions": [],
+              "directConditionsSupported": false,
+              "isOnlySequenceAction": false,
+              "isOnlyBranchAction": true,
+              "isRootContainerOnlySequenceAction": true,
+              "sequenceIndex": 6
+            }
+          ],
+          "conditionalActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 5,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "GE",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "EntityBB_wisd_greater_will",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 7,
+                  "blackboardMutation": {
+                    "key": "isWisd",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                },
+                {
+                  "actionType": "SimpleCalcBBAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 9,
+                  "blackboardCalculation": {
+                    "key": "duration_calc",
+                    "operation": "Add",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "duration_vul",
+                      "levelValues": [
+                        2.0
+                      ]
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 10,
+                  "blackboardMutation": {
+                    "key": "isWisd",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  }
+                },
+                {
+                  "actionType": "SimpleCalcBBAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 12,
+                  "blackboardCalculation": {
+                    "key": "duration_calc",
+                    "operation": "Add",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "duration_vul",
+                      "levelValues": [
+                        2.0
+                      ]
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": "duration_extra",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "startFrame": 41,
+              "endFrame": 44,
+              "actionIndex": 13,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "GE",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "isWisd",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 15,
+                  "nestedCondition": {
+                    "startFrame": 41,
+                    "endFrame": 44,
+                    "actionIndex": 15,
+                    "actionPath": [
+                      "timelineActions[6]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_combo_finisher",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      },
+                      {
+                        "sourceType": "CheckBuffStackNumAdvanced",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "buffStack": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0032_lizhiyan_combo_skill_seal_finish_count"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [],
+                          "countType": "BuffCount",
+                          "comparison": "LT",
+                          "value": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "limitSkillCastId": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[6]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finish_count",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionOwner",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      },
+                      {
+                        "actionType": "SpawnAbilityEntity",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[6]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 19,
+                        "abilityEntitySpawn": {
+                          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
+                          "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_death_move",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": "death",
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        }
+                      },
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[6]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 20,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "atk_scale_laser1": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale_laser1",
+                                  "levelValues": [
+                                    6.0
+                                  ]
+                                },
+                                "atk_scale_laser2": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale_laser2",
+                                  "levelValues": [
+                                    2.0
+                                  ]
+                                },
+                                "poise_final": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise_laser",
+                                  "levelValues": [
+                                    5.0
+                                  ]
+                                },
+                                "isWisd": {
+                                  "value": 0.0,
+                                  "blackboardKey": "isWisd",
+                                  "levelValues": null
+                                },
+                                "cd_reduce": {
+                                  "value": 0.0,
+                                  "blackboardKey": "cd_reduce",
+                                  "levelValues": [
+                                    3.0
+                                  ]
+                                },
+                                "atb_return_wisd": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atb_return_wisd",
+                                  "levelValues": [
+                                    10.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Context",
+                          "targetGroupKey": "death",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ],
+              "failActions": []
+            },
+            {
+              "startFrame": 239,
+              "endFrame": 239,
+              "actionIndex": 25,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "GE",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "isWisd",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [],
+              "failActions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[8]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 27,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale_laser2": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_laser2",
+                            "levelValues": [
+                              2.0
+                            ]
+                          },
+                          "poise_final": {
+                            "value": 0.0,
+                            "blackboardKey": "poise_laser",
+                            "levelValues": [
+                              5.0
+                            ]
+                          },
+                          "isWisd": {
+                            "value": 0.0,
+                            "blackboardKey": "isWisd",
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[8]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 28,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_finisher",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ]
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 240,
+              "actionIndex": 31,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CompareFloat",
+                  "supported": true,
+                  "comparison": "GE",
+                  "left": {
+                    "value": 0.0,
+                    "blackboardKey": "EntityBB_wisd_greater_will",
+                    "levelValues": null
+                  },
+                  "right": {
+                    "value": 1.0,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "skillTypes": [],
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 33,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_vul",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 34,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "rate": {
+                            "value": 0.0,
+                            "blackboardKey": "rate_final",
+                            "levelValues": [
+                              0.3
+                            ]
+                          },
+                          "duration_vul": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_calc",
+                            "levelValues": null
+                          },
+                          "atk_scale_calc": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_calc",
+                            "levelValues": null
+                          },
+                          "poise_final": {
+                            "value": 0.0,
+                            "blackboardKey": "poise_laser",
+                            "levelValues": [
+                              5.0
+                            ]
+                          },
+                          "isWisd": {
+                            "value": 0.0,
+                            "blackboardKey": "isWisd",
+                            "levelValues": null
+                          },
+                          "atk_scale_laser1": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_laser1",
+                            "levelValues": [
+                              6.0
+                            ]
+                          },
+                          "atk_scale_laser2": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_laser2",
+                            "levelValues": [
+                              2.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "InstantSearch",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true,
+                    "targetFinderType": "HitBoxFinder"
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 35,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_vul",
+                    "duration": {
+                      "value": 0.1,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[1]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 36,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "rate": {
+                            "value": 0.0,
+                            "blackboardKey": "rate_final",
+                            "levelValues": [
+                              0.3
+                            ]
+                          },
+                          "duration_vul": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_calc",
+                            "levelValues": null
+                          },
+                          "atk_scale_calc": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_calc",
+                            "levelValues": null
+                          },
+                          "poise_final": {
+                            "value": 0.0,
+                            "blackboardKey": "poise_laser",
+                            "levelValues": [
+                              5.0
+                            ]
+                          },
+                          "isWisd": {
+                            "value": 0.0,
+                            "blackboardKey": "isWisd",
+                            "levelValues": null
+                          },
+                          "atk_scale_laser1": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_laser1",
+                            "levelValues": [
+                              6.0
+                            ]
+                          },
+                          "atk_scale_laser2": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_laser2",
+                            "levelValues": [
+                              2.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "InstantSearch",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true,
+                    "targetFinderType": "HitBoxFinder"
+                  }
+                }
+              ]
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "CreateTimedMarker",
+            "IfElseAction",
+            "SpawnAbilityEntity"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atb_final",
+              "value": 50.0,
+              "isDynamic": true
+            },
+            {
+              "key": "atb_return_wisd",
+              "value": 10.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_calc",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "atk_scale_laser1",
+              "value": 6.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_laser2",
+              "value": 2.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_wisd_ratio",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "cd_reduce",
+              "value": 3.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration_calc",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "duration_extra",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration_vul",
+              "value": 2.0,
+              "isDynamic": false
+            },
+            {
+              "key": "isWisd",
+              "value": 1.0,
+              "isDynamic": true
+            },
+            {
+              "key": "minAngle",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "number",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "owner_mainchar_alpha",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "owner_mainchar_distance",
+              "value": 0.0,
+              "isDynamic": true
+            },
+            {
+              "key": "poise_laser",
+              "value": 5.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius_early_finish",
+              "value": 5.67,
+              "isDynamic": false
+            },
+            {
+              "key": "rate_final",
+              "value": 0.3,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [
+            {
+              "startFrame": 0,
+              "endFrame": 3,
+              "actionIndex": 2,
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "sequenceIndex": 2
+            },
+            {
+              "startFrame": 23,
+              "endFrame": 26,
+              "actionIndex": 23,
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "sequenceIndex": 7
+            }
+          ],
+          "auraActions": []
+        }
+      ],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_total",
@@ -2575,7 +5167,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2622,7 +5215,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -2677,7 +5271,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -2762,7 +5357,8 @@ export const arcaneGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -2847,7 +5443,8 @@ export const arcaneGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -2932,7 +5529,8 @@ export const arcaneGeneratedSource = {
                                             },
                                             "skillTypes": [],
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -3178,7 +5776,8 @@ export const arcaneGeneratedSource = {
                       }
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -3347,7 +5946,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -3439,7 +6039,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -3494,7 +6095,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -3579,7 +6181,8 @@ export const arcaneGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -3664,7 +6267,8 @@ export const arcaneGeneratedSource = {
                                       },
                                       "skillTypes": [],
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -3749,7 +6353,8 @@ export const arcaneGeneratedSource = {
                                             },
                                             "skillTypes": [],
                                             "damageDecorateMask": null,
-                                            "contextBuffId": null
+                                            "contextBuffId": null,
+                                            "deckAttributeCompare": null
                                           }
                                         ],
                                         "succeedActions": [
@@ -3995,7 +6600,8 @@ export const arcaneGeneratedSource = {
                       }
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -4164,7 +6770,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -4278,7 +6885,247 @@ export const arcaneGeneratedSource = {
         "SwitchAction"
       ],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 2,
+          "endFrame": 21,
+          "actionIndex": 1,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0032_lizhiyan_combo_skill_seal",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "trigger",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "duration": {
+              "value": 0.0,
+              "blackboardKey": "duration_final",
+              "levelValues": [
+                0.0
+              ]
+            },
+            "rate_pre": {
+              "value": 0.0,
+              "blackboardKey": "rate_final",
+              "levelValues": [
+                0.0
+              ]
+            },
+            "trigger_time": {
+              "value": 0.0,
+              "blackboardKey": "trigger_time",
+              "levelValues": [
+                0.1
+              ]
+            },
+            "isWisd": {
+              "value": 0.0,
+              "blackboardKey": "EntityBB_wisd_greater_will",
+              "levelValues": null
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 0
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 21,
+          "actionIndex": 2,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0032_lizhiyan_combo_skill_seal_listener",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "trigger",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "duration": {
+              "value": 0.0,
+              "blackboardKey": "duration_final",
+              "levelValues": [
+                0.0
+              ]
+            },
+            "wisd_greater_will": {
+              "value": 0.0,
+              "blackboardKey": "EntityBB_wisd_greater_will",
+              "levelValues": null
+            },
+            "atk_scale_early_finish": {
+              "value": 0.0,
+              "blackboardKey": "atk_scale_boom",
+              "levelValues": [
+                0.0
+              ]
+            },
+            "poise_early_finish": {
+              "value": 0.0,
+              "blackboardKey": "poise_boom",
+              "levelValues": [
+                0.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 0
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 2,
+          "actionIndex": 3,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0032_lizhiyan_combo_skill_precheck",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "trigger",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 1
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 62,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "trigger",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "duration": {
+              "value": 0.0,
+              "blackboardKey": "duration_effect",
+              "levelValues": [
+                0.0
+              ]
+            },
+            "isWisd": {
+              "value": 0.0,
+              "blackboardKey": "EntityBB_wisd_greater_will",
+              "levelValues": null
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 4
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 6,
+          "endFrame": 9,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 9,
+          "actionIndex": 29,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "MergeTargetAction",
+          "finderType": null,
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [
+            {
+              "targetSource": "Context",
+              "targetGroupKey": "trigger",
+              "finderType": null,
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            }
+          ],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 5,
+          "actionIndex": 54,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre",
@@ -4381,7 +7228,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_enhance",
@@ -4470,7 +7321,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_vulnerable",
@@ -4568,7 +7423,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self",
@@ -4651,7 +7510,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener",
@@ -5082,7 +7945,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -5157,7 +8021,8 @@ export const arcaneGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -5231,7 +8096,51 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "skillReplacements": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "actionIndex": 0,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "UltimateSkill",
+          "targetSkillId": "chr_0032_lizhiyan_ultimate_skill2",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "FinishByAction",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": false,
+          "specificRevertedSkillId": true,
+          "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
+        }
+      ],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
@@ -5461,7 +8370,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -5536,7 +8446,8 @@ export const arcaneGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -5798,7 +8709,8 @@ export const arcaneGeneratedSource = {
                           "limitSkillCastId": false
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [],
@@ -5976,7 +8888,8 @@ export const arcaneGeneratedSource = {
                           "limitSkillCastId": false
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -6056,7 +8969,51 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "skillReplacements": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "actionIndex": 6,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "UltimateSkill",
+          "targetSkillId": "chr_0032_lizhiyan_ultimate_skill2",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "FinishByAction",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": false,
+          "specificRevertedSkillId": true,
+          "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
+        }
+      ],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener",
@@ -6112,7 +9069,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -6180,7 +9141,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -6275,7 +9240,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_do",
@@ -6611,7 +9580,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -6710,7 +9680,8 @@ export const arcaneGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [],
@@ -6840,7 +9811,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -6909,7 +9881,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_triggered",
@@ -7355,7 +10331,8 @@ export const arcaneGeneratedSource = {
                           "limitSkillCastId": false
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -7492,7 +10469,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -7554,7 +10535,11 @@ export const arcaneGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -7960,7 +10945,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8089,7 +11075,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8134,6 +11121,37 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": [
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[2]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 11,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
                   {
                     "actionType": "SimpleCalcBBAction",
                     "actionIndex": 2,
@@ -8240,7 +11258,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -8561,7 +11580,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8606,6 +11626,37 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": [
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[2]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[3]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 26,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
                   {
                     "actionType": "SimpleCalcBBAction",
                     "actionIndex": 2,
@@ -8712,7 +11763,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -9107,7 +12159,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11168,7 +14221,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11297,7 +14351,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11342,6 +14397,37 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": [
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[2]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 11,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
                   {
                     "actionType": "SimpleCalcBBAction",
                     "actionIndex": 2,
@@ -11448,7 +14534,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -11769,7 +14856,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -11814,6 +14902,37 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": [
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[2]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[3]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 26,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
                   {
                     "actionType": "SimpleCalcBBAction",
                     "actionIndex": 2,
@@ -11920,7 +15039,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -12103,7 +15223,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckDistanceCondition",
@@ -12151,7 +15272,8 @@ export const arcaneGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12215,7 +15337,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   },
                   {
                     "sourceType": "CheckDistanceCondition",
@@ -12263,7 +15386,8 @@ export const arcaneGeneratedSource = {
                       "containsHittableObject": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -12565,7 +15689,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12759,7 +15884,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -13575,7 +16701,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13951,7 +17078,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14628,7 +17756,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14784,7 +17913,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14907,7 +18037,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15017,7 +18148,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15140,7 +18272,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15540,7 +18673,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15696,7 +18830,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15819,7 +18954,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15929,7 +19065,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16052,7 +19189,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16546,7 +19684,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16669,7 +19808,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16779,7 +19919,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16902,7 +20043,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17236,7 +20378,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17359,7 +20502,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17469,7 +20613,8 @@ export const arcaneGeneratedSource = {
                 }
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17592,7 +20737,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19795,7 +22941,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19843,7 +22990,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19950,7 +23098,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20329,7 +23478,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20377,7 +23527,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -20484,7 +23635,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22170,7 +25322,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22413,7 +25566,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22839,7 +25993,8 @@ export const arcaneGeneratedSource = {
                     "containsHittableObject": false
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [],
@@ -22895,7 +26050,8 @@ export const arcaneGeneratedSource = {
                         },
                         "skillTypes": [],
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -22966,7 +26122,8 @@ export const arcaneGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -23150,7 +26307,8 @@ export const arcaneGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -23787,7 +26945,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -23835,7 +26994,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -24489,7 +27649,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -24624,7 +27785,8 @@ export const arcaneGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -24719,7 +27881,8 @@ export const arcaneGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -24823,7 +27986,8 @@ export const arcaneGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -24936,7 +28100,8 @@ export const arcaneGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -25015,7 +28180,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -25143,7 +28309,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -25197,6 +28364,34 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
+                    }
+                  },
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 7,
+                    "actionPath": [
+                      "timelineActions[16]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[3]",
+                      "failActions",
+                      "actionData",
+                      "[7]"
+                    ],
+                    "serverActionIndex": 73,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
                     }
                   },
                   {
@@ -25270,7 +28465,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -25781,7 +28977,8 @@ export const arcaneGeneratedSource = {
                   },
                   "skillTypes": [],
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -26826,7 +30023,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -26913,7 +30111,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -26961,7 +30160,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -27096,7 +30296,8 @@ export const arcaneGeneratedSource = {
                       "limitSkillCastId": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -27191,7 +30392,8 @@ export const arcaneGeneratedSource = {
                             "limitSkillCastId": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -27295,7 +30497,8 @@ export const arcaneGeneratedSource = {
                                   "limitSkillCastId": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -27408,7 +30611,8 @@ export const arcaneGeneratedSource = {
                                         "limitSkillCastId": false
                                       },
                                       "damageDecorateMask": null,
-                                      "contextBuffId": null
+                                      "contextBuffId": null,
+                                      "deckAttributeCompare": null
                                     }
                                   ],
                                   "succeedActions": [
@@ -27487,7 +30691,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -27615,7 +30820,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -27669,6 +30875,34 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
+                    }
+                  },
+                  {
+                    "actionType": "StoreAttributeValue",
+                    "actionIndex": 7,
+                    "actionPath": [
+                      "timelineActions[16]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[3]",
+                      "failActions",
+                      "actionData",
+                      "[7]"
+                    ],
+                    "serverActionIndex": 73,
+                    "blackboardCalculation": {
+                      "key": "will",
+                      "operation": "Multiply",
+                      "left": {
+                        "value": 0,
+                        "blackboardKey": "will",
+                        "levelValues": null
+                      },
+                      "right": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
                     }
                   },
                   {
@@ -27742,7 +30976,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -28617,7 +31852,8 @@ export const arcaneGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -28796,7 +32032,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -28849,7 +32086,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -28950,7 +32188,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -29010,6 +32249,37 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
+                          }
+                        },
+                        {
+                          "actionType": "StoreAttributeValue",
+                          "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[2]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[5]",
+                            "failActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 16,
+                          "blackboardCalculation": {
+                            "key": "will",
+                            "operation": "Multiply",
+                            "left": {
+                              "value": 0,
+                              "blackboardKey": "will",
+                              "levelValues": null
+                            },
+                            "right": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
                           }
                         },
                         {
@@ -29092,7 +32362,8 @@ export const arcaneGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -29225,7 +32496,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -29272,7 +32544,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -30241,7 +33514,8 @@ export const arcaneGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -30420,7 +33694,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -30473,7 +33748,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -30574,7 +33850,8 @@ export const arcaneGeneratedSource = {
                           },
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -30634,6 +33911,37 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
+                          }
+                        },
+                        {
+                          "actionType": "StoreAttributeValue",
+                          "actionIndex": 3,
+                          "actionPath": [
+                            "timelineActions[2]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[5]",
+                            "failActions",
+                            "actionData",
+                            "[3]"
+                          ],
+                          "serverActionIndex": 16,
+                          "blackboardCalculation": {
+                            "key": "will",
+                            "operation": "Multiply",
+                            "left": {
+                              "value": 0,
+                              "blackboardKey": "will",
+                              "levelValues": null
+                            },
+                            "right": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
                           }
                         },
                         {
@@ -30716,7 +34024,8 @@ export const arcaneGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -30850,7 +34159,8 @@ export const arcaneGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -30937,7 +34247,8 @@ export const arcaneGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -30985,7 +34296,8 @@ export const arcaneGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -31068,7 +34380,8 @@ export const arcaneGeneratedSource = {
                             "containsHittableObject": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -31179,7 +34492,8 @@ export const arcaneGeneratedSource = {
                                   "containsHittableObject": false
                                 },
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [
@@ -31247,7 +34561,8 @@ export const arcaneGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -31294,7 +34609,8 @@ export const arcaneGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -31553,6 +34869,46 @@ export const arcaneGeneratedSource = {
           "targetScale": 0.0,
           "sequenceIndex": 22,
           "effectAbilityEntityTargets": []
+        }
+      ],
+      "skillReplacements": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 62,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "UltimateSkill",
+          "targetSkillId": "chr_0032_lizhiyan_ultimate_skill",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "Infinite",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": false,
+          "specificRevertedSkillId": false,
+          "revertedSkillId": ""
         }
       ]
     }

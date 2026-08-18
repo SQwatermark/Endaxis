@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { CompiledSkillProgram } from '../../compiler/combatProgram';
+import type { CompiledSkillProgram, CompiledSkillSlotGroup } from '../../compiler/combatProgram';
 import { compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
@@ -114,6 +114,8 @@ function createAssembly(
   createAbilityEntityBuffRuntime?: ConstructorParameters<
     typeof CombatRuntimeAssembly
   >[0]['createAbilityEntityBuffRuntime'],
+  initialEntityBlackboard?: Readonly<Record<string, number>>,
+  skillSlotGroups?: readonly CompiledSkillSlotGroup[],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -137,7 +139,14 @@ function createAssembly(
     },
     enemyBuffRuntime,
     ...(timeDilation === undefined ? {} : { timeDilation }),
-    operators: [{ operatorId: 'operator', skills: programs }],
+    operators: [
+      {
+        operatorId: 'operator',
+        skills: programs,
+        ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
+        ...(initialEntityBlackboard === undefined ? {} : { initialEntityBlackboard }),
+      },
+    ],
     createOperationExecutor: () => rejectingExecutor,
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
     ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
@@ -147,6 +156,115 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('keeps a frame-zero slot change on the current release and selects it next time', () => {
+    const base = skill({
+      castId: 'ultimate-cast',
+      skillGroupKey: 'ultimate',
+      skillId: 'ultimate',
+      skillType: 'ultimate',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 1,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'arcana' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const arcana = skill({
+      castId: 'ultimate-cast',
+      skillGroupKey: 'ultimate',
+      skillId: 'arcana',
+      skillType: 'ultimate',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 1,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'ultimate' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [base, arcana],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'ultimate',
+          baseSkillKey: 'ultimate',
+          replacementSkillKeys: ['arcana'],
+        },
+      ],
+    );
+
+    expect(assembly.tryStartSkill('operator', 'ultimate', 'ultimate-cast')).toBe(true);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'SkillStarted').at(-1)?.data
+        ?.skillId,
+    ).toBe('ultimate');
+    assembly.advanceFrames(2);
+
+    expect(assembly.tryStartSkill('operator', 'ultimate', 'ultimate-cast')).toBe(true);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'SkillStarted').at(-1)?.data
+        ?.skillId,
+    ).toBe('arcana');
+    expect(
+      assembly.receipt.entries
+        .filter(entry => entry.event === 'SkillSlotChanged')
+        .map(entry => [entry.data?.skillGroupKey, entry.data?.targetSkillKey]),
+    ).toEqual([
+      ['ultimate', 'arcana'],
+      ['ultimate', 'ultimate'],
+    ]);
+  });
+
+  it('installs static entity blackboard values before creating skill runtimes', () => {
+    const entityBlackboard = new ActionBlackboard();
+    const operatorBuffRuntime = {
+      ...emptyEnemyBuffRuntime,
+      ownerId: 'operator',
+      entityBlackboard,
+    };
+
+    createAssembly(
+      [skill()],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => operatorBuffRuntime,
+      testEnemy,
+      undefined,
+      undefined,
+      { EntityBB_form: 1 },
+    );
+
+    expect(entityBlackboard.getNumber('EntityBB_form')).toBe(1);
+  });
+
   it('runs logical AbilityEntity spawn steps through the shared scene directory', () => {
     const program = skill({
       costs: [],

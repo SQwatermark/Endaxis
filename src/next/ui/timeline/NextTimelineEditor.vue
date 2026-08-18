@@ -29,6 +29,7 @@ import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
+import SimulationPerformanceAudit from './components/SimulationPerformanceAudit.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
@@ -56,6 +57,7 @@ import {
   createTimelineDisplayTime,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
+  type TimelineDisplayTime,
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
@@ -94,6 +96,7 @@ import {
   snapTimelineFrame,
 } from './timelineSnap';
 import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
+import { resolveTimelineCastMoveFrame } from './timelineCastMoveGeometry';
 import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
 import {
   createSkillCastConnection,
@@ -113,6 +116,7 @@ import {
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 76;
+const LIVE_SIMULATION_INTERVAL_MS = 100;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(true);
@@ -135,16 +139,30 @@ const connectionDrag = ref<{
 } | null>(null);
 type TimelineDragPayload =
   | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
-  | {
-      kind: 'skillCast';
-      trackIndex: TrackIndex;
-      skillCastId: string;
-      skillCastIds: readonly string[];
-      pointerOffsetFrames: number;
-    }
   | { kind: 'trackOrder'; trackIndex: TrackIndex };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
+interface TimelineCastMoveGesture {
+  readonly pointerId: number;
+  readonly trackIndex: TrackIndex;
+  readonly skillCastId: string;
+  readonly skillCastIds: readonly string[];
+  readonly pointerOffsetActualFrames: number;
+  /** 按下瞬间的实际帧映射；拖动期间冻结，避免模拟结果反向扰动手势。 */
+  readonly displayTime: TimelineDisplayTime;
+  readonly anchorLogicalFrame: number;
+  readonly anchorActualFrame: number;
+  readonly baseScenario: ScenarioDocument;
+  previewFrame: number;
+  previewActualFrame: number;
+  /** 松手后保留预览，直到对应场景的新模拟快照发布。 */
+  readonly committed: boolean;
+  moved: boolean;
+}
+const castMoveGesture = shallowRef<TimelineCastMoveGesture | null>(null);
+let stopCastMoveGesture: (() => void) | null = null;
+let lastCastMoveSimulationAt = 0;
+let suppressedCastClickId: string | null = null;
 const contextMenuTarget = ref<{
   x: number;
   y: number;
@@ -169,6 +187,7 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
 onScopeDispose(() => {
   unsubscribeScenarioSession();
   cancelConnectionDrag();
+  cancelCastMove();
 });
 
 function commitScenario(
@@ -248,6 +267,7 @@ const {
   running: simulationRunning,
   stale: simulationStale,
   error: simulationError,
+  performanceSamples: simulationPerformanceSamples,
   diagnosticsByCastId,
   simulateNow,
 } = useScenarioSimulation({
@@ -302,24 +322,38 @@ const selectedCastModel = computed(() => {
 const displayTime = computed(() =>
   createTimelineDisplayTime(
     scenario.value.battle.durationFrames,
-    simulationRun.value === null || simulationStale.value
-      ? null
-      : simulationRun.value.timelineTimeMapping,
+    // 拖动预览会把当前运行结果标记为过期，但不能在等待新结果时退回恒等映射；
+    // 否则时间膨胀后的技能块会先跳回逻辑帧，再在模拟完成后跳回实际帧。
+    simulationRun.value?.timelineTimeMapping ?? null,
   ),
 );
 const skillCastActualStartFrames = computed(() =>
-  simulationRun.value === null || simulationStale.value
+  simulationRun.value === null
     ? new Map<string, number>()
     : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
 );
-const timeDilationBands = computed(() =>
-  simulationRun.value === null || simulationStale.value
-    ? []
-    : projectTimelineTimeDilationBands(
-        simulationRun.value.receiptEntries,
-        simulationRun.value.frame,
-      ),
-);
+const timeDilationBands = computed(() => {
+  if (simulationRun.value === null) return [];
+  const bands = projectTimelineTimeDilationBands(
+    simulationRun.value.receiptEntries,
+    simulationRun.value.frame,
+  );
+  const gesture = castMoveGesture.value;
+  if (gesture === null) return bands;
+  const publishedActualFrame =
+    skillCastActualStartFrames.value.get(gesture.skillCastId) ?? gesture.anchorActualFrame;
+  const deltaFrames = gesture.previewActualFrame - publishedActualFrame;
+  if (deltaFrames === 0) return bands;
+  return bands.map(band =>
+    band.sourceCastId === gesture.skillCastId
+      ? Object.freeze({
+          ...band,
+          startFrame: band.startFrame + deltaFrames,
+          endFrame: band.endFrame + deltaFrames,
+        })
+      : band,
+  );
+});
 const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
@@ -329,6 +363,14 @@ const timelineWidth = computed(() =>
 );
 
 function castActualStartFrame(castId: string, logicalStartFrame: number): number {
+  const gesture = castMoveGesture.value;
+  if (gesture?.skillCastId === castId) {
+    // 当前手势的主块直接跟随鼠标所在的实际帧，不能再经过由它自身产生的时间映射。
+    return gesture.previewActualFrame;
+  }
+  if (gesture?.skillCastIds.includes(castId)) {
+    return gesture.displayTime.toActualFrame(logicalStartFrame);
+  }
   return (
     skillCastActualStartFrames.value.get(castId) ??
     displayTime.value.toActualFrame(logicalStartFrame)
@@ -351,7 +393,7 @@ function castWarningTitle(castId: string): string {
 
 const castHitEffects = computed(() => {
   const current = simulationRun.value;
-  if (current === null || simulationStale.value) {
+  if (current === null) {
     return new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
   }
   const byCastId = new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
@@ -378,9 +420,11 @@ const castHitEffects = computed(() => {
 /** 敌人效果面板数据：附着段与爆发/反应标记，全部来自同一份回执。 */
 const enemyEffectViz = computed(() => {
   const current = simulationRun.value;
-  if (current === null || simulationStale.value) {
+  if (current === null) {
     return { segments: [], markers: [] };
   }
+  // 拖动草稿会立即把模拟标脏，但上一份成功回执仍是比空白更稳定的视觉占位；
+  // 新模拟完成后 simulationRun 会整体替换，效果条随之原子更新，避免来回闪烁。
   return projectEnemyEffectViz(current.receiptEntries, current.frame);
 });
 
@@ -716,6 +760,10 @@ function deleteTimelineConnection(connectionId: string): void {
 }
 
 function handleActionSelection(event: MouseEvent, skillCastId: string): void {
+  if (suppressedCastClickId === skillCastId) {
+    suppressedCastClickId = null;
+    return;
+  }
   applyActionSelection(
     selectTimelineAction(actionSelection.value, skillCastId, event.ctrlKey || event.metaKey),
   );
@@ -847,24 +895,162 @@ function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: stri
   }
 }
 
-function beginCastDrag(event: DragEvent, trackIndex: TrackIndex, skillCastId: string): void {
+function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId: string): void {
+  if (event.button !== 0) return;
+  event.preventDefault();
+  event.stopPropagation();
+  cancelCastMove();
   const selection = actionSelection.value.selectedIds.has(skillCastId)
     ? { ...actionSelection.value, primaryId: skillCastId }
     : selectTimelineAction(actionSelection.value, skillCastId, false);
-  applyActionSelection(selection);
   const block = event.currentTarget as HTMLElement;
-  const pointerOffsetFrames = Math.max(
+  const pointerOffsetActualFrames = Math.max(
     0,
-    Math.round((event.clientX - block.getBoundingClientRect().left) / pxPerFrame.value),
+    (event.clientX - block.getBoundingClientRect().left) / pxPerFrame.value,
   );
-  dragPayload.value = {
-    kind: 'skillCast',
+  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === skillCastId,
+  );
+  if (cast === undefined) return;
+  const initialActualFrame =
+    skillCastActualStartFrames.value.get(skillCastId) ??
+    displayTime.value.toActualFrame(cast.placement.startFrame);
+  castMoveGesture.value = {
+    pointerId: event.pointerId,
     trackIndex,
     skillCastId,
     skillCastIds: [...selection.selectedIds],
-    pointerOffsetFrames,
+    pointerOffsetActualFrames,
+    displayTime: displayTime.value,
+    anchorLogicalFrame: cast.placement.startFrame,
+    anchorActualFrame: initialActualFrame,
+    baseScenario: scenario.value,
+    previewFrame: cast.placement.startFrame,
+    previewActualFrame: initialActualFrame,
+    committed: false,
+    moved: false,
   };
-  if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
+  const onMove = (moveEvent: PointerEvent) => updateCastMove(moveEvent);
+  const onFinish = (finishEvent: PointerEvent) => finishCastMove(finishEvent);
+  const onCancel = () => cancelCastMove();
+  const onKeyDown = (keyEvent: KeyboardEvent) => {
+    if (keyEvent.key !== 'Escape') return;
+    keyEvent.preventDefault();
+    cancelCastMove();
+  };
+  stopCastMoveGesture = () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onFinish);
+    window.removeEventListener('pointercancel', onCancel);
+    window.removeEventListener('keydown', onKeyDown, true);
+    stopCastMoveGesture = null;
+  };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onFinish);
+  window.addEventListener('pointercancel', onCancel);
+  window.addEventListener('keydown', onKeyDown, true);
+}
+
+function castMoveFrame(
+  event: PointerEvent,
+  gesture: TimelineCastMoveGesture,
+): { readonly logicalFrame: number; readonly actualFrame: number } | null {
+  const pointed = document.elementFromPoint(event.clientX, event.clientY);
+  const lane = pointed instanceof Element ? pointed.closest<HTMLElement>('.track-lane') : null;
+  if (lane?.dataset.trackIndex !== String(gesture.trackIndex)) return null;
+  const pointerActualFrame = Math.max(
+    0,
+    Math.min(
+      gesture.displayTime.actualDurationFrames,
+      (event.clientX - lane.getBoundingClientRect().left) / pxPerFrame.value -
+        scenario.value.battle.prepFrames,
+    ),
+  );
+  return resolveTimelineCastMoveFrame({
+    displayTime: gesture.displayTime,
+    pointerActualFrame,
+    pointerOffsetActualFrames: gesture.pointerOffsetActualFrames,
+    anchorLogicalFrame: gesture.anchorLogicalFrame,
+    anchorActualFrame: gesture.anchorActualFrame,
+    snapFrames: snapFrames.value,
+    logicalMaximumFrame: scenario.value.battle.durationFrames,
+  });
+}
+
+function updateCastMove(event: PointerEvent): void {
+  const gesture = castMoveGesture.value;
+  if (gesture === null || gesture.pointerId !== event.pointerId) return;
+  const frame = castMoveFrame(event, gesture);
+  if (frame === null) return;
+  if (
+    frame.logicalFrame === gesture.previewFrame &&
+    frame.actualFrame === gesture.previewActualFrame
+  ) {
+    return;
+  }
+  if (!gesture.moved) {
+    gesture.moved = true;
+    applyActionSelection({
+      selectedIds: new Set(gesture.skillCastIds),
+      primaryId: gesture.skillCastId,
+    });
+  }
+  castMoveGesture.value = {
+    ...gesture,
+    previewFrame: frame.logicalFrame,
+    previewActualFrame: frame.actualFrame,
+  };
+  if (frame.logicalFrame !== gesture.previewFrame) {
+    scenario.value = moveSkillCasts(
+      gesture.baseScenario,
+      new Set(gesture.skillCastIds),
+      gesture.trackIndex,
+      gesture.skillCastId,
+      frame.logicalFrame,
+    );
+  }
+  cursorFrame.value = frame.logicalFrame;
+
+  // 连续拖动时节流而不是防抖：鼠标不停移动，模拟也会持续得到中间位置。
+  const now = performance.now();
+  if (now - lastCastMoveSimulationAt >= LIVE_SIMULATION_INTERVAL_MS) {
+    lastCastMoveSimulationAt = now;
+    void nextTick(simulateNow);
+  }
+}
+
+async function finishCastMove(event: PointerEvent): Promise<void> {
+  let gesture = castMoveGesture.value;
+  if (gesture === null || gesture.pointerId !== event.pointerId) return;
+  updateCastMove(event);
+  gesture = castMoveGesture.value;
+  if (gesture === null) return;
+  const finalScenario = scenario.value;
+  const moved = gesture.moved;
+  stopCastMoveGesture?.();
+  if (!moved) {
+    castMoveGesture.value = null;
+    scenario.value = gesture.baseScenario;
+    return;
+  }
+  const settlingGesture = { ...gesture, committed: true };
+  castMoveGesture.value = settlingGesture;
+  suppressedCastClickId = gesture.skillCastId;
+  setTimeout(() => {
+    if (suppressedCastClickId === gesture.skillCastId) suppressedCastClickId = null;
+  }, 0);
+  commitScenario('moveSkillCasts', () => finalScenario);
+  await nextTick();
+  const published = await simulateNow();
+  // 只清理仍属于本次松手的预览；失败时保留实际落点，避免回退到不匹配的旧回执。
+  if (published && castMoveGesture.value === settlingGesture) castMoveGesture.value = null;
+}
+
+function cancelCastMove(): void {
+  const gesture = castMoveGesture.value;
+  stopCastMoveGesture?.();
+  castMoveGesture.value = null;
+  if (gesture !== null && !gesture.committed) scenario.value = gesture.baseScenario;
 }
 
 function beginTrackOrderDrag(event: DragEvent, trackIndex: TrackIndex): void {
@@ -903,28 +1089,13 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
       timelinePointerLogicalFrame(event.clientX - lane.getBoundingClientRect().left),
     ),
   );
-  const unsnappedFrame =
-    payload.kind === 'skillCast'
-      ? Math.max(0, pointerFrame - payload.pointerOffsetFrames)
-      : pointerFrame;
   const frame = snapTimelineFrame(
-    unsnappedFrame,
+    pointerFrame,
     snapFrames.value,
     scenario.value.battle.durationFrames,
   );
   cursorFrame.value = frame;
-  if (payload.kind === 'librarySkill') {
-    placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex);
-    return;
-  }
-  if (payload.trackIndex !== trackIndex) return;
-  commitScenario('moveSkillCasts', current =>
-    moveSkillCasts(current, new Set(payload.skillCastIds), trackIndex, payload.skillCastId, frame),
-  );
-  applyActionSelection({
-    selectedIds: new Set(payload.skillCastIds),
-    primaryId: payload.skillCastId,
-  });
+  placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex);
 }
 
 function resetScenario(): void {
@@ -1456,6 +1627,7 @@ function setPanelDialogVisible(visible: boolean): void {
             />
             <div
               class="track-lane"
+              :data-track-index="track.trackIndex"
               :style="{ width: `${timelineWidth}px` }"
               @pointerdown="handleTimelineLanePointerDown"
               @click="handleTimelineLaneClick"
@@ -1498,6 +1670,9 @@ function setPanelDialogVisible(visible: boolean): void {
                 "
                 :width="cast.durationFrames * pxPerFrame"
                 :selected="actionSelection.selectedIds.has(cast.id)"
+                :moving="
+                  !castMoveGesture?.committed && castMoveGesture?.skillCastIds.includes(cast.id)
+                "
                 :disabled="cast.disabled"
                 :locked="cast.locked"
                 :edited="cast.edited"
@@ -1521,7 +1696,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 @connection-pointer-down="
                   (event, port) => beginConnectionDrag(event, cast.id, port)
                 "
-                @dragstart="beginCastDrag($event, track.trackIndex, cast.id)"
+                @move-pointer-down="beginCastMove($event, track.trackIndex, cast.id)"
                 @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />
             </div>
@@ -1567,6 +1742,21 @@ function setPanelDialogVisible(visible: boolean): void {
             {{ t('nextTimeline.reSimulate') }}
           </button>
         </div>
+        <SimulationPerformanceAudit
+          :samples="simulationPerformanceSamples"
+          :budget-ms="LIVE_SIMULATION_INTERVAL_MS"
+          :labels="{
+            title: t('nextTimeline.performance.title'),
+            latest: t('nextTimeline.performance.latest'),
+            p95: t('nextTimeline.performance.p95'),
+            cacheHit: t('nextTimeline.performance.cacheHit'),
+            cacheLookup: t('nextTimeline.performance.cacheLookup'),
+            simulation: t('nextTimeline.performance.simulation'),
+            projection: t('nextTimeline.performance.projection'),
+            budget: t('nextTimeline.performance.budget'),
+            noSamples: t('nextTimeline.performance.noSamples'),
+          }"
+        />
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyEffects
             :viz="enemyEffectViz"

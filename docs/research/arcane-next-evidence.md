@@ -94,7 +94,7 @@
 
 ## 生成审计现状（1.4.4@9433094-12）
 
-当前生成清单以 `outputStage: audit` 收录 Arcane 的连携、五段普攻、处决、下落攻击、战技和
+当前生成清单以 `outputStage: audit` 收录诀（`arcane`）的连携、五段普攻、处决、下落攻击、战技和
 两个原生终结技入口，共 11 个技能。严格技能序列均可编译，并生成
 `arcane.generated.ts`、`arcane.audit.json` 与 `arcane.skills.audit.generated.ts`；这些文件只用于
 逐项对照，不是正式 `OperatorDefinition`，也没有替换本文件审计的手写定义。
@@ -123,13 +123,49 @@
    精确表示“伤害来源等于创建 Buff 的能力实体”。Next 已有按 Buff 实例启停的承伤订阅、事件
    tags/features 与来源身份条件。当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，
    因此 `InterruptAction` 在模型内没有可观察效果；原生又证明该动作恒返回成功，生成器现保留
-   完整审计载荷并将其归约为空序列。剩余硬阻塞是把事件响应正式接入 Buff 生成编译链，以及
-   严格闭环两个 `FinishBuffAdvanced` 的 Owner/Environment 查询语义。
-2. 四个形态相关技能直接读取实体动作黑板 `EntityBB_wisd_greater_will`。当前场景装配没有从
-   已解析面板属性向技能实例写入该键的通用桥；旧手写定义中的 `deckAttributesChanged`
-   事件处理器也尚未被编译/运行时装配消费，不能把它当作已经存在的桥。
-3. 原始数据把首次终结技和二次终结技保存为两个技能资源，而手写定义对外保持一个稳定技能
-   身份并根据强化/就绪状态选择阶段。生成目录尚无证据完备的状态选择与注册策略，不能把两个
-   原生入口都作为可自由排入的独立终结技。
+   完整审计载荷并将其归约为空序列。`FinishBuffAdvanced` 的 `Owner + Id` 已绑定为监听 Buff 的
+   实际接收者，`Owner + Environment` 已由原生 `BuffFindSettings.CheckType` 分支证明为当前动作
+   环境中的 Buff，并编译为结束正在执行响应的当前 Buff。真实 `seal2` 数据现可完整生成上述
+   `OnBeforeTakeDamage` 响应；运行时测试也证明自结束会立即注销该实例的事件订阅。这里实际
+   持有实体查找与 CastSkill 的定义是 `buff_chr_0032_lizhiyan_combo_skill_seal`，而
+   `..._seal_total` 是施加在诀身上的定时控制 Buff：其本地第 2 帧通过
+   `Context/trigger` 把 `seal` 与 `seal_listener` 施加给技能命中的敌人。`seal` 因而就是
+   敌人持有的“囹圄”状态，不是能力实体出生 Buff；能力实体 prefab/组件不参与这条所有权链。
+   `seal_total` 另有 `OnSquadRepatriate -> FinishOwnerAction` 清理事件。结束子技能中
+   `CreateTimedMarker(Owner, useTimeDilationDt=true)` 现使用逻辑能力实体受时间膨胀影响的局部时钟，
+   并已通过真实四段条件编译；实体自身两个表现 Buff 的结束也定向到 `currentAbilityEntity`。
+   1.4.4 原生 `CastSkill.ExecuteInternal` 已证明它分别通过 `GetFirstTarget(caster)` 与
+   `GetTargetsView(target)` 求值，再在所得 caster AbilitySystem 上调用
+   `TryCastSkillDuringAction`；`target=Owner` 分支读取当前 `AbilityAction.owner` 的 self target。
+   `Buff.OnTrigger` 调用 `_ExecuteBuffAction(OnBuffTrigger, null)`，而后者在无显式 target 时明确
+   读取 `Buff + 0x170`；静态字段表确认该槽就是 `Buff.owner`。这里触发动作属于敌人持有的
+   `seal`，所以隐藏子技能的输入 `Target` 与 `seal_bunshin_end_listener` 接收者均为敌人，而
+   caster 是被查询到的同次施法分身实体。Next 现新增在既有实体上启动隐藏
+   子时间线的内部步骤，同一实体可承载多个局部时间轴并在宿主结束时一并清理；真实结束技能
+   已能完整编译为该步骤的内联载荷，且不会注册成玩家技能。生成器现为 Buff 实例生成独立
+   `scheduledSequences`：`seal_total` 的 0/2/6 帧计算、创建与条件树使用 Buff 本地时钟，
+   `Context/trigger` 的敌人身份只从创建该 Buff 的技能目标证据注入；第 2 帧递归内联 `seal`，
+   `seal` 启用时的法术易伤与触发时的分身结束子技能均已进入同一定义。敌人拉拽、受击表现与
+   `InterruptAction` 在当前无敌方主动行为、零空间模型中没有数值效果，审计事实保留但不伪造状态。
+2. 四个形态相关技能直接读取实体动作黑板 `EntityBB_wisd_greater_will`。生成器现在把
+   `chr_0032_lizhiyan_passive` 作为有证据的基础被动入口，沿其启动 Buff 自动解析
+   `OnBuffStart -> CompareDeckAttr(owner.Wisd GE owner.Will)` 与成功/失败分支的实体黑板赋值，
+   生成 `intellect >= will ? 1 : 0` 初始化器；比较条件、键和值均不在 manifest 中重复声明。
+   场景编译器用最终静态构筑面板求值，运行时在创建技能实例前把结果安装到干员共享
+   `ActionBlackboard`。这是一场战斗一次的构筑快照，不声称支持战斗中动态 Deck 属性刷新；
+   旧手写 `deckAttributesChanged` 仍只负责现有展示/上下文分支，不能冒充运行时事件接线。
+3. 原始数据把首次终结技和二次终结技保存为两个技能资源，但它们不是两个可自由排入的技能。
+   生成器现已结构化三段闭环证据：首段第 47 帧施加
+   `buff_chr_0032_lizhiyan_ultimate_skill_listener_owner`；该 Buff 的 `DuringBuffEnable`
+   以 `ChangeSkillAction` 把 `UltimateSkill` 从首段 ID 替换成二段 ID，并指定 Buff 结束时还原；
+   二段自身第 0 帧又把同一槽永久换回首段。audit 报告因此能够严格归纳
+   `ultimate -> arcana -> ultimate` 稳定槽关系。运行时现已在每次释放开始时快照当前槽技能：
+   listener 对应的换槽只影响下一次释放，二段第 0 帧还原也不会把已经开始的二段改跑首段。
+   生成器现以这份闭环关系为严格输入：首段直接施加监听 Buff 后生成换到 `arcana` 的
+   `changeSkillSlot`，二段只有在第 0 帧与原生动作索引均匹配时才生成换回 `ultimate` 的步骤；
+   manifest 同时明确声明 `arcana` 是不可直接放置的运行时替换形态，正式技能组渲染才会把
+   二段放入 `replacementSkills`；不能把这条规则泛化到可直接拖放的强化技能。诀仍保持 audit
+   阶段的原因已经转为下列
+   干员级展示、连携与养成语义，而不是换槽 DSL 缺失。
 4. `presentationVariants`、形态感知连携注册、天赋和潜能的行为仍需逐项与手写定义及原始数据
    对照；11/11 只证明技能主体通过严格编译，不证明干员级形态、养成和展示语义完整。

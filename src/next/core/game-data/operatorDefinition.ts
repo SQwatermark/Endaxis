@@ -266,6 +266,11 @@ export type CombatCondition =
       markerId: string;
     }
   | {
+      /** 检查当前能力实体按自身局部时间持有的定时标记。 */
+      kind: 'abilityEntityTimedMarkerPresent';
+      markerId: string;
+    }
+  | {
       /** 匹配触发当前响应的伤害事件标签；普通技能步骤没有事件上下文。 */
       kind: 'eventDamageTagsMatch';
       match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
@@ -314,6 +319,7 @@ export const COMBAT_CONDITION_KINDS = [
   'entityTagMatch',
   'buffIdStackCompare',
   'timedMarkerPresent',
+  'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
   'eventSourceMatchesBuffSource',
@@ -456,6 +462,10 @@ export interface CombatStepParameters {
   finishCurrentAbilityEntity: Record<string, never>;
   /** 仅在当前能力实体的来源已经死亡时结束该实体。 */
   finishCurrentAbilityEntityWhenSourceDies: Record<string, never>;
+  /** 在当前 Context 迭代目标所指向的既有能力实体上启动一个无施法子技能。 */
+  startCurrentAbilityEntityChildSkill: {
+    childSkill: AbilityEntityChildSkillDefinition;
+  };
   /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
   spawnAbilityEntity: {
     abilityEntityId: string;
@@ -530,15 +540,19 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {
-    target: CombatTarget;
+    target: Exclude<BuffApplicationTarget, 'party'>;
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
     reason: 'early' | 'absorbed' | 'other';
   };
   /** 按Buff 定义 身份结束目标身上的全部匹配实例。 */
   finishBuffsById: {
-    target: CombatTarget;
+    target: Exclude<BuffApplicationTarget, 'party'>;
     buffIds: readonly string[];
+    reason: 'early' | 'absorbed' | 'other';
+  };
+  /** 结束当前正在执行生命周期或事件响应的 Buff 实例。 */
+  finishCurrentBuff: {
     reason: 'early' | 'absorbed' | 'other';
   };
   /** 在当前调度区间存续期间禁止施法者身上已匹配的 Buff 结束。 */
@@ -549,6 +563,12 @@ export interface CombatStepParameters {
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
   createTimedMarker: {
     target: CombatTarget;
+    markerId: string;
+    durationSeconds: ActionValueOperand;
+    autoFinishByAction: boolean;
+  };
+  /** 在当前能力实体的局部时间轴上创建定时标记。 */
+  createAbilityEntityTimedMarker: {
     markerId: string;
     durationSeconds: ActionValueOperand;
     autoFinishByAction: boolean;
@@ -658,6 +678,11 @@ export interface CombatStepParameters {
   openComboWindow: {
     nextSkillKey: string;
   };
+  /** 切换稳定技能组后续释放所使用的技能形态；当前已启动的释放不受影响。 */
+  changeSkillSlot: {
+    skillGroupKey: string;
+    targetSkillKey: string;
+  };
   /**
    * 在所在调度项的有效区间内监听战斗事件。
    * 调度项开始时注册，结束或技能中断时注销；响应序列在事件派发过程中同步执行。
@@ -674,6 +699,7 @@ export const COMBAT_STEP_KINDS = [
   'setAbilityEntityRemainingDuration',
   'finishCurrentAbilityEntity',
   'finishCurrentAbilityEntityWhenSourceDies',
+  'startCurrentAbilityEntityChildSkill',
   'spawnAbilityEntity',
   'applyElementalInfliction',
   'applyElementalReaction',
@@ -686,8 +712,10 @@ export const COMBAT_STEP_KINDS = [
   'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',
+  'finishCurrentBuff',
   'holdBuffsById',
   'createTimedMarker',
+  'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',
   'modifyActionValue',
@@ -703,6 +731,7 @@ export const COMBAT_STEP_KINDS = [
   'once',
   'setContextFlag',
   'openComboWindow',
+  'changeSkillSlot',
   'listenForCombatEvents',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 /** 步骤按 kind 区分类型，编译和执行靠它精确分支。 */
@@ -849,6 +878,8 @@ export type SkillBuffDefinition = Omit<
   import('../combat/buffs/combatBuffDefinitions').CombatBuffDefinitionEntry,
   'id' | 'actions'
 > & {
+  /** Buff 启用期间按实例局部时钟执行的相对帧时间线。 */
+  scheduledSequences?: readonly ScheduledSequenceDefinition[];
   /** 使用与技能相同的步骤协议描述 Buff 行为；旧外部定义的低层 actions 不进入技能内联定义。 */
   lifecycleSequences?: SkillBuffLifecycleSequences;
   /** 每个 Buff 实例独立注册、停用或结束时注销的 Ability 事件响应。 */
@@ -892,6 +923,11 @@ export interface SkillGroupDefinition {
   levelSource: SkillLevelSource;
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
+  /**
+   * 与 `skills` 共用一个稳定放置身份、仅由运行时换槽动作选中的技能形态。
+   * 它们不会被技能库展开为额外技能块，也不能由项目存档直接指定。
+   */
+  replacementSkills?: readonly SkillDefinition[];
   /** 同一稳定技能组的 UI 变体，不会产生独立的释放身份。 */
   presentationVariants?: readonly SkillPresentationVariantDefinition[];
 }
@@ -1096,6 +1132,14 @@ export interface OperatorEventHandlerDefinition {
   sequence: ActionSequenceDefinition;
 }
 
+/** 由静态构筑条件派生、在本场战斗创建技能实例前写入的原生实体黑板值。 */
+export interface OperatorEntityBlackboardInitializerDefinition {
+  key: `EntityBB_${string}`;
+  condition: BuildCondition;
+  trueValue: number;
+  falseValue: number;
+}
+
 export interface OperatorDefinition {
   slug: string;
   gameId: string;
@@ -1111,6 +1155,8 @@ export interface OperatorDefinition {
   skillGroups: readonly SkillGroupDefinition[];
   /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
   comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
+  /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */
+  entityBlackboardInitializers?: readonly OperatorEntityBlackboardInitializerDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   talents: readonly OperatorUpgradeDefinition[];
   potentials: readonly OperatorUpgradeDefinition[];

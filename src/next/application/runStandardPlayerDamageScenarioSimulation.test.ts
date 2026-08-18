@@ -158,6 +158,67 @@ function createGeneratedTeamScenario() {
   );
 }
 
+function createGeneratedArclightBattleSkillScenario() {
+  const scenario = createEmptyScenario('scenario:generated-arclight-battle-skill', '弧光战技样本');
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 100,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:next-sample:arclight',
+    operator: {
+      operatorSlug: arclightGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: { 0: 1 },
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: arclightGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+}
+
+function createGeneratedArclightUltimateScenario() {
+  const scenario = createEmptyScenario('scenario:generated-arclight-ultimate', '弧光终结技样本');
+  scenario.tracks[0] = {
+    id: 'track:next-sample:arclight',
+    operator: {
+      operatorSlug: arclightGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 90 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: arclightGeneratedOperator,
+    skillGroupKey: 'ultimate',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+}
+
 function createGeneratedLifengScenario(talentLevel: number) {
   const scenario = createEmptyScenario('scenario:lifeng-talent', '莱锋常驻天赋样本');
   scenario.tracks[0] = {
@@ -210,6 +271,75 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('ends generated Arclight ultimate time freeze and advances the scenario timeline', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedArclightUltimateScenario(),
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === arclightGeneratedOperator.slug ? arclightGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(result.frame).toBeGreaterThanOrEqual(150);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'TimeDilationEnded',
+        sourceId: 'track:next-sample:arclight',
+        data: expect.objectContaining({ sourceActionId: 'ultimate', reason: 'stopped' }),
+      }),
+    );
+    expect(
+      result.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:next-sample:arclight',
+      ),
+    ).toHaveLength(2);
+  });
+
+  it('accepts the generated Arclight battle skill Buff and entity-tag operations', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedArclightBattleSkillScenario(),
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === arclightGeneratedOperator.slug ? arclightGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:next-sample:arclight',
+        data: expect.objectContaining({ skillId: 'battleSkill' }),
+      }),
+    );
+  });
+
   it('applies generated Lifeng talent factors to the runtime attack snapshot', () => {
     const withoutTalent = runGeneratedLifengScenario(0);
     const withTalent = runGeneratedLifengScenario(1);

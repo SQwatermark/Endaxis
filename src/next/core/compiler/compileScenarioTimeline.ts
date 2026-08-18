@@ -6,7 +6,11 @@
  * 基于干员模板的完整 `customDefinition` 会直接参与编译；只有不携带战斗定义的自由展示块失败。
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
-import type { CompiledComboSkillRegistration, CompiledSkillProgram } from './combatProgram';
+import type {
+  CompiledComboSkillRegistration,
+  CompiledSkillProgram,
+  CompiledSkillSlotGroup,
+} from './combatProgram';
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { LevelValues, OperatorDefinition } from '../game-data/operatorDefinition';
@@ -100,24 +104,44 @@ function compileComboSkillRegistrations(
 }
 
 /** 编译一次技能释放。等级和养成效果在这里按当前项目配置计算。 */
-function compileCastSkillProgram(
+function compileCastSkillPrograms(
   trackId: string,
   cast: SkillCastDocument,
   resolved: ResolvedSkillDefinition,
   level: number,
-): CompiledSkillProgram {
+): readonly CompiledSkillProgram[] {
   const definition = resolved.definition;
-  const base = compileSkill({
-    operatorId: trackId,
-    skillGroupKey: resolved.group.key,
-    skillType: resolved.group.skillType,
-    skillLevel: level,
-    skill: definition,
-  });
-  return {
-    ...base,
+  const definitions = [definition, ...(resolved.group.replacementSkills ?? [])];
+  return definitions.map(skill => ({
+    ...compileSkill({
+      operatorId: trackId,
+      skillGroupKey: resolved.group.key,
+      skillType: resolved.group.skillType,
+      skillLevel: level,
+      skill,
+    }),
     castId: cast.id,
-  };
+  }));
+}
+
+function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {
+  return operator.skillGroups.flatMap(group => {
+    const replacements = group.replacementSkills ?? [];
+    if (replacements.length === 0) return [];
+    const placedSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
+    if (placedSkills.length !== 1) {
+      throw new Error(
+        `operator '${operator.slug}' skill group '${group.key}' cannot combine a placed skill chain with replacement skills`,
+      );
+    }
+    return [
+      {
+        skillGroupKey: group.key,
+        baseSkillKey: placedSkills[0]!.key,
+        replacementSkillKeys: replacements.map(skill => skill.key),
+      },
+    ];
+  });
 }
 
 /**
@@ -131,7 +155,10 @@ export function compileOperatorDefinitionSkills(
 ): readonly CompiledSkillProgram[] {
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
-    const definitions = Array.isArray(group.skills) ? group.skills : [group.skills];
+    const definitions = [
+      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+      ...(group.replacementSkills ?? []),
+    ];
     return definitions.map(skill => {
       return compileSkill({
         operatorId: trackId,
@@ -170,7 +197,7 @@ function compileResolvedTimelineTracks(
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
-      skills.push(compileCastSkillProgram(track.id, cast, resolved, level));
+      skills.push(...compileCastSkillPrograms(track.id, cast, resolved, level));
       pendingInputs.push({
         frame: cast.placement.startFrame,
         operatorId: track.id,
@@ -184,6 +211,7 @@ function compileResolvedTimelineTracks(
     operators.push({
       operatorId: track.id,
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
+      skillSlotGroups: compileSkillSlotGroups(operator),
       passivePrograms: compileOperatorPassivePrograms(activeUpgrades),
       skills: applyOperatorUpgradeSkillPatches(skills, activeUpgrades),
     });

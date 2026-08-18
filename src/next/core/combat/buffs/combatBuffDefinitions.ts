@@ -27,6 +27,7 @@ import type {
 import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
 import { gameplayTagId } from '../tags/gameplayTags';
 import {
+  ATTRIBUTE_MODIFIER_SOURCES,
   ATTRIBUTE_MODIFIER_SLOTS,
   attributeModifierValues,
   type AttributeModifierSlot,
@@ -128,6 +129,8 @@ export interface CombatBuffDefinitionAttributeModifier {
   readonly attribute: string;
   readonly slot: AttributeModifierSlot;
   readonly value: number | { readonly blackboardKey: string };
+  /** 原生 isConvertedAttribute=true 时保留 converted 来源身份。 */
+  readonly source?: 'converted';
 }
 
 /** 外部和内联 Buff 定义中可序列化的伤害处理器。 */
@@ -280,6 +283,10 @@ export class CompiledCombatBuffDefinitions<
             ? attributeModifierValues(modifier.slot, modifier.value)
             : { slot: modifier.slot, blackboardKey: modifier.value.blackboardKey },
         timing: 'runtime',
+        source:
+          modifier.source === 'converted'
+            ? ATTRIBUTE_MODIFIER_SOURCES.converted
+            : ATTRIBUTE_MODIFIER_SOURCES.buff,
       })),
       damageModifiers: entry.damageModifiers,
       actions: compileLifecycleActions(entry, ports),
@@ -563,7 +570,7 @@ function parseOptionalAttributeModifiers(
     attributeModifiers: entry.attributeModifiers.map((input, index) => {
       const modifierPath = `${path}.attributeModifiers[${index}]`;
       const modifier = requireObject(input, modifierPath);
-      requireOnlyKeys(modifier, modifierPath, ['attribute', 'slot', 'value']);
+      requireOnlyKeys(modifier, modifierPath, ['attribute', 'slot', 'value', 'source']);
       const rawValue = modifier.value;
       const value =
         typeof rawValue === 'number' && Number.isFinite(rawValue)
@@ -573,6 +580,15 @@ function parseOptionalAttributeModifiers(
         attribute: requireNonEmptyString(modifier.attribute, `${modifierPath}.attribute`),
         slot: requireEnum(modifier.slot, ATTRIBUTE_MODIFIER_SLOTS, `${modifierPath}.slot`),
         value,
+        ...(modifier.source === undefined
+          ? {}
+          : {
+              source: requireEnum(
+                modifier.source,
+                ['converted'] as const,
+                `${modifierPath}.source`,
+              ),
+            }),
       };
     }),
   };

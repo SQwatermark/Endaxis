@@ -59,7 +59,11 @@ export const gilbertaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0013_aglina_normal_skill_monitor",
@@ -121,7 +125,23 @@ export const gilbertaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckHp",
+                "FinishOwnerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": {
@@ -130,7 +150,11 @@ export const gilbertaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -203,14 +227,33 @@ export const gilbertaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -290,14 +333,33 @@ export const gilbertaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -374,14 +436,33 @@ export const gilbertaGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -443,7 +524,11 @@ export const gilbertaGeneratedSource = {
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -725,7 +810,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -744,7 +830,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2147,7 +2234,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2166,7 +2254,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2336,7 +2425,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2355,7 +2445,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2525,7 +2616,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2544,7 +2636,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -3249,7 +3342,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3268,7 +3362,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -3500,7 +3595,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3519,7 +3615,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -3751,7 +3848,8 @@ export const gilbertaGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3770,7 +3868,8 @@ export const gilbertaGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -5109,7 +5208,8 @@ export const gilbertaGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5352,7 +5452,8 @@ export const gilbertaGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5983,7 +6084,8 @@ export const gilbertaGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6878,7 +6980,8 @@ export const gilbertaGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6960,7 +7063,8 @@ export const gilbertaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7024,7 +7128,8 @@ export const gilbertaGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -7160,7 +7265,8 @@ export const gilbertaGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckEntityNum",
@@ -7179,7 +7285,8 @@ export const gilbertaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7229,7 +7336,8 @@ export const gilbertaGeneratedSource = {
                       }
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -8217,7 +8325,8 @@ export const gilbertaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8321,7 +8430,8 @@ export const gilbertaGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckEntityNum",
@@ -8340,7 +8450,8 @@ export const gilbertaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8390,7 +8501,8 @@ export const gilbertaGeneratedSource = {
                       }
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -8441,7 +8553,8 @@ export const gilbertaGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -9854,7 +9967,8 @@ export const gilbertaGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9918,7 +10032,8 @@ export const gilbertaGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [

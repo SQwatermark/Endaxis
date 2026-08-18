@@ -506,6 +506,9 @@ function validateCombatCondition(
       requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
       requireString(record, 'markerId', path, out);
       break;
+    case 'abilityEntityTimedMarkerPresent':
+      requireString(record, 'markerId', path, out);
+      break;
     case 'eventDamageTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageTags(record.tags, `${path}.tags`, out);
@@ -658,6 +661,32 @@ function validateResourceChangeMetadata(
  * CombatStep 的严格验证，覆盖全部 kind 及其参数、互斥/条件字段。
  * dealDamage / dealFixedDamage 的非空 key 由调用方通过 collectDamageStepKeys 统一报告。
  */
+function validateAbilityEntityChildSkill(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const child = asRecord(value, path, out);
+  if (child === null) return;
+  requireString(child, 'skillId', path, out);
+  if (child.blackboard !== undefined) {
+    const blackboard = asRecord(child.blackboard, `${path}.blackboard`, out);
+    if (blackboard !== null) {
+      for (const [key, item] of Object.entries(blackboard)) {
+        if (key.length === 0) push(out, `${path}.blackboard`, 'contains an empty key');
+        validateLevelValues(item, `${path}.blackboard.${key}`, out);
+      }
+    }
+  }
+  if (!Array.isArray(child.scheduledSequences)) {
+    push(out, `${path}.scheduledSequences`, 'expected an array');
+  } else {
+    child.scheduledSequences.forEach((sequence, index) =>
+      validateScheduledSequence(sequence, `${path}.scheduledSequences[${index}]`, out, true),
+    );
+  }
+}
+
 function validateCombatStep(
   value: unknown,
   path: string,
@@ -715,6 +744,10 @@ function validateCombatStep(
     case 'finishCurrentAbilityEntityWhenSourceDies':
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
+    case 'startCurrentAbilityEntityChildSkill':
+      validateAbilityEntityChildSkill(parameters.childSkill, `${path}.parameters.childSkill`, out);
+      if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
+      break;
     case 'spawnAbilityEntity': {
       requireString(parameters, 'abilityEntityId', `${path}.parameters`, out);
       const definitionPath = `${path}.parameters.definition`;
@@ -734,27 +767,7 @@ function validateCombatStep(
         }
       }
       if (definition?.childSkill !== undefined) {
-        const childPath = `${definitionPath}.childSkill`;
-        const child = asRecord(definition.childSkill, childPath, out);
-        if (child !== null) {
-          requireString(child, 'skillId', childPath, out);
-          if (child.blackboard !== undefined) {
-            const blackboard = asRecord(child.blackboard, `${childPath}.blackboard`, out);
-            if (blackboard !== null) {
-              for (const [key, value] of Object.entries(blackboard)) {
-                if (key.length === 0) push(out, `${childPath}.blackboard`, 'contains an empty key');
-                validateLevelValues(value, `${childPath}.blackboard.${key}`, out);
-              }
-            }
-          }
-          if (!Array.isArray(child.scheduledSequences)) {
-            push(out, `${childPath}.scheduledSequences`, 'expected an array');
-          } else {
-            child.scheduledSequences.forEach((sequence, index) =>
-              validateScheduledSequence(sequence, `${childPath}.scheduledSequences[${index}]`, out),
-            );
-          }
-        }
+        validateAbilityEntityChildSkill(definition.childSkill, `${definitionPath}.childSkill`, out);
       }
       if (parameters.inheritActionBlackboard !== undefined) {
         requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
@@ -894,6 +907,7 @@ function validateCombatStep(
           try {
             const {
               presentation,
+              scheduledSequences,
               lifecycleSequences,
               abilityEventResponses,
               actions,
@@ -909,6 +923,16 @@ function validateCombatStep(
                 `${path}.parameters.definition.actions`,
                 'inline Buff definitions must use lifecycleSequences',
               );
+            }
+            if (scheduledSequences !== undefined) {
+              const scheduledPath = `${path}.parameters.definition.scheduledSequences`;
+              if (!Array.isArray(scheduledSequences)) {
+                push(out, scheduledPath, 'expected an array');
+              } else {
+                scheduledSequences.forEach((sequence, index) =>
+                  validateScheduledSequence(sequence, `${scheduledPath}[${index}]`, out),
+                );
+              }
             }
             if (lifecycleSequences !== undefined) {
               const lifecyclePath = `${path}.parameters.definition.lifecycleSequences`;
@@ -956,10 +980,11 @@ function validateCombatStep(
               }
             }
             if (
-              ((lifecycleSequences !== undefined &&
-                typeof lifecycleSequences === 'object' &&
-                lifecycleSequences !== null &&
-                Object.keys(lifecycleSequences).length > 0) ||
+              ((Array.isArray(scheduledSequences) && scheduledSequences.length > 0) ||
+                (lifecycleSequences !== undefined &&
+                  typeof lifecycleSequences === 'object' &&
+                  lifecycleSequences !== null &&
+                  Object.keys(lifecycleSequences).length > 0) ||
                 (Array.isArray(abilityEventResponses) && abilityEventResponses.length > 0)) &&
               parameters.inheritSourceSkillCastInfo !== true
             ) {
@@ -1062,14 +1087,29 @@ function validateCombatStep(
       break;
     }
     case 'finishBuffsByTag':
-      requireTarget();
+      requireEnum(
+        parameters,
+        'target',
+        new Set(['caster', 'enemy', 'currentAbilityEntity']),
+        `${path}.parameters`,
+        out,
+      );
       requireEnum(parameters, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters`, out);
       validateNonEmptyIntegerArray(parameters.buffTagIds, `${path}.parameters.buffTagIds`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
       break;
     case 'finishBuffsById':
-      requireTarget();
+      requireEnum(
+        parameters,
+        'target',
+        new Set(['caster', 'enemy', 'currentAbilityEntity']),
+        `${path}.parameters`,
+        out,
+      );
       validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
+      requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      break;
+    case 'finishCurrentBuff':
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
       break;
     case 'holdBuffsById':
@@ -1080,6 +1120,15 @@ function validateCombatStep(
       break;
     case 'createTimedMarker':
       requireTarget();
+      requireString(parameters, 'markerId', `${path}.parameters`, out);
+      validateActionValueOperand(
+        parameters.durationSeconds,
+        `${path}.parameters.durationSeconds`,
+        out,
+      );
+      requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
+      break;
+    case 'createAbilityEntityTimedMarker':
       requireString(parameters, 'markerId', `${path}.parameters`, out);
       validateActionValueOperand(
         parameters.durationSeconds,
@@ -1274,6 +1323,10 @@ function validateCombatStep(
     case 'openComboWindow':
       requireString(parameters, 'nextSkillKey', `${path}.parameters`, out);
       break;
+    case 'changeSkillSlot':
+      requireString(parameters, 'skillGroupKey', `${path}.parameters`, out);
+      requireString(parameters, 'targetSkillKey', `${path}.parameters`, out);
+      break;
     case 'listenForCombatEvents':
       if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {
         push(out, `${path}.parameters.responses`, 'expected a non-empty array');
@@ -1379,6 +1432,7 @@ function validateScheduledSequence(
   value: unknown,
   path: string,
   out: SkillDefinitionValidationIssue[],
+  currentTargetAvailable = false,
 ): void {
   const record = asRecord(value, path, out);
   if (record === null) return;
@@ -1392,7 +1446,7 @@ function validateScheduledSequence(
   if (containsCombatEventListener(record.sequence) && record.endFrame === undefined) {
     push(out, `${path}.endFrame`, 'combat event listeners require an end frame');
   }
-  validateActionSequence(record.sequence, `${path}.sequence`, out);
+  validateActionSequence(record.sequence, `${path}.sequence`, out, currentTargetAvailable);
 }
 
 /**

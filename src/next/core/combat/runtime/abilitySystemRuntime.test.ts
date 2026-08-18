@@ -94,4 +94,38 @@ describe('AbilitySystemRuntime', () => {
       'start:ultimate',
     ]);
   });
+
+  it('snapshots the active slot variant at release start and applies changes to later releases', () => {
+    const events: string[] = [];
+    const base = new FixtureRuntime('ultimate', events, 'ultimate');
+    const replacement = new FixtureRuntime('arcana', events, 'ultimate');
+    const ability = new AbilitySystemRuntime({
+      skills: [base, replacement],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'ultimate',
+          baseSkillKey: 'ultimate',
+          replacementSkillKeys: ['arcana'],
+        },
+      ],
+    });
+
+    expect(ability.tryStartSkill('ultimate')).toBe(true);
+    ability.changeSkillSlot('ultimate', 'arcana');
+    expect(ability.currentSkillId).toBe('ultimate');
+
+    base.state = 'ended';
+    expect(ability.tryStartSkill('ultimate')).toBe(true);
+    expect(ability.currentSkillId).toBe('arcana');
+
+    ability.changeSkillSlot('ultimate', 'ultimate');
+    expect(ability.currentSkillId).toBe('arcana');
+    replacement.state = 'ended';
+    expect(ability.tryStartSkill('ultimate')).toBe(true);
+    expect(events.filter(event => event.startsWith('start:'))).toEqual([
+      'start:ultimate',
+      'start:arcana',
+      'start:ultimate',
+    ]);
+  });
 });

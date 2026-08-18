@@ -358,6 +358,29 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0015_lifeng_purify',
+                definition: {
+                  stackingType: 'stack',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  blackboard: {
+                    'duration': 12,
+                    'rate': 0,
+                  },
+                  damageModifiers: [
+                    {
+                      enabledSide: 'defender',
+                      processors: [
+                        {
+                          kind: 'damageScale',
+                          side: 'defender',
+                          zone: 'vulnerable',
+                          addition: { blackboardKey: 'rate' },
+                        },
+                      ],
+                    },
+                  ],
+                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {

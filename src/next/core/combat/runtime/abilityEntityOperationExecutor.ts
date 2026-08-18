@@ -1,7 +1,10 @@
 import type { CombatCondition } from '../../game-data/operatorDefinition';
-import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import type {
+  CompiledAbilityEntityChildSkillProgram,
+  ResolvedCombatOperationStep,
+} from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import { resolveActionValueOperand } from './actionBlackboard';
+import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -100,6 +103,22 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       }
       return true;
     }
+    if (step.kind === 'startCurrentAbilityEntityChildSkill') {
+      if (context?.currentTarget === undefined) {
+        throw new Error('AbilityEntity child skill start requires a current Context target');
+      }
+      if (this.#childRuntimeDependencies === undefined) {
+        throw new Error('AbilityEntity child skill runtime is not configured');
+      }
+      const childSkill = step.parameters.childSkill;
+      this.#entities.startChildSkill(
+        context.currentTarget,
+        childSkill.skillId,
+        (entity, entityBlackboard) =>
+          this.#createChildRuntime(childSkill, entity, entityBlackboard, context),
+      );
+      return true;
+    }
     if (step.kind !== 'spawnAbilityEntity') return this.#delegate.execute(step, context);
     if (context === undefined) {
       throw new Error('spawnAbilityEntity requires a combat operation context');
@@ -151,18 +170,12 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         ? {}
         : {
             createChildRuntime: (entity, entityBlackboard) =>
-              new AbilityEntityChildSkillRuntime(parameters.definition.childSkill!, {
+              this.#createChildRuntime(
+                parameters.definition.childSkill!,
                 entity,
                 entityBlackboard,
-                operations: this.#childRuntimeDependencies!.resolveOperations(),
-                ownerOperatorId: this.#operatorId,
-                ...(this.#childRuntimeDependencies!.semanticEvents === undefined
-                  ? {}
-                  : { semanticEvents: this.#childRuntimeDependencies!.semanticEvents }),
-                ...(context.skillCastInfo === undefined
-                  ? {}
-                  : { inheritedSkillCastInfo: context.skillCastInfo }),
-              }),
+                context,
+              ),
           }),
     });
     if (parameters.saveToContextKey !== undefined) {
@@ -194,5 +207,28 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       );
     }
     return this.#delegate.evaluate(condition, context);
+  }
+
+  #createChildRuntime(
+    program: CompiledAbilityEntityChildSkillProgram,
+    entity: RuntimeTargetRef,
+    entityBlackboard: ActionBlackboard,
+    context: CombatOperationContext,
+  ): AbilityEntityChildSkillRuntime {
+    if (this.#childRuntimeDependencies === undefined) {
+      throw new Error('AbilityEntity child skill runtime is not configured');
+    }
+    return new AbilityEntityChildSkillRuntime(program, {
+      entity,
+      entityBlackboard,
+      operations: this.#childRuntimeDependencies.resolveOperations(),
+      ownerOperatorId: this.#operatorId,
+      ...(this.#childRuntimeDependencies.semanticEvents === undefined
+        ? {}
+        : { semanticEvents: this.#childRuntimeDependencies.semanticEvents }),
+      ...(context.skillCastInfo === undefined
+        ? {}
+        : { inheritedSkillCastInfo: context.skillCastInfo }),
+    });
   }
 }

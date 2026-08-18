@@ -6,11 +6,13 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue';
 import type { ScenarioSimulationRun } from '../../application/scenarioSimulationService';
+import type { ScenarioSimulationPerformanceSample } from '../../application/scenarioSimulationService';
 import type { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { SkillAvailabilityDiagnosticReason } from '../../core/projection/skillAvailabilityDiagnostics';
 import type { SkillExecutionDiagnosticReason } from '../../core/projection/skillExecutionDiagnostics';
 import type { ComboWindowDiagnosticReason } from '../../core/projection/comboWindowDiagnostics';
+import { appendSimulationPerformanceSample } from './simulationPerformanceAudit';
 
 export type TimelineSkillDiagnosticReason =
   SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason | ComboWindowDiagnosticReason;
@@ -22,19 +24,29 @@ export interface UseScenarioSimulationOptions {
   readonly debounceMs?: number;
 }
 
+/** 一次成功模拟的完整发布单元；后台计算完成前不会改变。 */
+export interface PublishedScenarioSimulation {
+  readonly scenario: ScenarioDocument;
+  readonly run: ScenarioSimulationRun;
+}
+
 export interface UseScenarioSimulationResult {
-  /** 与最新场景内容一致的运行结果；重新调度期间保留上一次结果。 */
-  readonly run: Ref<ScenarioSimulationRun | null>;
+  /** 上一次成功模拟的完整快照；新模拟成功后整体替换。 */
+  readonly published: ComputedRef<PublishedScenarioSimulation | null>;
+  readonly run: ComputedRef<ScenarioSimulationRun | null>;
   readonly running: Ref<boolean>;
   /** 当前展示的结果是否已经落后于最新场景内容。 */
   readonly stale: Ref<boolean>;
   readonly error: Ref<string | null>;
+  /** 最近的模拟墙钟耗时样本，供实时性能审计展示。 */
+  readonly performanceSamples: Ref<readonly ScenarioSimulationPerformanceSample[]>;
   /** 每个技能块的警告原因列表，键是技能块的 id。 */
   readonly diagnosticsByCastId: ComputedRef<
     ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >;
   /** 立即取消等待并执行一次模拟。 */
-  readonly simulateNow: () => void;
+  /** 立即运行并返回本次结果是否成功成为新的已发布快照。 */
+  readonly simulateNow: () => Promise<boolean>;
 }
 
 const DEFAULT_DEBOUNCE_MS = 150;
@@ -43,15 +55,24 @@ export function useScenarioSimulation(
   options: UseScenarioSimulationOptions,
 ): UseScenarioSimulationResult {
   const debounceMs = options.debounceMs ?? DEFAULT_DEBOUNCE_MS;
-  const run = shallowRef<ScenarioSimulationRun | null>(null);
+  const publishedState = shallowRef<PublishedScenarioSimulation | null>(null);
+  const published = computed(() => publishedState.value);
+  const run = computed(() => publishedState.value?.run ?? null);
   const running = ref(false);
   const stale = ref(false);
   const error = ref<string | null>(null);
+  const performanceSamples = shallowRef<readonly ScenarioSimulationPerformanceSample[]>([]);
   let latestRunId = 0;
   let pendingTimer: ReturnType<typeof setTimeout> | null = null;
-  let lastSimulatedScenario: ScenarioDocument | null = null;
+  const unsubscribePerformance =
+    options.service.subscribePerformance?.(sample => {
+      performanceSamples.value = appendSimulationPerformanceSample(
+        performanceSamples.value,
+        sample,
+      );
+    }) ?? (() => undefined);
 
-  async function runSimulation(): Promise<void> {
+  async function runSimulation(): Promise<boolean> {
     if (pendingTimer !== null) {
       clearTimeout(pendingTimer);
       pendingTimer = null;
@@ -64,17 +85,16 @@ export function useScenarioSimulation(
     try {
       const result = await options.service.simulate(scenario, scenario.battle.durationFrames);
       // 跑完才发现有更新的任务或场景已经变了，这次结果就不要了。
-      if (runId !== latestRunId || options.scenario.value !== scenario) return;
-      run.value = result;
-      lastSimulatedScenario = scenario;
+      if (runId !== latestRunId || options.scenario.value !== scenario) return false;
+      publishedState.value = Object.freeze({ scenario, run: result });
       stale.value = false;
+      return true;
     } catch (caught) {
-      if (runId !== latestRunId || options.scenario.value !== scenario) return;
+      if (runId !== latestRunId || options.scenario.value !== scenario) return false;
       error.value = caught instanceof Error ? caught.message : String(caught);
-      // 模拟失败就清掉旧结果，免得页面上展示和当前场景对不上的曲线。
-      run.value = null;
-      lastSimulatedScenario = null;
-      stale.value = false;
+      // 失败不发布半成品，也不拆掉上一份完整快照。
+      stale.value = publishedState.value !== null && publishedState.value.scenario !== scenario;
+      return false;
     } finally {
       if (runId === latestRunId) running.value = false;
     }
@@ -82,14 +102,17 @@ export function useScenarioSimulation(
 
   function scheduleSimulation(): void {
     if (pendingTimer !== null) clearTimeout(pendingTimer);
+    // 场景一变化立即标脏，使诊断不再冒充当前结果；展示层仍可保留上一份投影，
+    // 等新模拟完成后原子替换，避免时间映射和效果层在等待期间闪回默认状态。
+    stale.value = true;
     pendingTimer = setTimeout(() => {
       pendingTimer = null;
       void runSimulation();
     }, debounceMs);
   }
 
-  function simulateNow(): void {
-    void runSimulation();
+  function simulateNow(): Promise<boolean> {
+    return runSimulation();
   }
 
   const stopWatch = watch(
@@ -102,14 +125,16 @@ export function useScenarioSimulation(
     stopWatch();
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     latestRunId += 1;
+    unsubscribePerformance();
   });
 
   const diagnosticsByCastId = computed<
     ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >(() => {
-    const current = run.value;
-    const scenario = options.scenario.value;
-    if (current === null || lastSimulatedScenario !== scenario) return new Map();
+    const snapshot = publishedState.value;
+    if (snapshot === null) return new Map();
+    const current = snapshot.run;
+    const scenario = snapshot.scenario;
 
     const diagnostics = [
       ...current.availabilityDiagnostics.map(diagnostic => ({
@@ -151,10 +176,12 @@ export function useScenarioSimulation(
   });
 
   return {
+    published,
     run,
     running,
     stale,
     error,
+    performanceSamples,
     diagnosticsByCastId,
     simulateNow,
   };

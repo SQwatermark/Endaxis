@@ -90,9 +90,16 @@ export function resolveStaticPlayerDamageSnapshots(
   if (panel === undefined) {
     throw new Error(`operator '${context.program.operatorId}' has no resolved panel`);
   }
+  const staticDamageScales = resolveStaticDamageScales(context, step);
+  const attackerDamageScales = Object.fromEntries(
+    DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [
+      key,
+      staticDamageScales[key] + operatorAttributes.get(key),
+    ]),
+  ) as Record<DamageScaleAttributeKey, number>;
   return {
     attacker: {
-      ...resolveStaticDamageScales(context, step),
+      ...attackerDamageScales,
       attack: resolveOperatorAttack(panel, operatorAttributes),
       criticalRate: panel.criticalRate,
       criticalDamageIncrease: panel.criticalDamage,

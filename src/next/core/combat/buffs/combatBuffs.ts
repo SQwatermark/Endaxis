@@ -7,6 +7,7 @@ import {
   CombatAttributeModifier,
   attributeModifierValues,
   type AttributeModifierSlot,
+  type AttributeModifierSource,
   type AttributeModifierTiming,
   type AttributeModifierValues,
   type CombatAttributeSet,
@@ -82,6 +83,7 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly attribute: Key;
   readonly values: BuffAttributeModifierValues;
   readonly timing: AttributeModifierTiming;
+  readonly source?: AttributeModifierSource;
 }
 
 /** Buff 启用期间注册到整场战斗共享 SP 系统的一项固定值修正。 */
@@ -494,7 +496,7 @@ export class CombatBuff<Key extends string> {
       return new CombatAttributeModifier(
         modifier.attribute,
         values,
-        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
         modifier.timing,
       );
     });

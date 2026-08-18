@@ -46,6 +46,19 @@ describe('next Arcane definition', () => {
       expect.objectContaining({ key: 'intellect' }),
       expect.objectContaining({ key: 'will' }),
     ]);
+    expect(arcane.entityBlackboardInitializers).toEqual([
+      {
+        key: 'EntityBB_wisd_greater_will',
+        condition: {
+          kind: 'deckAttributeCompare',
+          left: 'intellect',
+          operator: 'greaterOrEqual',
+          right: 'will',
+        },
+        trueValue: 1,
+        falseValue: 0,
+      },
+    ]);
   });
 
   it('branches battle-skill damage after applying nature infliction', () => {
@@ -100,6 +113,8 @@ describe('next Arcane definition', () => {
 
   it('requires arcana readiness for a second ultimate during the array', () => {
     const ultimate = getSkill('ultimate');
+    const group = arcane.skillGroups.find(candidate => candidate.key === 'ultimate');
+    const arcana = group?.replacementSkills?.[0];
 
     expect(ultimate.availability).toEqual({
       kind: 'any',
@@ -118,12 +133,34 @@ describe('next Arcane definition', () => {
     expect(ultimate.eventHandlers?.[0]?.scheduledSequences).toBe(
       ultimate.eventHandlers?.[1]?.scheduledSequences,
     );
+    expect(arcana?.key).toBe('arcana');
+    expect(arcana?.availability).toEqual({
+      kind: 'statusActive',
+      statusKey: 'gloompurgeArcanaReady',
+      target: 'caster',
+    });
+    expect(
+      collectSteps({ steps: ultimate.scheduledSequences.flatMap(item => item.sequence.steps) }),
+    ).toContainEqual({
+      kind: 'changeSkillSlot',
+      parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'arcana' },
+    });
+    expect(arcana?.scheduledSequences[0]?.sequence.steps).toEqual([
+      {
+        kind: 'changeSkillSlot',
+        parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'ultimate' },
+      },
+    ]);
   });
 
   it('blocks ultimate gain during the array and gives every damage step a stable key', () => {
-    const steps = getSkill('ultimate')
-      .scheduledSequences.flatMap(item => item.sequence.steps)
-      .flatMap(step => collectSteps({ steps: [step] }));
+    const ultimateGroup = arcane.skillGroups.find(candidate => candidate.key === 'ultimate');
+    const definitions = [getSkill('ultimate'), ...(ultimateGroup?.replacementSkills ?? [])];
+    const steps = definitions.flatMap(skill =>
+      skill.scheduledSequences
+        .flatMap(item => item.sequence.steps)
+        .flatMap(step => collectSteps({ steps: [step] })),
+    );
 
     expect(steps).toContainEqual({
       kind: 'applyStatus',
@@ -169,12 +206,12 @@ describe('next Arcane definition', () => {
     );
   });
 
-  it('keeps reverse-engineering identifiers out of the executable definition', () => {
+  it('keeps source-only identifiers out while retaining the generated runtime blackboard key', () => {
     const serialized = JSON.stringify(arcane);
 
     expect(serialized).not.toContain('chr_0032_lizhiyan');
     expect(serialized).not.toContain('buff_chr_');
-    expect(serialized).not.toContain('EntityBB_');
+    expect(serialized.match(/EntityBB_wisd_greater_will/g)).toHaveLength(1);
     expect(serialized).not.toContain('OnCharDeckAttrChanged');
   });
 });

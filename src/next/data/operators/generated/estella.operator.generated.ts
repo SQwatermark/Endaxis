@@ -323,11 +323,7 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
                 features: ['canBreakWeakness'],
                 stagger: 10,
               }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]6:action10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:9'),
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
             ),
             sequence(
               step('dealDamage', {
@@ -397,6 +393,29 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
+                    definition: {
+                      stackingType: 'stack',
+                      priority: 0,
+                      maxStackCount: 1,
+                      durationSeconds: { blackboardKey: 'duration' },
+                      blackboard: {
+                        'duration': 3,
+                        'rate': -0.3,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -415,6 +434,29 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
+                    definition: {
+                      stackingType: 'stack',
+                      priority: 0,
+                      maxStackCount: 1,
+                      durationSeconds: { blackboardKey: 'duration' },
+                      blackboard: {
+                        'duration': 3,
+                        'rate': -0.3,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -442,15 +484,12 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
               }, '10:comboSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:34'),
             ),
           ),
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                recipient: 'caster',
-              }),
-            ),
+          sequence(
+            step('changeResourceByActionValue', {
+              resource: 'ultimateEnergy',
+              amount: { kind: 'blackboard', key: 'usp' },
+              recipient: 'caster',
+            }),
           ),
         ),
       ),

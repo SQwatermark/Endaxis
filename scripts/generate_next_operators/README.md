@@ -10,6 +10,8 @@
 
 `operators.json` 不保存可从数据源取得的倍率、冷却、持续时间、属性成长或潜能数值。它只声明稳定 DSL key、原生技能到 Endaxis 技能的映射，以及单敌人模型取舍等无法由原始字段唯一推导的语义。首段连携入口写在干员级 `comboSkillRegistrations`，不能放进单个技能的 `compile` 配置；多段连携的后续窗口由对应技能序列生成 `openComboWindow` 步骤。
 
+干员的稳定 slug、原始数据名称与本地化展示名必须分开：例如技术身份 `arcane` 的中文展示名是“诀”。展示名的权威对照本是 `src/i18n/game-locales/<locale>/operators.json`，由 `getOperatorGameName` 读取；本目录的 `operators.json` 不重复保存名称。生成审计中的原始英文 `operatorName` 可保留来源事实，UI 和面向用户的中文文档不得把它当作中文展示名。
+
 时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧；原生优先级 GameplayTag 在生成正式 DSL 时通过当前版本 `TimeDilationConfig.priorityMap` 降为可直接比较的数值，未知标签立即报错。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。
 
 ## 输出
@@ -137,6 +139,26 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 都会写入 `*.audit.json` 的 `passiveSkills[].generationIssues`，不会阻断其他技能生成，也不会降级为
 空效果。正式定义只包含完整通过检查的隐藏被动 Buff；审计失败的依赖不会进入运行时 Buff 目录。
 
+不经天赋/潜能 `attachSkill` 引用的角色基础被动，可在 manifest 用 `basePassiveSkillIds` 只声明
+SkillData 身份；行为仍必须从 SkillData/BuffData 生成，不能在 manifest 重抄规则。当前诀样本会沿
+`chr_0032_lizhiyan_passive -> buff_chr_0032_lizhiyan_passive` 自动识别
+`OnBuffStart` 的 `CompareDeckAttr(owner.Wisd GE owner.Will)` 以及两侧对同一 `EntityBB_` 键的直接
+赋值，并生成静态构筑面板初始化器。目标、属性枚举、比较符、偏移量或分支形状不满足严格子集时
+不会猜测生成。
+
+`ChangeSkillAction` 不是表现动作。生成器会分别保留技能根时间线与 Buff 事件顶层的技能槽替换
+载荷，包括槽位、目标技能、还原技能、生命周期、缓存参数及冷却继承标志。若首段直接引用的 Buff
+在启用时把同类型技能槽换成二段，且二段第 0 帧明确换回首段，audit 会归纳稳定的
+`base -> replacement -> base` 关系。审计技能 TS 同时导出这份生成关系，供正式定义复用稳定技能
+key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直接放置的形态；场景为同一
+`castId` 编译全部形态，能力系统只在释放开始时解析当前槽位，释放中途的 `changeSkillSlot` 只
+影响下一次释放。生成器现在只对完整闭环关系生成 DSL：首段必须直接施加关系中已证明的 Buff，
+随后在同一原生序列生成换到替换技能的 `changeSkillSlot`；替换技能的原生还原帧与动作索引必须
+一一匹配，且 manifest 以 `runtimeReplacementSkillKeys` 明确声明该技能不可直接放置，才生成
+换回基础技能的步骤。正式技能组只会把这些明确声明的形态写入 `replacementSkills`。普通/强化
+技能即使原生存在换技动作，仍可保持不同的稳定技能组供用户直接拖放；不能仅凭动作名称推断
+编辑器放置语义。已声明运行时替换、但未被闭环关系覆盖的 `ChangeSkillAction` 会阻止生成。
+
 ## 当前边界
 
 能力实体生成点输出自包含的 `abilityEntityId + definition`，将默认生命周期和已证明的子技能直接内联。born tags 只保留在 VFS 模板证据中；原生 owner-spawned 标签查询在生成期严格求值并输出明确的 `abilityEntityIds`，编译器和运行时不携带标签或共享模板注册表。尚无替换规则证据的 `maxStackingCount` 不进入可执行定义。
@@ -146,6 +168,9 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - 当前 SkillData 另有 10 个 `SetAbilityEntityDuration`、2 个 `CheckAbilityEntityCurDuration` 和 1 个 `SetAbilityEntityTarget`。Next 运行时已经支持 Context 稳定句柄迭代、有限剩余时长读取/比较，以及所有已观察设置样本共有的 `Assign` 操作。1.4.4 原生实现已证明 `setMultipleTarget=false` 只调用一次单目标解析，而 `true` 才枚举整组；生成器会严格转换庄方宜的 `Context ForEach -> Target/LT -> InputTarget/Assign` 形状，也允许由此前确定逻辑生成证明为单例的命名 `ContextTarget` 复用 0/1 Context 迭代。来源不明、被普通目标组复用或可能为多实例的键仍拒绝。Li Zhiyan 连携技的 `bunshin1…4` 由四个无战斗子动作的封印实体生成；其 `BL/BR/FL/FR` 均为同帧、无筛选的 `FixedPointFinder` 位置结果，因此零空间投影会丢弃位置目标但保留实体身份，八个时长赋值随之进入正式编译链。该技能的 `trigger` 另由第 0 帧完整三路条件链写入；生成器只有在两路敌人合并与一条严格固定点回退覆盖全部分支、且固定点所依赖的主控查找已证明存在时，才折叠后续 `Context/trigger >= 1`。固定点只取得“非空位置”证明，不会被归约为敌人。跨实例短路、目标变更和其他未出现的时长运算不得从名称推断。
 - `TimeDilationAction` 中的能力实体查询会严格保留 owner-spawned 身份、可选 GameplayTag 查询或命名 Context 身份。全局/终结技 `ignoreTargets` 已生成正式 DSL，并在执行时把查询到的稳定实体加入排除集合；这在能力实体寿命开始消费时间倍率后是必要语义。Entity `effectTargets` 的 DSL/运行时查询、寿命效果和内嵌子时间轴倍率都已存在，生成器只在模板证据证明单一 `HasAny` 标签的全部匹配模板均由当前可达图生成、每个生成点都有逻辑实体且所有战斗子图均已动态迁移时输出。Li Zhiyan 连携的 `-1480463572` 只匹配自身封印模板，四个生成点都是无战斗子动作的逻辑实体，已命中该闭包；Tangtang、Yvonne、Liino 及其他未闭合查询仍失败关闭，不能把该字段误认成纯表现 `EffectAction` 后忽略。
 - Buff 施加单独支持 `party` 集合目标：只有未附带筛选器或后处理器的 `CharacterTeamFinder` 目标组才能归约为当前全部存活干员。Buff 查询、结束和条件仍要求 `caster/enemy` 单一实体；主控筛选、召唤物和父级上下文目标不得借用 `party` 近似。
+- `OnBuffEnhanceChanged` 当前只开放 Arclight 已证明的严格形状：读取 Source 的四维 `FinalNonConverted` 值、写入当前 Buff 黑板、创建队伍 Buff 并结束计数 Buff。静态面板四维由场景装配写入共享实体黑板；`isConvertedAttribute=true` 保留为属性修正的 `converted` 来源。原生属性名会映射到 Next 伤害快照键，例如 `PulseDamageIncrease -> electricDamageIncrease`，运行时 Buff 修正与构筑静态增伤在每次命中时合并。
+- `VulnerableAction` 只有在 Buff 事件、Source/Owner、duration/rate 黑板、Physical 子类型和生命周期形状全部匹配时，才投影为无标签条件的 defender/vulnerable 伤害修正。当前 Lifeng 的 `OnBuffStart` 与 Estella 的 `DuringBuffEnable` 样本命中；其他易伤事件不会因动作名相同而自动放行。
+- `buff_common_obtain_ultimate_sp` 的 `skillCostUltimateEnergyGain` 分类在根时间轴和条件分支共用专用步骤；它表示按技能消耗为小队回终结技能量，不作为普通 Buff 内联。条件分支仍校验固定次数、Source/Owner 目标、来源和施法身份继承。
 - `InstantSearch` Buff 目标会在中间层保留 finder、validator 与 post-processor 类型；目前也只有无过滤、无后处理的 `CharacterTeamFinder` 能直接归约为 `party`，其他即时搜索继续显式阻塞。
 - `TargetSource.Source/Owner` 按原生分派忽略不会被读取的 `targetGroupKey`；根技能的 `CreateBuffAction.buffSource=InputTarget` 则归约为唯一敌人来源。两者都来自目标解析证据，不把命名组猜成实际目标。
 - 技能释放条件只用于合法性诊断。即使条件、费用或冷却不满足，用户排入时间轴的技能仍会进入模拟并产生结果。
@@ -154,10 +179,13 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - `FractureAction` 会被解析为明确的 `fracture` 物理异常载荷。根时间轴和条件分支都保留目标、原生顺序、`isExtra`、中断时长以及全部击退参数；空间参数只作为证据保存，不在固定单敌人模型中执行。原生行为还包含破防层创建/消费、物理异常前后事件、碎甲 Buff 链和伤害，因此在这条运行时链完整接入前，解析成功不等于 DSL 完整，相关技能继续严格阻塞。
 - 技能时间轴中的 `EventListenerAction` 会作为独立的事件订阅事实保存，包含注册区间、事件名、原生动作顺序、主控/守卫限制及可解析的 Buff 创建载荷。监听器内部动作不会被提升为技能第 0 帧或注册帧上的无条件动作；在对应战斗事件及条件链接入运行时前，相关技能继续严格阻塞。
 - BuffData 的事件序列同样保留同步条件树。目标组生产者可选择进入有序树用于同帧溯源；每条非空序列按原生规则把首个启用动作的 `priorityLevel + priorityOffset` 降为数值（`Low=-100 / Default=0 / High=100`），空启用序列按原生 `CreateSequenceAction` 的 null 结果省略。`OnBeforeTakeDamage` 中 plain `Target == Source` 只有在 Buff 承伤事件上下文内才可编译为“伤害来源等于 Buff 来源”；其他同名目标不得借用。`InterruptAction` 的完整目标、霸体上限和定身参数保留在审计层；当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，而原生动作自身恒返回成功，因此正式编译将它归约为不阻断后续序列的零效果动作，不建立伪造的敌方控制状态。其他未知状态动作仍必须显式拒绝。
+- BuffData 自身的 `timelineActions` 编译为 Buff 实例级 `scheduledSequences`，每个实例独占本地帧游标，并随 Buff 启用、停用和重启。嵌套创建的 Buff 递归内联完整定义；命名 `Context` 目标只有在创建调用明确传入目标身份，或本地此前目标组写入能够证明身份时才归约。Li Zhiyan 连携中 `seal_total` 的 owner 是诀，但其 `Context/trigger` 是连携输入敌人；第 2 帧创建的 `seal` 因而由敌人持有，随后隐藏结束子技能的输入 `Target` 也保持为该敌人。能力实体模板不参与这条所有权链。
 - 根时间轴与条件分支中的 `TimeDilationAction` 共用同一套严格解析。根动作按原生帧进入调度；分支动作保留在成功或失败序列的原始位置，只有分支实际成立时才创建时间膨胀实例，不能提升成无条件时间动作。`CharacterTeamFinder + MainCharacterValidator` 的即时搜索会保留为独立的 `controlled` 排除目标，并在动作执行帧通过场景控制时间线解析，不能静态近似为 caster；Avywenna 投射物子技能中的该目标结构已可解析，但其父技能仍先被能力实体距离守卫阻塞。当前洛茜第三段连携与卡缪重击中的嵌套样本已经闭环。
 - `FinishBuffAdvanced(checkType=Id)` 的空 `buffIdList` 按原生 Id 遍历语义不会调用 Buff 容器。只有事件监听器的全部响应都完全由这种无条件空操作组成时，生成器才省略整个监听器；非空 Id、Tag 查询、条件、`once` 或其他动作不会借用这条规则。当前洛茜终结技的 `OnSkillEnd` 监听是唯一命中该规则的入口样本。
+- Buff 内联事件响应中的 `FinishBuffAdvanced(Owner + Id)` 以该 Buff 的实际接收者为 Owner；`Owner + Environment` 不按 ID 或 Tag 重新查询容器，而是结束正在执行响应的当前 Buff 实例。后者使用专用的 `finishCurrentBuff` 步骤，并由 Buff 实例生命周期提供回调；事件执行中自结束会同步注销订阅。其他 Environment/Context 形状不得借用这条规则。
+- 能力实体子技能的 `CreateTimedMarker(Owner, useTimeDilationDt=true)` 使用实体自身已结算时间膨胀的局部 elapsed time，不得放入干员或敌人的共享战斗时钟。生成器只开放已有当前能力实体上下文的 plain Owner 形状；对应检查使用当前实体目标，其他动态目标仍拒绝。
 - 没有战斗效果的表现投射物、教程标记和全等级为零的资源动作会保留在审计层，但不生成无效果 DSL 步骤。非零根资源获得会按原生帧和动作顺序进入统一调度；`costValue` 在原生数据中引用动作黑板时生成 `changeResourceByActionValue`，不得冻结成生成时等级常量。固定 `coefficient` 会作为独立字段进入 DSL；动态黑板系数也保留为动作黑板操作数，在步骤执行时与动态数量相乘。`Atb` 映射为全队共享技力，`UltimateSp` 映射为施法者终结技能量，生成器不得把两者统一写成同一资源所有者。SP 的普通/返还类别与来源倍率会进入共享技力步骤；终结技能量严格按“目标回能效率、可选最大能量百分比、固定系数、回复许可标签”顺序结算，`ignoreUspGainScalar` 只跳过第一段，`useUspRecoverTag` 只携带许可身份，两者不能互相替代。仅主控限制仍保留在中间层并阻止未闭环动作进入正式 DSL。
-- `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量、目标身份与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 与 `CheckBuffStackNumByTag` 的 `Tag + BuffCount` 已有反编译闭环。层数阈值既可来自字面量，也可在执行时读取动作黑板；`Target` 只有在调度投影已经明确其输入为唯一敌人时才会编译为敌方查询，这条身份规则同时用于定时标记的检查与创建。`CheckEntityNum` 仅在直接读取技能输入目标，或读取点之前最后一次可达写入已证明为无过滤的敌方存活普通实体 HitBox / 主目标查找时，才会按固定单敌人模型归约。`CheckTargetsEqual` 只有在两侧都能严格证明为无过滤、无重定向的技能目标或主目标时才归约为恒真；选择器带有校验器、后处理器或上下文重定向时仍会拒绝编译。根时间轴上的双操作数计算、原地黑板修改、Buff 黑板读取、Buff 结束和元素附着与条件分支内的同类动作共用编译器，并按其原生帧和 `serverActionIndex` 进入统一调度。单伤害快捷编译器仍要求附着与伤害同帧；统一调度不作该假设，可表达独立帧上的根附着动作。
+- `IfElseAction` 会作为结构化条件审计保留。当前已完整记录浮点比较、技能类型、实体数量、目标身份与 Buff 层数条件；其中 `CheckBuffStackNumAdvanced` 的 `Id/Tag + BuffCount + limitSkillCastId=false` 与 `CheckBuffStackNumByTag` 的 `Tag + BuffCount` 已有反编译闭环。层数阈值既可来自字面量，也可在执行时读取动作黑板；`Target` 只有在调度投影已经明确其输入为唯一敌人时才会编译为敌方查询，这条身份规则同时用于定时标记的检查与创建。`CheckEntityNum` 仅在直接读取技能输入目标，或读取点之前最后一次可达写入已证明为无过滤的敌方存活普通实体 HitBox / 主目标查找时，才会按固定单敌人模型归约。`CheckTargetsEqual` 只有在两侧都能严格证明为无过滤、无重定向的技能目标/主目标，或命名 Context 已由读取点之前的明确敌人写入证明时才归约为恒真；选择器带有校验器、后处理器或未经证明的上下文重定向时仍会拒绝编译。根时间轴上的双操作数计算、原地黑板修改、Buff 黑板读取、Buff 结束和元素附着与条件分支内的同类动作共用编译器，并按其原生帧和 `serverActionIndex` 进入统一调度。单伤害快捷编译器仍要求附着与伤害同帧；统一调度不作该假设，可表达独立帧上的根附着动作。
 - `CheckBuffStackNum` 是固定单个 Buff ID 的简化条件：按通用目标解析取得首目标、将不可直接附加 Buff 的部位归并到主体、累计同 ID Buff 的增强层数，并允许比较阈值在执行时从动作黑板求值。它与高级版本共用 `buffIdStackCompare`，但仍要求目标身份能够闭环。
 - 条件分支中的 `CheckTimedMarkerCondition` 与 `CreateTimedMarker` 会保留固定标记 ID、目标、持续时间、检查极性和动作结束清理语义。Next 允许同一实体持有多个同 ID 标记，并按共享战斗时钟判断有效性；动态字符串 ID 与 `useTimeDilationDt=true` 在对应运行时能力闭环前继续报错。
 - `CheckGlobalCDTimerAction` 与 `AddGlobalCDTimer` 在审计层保留为独立的原生全局冷却事实；根技能中目标为当前干员、ID 固定且时长可解析时，按 `(buffId, 当前干员)` 映射为施法者定时标记。Buff 事件中的同类动作和 `ModifyGlobalCDTimer` 尚未闭环，仍会阻止完整生成。
@@ -165,7 +193,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - `CheckSkillCameraMotionFree` 不会被编译成战斗条件。只有条件分支在过滤镜头、特效等表现动作后为空，或仅把字面量 `1` 写入已逐消费者审计的 `isWall` / `camera_blocked` 时，生成器才会省略整棵纯表现条件树；出现新的黑板键、运算、动态值或战斗叶子时仍会 fail-closed。
 - `CheckEnemyRank` 按原生 `EnemyRankSet` 位掩码编译为 `enemyRankIn`：`Mob=1`、`Elite=2`、`Boss=4`。AKEDB 可能把非零 flags 投影成枚举名称字符串；整数和名称都会归一到同一位集。原生 `0` 保留为空 rank 集合并永不匹配，未知名称或位仍会失败。目标必须能严格归约为当前唯一敌人；筛选器或未证明的上下文目标不会放行。敌人实例的 rank 来自 1.4.4 模板资产证据，不能用五档展示 `tier` 代替；证据链见 [Enemy rank evidence](../../docs/research/enemy-rank-evidence.md)。
 - 命名目标组不会按 `tar`、`smart_target` 等字符串猜测语义。生成中间层会严格记录 `FindTargetAction`、`ContinuousFindTargetAction` 和 `MergeTargetAction` 的帧区间、原生动作顺序、分支路径、选择器类型及合并输入；新增查找器、校验器、后处理器或字段形状会立即报错。只有能够证明写入动作在读取前发生、控制流支配读取点且选择器在固定单敌人模型下必然得到敌人时，才允许把目标归约为唯一敌人。另一条更窄的“恒非空”证明会穷尽读取前的 `succeedActions/failActions` 组合，并检查每条路径最后一次写入；它仅用于直接消去恒真的 `Context/<group> >= 1` 成功守卫，不会生成 `singleEnemyPresent`，缺失任一分支、导航采样固定点、未知中心或后续空写入都会继续阻塞。
-- Buff 事件中的 `FindTargetAction -> Context ForEachAction` 会分别保存目标组生产者和循环消费者。owner-spawned AbilityEntity 的单标签查询只在当前版本模板证据中求值并输出明确 `abilityEntityIds`；`SkillCastIdValidator` 生成 `sameSourceSkillCast`，逻辑实体在生成时记录来源施法序号，Buff 生命周期使用自身继承的施法身份查询，不能只按 owner/实体 ID 近似。只有 `EffectAction` 且没有战斗动作、创建依赖、循环或目标组写入的 Buff 事件可作为纯表现省略。
+- Buff 事件中的 `FindTargetAction -> Context ForEachAction` 会分别保存目标组生产者和循环消费者。owner-spawned AbilityEntity 的单标签查询只在当前版本模板证据中求值并输出明确 `abilityEntityIds`；`SkillCastIdValidator` 生成 `sameSourceSkillCast`，逻辑实体在生成时记录来源施法序号，Buff 生命周期使用自身继承的施法身份查询，不能只按 owner/实体 ID 近似。已证明的 `OnBuffTrigger -> ForEach CastSkill` 可生成 `startCurrentAbilityEntityChildSkill`：它在当前既有实体上启动局部隐藏时间轴，复用实体黑板、局部时钟和继承施法身份，但不创建玩家技能、费用或冷却。原生 `CastSkill.target=Owner` 只有在 Buff 触发以空显式目标回退到 `Buff.owner` 的调用链完整闭合后，才可把子技能输入 `Target` 归约为干员。只有 `EffectAction` 且没有战斗动作、创建依赖、循环或目标组写入的 Buff 事件可作为纯表现省略。
 - 带 `TagValidator` 的敌方 `HitBoxFinder` 查找即使在零距离模型下空间上覆盖唯一敌人，其标签查询仍可能过滤掉当前敌人，不能归约为唯一敌人；技能自身在搜索为空时的回退合并分支证明空结果是设计内可达状态，相关实体数量条件继续严格阻塞。分析与后续方案见 [标签过滤目标搜索审计](../../docs/research/tag-filtered-target-search-audit.md)。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。

@@ -16,9 +16,14 @@ import {
   statusActive,
   step,
 } from './definitionHelpers';
+import {
+  arcaneEntityBlackboardInitializers,
+  arcaneSkillSlotReplacementRelations,
+} from './generated/arcane.skills.audit.generated';
 
 const natureDamage = damageOfType('nature');
 const natureBasicAttack = basicAttackOfType('nature');
+const ultimateSlotReplacement = arcaneSkillSlotReplacementRelations[0]!;
 
 const ARCANE_FORM_FLAG = 'arcaneForm';
 const ARCANE_FORM = {
@@ -446,6 +451,56 @@ const ultimate = {
             ),
           ),
         ),
+        step('changeSkillSlot', {
+          skillGroupKey: ultimateSlotReplacement.baseSkillKey,
+          targetSkillKey: ultimateSlotReplacement.replacementSkillKey,
+        }),
+      ),
+    ),
+  ],
+  eventHandlers: [
+    {
+      key: 'clusterStrikeAfterFinalNormalAttack',
+      event: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' },
+      condition: clusterStrikeAvailable,
+      scheduledSequences: clusterStrikeSequences,
+    },
+    {
+      key: 'clusterStrikeAfterFinisher',
+      event: { kind: 'damageTagHit', tag: 'powerAttack', scope: 'team' },
+      condition: clusterStrikeAvailable,
+      scheduledSequences: clusterStrikeSequences,
+    },
+    {
+      key: 'clearArcanaStateWhenArrayExpires',
+      event: { kind: 'statusExpired', statusKey: 'gloompurgerArray', target: 'caster' },
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('consumeStatus', { statusKey: 'gloompurgeArcanaReady', target: 'caster' }),
+            step('consumeStatus', { statusKey: 'clusterStrikeCounter', target: 'caster' }),
+          ),
+        ),
+      ],
+    },
+  ],
+} satisfies SkillDefinition;
+
+const arcana = {
+  key: ultimateSlotReplacement.replacementSkillKey,
+  timelineBlockFrames: 75,
+  availability: arcanaReady,
+  cooldownFrames: 600,
+  costs: [{ resource: 'ultimateEnergy', value: 100 }],
+  scheduledSequences: [
+    scheduled(
+      ultimateSlotReplacement.revertOnReplacementCastFrame,
+      sequence(
+        step('changeSkillSlot', {
+          skillGroupKey: ultimateSlotReplacement.baseSkillKey,
+          targetSkillKey: ultimateSlotReplacement.baseSkillKey,
+        }),
       ),
     ),
     scheduled(
@@ -477,33 +532,6 @@ const ultimate = {
         ),
       ),
     ),
-  ],
-  eventHandlers: [
-    {
-      key: 'clusterStrikeAfterFinalNormalAttack',
-      event: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' },
-      condition: clusterStrikeAvailable,
-      scheduledSequences: clusterStrikeSequences,
-    },
-    {
-      key: 'clusterStrikeAfterFinisher',
-      event: { kind: 'damageTagHit', tag: 'powerAttack', scope: 'team' },
-      condition: clusterStrikeAvailable,
-      scheduledSequences: clusterStrikeSequences,
-    },
-    {
-      key: 'clearArcanaStateWhenArrayExpires',
-      event: { kind: 'statusExpired', statusKey: 'gloompurgerArray', target: 'caster' },
-      scheduledSequences: [
-        scheduled(
-          0,
-          sequence(
-            step('consumeStatus', { statusKey: 'gloompurgeArcanaReady', target: 'caster' }),
-            step('consumeStatus', { statusKey: 'clusterStrikeCounter', target: 'caster' }),
-          ),
-        ),
-      ],
-    },
   ],
 } satisfies SkillDefinition;
 
@@ -561,6 +589,7 @@ export const arcane: OperatorDefinition = {
       skillType: 'ultimate',
       levelSource: 'ultimate',
       skills: ultimate,
+      replacementSkills: [arcana],
       presentationVariants: arcanePresentationVariants,
     },
   ],
@@ -602,6 +631,7 @@ export const arcane: OperatorDefinition = {
       ],
     },
   ],
+  entityBlackboardInitializers: arcaneEntityBlackboardInitializers,
   eventHandlers: [arcaneFormEventHandler],
   talents: [
     {

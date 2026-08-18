@@ -2,7 +2,9 @@
  * 保存单个战斗实体拥有的原生定时标记。
  * 标记允许同 ID 多实例；查询按当前共享战斗时钟惰性过滤，不自行推进另一套时间。
  */
-import type { CombatClock } from './combatClock';
+interface TimedMarkerClock {
+  readonly time: number;
+}
 
 const VALIDITY_TOLERANCE_SECONDS = 0.00001;
 
@@ -21,7 +23,7 @@ export class TimedMarkerContainer {
 
   constructor(
     readonly ownerId: string,
-    readonly clock: CombatClock,
+    readonly clock: TimedMarkerClock,
   ) {}
 
   add(id: string, durationSeconds: number): TimedMarkerHandle {

@@ -467,6 +467,61 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_chr_0007_ikut_normal_skill_extra_count',
+                        definition: {
+                          stackingType: 'enhance',
+                          priority: 0,
+                          maxStackCount: 3,
+                          blackboard: {
+                            'count': 0,
+                            'duration': 0,
+                            'final_pulse_up': 0,
+                            'pulse_up': 0,
+                          },
+                          lifecycleSequences: {
+                            enhanceChanged: sequence(
+                              sequence(
+                                step('calculateActionValue', {
+                                  key: 'final_pulse_up',
+                                  operation: 'multiply',
+                                  left: { kind: 'blackboard', key: 'intellect' },
+                                  right: { kind: 'blackboard', key: 'pulse_up' },
+                                }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0007_ikut_atk_buff_talent',
+                                  definition: {
+                                    stackingType: 'stack',
+                                    priority: 0,
+                                    maxStackCount: 1,
+                                    durationSeconds: { blackboardKey: 'duration' },
+                                    blackboard: {
+                                      'duration': 0,
+                                      'pulse_up': 0,
+                                    },
+                                    attributeModifiers: [
+                                      {
+                                        attribute: 'electricDamageIncrease',
+                                        slot: 'baseAddition',
+                                        value: { blackboardKey: 'pulse_up' },
+                                        source: 'converted',
+                                      },
+                                    ],
+                                  },
+                                  target: 'party',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    'pulse_up': { kind: 'blackboard', key: 'final_pulse_up' },
+                                    'duration': { kind: 'blackboard', key: 'duration' },
+                                  },
+                                }),
+                                step('finishBuffsById', {
+                                  target: 'caster',
+                                  buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+                                  reason: 'other',
+                                }),
+                              ),
+                            ),
+                          },
+                        },
                         target: 'caster',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
@@ -502,11 +557,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     tags: ['normalSkill'],
                     features: ['canBreakWeakness'],
                   }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[2]14:succeedActions10:actionData3:[5]11:actionOrder2:44'),
-                  step('applyBuff', {
-                    buffId: 'buff_common_obtain_ultimate_sp',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   step('finishBuffsByTag', {
                     target: 'enemy',
                     tagQueryType: 'hasAny',
@@ -528,11 +579,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     tags: ['normalSkill'],
                     features: ['canBreakWeakness'],
                   }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[2]11:failActions10:actionData3:[2]11:actionOrder2:50'),
-                  step('applyBuff', {
-                    buffId: 'buff_common_obtain_ultimate_sp',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                 ),
               ),
             ),
@@ -543,11 +590,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                 tags: ['normalSkill'],
                 features: ['canBreakWeakness'],
               }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]11:actionOrder2:53'),
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
             ),
           ),
         ),
