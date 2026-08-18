@@ -10,8 +10,8 @@
 
 - 干员：30 名。
 - 技能入口：320 个。
-- 进入严格中间层：318 个。
-- 无角色专用声明即可进入通用 DSL：281 个。
+- 进入严格中间层：317 个。
+- 无角色专用声明即可进入通用 DSL：280 个。
 - 当前整名干员完整直转：11 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：11 个。
@@ -24,7 +24,7 @@
 | 干员           | 角色 ID             | 入口 | 已解析 | 已编译 | 完整直转 |
 | -------------- | ------------------- | ---: | -----: | -----: | -------- |
 | Perlica        | `chr_0004_pelica`   |    9 |      9 |      8 | 否       |
-| Ember          | `chr_0009_azrila`   |    9 |      9 |      8 | 否       |
+| Ember          | `chr_0009_azrila`   |    9 |      9 |      9 | 是       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |      9 | 否       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
@@ -39,19 +39,19 @@
 | Camille        | `chr_0033_camille`  |   12 |     12 |      9 | 否       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |     10 |      5 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |      9 |      5 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     12 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      6 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      7 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
-| Rossi          | `chr_0028_wulfa`    |   11 |     11 |     11 | 是       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     11 |      9 | 否       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |      8 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 
 ## 共通阻塞簇
@@ -61,15 +61,15 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `buff-source-or-target`    |      9 |
+| `buff-source-or-target`    |     10 |
 | `other`                    |      7 |
-| `condition-other`          |      5 |
+| `root-action-coverage`     |      6 |
 | `projectile-data`          |      5 |
-| `root-action-coverage`     |      5 |
-| `conditional-leaf`         |      3 |
-| `condition-entity-count`   |      2 |
+| `condition-other`          |      4 |
+| `conditional-leaf`         |      4 |
 | `projectile-child-actions` |      2 |
 | `condition-distance`       |      1 |
+| `condition-entity-count`   |      1 |
 
 ## 技能事件监听器
 
@@ -258,20 +258,24 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                            | 涉及技能数 |
 | ------------------------------- | ---------: |
-| `DamageAction`                  |        236 |
-| `IfElseAction`                  |        179 |
-| `ObtainCostAction`              |        166 |
-| `CreateBuffAction`              |        135 |
+| `DamageAction`                  |        235 |
+| `IfElseAction`                  |        184 |
+| `ObtainCostAction`              |        165 |
+| `CreateBuffAction`              |        134 |
 | `LaunchProjectile`              |         78 |
 | `SpawnAbilityEntity`            |         29 |
+| `FinishBuffAction`              |         23 |
 | `SpellInfliction`               |         12 |
 | `CreateTimedMarker`             |          7 |
+| `HealAction`                    |          5 |
 | `SwitchAction`                  |          5 |
+| `SetSkillCdAtOnce`              |          4 |
 | `AuraAction`                    |          3 |
 | `SetAbilityEntityDuration`      |          3 |
 | `CheckAbilityEntityCurDuration` |          2 |
 | `CheckDistanceCondition`        |          2 |
 | `FractureAction`                |          2 |
+| `IgniteAction`                  |          2 |
 | `AddGlobalCDTimer`              |          1 |
 | `CheckMainCharacterCondition`   |          1 |
 

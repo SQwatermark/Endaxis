@@ -180,7 +180,9 @@ step('spawnAbilityEntity', {
 
 治疗正常链已经接入：`heal` 步骤由施法者四维属性、倍率和加值计算，按执行帧解析主控或最低生命比例目标，写入场景级干员生命账本，并在满血时仍记录原始治疗量、实际治疗量和溢出治疗。Ember 连携与 Gilberta 战技/连携已从 `unmodeledActionTypes` 退出；Gilberta 外层 `explo >= 2` 在唯一敌人模型下严格折叠为假，因此对应分支虽完整保留在生成定义中，标准单敌人场景不会触发。外部受击事实不是治疗动作、快照或回执成立的前置，也不应为展示治疗而扩展。
 
-本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前治疗阶段验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 303/303、Next 类型检查通过、Next 全量 Vitest 177 个文件 1058/1058。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
+根技能条件树中的旧式 `FinishBuffAction` 已复用正式 `finishBuffsById` 链：只接受非空 ID、关闭来源限制、plain Source 来源/结束来源，以及可严格归约为施法者或唯一敌人的 Owner/Target。Pogranichnik 连携、Xaihi 战技和 Mifu 二段战技由此转为可编译；Mifu 三段继续停在 `CheckTwoDirectionAngle`，不能借零距离模型猜测方向。Mifu 连携的 `StoreAttributeValue(MaxHp/FinalNonConverted)` 也继续阻塞，因为当前动作黑板面板端口没有最大生命运行时读取，不能伪装成四维或导入期常量。最新严格全量审计为 317/320 可解析、280/320 可编译、11 名零专用声明直转；Liino 非乘属性治疗公式被新严格 parser 暴露为解析缺口，解释了统计相对旧快照的下降。
+
+本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前治疗阶段验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 304/304、Next 类型检查通过、Next 全量 Vitest 177 个文件 1058/1058；根技能 Buff 结束扩展不新增 TypeScript 运行时类型。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
 
 Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍保留在 audit；生成器现保存 stack effect 动作类别，并且只有定义完整证明“唯一行为是非空 `EffectAction` stack effect”时才自动从战斗序列剔除，不能按 ID 或命名泛化。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
 

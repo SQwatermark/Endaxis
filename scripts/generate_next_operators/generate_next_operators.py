@@ -8389,9 +8389,17 @@ def compile_conditional_branch_action(
                     writes=target_group_writes,
                 )
             )
+        else:
+            finish_target = resolve_fixed_combat_target(
+                legacy_finish.target.targetSource,
+                legacy_finish.target.targetGroupKey,
+                action=context_action,
+                target_group_writes=target_group_writes,
+                root_skill_context=root_skill_context,
+                input_target=input_target,
+            )
         if (
-            not current_buff_environment
-            or finish_target is None
+            finish_target is None
             or legacy_finish.target.validatorTypes
             or legacy_finish.target.postProcessorTypes
             or legacy_finish.limitSource

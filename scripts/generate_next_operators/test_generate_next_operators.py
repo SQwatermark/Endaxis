@@ -2029,6 +2029,35 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("key: 'scale'", compiled)
         self.assertIn("tagIds: [-1]", compiled)
 
+    def test_legacy_buff_finish_compiles_in_root_skill_context(self) -> None:
+        source = parse_target_reference(target_settings_fixture("Source"), "fixture.source")
+
+        def compile_target(target_source: str) -> str:
+            target = parse_target_reference(
+                target_settings_fixture(target_source), f"fixture.{target_source}"
+            )
+            payload = SimpleNamespace(
+                target=target,
+                buffIds=("buff.example",),
+                finishAll=True,
+                finishLayerCount=ScalarSource(1, None, None),
+                limitSource=False,
+                buffSource=source,
+                isFinishedEarly=False,
+                finishSource=source,
+            )
+            return compile_conditional_branch_action(
+                ConditionalBranchActionSource(
+                    "FinishBuffAction", 0, legacyBuffFinish=payload
+                ),
+                "fixture.finish",
+                root_skill_context=True,
+                input_target="enemy",
+            )
+
+        self.assertIn("target: 'caster'", compile_target("Owner"))
+        self.assertIn("target: 'enemy'", compile_target("Target"))
+
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
         branch = ConditionalBranchActionSource(
