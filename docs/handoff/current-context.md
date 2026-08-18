@@ -196,6 +196,8 @@ Liino 强化战技的补丁表重复键已核对：全表仅该技能的 12 个�
 
 上述 Liino 共用缺口现已闭环。1.4.4 `GameAssembly.dll` 中 `StoreCurSkillExecuteFrame.ExecuteInternal`（RVA `0x06D38C10`）证明原生读取 `durationTimer.passedTime`、乘 30、经 Unity 整数舍入后同时写入 float/double 黑板，而不是保存连续小数秒。Next 新增宿主局部整数帧读取与 `repeatEachTick` 区间容器，普通技能和能力实体子技能共用同一运行时协议；区间不再静态展开。全量严格审计因此达到 320/320 可解析、289/320 可编译、13 名完整直转。Liino 普通战技的新首阻塞是 `AuraAction`，强化战技的新首阻塞是技能事件 `OnAddedBuff`，二者均不得为提高编译数而省略。
 
+Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模型闭环：生成器只接受根时间轴上的 `GlobalAura/RangedAura`、plain Owner、自动敌对阵营且没有对象/槽位/标签过滤、没有进出区域动作的严格形状；开始帧向唯一敌人施加内联 Buff，结束帧通过动作持有的精确实例句柄结束它，不会按 Buff ID 误删其他来源实例。递归或条件 Aura、BuffData Aura 与带额外生命周期载荷的形状继续失败关闭。严格审计保持 320/320 可解析、289/320 可编译，但若干技能的首阻塞已从 `AuraAction` 推进到真实事件监听器；Liino 普通战技当前是 `OnTrulyExitFight`，强化战技仍是 `OnAddedBuff`。
+
 达坂第一天赋的剩余阻塞已经关闭：原生反编译证明百分比冷却减少使用技能配置的基础周期；旧式 `FinishBuffAction` 按已证明的 Id、目标和来源限制进入统一 Buff 结束操作。`OnOutputDamage -> 减少连携技冷却 -> 消耗准备层 -> 结束自身` 已完整参与模拟，达坂 9/9 生成。Endministrator 的三类 `igniteEventAction` 已形成内联 Buff 响应，`IgniteAction` 从技能生成 `igniteBuffs` 并携带实际点燃来源；生产场景已验证连携创建冻结、终结技直接/条件/点燃伤害和冻结结束处于同一次运行。Last Rite 普通战技也已关闭原子阻塞：`main_start -> self -> party main Buff` 完整内联，队伍实例以实际宿主执行主控/标签/黑板条件，同事件同优先级响应在一个注册回调内保持独立短路，敌方分身 Buff 以当前创建来源干员执行伤害并保留原始施法快照。manifest 已移除 `main_start/self` 的 `unmodeledBuffIds`，双轨生产回归验证队友末段普攻触发的分身伤害和元素附着均归因到队友。当前 manifest 全量生成通过：佩丽卡及另外九名干员生成正式定义，庄方宜与诀保持审计阶段；`tmp/` 未纳入修改或提交。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。

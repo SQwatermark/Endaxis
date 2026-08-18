@@ -11,6 +11,7 @@ import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type {
   BuffApplicationRequest,
+  BuffApplicationHandle,
   BuffLifecycleOperationSource,
   BuffOperationTarget,
   BuffQueryResult,
@@ -57,18 +58,26 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   apply(request: BuffApplicationRequest): boolean {
+    return this.#apply(request) !== null;
+  }
+
+  applyScoped(request: BuffApplicationRequest): BuffApplicationHandle | null {
+    const buff = this.#apply(request);
+    return buff === null ? null : { finish: reason => buff.finish(reason) };
+  }
+
+  #apply(request: BuffApplicationRequest) {
     const definition =
       request.definition === undefined
         ? this.definitions.get(request.buffId)
         : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
-    const applied =
-      this.container.add(definition, request.sourceId, {
-        blackboardValues: request.blackboardValues,
-        sourceActionId: request.sourceActionId ?? request.buffId,
-        ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
-      }) !== null;
-    if (applied) this.onBuffApplied?.();
+    const applied = this.container.add(definition, request.sourceId, {
+      blackboardValues: request.blackboardValues,
+      sourceActionId: request.sourceActionId ?? request.buffId,
+      ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
+    });
+    if (applied !== null) this.onBuffApplied?.();
     return applied;
   }
 

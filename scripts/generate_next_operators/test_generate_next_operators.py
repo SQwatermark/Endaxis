@@ -35,6 +35,7 @@ from generate_next_operators import (
     build_blackboard_provenance,
     compile_skill_entries,
     compile_buff_application_values,
+    compile_aura_action,
     parse_skill_event_listeners,
     parse_buff_event_actions,
     parse_buff_start_vulnerability,
@@ -6799,6 +6800,41 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual([buff.buffId for buff in aura.buffs], ["buff.fixture"])
         self.assertEqual(aura.actionInAuraTypes, ("DamageAction",))
         self.assertEqual(aura.nestedCombatActions, ("DamageAction",))
+
+    def test_zero_space_enemy_aura_compiles_to_action_duration_buff(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = "Enemy"
+        action["actionInAura"] = {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 45,
+                        "_endFrame": 1691,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(
+            compile_aura_action(aura, "fixture.aura", buff_definitions=None),
+            "\n".join(
+                [
+                    "step('applyBuff', {",
+                    "  buffId: 'buff.fixture',",
+                    "  target: 'enemy',",
+                    "  inheritSourceSkillCastInfo: true,",
+                    "  finishByAction: true,",
+                    "})",
+                ]
+            ),
+        )
 
     def test_aura_action_rejects_unknown_fields(self) -> None:
         action = aura_action_fixture()

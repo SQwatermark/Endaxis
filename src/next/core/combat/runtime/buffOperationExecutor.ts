@@ -39,6 +39,7 @@ export interface BuffOperationTarget {
     resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,
   ): void;
   apply?(request: BuffApplicationRequest): boolean;
+  applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
   getCountByIds(ids: readonly string[]): number;
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
@@ -68,6 +69,11 @@ export interface BuffOperationTarget {
   ): number;
 }
 
+/** 由有状态动作精确持有的 Buff 实例，不按 ID 误删其他来源实例。 */
+export interface BuffApplicationHandle {
+  finish(reason: BuffFinishReason): boolean;
+}
+
 /** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
   readonly buffId: string;
@@ -94,6 +100,7 @@ export interface BuffOperationDependencies {
 
 export class BuffOperationExecutor implements CombatOperationExecutor {
   readonly #holds = new WeakMap<RuntimeOperation, { release(): void }>();
+  readonly #actionDurationBuffs = new WeakMap<RuntimeOperation, readonly BuffApplicationHandle[]>();
   constructor(readonly dependencies: BuffOperationDependencies) {}
 
   execute(
@@ -111,7 +118,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           : this.dependencies.delegate.execute(step, context);
       }
       const targets = this.#resolveApplicationTargets(step.parameters.target, context);
-      if (targets.some(target => target.apply === undefined)) {
+      const finishByAction = step.parameters.finishByAction === true;
+      if (
+        targets.some(target =>
+          finishByAction ? target.applyScoped === undefined : target.apply === undefined,
+        )
+      ) {
         return context === undefined
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
@@ -153,10 +165,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? { skillCastInfo: context!.skillCastInfo! }
           : {}),
       };
+      if (finishByAction && this.#actionDurationBuffs.has(step)) {
+        throw new Error('action-duration applyBuff step is already active');
+      }
+      const scoped: BuffApplicationHandle[] = [];
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
       for (let repetition = 0; repetition < count; repetition += 1) {
-        for (const target of targets) target.apply!(request);
+        for (const target of targets) {
+          if (finishByAction) {
+            const handle = target.applyScoped!(request);
+            if (handle !== null) scoped.push(handle);
+          } else {
+            target.apply!(request);
+          }
+        }
       }
+      if (finishByAction) this.#actionDurationBuffs.set(step, scoped);
       return true;
     }
 
@@ -308,6 +332,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'holdBuffsById') {
       this.#holds.get(step)?.release();
       this.#holds.delete(step);
+      return;
+    }
+    if (step.kind === 'applyBuff' && step.parameters.finishByAction === true) {
+      for (const handle of this.#actionDurationBuffs.get(step) ?? []) handle.finish('other');
+      this.#actionDurationBuffs.delete(step);
       return;
     }
     this.dependencies.delegate.end?.(step, context);

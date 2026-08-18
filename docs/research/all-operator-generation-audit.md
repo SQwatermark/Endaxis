@@ -61,13 +61,13 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `root-action-coverage`     |      6 |
-| `conditional-leaf`         |      5 |
-| `other`                    |      5 |
+| `other`                    |      8 |
+| `conditional-leaf`         |      6 |
 | `projectile-data`          |      5 |
 | `condition-other`          |      4 |
 | `buff-source-or-target`    |      3 |
 | `projectile-child-actions` |      2 |
+| `root-action-coverage`     |      2 |
 | `condition-entity-count`   |      1 |
 
 ## 技能事件监听器

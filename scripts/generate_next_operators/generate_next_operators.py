@@ -6549,6 +6549,22 @@ def compile_time_dilation(
             "})",
         ]
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=cast(int, aura.startFrame),
+            actionOrder=(aura.actionIndex,),
+            itemType="auraAction",
+            sourcePath=(skill.skillId,),
+            payload=aura,
+            inputTarget="enemy",
+            sequenceOrder=native_condition_sequence_order(
+                aura.actionPath, (), skill.skillId, aura.actionIndex
+            ),
+        )
+        for aura in skill.auraActions
+        if aura.activationSource == "timeline" and aura.startFrame is not None
+        if len(aura.actionPath) == 4
+    )
 
 
 def resolve_fixed_combat_target(
@@ -7504,6 +7520,7 @@ def compile_buff_application_values(
     ignored_buff_ids: frozenset[str] = frozenset(),
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    finish_by_action: bool = False,
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
@@ -7643,6 +7660,8 @@ def compile_buff_application_values(
         "  inheritSourceSkillCastInfo: "
         f"{ts_inline_literal(inherit_source_skill_cast_info)},",
     ])
+    if finish_by_action:
+        lines.append("  finishByAction: true,")
     if source is not None:
         lines.append(f"  source: {ts_inline_literal(source)},")
     if count.blackboardKey is not None or count.value != 1:
@@ -7703,6 +7722,76 @@ def compile_buff_application(
         current_buff_environment=current_buff_environment,
         path=path,
     )
+
+
+def compile_aura_action(
+    aura: AuraActionSource,
+    path: str,
+    *,
+    buff_definitions: dict[str, BuffDefinitionSource] | None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+) -> str:
+    """在零空间单敌人模型中，把无筛选敌方 Aura 归约为动作区间 Buff。"""
+    target_filter = aura.targetFilter
+    if aura.activationSource != "timeline" or aura.startFrame is None or aura.endFrame is None:
+        raise ValueError(f"{path}: only timeline Aura actions are supported")
+    if not (
+        aura.auraType in {"GlobalAura", "RangedAura"}
+        and aura.root.targetSource == "Owner"
+        and not aura.root.targetGroupKey
+        and not aura.root.validatorTypes
+        and not aura.root.postProcessorTypes
+        and aura.excludeColliderOptions == 0
+        and aura.targetObjectType in {"Enemy", "EnemyAll"}
+        and target_filter.checkAlive
+        and target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+        and not target_filter.filterObjectType
+        and not target_filter.filterSlot
+        and not target_filter.filterGameplayTag
+        and not target_filter.tagIds
+        and not aura.includeUnmarkable
+        and not aura.limitInfluenceCountPerTarget
+        and aura.buffSource == "ActionSource"
+        and not aura.overrideBuffIconDuration
+        and not aura.actionInAuraOnlyMainOperator
+        and not aura.actionInAuraOnlyGuard
+        and not aura.actionInAuraTypes
+        and not aura.actionWhenExitAuraOnlyMainOperator
+        and not aura.actionWhenExitAuraOnlyGuard
+        and not aura.actionWhenExitAuraTypes
+        and not aura.nestedCombatActions
+    ):
+        raise ValueError(f"{path}: Aura target or lifecycle shape is not closed")
+    if not aura.buffs:
+        raise ValueError(f"{path}: Aura has no Buff inputs")
+    compiled = [
+        compile_buff_application_values(
+            buff_id=buff.buffId,
+            blackboard_assignments=buff.blackboardAssignments,
+            target_source="Target",
+            target_group_key="",
+            count=ScalarSource(1, None, None),
+            buff_source=aura.buffSource,
+            inherit_source_skill_cast_info=aura.inheritSourceSkillCastId,
+            root_skill_context=True,
+            path=f"{path}.buffs[{index}]",
+            input_target="enemy",
+            buff_definitions=buff_definitions,
+            invoked_child_context=invoked_child_context,
+            finish_by_action=True,
+        )
+        for index, buff in enumerate(aura.buffs)
+    ]
+    if len(compiled) == 1:
+        return compiled[0]
+    lines = ["sequence("]
+    for item in compiled:
+        item_lines = indent_source(item, 2)
+        item_lines[-1] += ","
+        lines.extend(item_lines)
+    lines.append(")")
+    return "\n".join(lines)
 
 
 def compile_timed_marker_application(
@@ -12029,6 +12118,8 @@ def compile_resolved_sequence(
         allowed_actions.add("ObtainCostAction")
     if getattr(skill, "keywordActions", ()):
         allowed_actions.add("SlowAction")
+    if getattr(skill, "auraActions", ()):
+        allowed_actions.add("AuraAction")
     allowed_actions.update(unmodeled_action_types)
     uncovered_actions = sorted(set(skill.unresolvedCombatActions) - allowed_actions)
     if uncovered_actions:
@@ -12515,6 +12606,14 @@ def compile_resolved_sequence(
                 root_skill_context=item.sourcePath == (skill.skillId,),
                 input_target=item.inputTarget,
             ).splitlines()
+        elif item.itemType == "auraAction":
+            payload = cast(AuraActionSource, item.payload)
+            step_lines = compile_aura_action(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].auraAction",
+                buff_definitions=buff_definitions,
+                invoked_child_context=(skill, config),
+            ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
         compiled_schedule.append((item, step_lines))
@@ -12544,12 +12643,14 @@ def compile_resolved_sequence(
                 BuffHoldSource
                 | SkillEventListenerSource
                 | TimedTimeDilationSource
-                | EveryFrameActionSource,
+                | EveryFrameActionSource
+                | AuraActionSource,
                 item.payload,
             ).endFrame
             for item, _ in entries
             if item.itemType in {"buffHold", "eventListener", "timeDilation"}
             or (item.itemType == "condition" and isinstance(item.payload, EveryFrameActionSource))
+            or item.itemType == "auraAction"
         }
         if len(end_frames) > 1:
             raise ValueError(

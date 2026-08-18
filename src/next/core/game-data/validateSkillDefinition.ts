@@ -1156,6 +1156,9 @@ function validateCombatStep(
       if (parameters.inheritSourceSkillCastInfo !== undefined) {
         requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
       }
+      if (parameters.finishByAction !== undefined) {
+        requireBoolean(parameters, 'finishByAction', `${path}.parameters`, out);
+      }
       if (parameters.durationSeconds !== undefined) {
         requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);
       }

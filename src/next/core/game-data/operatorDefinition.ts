@@ -552,6 +552,8 @@ export interface CombatStepParameters {
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
     inheritSourceSkillCastInfo?: boolean;
+    /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */
+    finishByAction?: boolean;
     durationSeconds?: number;
     effectiveness?: number;
   };

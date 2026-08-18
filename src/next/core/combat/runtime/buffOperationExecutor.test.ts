@@ -12,6 +12,46 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('finishes only Buff instances created for the active action interval', () => {
+    const finished: string[] = [];
+    const target = {
+      ownerId: 'enemy',
+      applyScoped: () => ({
+        finish: (reason: string) => {
+          finished.push(reason);
+          return true;
+        },
+      }),
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const step = {
+      kind: 'applyBuff' as const,
+      parameters: {
+        buffId: 'aura-buff',
+        target: 'enemy' as const,
+        finishByAction: true,
+      },
+    };
+
+    expect(executor.execute(step, { blackboard: new ActionBlackboard() })).toBe(true);
+    expect(finished).toEqual([]);
+
+    executor.end(step, { blackboard: new ActionBlackboard() });
+    expect(finished).toEqual(['other']);
+  });
+
   it('finishes the Buff instance supplied by its lifecycle event context', () => {
     const blackboard = new ActionBlackboard();
     const reasons: string[] = [];

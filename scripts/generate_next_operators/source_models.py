@@ -464,6 +464,7 @@ ResolvedScheduleItemType = Literal[
     "eventListener",
     "timeDilation",
     "keywordAction",
+    "auraAction",
     "skillSlotReplacement",
 ]
 
@@ -489,6 +490,7 @@ class ResolvedScheduleItemSource:
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"
+        " | AuraActionSource"
         " | TimedSkillReplacementSource"
         " | AbilityEntitySpawnPayload"
         " | AbilityEntityHitSource"
