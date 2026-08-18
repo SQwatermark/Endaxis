@@ -38,7 +38,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -48,17 +49,23 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_4",
@@ -98,7 +105,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -130,17 +138,23 @@
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_1",
@@ -178,7 +192,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -211,21 +226,33 @@
                 ]
               }
             }
-          ]
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": []
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -265,7 +292,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -283,6 +311,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -313,14 +342,21 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -360,7 +396,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -385,6 +422,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -415,14 +453,21 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -460,7 +505,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -474,17 +520,23 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "passiveSkills": [
@@ -777,6 +829,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1023,6 +1076,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1159,7 +1213,8 @@
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1178,7 +1233,8 @@
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1195,6 +1251,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1378,6 +1437,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -1580,7 +1640,8 @@
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1599,7 +1660,8 @@
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1616,6 +1678,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1848,6 +1913,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2050,7 +2116,8 @@
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2069,7 +2136,8 @@
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2086,6 +2154,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2318,6 +2389,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "LaunchProjectile"
       ]
@@ -2533,6 +2605,7 @@
       ],
       "targetGroupWrites": [],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction"
@@ -2611,7 +2684,8 @@
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2628,6 +2702,9 @@
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2836,6 +2913,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -2929,6 +3007,7 @@
               "nestedCombatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "FinishBuffAction",
                 "IfElseAction",
                 "SlowAction",
                 "SpellInfliction"
@@ -3204,7 +3283,8 @@
                         }
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "directConditionsSupported": true,
@@ -3254,7 +3334,8 @@
                         "limitSkillCastId": false
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "directConditionsSupported": true,
@@ -3305,7 +3386,8 @@
                       },
                       "skillTypes": [],
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -3322,6 +3404,9 @@
                         "[0]"
                       ],
                       "serverActionIndex": 10,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "keywordAction": {
                         "startFrame": 89,
                         "endFrame": 90,
@@ -3430,7 +3515,8 @@
                         "storeKey": ""
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -3447,6 +3533,9 @@
                         "[0]"
                       ],
                       "serverActionIndex": 13,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "buffApplication": {
                         "buffs": [
                           {
@@ -3510,7 +3599,8 @@
                       },
                       "skillTypes": [],
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -3527,6 +3617,9 @@
                         "[0]"
                       ],
                       "serverActionIndex": 24,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "keywordAction": {
                         "startFrame": 149,
                         "endFrame": 150,
@@ -3635,7 +3728,8 @@
                         "storeKey": ""
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -3652,6 +3746,9 @@
                         "[0]"
                       ],
                       "serverActionIndex": 27,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "buffApplication": {
                         "buffs": [
                           {
@@ -3702,6 +3799,7 @@
               "combatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "FinishBuffAction",
                 "IfElseAction",
                 "SlowAction",
                 "SpellInfliction"
@@ -3753,7 +3851,50 @@
               "blackboardCalculations": [],
               "blackboardMutations": [],
               "buffBlackboardReads": [],
-              "buffFinishes": [],
+              "buffFinishes": [
+                {
+                  "startFrame": 89,
+                  "endFrame": 90,
+                  "actionIndex": 2,
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "buffCheckType": "Id",
+                  "buffIds": [
+                    "buff_chr_0022_bounda_normal_skill_onlymark",
+                    "buff_chr_0022_bounda_ultimate_skill"
+                  ],
+                  "tagQueryType": "hasAny",
+                  "buffTagIds": [],
+                  "finishAll": true,
+                  "limitSource": false,
+                  "isFinishedEarly": false,
+                  "isAbsorbed": false,
+                  "finishLayerCount": null,
+                  "sourceActionType": "FinishBuffAction",
+                  "sequenceIndex": 1
+                },
+                {
+                  "startFrame": 149,
+                  "endFrame": 150,
+                  "actionIndex": 16,
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "buffCheckType": "Id",
+                  "buffIds": [
+                    "buff_chr_0022_bounda_normal_skill_onlymark",
+                    "buff_chr_0022_bounda_ultimate_skill"
+                  ],
+                  "tagQueryType": "hasAny",
+                  "buffTagIds": [],
+                  "finishAll": true,
+                  "limitSource": false,
+                  "isFinishedEarly": false,
+                  "isAbsorbed": false,
+                  "finishLayerCount": null,
+                  "sourceActionType": "FinishBuffAction",
+                  "sequenceIndex": 3
+                }
+              ],
               "auraActions": []
             }
           ],
@@ -4023,6 +4164,23 @@
           "actionOrder": [
             19,
             0,
+            2
+          ],
+          "sequenceOrder": [
+            19,
+            0,
+            1
+          ],
+          "itemType": "buffFinish",
+          "sourcePath": [
+            "chr_0022_bounda_normal_skill_abilityrange"
+          ]
+        },
+        {
+          "frame": 99,
+          "actionOrder": [
+            19,
+            0,
             5
           ],
           "sequenceOrder": [
@@ -4073,6 +4231,23 @@
             "_sequenceActionData",
             "actionData",
             "[7]"
+          ]
+        },
+        {
+          "frame": 159,
+          "actionOrder": [
+            19,
+            0,
+            16
+          ],
+          "sequenceOrder": [
+            19,
+            0,
+            3
+          ],
+          "itemType": "buffFinish",
+          "sourcePath": [
+            "chr_0022_bounda_normal_skill_abilityrange"
           ]
         },
         {
@@ -4336,6 +4511,7 @@
         }
       ],
       "timeDilations": [],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "LaunchProjectile"
@@ -4446,7 +4622,8 @@
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4465,6 +4642,9 @@
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "infliction": {
                 "element": "cryo",
                 "isExtra": false
@@ -4513,7 +4693,8 @@
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -4532,6 +4713,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 18,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "infliction": {
                       "element": "nature",
                       "isExtra": false
@@ -4539,7 +4723,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -4571,7 +4758,8 @@
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4588,6 +4776,9 @@
                 "[0]"
               ],
               "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -5166,6 +5357,7 @@
           "effectAbilityEntityTargets": []
         }
       ],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "DamageAction",
         "IfElseAction",
@@ -5965,7 +6157,8 @@
                     "limitSkillCastId": false
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -5982,6 +6175,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "infliction": {
                     "element": "nature",
                     "isExtra": false
@@ -6042,7 +6238,8 @@
                           "limitSkillCastId": false
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -6062,6 +6259,9 @@
                           "[0]"
                         ],
                         "serverActionIndex": 5,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "infliction": {
                           "element": "cryo",
                           "isExtra": false
@@ -6069,7 +6269,10 @@
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             }
@@ -6740,6 +6943,7 @@
           "effectAbilityEntityTargets": []
         }
       ],
+      "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "LaunchProjectile"

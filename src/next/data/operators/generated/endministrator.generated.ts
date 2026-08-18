@@ -41,7 +41,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -49,6 +50,7 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -64,14 +66,36 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0003_endminf_combo_skill_tutorial_marker",
@@ -109,7 +133,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -117,17 +142,23 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0003_endminf_potential5_trigger",
@@ -165,7 +196,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -173,17 +205,23 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
@@ -223,7 +261,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -255,17 +294,23 @@ export const endministratorGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -305,7 +350,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -323,17 +369,23 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -373,7 +425,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -391,6 +444,7 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -406,14 +460,36 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -451,7 +527,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -475,6 +552,7 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -490,14 +568,36 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_originum_frozen",
@@ -537,7 +637,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -578,6 +679,7 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -593,7 +695,24 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -609,7 +728,105 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckSuperArmor",
+                "EffectAction",
+                "TimeDilationAction",
+                "AddTagAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "TimeDilationAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timeDilation": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 4,
+                    "kind": "normal",
+                    "priority": -361293424,
+                    "scope": "entity",
+                    "slot": -1855252810,
+                    "duration": {
+                      "value": 0.0,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        9999.0
+                      ]
+                    },
+                    "namedCurve": null,
+                    "inlineCurve": [
+                      {
+                        "time": 0.0,
+                        "value": 0.0,
+                        "inTangent": 0.0,
+                        "outTangent": 0.0,
+                        "weightedMode": 0,
+                        "inWeight": 0.0,
+                        "outWeight": 0.333333343
+                      },
+                      {
+                        "time": 1.0,
+                        "value": 0.0,
+                        "inTangent": 0.0,
+                        "outTangent": 0.0,
+                        "weightedMode": 0,
+                        "inWeight": 0.333333343,
+                        "outWeight": 0.0
+                      }
+                    ],
+                    "finishByAction": true,
+                    "ignoredTargets": [],
+                    "targets": [
+                      "caster"
+                    ],
+                    "omittedAbilityEntityTargets": 0,
+                    "ignoredAbilityEntityTargets": [],
+                    "influenceSkillCooldown": null,
+                    "targetScale": null,
+                    "sequenceIndex": -1,
+                    "effectAbilityEntityTargets": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -622,19 +839,1795 @@ export const endministratorGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckEnemyRank",
+                "EffectAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [
+        {
+          "eventSource": "ignite",
+          "event": "EndminUlt",
+          "orderedActionTypes": [
+            "DamageAction",
+            "CheckBuffStackNumAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "CreateBuffAction",
+            "CheckBuffStackNumAdvanced",
+            "FindTargetAction",
+            "GetTargetBuffBBAdvanced",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction",
+            "CheckBuffStackNumAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "ObtainCostAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "ObtainCostAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_trigger",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 4608
+            }
+          ],
+          "buffApplications": [
+            {
+              "actionIndex": 14,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 20,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "teammate",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0003_endminf_talent_1_tirgger"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "DamageAction"
+              ],
+              "combatActions": [
+                "DamageAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_trigger",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 4608
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "CreateBuffAction",
+                "CheckBuffStackNumAdvanced",
+                "FindTargetAction",
+                "GetTargetBuffBBAdvanced",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 14,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 20,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 12,
+                  "buffBlackboardRead": {
+                    "outputKey": "atk_up_dynamic",
+                    "desiredKey": "atk_up",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 13,
+                  "buffBlackboardRead": {
+                    "outputKey": "duration_dynamic",
+                    "desiredKey": "duration",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 17,
+                  "buffBlackboardRead": {
+                    "outputKey": "teammate_ratio",
+                    "desiredKey": "ratio",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_potential2"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 7,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[7]"
+                  ],
+                  "serverActionIndex": 18,
+                  "blackboardMutation": {
+                    "key": "atk_up_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.5,
+                      "blackboardKey": "teammate_ratio",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 8,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[8]"
+                  ],
+                  "serverActionIndex": 19,
+                  "blackboardMutation": {
+                    "key": "duration_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 9,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[9]"
+                  ],
+                  "serverActionIndex": 20,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "ObtainCostAction"
+              ],
+              "combatActions": [
+                "ObtainCostAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 22,
+                  "buffBlackboardRead": {
+                    "outputKey": "endmin_usp",
+                    "desiredKey": "usp",
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_potential3"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ObtainCostAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "resourceGain": {
+                    "resource": "ultimateEnergy",
+                    "amount": {
+                      "value": 0.0,
+                      "blackboardKey": "endmin_usp",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "coefficient": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "spGainKind": null,
+                    "spGainSource": null,
+                    "onlyMainOperator": false,
+                    "isPercentValue": false,
+                    "useUltimateRecoveryTag": false,
+                    "ultimateRecoveryTagId": 0,
+                    "ignoreUltimateGainScalar": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": true,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 16,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "targetGroupKey": "teammate",
+              "producerType": "FindTargetAction",
+              "finderType": "CharacterTeamFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "ExcludeOwnerValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
+        },
+        {
+          "eventSource": "ignite",
+          "event": "PhysicalStatus",
+          "orderedActionTypes": [
+            "DamageAction",
+            "CheckBuffStackNumAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "CreateBuffAction",
+            "CheckBuffStackNumAdvanced",
+            "FindTargetAction",
+            "GetTargetBuffBBAdvanced",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_trigger",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "buffApplications": [
+            {
+              "actionIndex": 28,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 34,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "teammate",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0003_endminf_talent_1_tirgger"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "DamageAction"
+              ],
+              "combatActions": [
+                "DamageAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 24,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_trigger",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 12288
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "CreateBuffAction",
+                "CheckBuffStackNumAdvanced",
+                "FindTargetAction",
+                "GetTargetBuffBBAdvanced",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 28,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 34,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 26,
+                  "buffBlackboardRead": {
+                    "outputKey": "atk_up_dynamic",
+                    "desiredKey": "atk_up",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 27,
+                  "buffBlackboardRead": {
+                    "outputKey": "duration_dynamic",
+                    "desiredKey": "duration",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 28,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 30,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 31,
+                  "buffBlackboardRead": {
+                    "outputKey": "teammate_ratio",
+                    "desiredKey": "ratio",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_potential2"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 7,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[7]"
+                  ],
+                  "serverActionIndex": 32,
+                  "blackboardMutation": {
+                    "key": "atk_up_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.5,
+                      "blackboardKey": "teammate_ratio",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 8,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[8]"
+                  ],
+                  "serverActionIndex": 33,
+                  "blackboardMutation": {
+                    "key": "duration_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 9,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[9]"
+                  ],
+                  "serverActionIndex": 34,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": true,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 30,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "targetGroupKey": "teammate",
+              "producerType": "FindTargetAction",
+              "finderType": "CharacterTeamFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "ExcludeOwnerValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
+        },
+        {
+          "eventSource": "ignite",
+          "event": "NoGuard",
+          "orderedActionTypes": [
+            "DamageAction",
+            "CheckBuffStackNumAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "GetTargetBuffBBAdvanced",
+            "CreateBuffAction",
+            "CheckBuffStackNumAdvanced",
+            "FindTargetAction",
+            "GetTargetBuffBBAdvanced",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_trigger",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "buffApplications": [
+            {
+              "actionIndex": 39,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 45,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up_dynamic",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "teammate",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0003_endminf_talent_1_tirgger"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "DamageAction"
+              ],
+              "combatActions": [
+                "DamageAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 35,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_trigger",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 12288
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "GetTargetBuffBBAdvanced",
+                "CreateBuffAction",
+                "CheckBuffStackNumAdvanced",
+                "FindTargetAction",
+                "GetTargetBuffBBAdvanced",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 39,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 45,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 37,
+                  "buffBlackboardRead": {
+                    "outputKey": "atk_up_dynamic",
+                    "desiredKey": "atk_up",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 38,
+                  "buffBlackboardRead": {
+                    "outputKey": "duration_dynamic",
+                    "desiredKey": "duration",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_talent_1"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 39,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 41,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 42,
+                  "buffBlackboardRead": {
+                    "outputKey": "teammate_ratio",
+                    "desiredKey": "ratio",
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0003_endminf_potential2"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 7,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[7]"
+                  ],
+                  "serverActionIndex": 43,
+                  "blackboardMutation": {
+                    "key": "atk_up_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.5,
+                      "blackboardKey": "teammate_ratio",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 8,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[8]"
+                  ],
+                  "serverActionIndex": 44,
+                  "blackboardMutation": {
+                    "key": "duration_dynamic",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 9,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[9]"
+                  ],
+                  "serverActionIndex": 45,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up_dynamic",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "teammate",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": true,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 41,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[5]"
+              ],
+              "targetGroupKey": "teammate",
+              "producerType": "FindTargetAction",
+              "finderType": "CharacterTeamFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "ExcludeOwnerValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "igniteEventAction",
-          "entryCount": 3
-        }
-      ],
-      "auraActions": []
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -672,7 +2665,8 @@ export const endministratorGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -686,17 +2680,23 @@ export const endministratorGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -995,10 +2995,64 @@ export const endministratorGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
+            {
+              "actionType": "InterruptAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 2,
@@ -1012,6 +3066,9 @@ export const endministratorGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -1042,6 +3099,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -1130,6 +3190,9 @@ export const endministratorGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -1235,7 +3298,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -1255,6 +3319,9 @@ export const endministratorGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1291,7 +3358,10 @@ export const endministratorGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -1319,7 +3389,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -1337,6 +3408,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 74,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timeDilation": {
                 "startFrame": 0,
                 "endFrame": 4,
@@ -1926,7 +4000,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2003,7 +4078,8 @@ export const endministratorGeneratedSource = {
                       "containsHittableObject": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -2087,7 +4163,8 @@ export const endministratorGeneratedSource = {
                             "containsHittableObject": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -2109,7 +4186,10 @@ export const endministratorGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 19
+                          "serverActionIndex": 19,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -2168,7 +4248,8 @@ export const endministratorGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [],
@@ -2194,16 +4275,28 @@ export const endministratorGeneratedSource = {
                                   "actionData",
                                   "[0]"
                                 ],
-                                "serverActionIndex": 28
+                                "serverActionIndex": 28,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -2265,10 +4358,64 @@ export const endministratorGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
+            {
+              "actionType": "InterruptAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 2,
@@ -2282,6 +4429,9 @@ export const endministratorGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -2312,6 +4462,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -2400,6 +4553,9 @@ export const endministratorGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -2505,7 +4661,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -2525,6 +4682,9 @@ export const endministratorGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -2561,7 +4721,10 @@ export const endministratorGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -2589,7 +4752,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -2606,7 +4770,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 60
+              "serverActionIndex": 60,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -2633,7 +4800,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -2651,6 +4819,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 74,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timeDilation": {
                 "startFrame": 0,
                 "endFrame": 4,
@@ -3044,10 +5215,64 @@ export const endministratorGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
+            {
+              "actionType": "InterruptAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 2,
@@ -3061,6 +5286,9 @@ export const endministratorGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -3091,6 +5319,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -3179,6 +5410,9 @@ export const endministratorGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -3284,7 +5518,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -3304,6 +5539,9 @@ export const endministratorGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 45,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -3340,7 +5578,10 @@ export const endministratorGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -3368,7 +5609,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -3386,6 +5628,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timeDilation": {
                 "startFrame": 0,
                 "endFrame": 4,
@@ -3975,7 +6220,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4052,7 +6298,8 @@ export const endministratorGeneratedSource = {
                       "containsHittableObject": false
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [],
@@ -4136,7 +6383,8 @@ export const endministratorGeneratedSource = {
                             "containsHittableObject": false
                           },
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -4158,7 +6406,10 @@ export const endministratorGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 18
+                          "serverActionIndex": 18,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -4217,7 +6468,8 @@ export const endministratorGeneratedSource = {
                                 },
                                 "skillTypes": [],
                                 "damageDecorateMask": null,
-                                "contextBuffId": null
+                                "contextBuffId": null,
+                                "deckAttributeCompare": null
                               }
                             ],
                             "succeedActions": [],
@@ -4243,16 +6495,28 @@ export const endministratorGeneratedSource = {
                                   "actionData",
                                   "[0]"
                                 ],
-                                "serverActionIndex": 27
+                                "serverActionIndex": 27,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -4314,10 +6578,64 @@ export const endministratorGeneratedSource = {
                 "containsHittableObject": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
+            {
+              "actionType": "InterruptAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 2,
@@ -4331,6 +6649,9 @@ export const endministratorGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -4361,6 +6682,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -4449,6 +6773,9 @@ export const endministratorGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -4554,7 +6881,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -4574,6 +6902,9 @@ export const endministratorGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 45,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -4610,7 +6941,10 @@ export const endministratorGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -4638,7 +6972,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -4655,7 +6990,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 58
+              "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -4682,7 +7020,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -4700,6 +7039,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timeDilation": {
                 "startFrame": 0,
                 "endFrame": 4,
@@ -5023,7 +7365,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5040,6 +7383,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5266,7 +7612,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5283,6 +7630,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5543,7 +7893,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5560,6 +7911,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5786,7 +8140,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5803,6 +8158,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6221,7 +8579,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6238,6 +8597,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6298,7 +8660,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6315,6 +8678,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 21,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6600,7 +8966,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6617,6 +8984,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6677,7 +9047,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6694,6 +9065,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 21,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7187,7 +9561,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7204,6 +9579,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7264,7 +9642,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7281,6 +9660,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 24,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7341,7 +9723,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7358,6 +9741,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7418,7 +9804,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7435,6 +9822,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 42,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7772,7 +10162,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7789,6 +10180,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7849,7 +10243,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7866,6 +10261,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 24,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -7926,7 +10324,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7943,6 +10342,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -8003,7 +10405,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8020,6 +10423,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 42,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -8360,7 +10766,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8408,7 +10815,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8436,11 +10844,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -8455,6 +10869,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -8498,7 +10915,28 @@ export const endministratorGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
-      "buffFinishes": [],
+      "buffFinishes": [
+        {
+          "startFrame": 18,
+          "endFrame": 21,
+          "actionIndex": 30,
+          "targetSource": "Target",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0003_endminf_attack4"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAction",
+          "sequenceIndex": 10
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileTriggeredSkills": [],
@@ -8674,6 +11112,7 @@ export const endministratorGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "DamageAction",
+        "FinishBuffAction",
         "IfElseAction",
         "ObtainCostAction"
       ],
@@ -8725,7 +11164,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8773,7 +11213,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -8801,11 +11242,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -8820,6 +11267,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -9271,7 +11721,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9288,6 +11739,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -9540,7 +11994,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9557,6 +12012,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -9740,7 +12198,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -9757,6 +12216,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -9983,7 +12445,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10000,6 +12463,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -10253,7 +12719,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10270,6 +12737,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -10524,7 +12994,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10541,6 +13012,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -10801,7 +13275,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -10818,6 +13293,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -11058,7 +13536,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11075,6 +13554,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -11493,7 +13975,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11510,6 +13993,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -11570,7 +14056,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11587,6 +14074,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 21,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -11872,7 +14362,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11889,6 +14380,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -11949,7 +14443,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -11966,6 +14461,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 21,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -12466,7 +14964,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12483,6 +14982,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -12543,7 +15045,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12560,6 +15063,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 24,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -12620,7 +15126,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12637,6 +15144,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -12697,7 +15207,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -12714,6 +15225,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 42,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13065,7 +15579,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13082,6 +15597,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13142,7 +15660,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13159,6 +15678,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 24,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13219,7 +15741,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13236,6 +15759,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13296,7 +15822,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13313,6 +15840,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 42,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13653,7 +16183,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -13701,7 +16232,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -13729,11 +16261,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -13748,6 +16286,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -13791,7 +16332,28 @@ export const endministratorGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
-      "buffFinishes": [],
+      "buffFinishes": [
+        {
+          "startFrame": 18,
+          "endFrame": 21,
+          "actionIndex": 30,
+          "targetSource": "Target",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0003_endminf_attack4"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAction",
+          "sequenceIndex": 10
+        }
+      ],
       "resourceGains": [],
       "projectileLaunches": [],
       "projectileTriggeredSkills": [],
@@ -13967,6 +16529,7 @@ export const endministratorGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "DamageAction",
+        "FinishBuffAction",
         "IfElseAction",
         "ObtainCostAction"
       ],
@@ -14018,7 +16581,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14066,7 +16630,8 @@ export const endministratorGeneratedSource = {
                       "storeKey": ""
                     },
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -14094,11 +16659,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -14113,6 +16684,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -14564,7 +17138,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14581,6 +17156,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -14833,7 +17411,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -14850,6 +17429,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -15034,7 +17616,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15051,6 +17634,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -15277,7 +17863,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15294,6 +17881,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -15636,7 +18226,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -15664,7 +18255,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CompareFloat",
@@ -15682,7 +18274,8 @@ export const endministratorGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -15710,7 +18303,10 @@ export const endministratorGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -15725,6 +18321,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 73,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -15767,7 +18366,10 @@ export const endministratorGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -15782,6 +18384,9 @@ export const endministratorGeneratedSource = {
                 "[5]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -15886,7 +18491,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -15914,11 +18520,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -15935,6 +18547,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 83,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -16039,7 +18654,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -16067,11 +18683,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -16103,7 +18725,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16120,6 +18743,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -16180,7 +18806,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -16208,7 +18835,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16225,6 +18853,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 97,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -16694,7 +19325,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16710,7 +19342,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 3
+              "serverActionIndex": 3,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -16724,7 +19359,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -16738,7 +19376,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[3]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -16780,7 +19421,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -16808,7 +19450,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CompareFloat",
@@ -16826,7 +19469,8 @@ export const endministratorGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -16854,7 +19498,10 @@ export const endministratorGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -16869,6 +19516,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 73,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -16911,7 +19561,10 @@ export const endministratorGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -16926,6 +19579,9 @@ export const endministratorGeneratedSource = {
                 "[5]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -17030,7 +19686,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -17058,11 +19715,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -17079,6 +19742,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 83,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -17183,7 +19849,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -17211,11 +19878,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -17247,7 +19920,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17264,6 +19938,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -17324,7 +20001,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -17352,7 +20030,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17369,6 +20048,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 97,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -17692,7 +20374,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -17720,7 +20403,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CompareFloat",
@@ -17738,7 +20422,8 @@ export const endministratorGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -17766,7 +20451,10 @@ export const endministratorGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -17781,6 +20469,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 73,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -17823,7 +20514,10 @@ export const endministratorGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -17838,6 +20532,9 @@ export const endministratorGeneratedSource = {
                 "[5]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -17942,7 +20639,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -17970,11 +20668,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -17991,6 +20695,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 83,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -18095,7 +20802,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -18123,11 +20831,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -18159,7 +20873,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18176,6 +20891,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -18236,7 +20954,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -18264,7 +20983,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18281,6 +21001,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 97,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -18750,7 +21473,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18766,7 +21490,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 3
+              "serverActionIndex": 3,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -18780,7 +21507,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -18794,7 +21524,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[3]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -18836,7 +21569,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -18864,7 +21598,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CompareFloat",
@@ -18882,7 +21617,8 @@ export const endministratorGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -18910,7 +21646,10 @@ export const endministratorGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -18925,6 +21664,9 @@ export const endministratorGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 73,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -18967,7 +21709,10 @@ export const endministratorGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -18982,6 +21727,9 @@ export const endministratorGeneratedSource = {
                 "[5]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -19086,7 +21834,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19114,11 +21863,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -19135,6 +21890,9 @@ export const endministratorGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 83,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -19239,7 +21997,8 @@ export const endministratorGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -19267,11 +22026,17 @@ export const endministratorGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -19303,7 +22068,8 @@ export const endministratorGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19320,6 +22086,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -19380,7 +22149,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -19408,7 +22178,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19425,6 +22196,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 97,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -19803,7 +22577,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19823,6 +22598,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -19852,6 +22630,61 @@ export const endministratorGeneratedSource = {
                   "damageDecorateMask": 512
                 }
               ]
+            },
+            {
+              "actionType": "IgniteAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "action",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "targets",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "igniteType": "EndminUlt",
+                "successTargetContextKey": ""
+              }
             }
           ],
           "failActions": []
@@ -19893,7 +22726,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -19921,7 +22755,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -19938,6 +22773,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 46,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -20199,7 +23037,8 @@ export const endministratorGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "IgniteAction"
       ],
       "buffHolds": [],
       "targetGroupWrites": [
@@ -20395,7 +23234,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20411,7 +23251,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 13
+              "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -20448,7 +23291,8 @@ export const endministratorGeneratedSource = {
                     "right": null,
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -20467,7 +23311,10 @@ export const endministratorGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 18
+                    "serverActionIndex": 18,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -20512,7 +23359,8 @@ export const endministratorGeneratedSource = {
                           "right": null,
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -20534,14 +23382,23 @@ export const endministratorGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 23
+                          "serverActionIndex": 23,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -20586,7 +23443,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20606,6 +23464,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -20635,6 +23496,61 @@ export const endministratorGeneratedSource = {
                   "damageDecorateMask": 512
                 }
               ]
+            },
+            {
+              "actionType": "IgniteAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "action",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "targets",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "igniteType": "EndminUlt",
+                "successTargetContextKey": ""
+              }
             }
           ],
           "failActions": []
@@ -20676,7 +23592,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -20704,7 +23621,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -20721,6 +23639,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 46,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -21155,7 +24076,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -21175,6 +24097,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -21204,6 +24129,61 @@ export const endministratorGeneratedSource = {
                   "damageDecorateMask": 512
                 }
               ]
+            },
+            {
+              "actionType": "IgniteAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "action",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "targets",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "igniteType": "EndminUlt",
+                "successTargetContextKey": ""
+              }
             }
           ],
           "failActions": []
@@ -21245,7 +24225,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -21273,7 +24254,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -21290,6 +24272,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 46,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -21551,7 +24536,8 @@ export const endministratorGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "IgniteAction"
       ],
       "buffHolds": [],
       "targetGroupWrites": [
@@ -21747,7 +24733,8 @@ export const endministratorGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -21763,7 +24750,10 @@ export const endministratorGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -21800,7 +24790,8 @@ export const endministratorGeneratedSource = {
                     "right": null,
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -21819,7 +24810,10 @@ export const endministratorGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 10
+                    "serverActionIndex": 10,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -21864,7 +24858,8 @@ export const endministratorGeneratedSource = {
                           "right": null,
                           "skillTypes": [],
                           "damageDecorateMask": null,
-                          "contextBuffId": null
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
                         }
                       ],
                       "succeedActions": [
@@ -21886,14 +24881,23 @@ export const endministratorGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 15
+                          "serverActionIndex": 15,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -21938,7 +24942,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -21958,6 +24963,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -21987,6 +24995,61 @@ export const endministratorGeneratedSource = {
                   "damageDecorateMask": 512
                 }
               ]
+            },
+            {
+              "actionType": "IgniteAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "action",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": {
+                "source": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "targets",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "igniteType": "EndminUlt",
+                "successTargetContextKey": ""
+              }
             }
           ],
           "failActions": []
@@ -22028,7 +25091,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             },
             {
               "sourceType": "CheckBuffStackNumAdvanced",
@@ -22056,7 +25120,8 @@ export const endministratorGeneratedSource = {
                 "limitSkillCastId": false
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -22073,6 +25138,9 @@ export const endministratorGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 46,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {

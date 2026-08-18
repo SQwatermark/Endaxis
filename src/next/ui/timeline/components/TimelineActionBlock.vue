@@ -28,6 +28,8 @@ const props = defineProps<{
   warning?: boolean;
   /** 技能块上的独立命中点标记；同时是连线工具的伤害命中端点。 */
   hits?: readonly TimelineHitMarkerView[];
+  /** 由该技能产生的时间膨胀流光，沿用旧版从技能块左侧开始并裁剪到块内。 */
+  timeDilationSegments?: readonly { readonly left: number; readonly width: number }[];
 }>();
 
 const emit = defineEmits<{
@@ -36,6 +38,7 @@ const emit = defineEmits<{
   contextmenu: [event: MouseEvent];
   connectionPointerDown: [event: PointerEvent, port: TimelineConnectionPort];
   hitClick: [hitId: string];
+  hoverChange: [hovered: boolean];
 }>();
 
 const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
@@ -77,7 +80,18 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
     @pointerdown="beginMove"
     @click.stop="$emit('select', $event)"
     @contextmenu.prevent.stop="$emit('contextmenu', $event)"
+    @mouseenter="$emit('hoverChange', true)"
+    @mouseleave="$emit('hoverChange', false)"
   >
+    <span
+      v-for="(segment, index) in timeDilationSegments ?? []"
+      :key="index"
+      class="time-dilation-segment"
+      :style="{ left: `${segment.left}px`, width: `${segment.width}px` }"
+      aria-hidden="true"
+    >
+      <span class="time-dilation-shimmer"></span>
+    </span>
     <span class="action-label">{{ label }}</span>
     <span
       v-for="hit in hits ?? []"
@@ -241,9 +255,44 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
 }
 
 .action-label {
+  position: relative;
+  z-index: 2;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.time-dilation-segment {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.time-dilation-shimmer {
+  position: absolute;
+  inset: 0;
+  width: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  will-change: transform;
+  animation: time-dilation-shimmer 1.5s infinite linear;
+}
+
+@keyframes time-dilation-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(50%);
+  }
 }
 
 .status-mark {

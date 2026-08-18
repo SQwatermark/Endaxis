@@ -75,6 +75,7 @@ export const DAMAGE_FEATURES = [
   'canBreakWeakness',
   'crush',
   'airborne',
+  'shatter',
   'dot',
   'remainArea',
 ] as const;
@@ -138,9 +139,10 @@ export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[num
 export const BUFF_APPLICATION_TARGETS = [
   ...COMBAT_TARGETS,
   'party',
+  'partyExceptCaster',
   'currentAbilityEntity',
 ] as const;
-/** Buff 施加允许面向单一战斗实体、当前能力实体或队伍中的全部存活干员。 */
+/** Buff 施加允许面向单体、能力实体、全队或显式排除动作来源的队友集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
 
 export const COMPARISON_OPERATORS = [
@@ -282,6 +284,11 @@ export type CombatCondition =
       match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       features: readonly DamageFeature[];
     }
+  | {
+      /** 匹配触发 Buff 响应的待施放技能类型。 */
+      kind: 'eventSkillTypeIn';
+      skillTypes: readonly SkillType[];
+    }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
   | {
@@ -322,6 +329,7 @@ export const COMBAT_CONDITION_KINDS = [
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
+  'eventSkillTypeIn',
   'eventSourceMatchesBuffSource',
   'elementalInflictionPresent',
   'elementalReactionActive',
@@ -540,20 +548,37 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {
-    target: Exclude<BuffApplicationTarget, 'party'>;
+    target: Exclude<BuffApplicationTarget, 'party' | 'partyExceptCaster'>;
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
     reason: 'early' | 'absorbed' | 'other';
   };
-  /** 按Buff 定义 身份结束目标身上的全部匹配实例。 */
+  /** 按 Buff 定义身份结束目标身上的匹配实例；count 缺省时结束全部。 */
   finishBuffsById: {
-    target: Exclude<BuffApplicationTarget, 'party'>;
+    target: BuffApplicationTarget;
     buffIds: readonly string[];
     reason: 'early' | 'absorbed' | 'other';
+    count?: ActionValueOperand;
   };
   /** 结束当前正在执行生命周期或事件响应的 Buff 实例。 */
   finishCurrentBuff: {
     reason: 'early' | 'absorbed' | 'other';
+  };
+  /** 以原生点燃类型同步触发目标身上所有匹配响应；来源与接收目标保持独立。 */
+  igniteBuffs: {
+    target: CombatTarget;
+    source: CombatTarget | 'currentBuffSource';
+    igniteType: string;
+  };
+  /** 按原生技能筛选立即修改当前冷却；百分比基数明确指配置的基础冷却时长。 */
+  adjustSkillCooldown: {
+    target: 'caster';
+    skill:
+      | { readonly kind: 'type'; readonly skillType: SkillType }
+      | { readonly kind: 'id'; readonly skillId: string };
+    operation: 'reduce';
+    basis: 'baseDurationRatio';
+    value: ActionValueOperand;
   };
   /** 在当前调度区间存续期间禁止施法者身上已匹配的 Buff 结束。 */
   holdBuffsById: {
@@ -713,6 +738,8 @@ export const COMBAT_STEP_KINDS = [
   'finishBuffsByTag',
   'finishBuffsById',
   'finishCurrentBuff',
+  'igniteBuffs',
+  'adjustSkillCooldown',
   'holdBuffsById',
   'createTimedMarker',
   'createAbilityEntityTimedMarker',
@@ -867,23 +894,34 @@ export interface SkillBuffLifecycleSequences {
 
 /** Buff 启用期间注册在其所有者 AbilitySystem 上的一条同步事件响应。 */
 export interface SkillBuffAbilityEventResponse {
-  /** 当前只开放已经接入标准伤害管线的目标承伤前事件。 */
-  event: 'beforeTakeDamage';
+  /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
+  event: 'beforeTakeDamage' | 'outputDamage' | 'beforeCastSkill' | 'addedBuff';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
   sequence: ActionSequenceDefinition;
 }
 
+/** Buff 实例对原生 IgniteAction 类型的同步响应。 */
+export interface SkillBuffIgniteEventResponse {
+  igniteType: string;
+  finishAfterIgnited: boolean;
+  sequence: ActionSequenceDefinition;
+}
+
 export type SkillBuffDefinition = Omit<
   import('../combat/buffs/combatBuffDefinitions').CombatBuffDefinitionEntry,
-  'id' | 'actions'
+  'id' | 'actions' | 'maxStackCount'
 > & {
+  /** 可在施加时从该 Buff 已合并的实例黑板解析。 */
+  maxStackCount?: import('../combat/buffs/combatBuffs').BuffMaxStackCount;
   /** Buff 启用期间按实例局部时钟执行的相对帧时间线。 */
   scheduledSequences?: readonly ScheduledSequenceDefinition[];
   /** 使用与技能相同的步骤协议描述 Buff 行为；旧外部定义的低层 actions 不进入技能内联定义。 */
   lifecycleSequences?: SkillBuffLifecycleSequences;
   /** 每个 Buff 实例独立注册、停用或结束时注销的 Ability 事件响应。 */
   abilityEventResponses?: readonly SkillBuffAbilityEventResponse[];
+  /** 每个实例独立持有的点燃响应；处理后是否结束由来源数据显式决定。 */
+  igniteEventResponses?: readonly SkillBuffIgniteEventResponse[];
   /** 不参与战斗计算的显示信息。 */
   presentation?: SkillBuffPresentation;
 };

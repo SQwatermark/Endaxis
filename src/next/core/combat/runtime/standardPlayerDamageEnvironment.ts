@@ -6,7 +6,7 @@
  * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import {
   createOperatorAttackAttributes,
@@ -22,6 +22,7 @@ import type { CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { DamageModifierSide } from '../damage/playerDamageContext';
+import type { DamageModifierExternalCondition } from '../damage/damageModifiers';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiveDamageInput';
 import { ElementalInflictionBuffAdapter } from '../infliction/elementalInflictionBuffAdapter';
 import type { ElementalInflictionOperation } from '../infliction/elementalInfliction';
@@ -57,6 +58,7 @@ type EnvironmentOptions = Pick<
   | 'createOperatorBuffRuntime'
   | 'createAbilityEntityBuffRuntime'
   | 'createOperationExecutor'
+  | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
   | 'resolveVitals'
 >;
@@ -79,7 +81,9 @@ export type StandardPlayerDamageEvent =
   | 'afterOutputInfliction'
   | 'afterTakeInfliction'
   | 'elementalInflictionStarted'
-  | 'poiseRecovered';
+  | 'poiseRecovered'
+  | 'beforeCastSkill'
+  | 'addedBuff';
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -97,6 +101,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
    * 伤害写入、生命条件求值和失衡恢复推进都引用这一实例，环境不再自行构造或回退到静态生命值。
    */
   readonly enemyVitals: CombatVitals;
+  /** 当前帧主控身份由场景控制时间线提供；仅在伤害修正使用该条件时需要。 */
+  readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -130,6 +136,7 @@ export class StandardPlayerDamageEnvironment {
     },
     undefined,
     this.#buffAbilityEventRegistrar('enemy'),
+    () => this.#emit('enemy', 'addedBuff', {}),
   );
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
@@ -171,8 +178,10 @@ export class StandardPlayerDamageEnvironment {
           },
           target,
           this.#buffAbilityEventRegistrar(entityId),
+          () => this.#emit(entityId, 'addedBuff', {}),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
+      emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
       resolveVitals: target => {
@@ -231,7 +240,8 @@ export class StandardPlayerDamageEnvironment {
           timing,
           side,
           damageContext,
-          condition => this.#evaluateDamageModifierCondition(condition, operatorBuffs),
+          condition =>
+            this.#evaluateDamageModifierCondition(condition, operatorBuffs, damageContext),
         ),
       addInstantAttributeModifier: (_side, request) => {
         throw new Error(
@@ -290,16 +300,30 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #evaluateDamageModifierCondition(
-    condition: CombatCondition,
+    condition: DamageModifierExternalCondition,
     operatorBuffs: CombatBuffContainer<string>,
+    damageContext: import('../damage/playerDamageContext').PlayerDamageContext,
   ): boolean {
-    if (condition.kind !== 'entityTagMatch') {
-      throw new Error(
-        `standard player damage environment cannot evaluate damage modifier condition '${condition.kind}'`,
-      );
+    switch (condition.kind) {
+      case 'entityTagMatch': {
+        const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
+        return target.matchesEntityTags(
+          condition.tagIds.map(gameplayTagId),
+          condition.tagQueryType,
+        );
+      }
+      case 'casterControlled':
+        if (this.options.isOperatorControlled === undefined || this.#clock === null) {
+          throw new Error(
+            'caster-controlled damage modifier requires the scenario control timeline',
+          );
+        }
+        return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
+      case 'eventDamageTagsMatch':
+        return matchDamageProperties(damageContext.tags, condition.tags, condition.match);
+      case 'eventDamageFeaturesMatch':
+        return matchDamageProperties(damageContext.features, condition.features, condition.match);
     }
-    const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
-    return target.matchesEntityTags(condition.tagIds.map(gameplayTagId), condition.tagQueryType);
   }
 
   #createInflictionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
@@ -361,6 +385,7 @@ export class StandardPlayerDamageEnvironment {
         },
         undefined,
         this.#buffAbilityEventRegistrar(operatorId),
+        () => this.#emit(operatorId, 'addedBuff', {}),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
@@ -368,7 +393,11 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #buffAbilityEventRegistrar(entityId: string) {
-    return (event: 'beforeTakeDamage', priority: number, handle: (payload: unknown) => void) =>
+    return (
+      event: 'beforeTakeDamage' | 'outputDamage' | 'beforeCastSkill' | 'addedBuff',
+      priority: number,
+      handle: (payload: unknown) => void,
+    ) =>
       this.eventsFor(entityId).registerAction(event, priority, context => handle(context.payload));
   }
 
@@ -518,5 +547,27 @@ export class StandardPlayerDamageEnvironment {
 
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {
     this.eventsFor(entityId).dispatch({ event, payload }, []);
+  }
+}
+
+function matchDamageProperties<T extends DamageTag | DamageFeature>(
+  actualValues: readonly T[],
+  expectedValues: readonly T[],
+  match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll',
+): boolean {
+  const actual = new Set(actualValues);
+  const hasAny = expectedValues.some(value => actual.has(value));
+  const hasAll = expectedValues.every(value => actual.has(value));
+  switch (match) {
+    case 'exact':
+      return actual.size === new Set(expectedValues).size && hasAll;
+    case 'hasAny':
+      return hasAny;
+    case 'hasAll':
+      return hasAll;
+    case 'exceptAny':
+      return !hasAny;
+    case 'exceptAll':
+      return !hasAll;
   }
 }

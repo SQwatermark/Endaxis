@@ -40,7 +40,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -76,10 +77,17 @@
                 ]
               }
             }
-          ]
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": []
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -110,9 +118,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -161,7 +172,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -179,12 +191,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -233,7 +247,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -251,6 +266,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -281,9 +297,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -330,7 +349,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -344,12 +364,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -448,6 +470,9 @@
                 "[3]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -713,6 +738,9 @@
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1014,6 +1042,9 @@
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1092,6 +1123,9 @@
                 "[3]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1499,6 +1533,9 @@
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2031,6 +2068,9 @@
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2264,6 +2304,9 @@
                 "[1]"
               ],
               "serverActionIndex": 65,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -2350,7 +2393,10 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -2389,7 +2435,10 @@
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -2407,6 +2456,9 @@
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -2484,6 +2536,9 @@
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -2522,6 +2577,9 @@
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -2639,6 +2697,9 @@
                 "[1]"
               ],
               "serverActionIndex": 67,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -2725,7 +2786,10 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -2764,7 +2828,10 @@
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -2782,6 +2849,9 @@
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -2859,6 +2929,9 @@
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -2897,6 +2970,9 @@
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -3088,7 +3164,10 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -3127,7 +3206,10 @@
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -3145,6 +3227,9 @@
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -3222,6 +3307,9 @@
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -3260,6 +3348,9 @@
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -3403,6 +3494,8 @@
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 9
         }
       ],
@@ -3510,7 +3603,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -3549,7 +3645,10 @@
                         3.5
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "DamageAction",
@@ -3567,6 +3666,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Cryst",
@@ -3644,6 +3746,9 @@
                     "[4]"
                   ],
                   "serverActionIndex": 11,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -3682,6 +3787,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Cryst",
@@ -4392,7 +4500,10 @@
                           -0.1
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "CreateBuffAction",
@@ -4413,6 +4524,9 @@
                       "[1]"
                     ],
                     "serverActionIndex": 25,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -4489,6 +4603,9 @@
                       "[3]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -4571,6 +4688,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -4647,6 +4767,9 @@
                       "[2]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -4709,7 +4832,10 @@
                     ]
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -4729,6 +4855,9 @@
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -4838,6 +4967,9 @@
                 "[0]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {

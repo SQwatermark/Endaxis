@@ -57,6 +57,8 @@ export interface AbilitySystemRuntimeOptions {
   }[];
   readonly actionRuntime?: FrameRuntime;
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
+  /** 帧末延迟施放在真正启动前回到装配根，复用施放前事件与运行时参数准备。 */
+  readonly beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
 }
 
 /** 按原生 PreLateTick 主干顺序推进一个实体的战斗能力。 */
@@ -75,6 +77,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #slotGroupByBaseSkill = new Map<string, string>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
+  readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
   #currentSkill: AbilitySkillRuntime | null = null;
   #postSkillCastRequest: PostSkillCastRequest | null = null;
 
@@ -82,6 +85,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#buffRuntime = options.buffRuntime;
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
+    this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
     this.#resolveTickDeltas =
       options.resolveTickDeltas ?? (() => uniformAbilityTickDeltas(COMBAT_FRAME_INTERVAL));
     for (const skill of this.#skills) {
@@ -194,6 +198,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#currentSkill?.interrupt('castNextSkill');
     this.#currentSkill = null;
     const nextSkill = this.#requireSkill(request.skillId, request.castId);
+    this.#beforePostSkillCastStart?.(request);
     if (nextSkill.tryStart()) this.#currentSkill = nextSkill;
   }
 

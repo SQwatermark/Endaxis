@@ -19,17 +19,14 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
               ),
             ),
           ),
@@ -59,17 +56,14 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
               ),
             ),
           ),
@@ -86,17 +80,14 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
               ),
             ),
           ),
@@ -127,17 +118,14 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
               ),
             ),
           ),
@@ -233,17 +221,14 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
               ),
             ),
           ),
@@ -375,8 +360,691 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        6,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0026_lastrite_normal_skill_main_start',
+            definition: {
+              stackingType: 'stack',
+              priority: 0,
+              maxStackCount: 1,
+              durationSeconds: 1.5,
+              blackboard: {
+                'atb': 0,
+                'atk_scale': 0,
+                'atk_up': 0,
+                'duration': 0,
+                'potential_1': 0,
+                'usp': 0,
+              },
+              scheduledSequences: [
+                scheduled(
+                  26,
+                  sequence(
+                    step('finishBuffsById', {
+                      target: 'party',
+                      buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+                      reason: 'other',
+                    }),
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+                      definition: {
+                        stackingType: 'stack',
+                        priority: 0,
+                        maxStackCount: 1,
+                        durationSeconds: { blackboardKey: 'duration' },
+                        blackboard: {
+                          'atb': 0,
+                          'atk_scale': 0,
+                          'atk_up': 0,
+                          'duration': 0,
+                          'poise': 0,
+                          'potential_1': 0,
+                        },
+                        lifecycleSequences: {
+                          start: sequence(
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0026_lastrite_normal_skill',
+                                definition: {
+                                  stackingType: 'stack',
+                                  priority: 0,
+                                  maxStackCount: 1,
+                                  durationSeconds: { blackboardKey: 'duration' },
+                                  blackboard: {
+                                    'atb': 30,
+                                    'atk_scale': 3,
+                                    'atk_up': 0,
+                                    'duration': 15,
+                                    'poise': 0,
+                                    'potential_1': 0,
+                                  },
+                                  damageModifiers: [
+                                    {
+                                      enabledSide: 'attacker',
+                                      condition: {
+                                        kind: 'all',
+                                        conditions: [
+                                          {
+                                            kind: 'casterControlled',
+                                          },
+                                          {
+                                            kind: 'eventDamageTagsMatch',
+                                            match: 'hasAny',
+                                            tags: ['normalAttackLastCombo'],
+                                          },
+                                          {
+                                            kind: 'buffBlackboardCompare',
+                                            left: { blackboardKey: 'potential_1' },
+                                            operator: 'equal',
+                                            right: 1,
+                                          },
+                                        ],
+                                      },
+                                      processors: [
+                                        {
+                                          kind: 'damageScale',
+                                          side: 'attacker',
+                                          zone: 'normal',
+                                          addition: { blackboardKey: 'atk_up' },
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                  abilityEventResponses: [
+                                    {
+                                      event: 'outputDamage',
+                                      priority: 0,
+                                      sequence:
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'eventDamageTagsMatch',
+                                              match: 'hasAny',
+                                              tags: ['normalAttackLastCombo'],
+                                            },
+                                            sequence(
+                                              branch(
+                                                { kind: 'casterControlled' },
+                                                sequence(
+                                                  branch(
+                                                    {
+                                                      kind: 'actionValueCompare',
+                                                      left: { kind: 'blackboard', key: 'potential_1' },
+                                                      operator: 'equal',
+                                                      right: { kind: 'constant', value: 1 },
+                                                    },
+                                                    sequence(
+                                                      step('dealStagger', {
+                                                        value: { kind: 'blackboard', key: 'poise' },
+                                                      }),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    },
+                                    {
+                                      event: 'outputDamage',
+                                      priority: 0,
+                                      sequence:
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'eventDamageTagsMatch',
+                                              match: 'hasAny',
+                                              tags: ['normalAttackLastCombo'],
+                                            },
+                                            sequence(
+                                              branch(
+                                                { kind: 'casterControlled' },
+                                                sequence(
+                                                  branch(
+                                                    {
+                                                      kind: 'entityTagMatch',
+                                                      target: 'caster',
+                                                      tagQueryType: 'hasAny',
+                                                      tagIds: [264623624],
+                                                    },
+                                                    sequence(
+                                                      step('applyBuff', {
+                                                        buffId: 'buff_chr_0026_lastrite_normal_skill_phantom_main',
+                                                        definition: {
+                                                          stackingType: 'unlimited',
+                                                          priority: 0,
+                                                          maxStackCount: 2,
+                                                          durationSeconds: 3,
+                                                          blackboard: {
+                                                            'atk_scale1': 0,
+                                                            'atk_scale2': 0,
+                                                          },
+                                                          scheduledSequences: [
+                                                            scheduled(
+                                                              21,
+                                                              sequence(
+                                                                step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                                                step('dealDamage', {
+                                                                  damageType: 'cryo',
+                                                                  attackScale: { kind: 'blackboard', key: 'atk_scale1' },
+                                                                  tags: ['normalSkill'],
+                                                                  features: ['canBreakWeakness'],
+                                                                }, '48:buff_chr_0026_lastrite_normal_skill_phantom_main4:buff48:buff_chr_0026_lastrite_normal_skill_phantom_main11:actionOrder2:12'),
+                                                              ),
+                                                            ),
+                                                            scheduled(
+                                                              21,
+                                                              sequence(
+                                                                step('dealDamage', {
+                                                                  damageType: 'cryo',
+                                                                  attackScale: { kind: 'blackboard', key: 'atk_scale1' },
+                                                                  tags: ['normalSkill'],
+                                                                  features: ['canBreakWeakness'],
+                                                                }, '48:buff_chr_0026_lastrite_normal_skill_phantom_main4:buff48:buff_chr_0026_lastrite_normal_skill_phantom_main11:actionOrder2:15'),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        },
+                                                        target: 'enemy',
+                                                        inheritSourceSkillCastInfo: true,
+                                                        blackboardAssignments: {
+                                                          'atk_scale1': { kind: 'blackboard', key: 'atk_scale' },
+                                                        },
+                                                      }),
+                                                      step('applyBuff', {
+                                                        buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
+                                                        definition: {
+                                                          stackingType: 'stack',
+                                                          priority: 0,
+                                                          maxStackCount: 1,
+                                                          abilityEventResponses: [
+                                                            {
+                                                              event: 'addedBuff',
+                                                              priority: 0,
+                                                              sequence:
+                                                                sequence(
+                                                                  step('finishBuffsById', {
+                                                                    target: 'party',
+                                                                    buffIds: ['buff_chr_0026_lastrite_normal_skill'],
+                                                                    reason: 'other',
+                                                                  }),
+                                                                  step('finishBuffsById', {
+                                                                    target: 'caster',
+                                                                    buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+                                                                    reason: 'other',
+                                                                  }),
+                                                                ),
+                                                            },
+                                                          ],
+                                                        },
+                                                        target: 'caster',
+                                                        inheritSourceSkillCastInfo: true,
+                                                      }),
+                                                    ),
+                                                    sequence(
+                                                      step('applyBuff', {
+                                                        buffId: 'buff_chr_0026_lastrite_normal_skill_phantom',
+                                                        definition: {
+                                                          stackingType: 'unlimited',
+                                                          priority: 0,
+                                                          maxStackCount: 2,
+                                                          durationSeconds: 3,
+                                                          blackboard: {
+                                                            'atk_scale': 0,
+                                                          },
+                                                          scheduledSequences: [
+                                                            scheduled(
+                                                              9,
+                                                              sequence(
+                                                                step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                                                step('dealDamage', {
+                                                                  damageType: 'cryo',
+                                                                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                                                                  tags: ['normalSkill'],
+                                                                  features: ['canBreakWeakness'],
+                                                                }, '43:buff_chr_0026_lastrite_normal_skill_phantom4:buff43:buff_chr_0026_lastrite_normal_skill_phantom11:actionOrder1:7'),
+                                                              ),
+                                                            ),
+                                                            scheduled(
+                                                              9,
+                                                              sequence(
+                                                                step('dealDamage', {
+                                                                  damageType: 'cryo',
+                                                                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                                                                  tags: ['normalSkill'],
+                                                                  features: ['canBreakWeakness'],
+                                                                }, '43:buff_chr_0026_lastrite_normal_skill_phantom4:buff43:buff_chr_0026_lastrite_normal_skill_phantom11:actionOrder2:10'),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        },
+                                                        target: 'enemy',
+                                                        inheritSourceSkillCastInfo: true,
+                                                        blackboardAssignments: {
+                                                          'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                                                        },
+                                                      }),
+                                                      step('applyBuff', {
+                                                        buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
+                                                        definition: {
+                                                          stackingType: 'stack',
+                                                          priority: 0,
+                                                          maxStackCount: 1,
+                                                          abilityEventResponses: [
+                                                            {
+                                                              event: 'addedBuff',
+                                                              priority: 0,
+                                                              sequence:
+                                                                sequence(
+                                                                  step('finishBuffsById', {
+                                                                    target: 'party',
+                                                                    buffIds: ['buff_chr_0026_lastrite_normal_skill'],
+                                                                    reason: 'other',
+                                                                  }),
+                                                                  step('finishBuffsById', {
+                                                                    target: 'caster',
+                                                                    buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+                                                                    reason: 'other',
+                                                                  }),
+                                                                ),
+                                                            },
+                                                          ],
+                                                        },
+                                                        target: 'caster',
+                                                        inheritSourceSkillCastInfo: true,
+                                                      }),
+                                                    ),
+                                                  ),
+                                                  step('createTimedMarker', {
+                                                    target: 'caster',
+                                                    markerId: 'buff_chr_0026_lastrite_normal_skill_marker',
+                                                    durationSeconds: { kind: 'constant', value: 0.1 },
+                                                    autoFinishByAction: false,
+                                                  }),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    },
+                                  ],
+                                },
+                                target: 'party',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                                  'atb': { kind: 'blackboard', key: 'atb' },
+                                  'poise': { kind: 'blackboard', key: 'poise' },
+                                  'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                  'potential_1': { kind: 'blackboard', key: 'potential_1' },
+                                },
+                              }),
+                              step('changeResourceByActionValue', {
+                                resource: 'sp',
+                                amount: { kind: 'blackboard', key: 'atb' },
+                                recipient: 'team',
+                                spGainKind: 'refund',
+                                spGainSource: 'skill',
+                              }),
+                            ),
+                          ),
+                        },
+                      },
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                        'duration': { kind: 'blackboard', key: 'duration' },
+                        'atb': { kind: 'blackboard', key: 'atb' },
+                        'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                        'potential_1': { kind: 'blackboard', key: 'potential_1' },
+                      },
+                    }),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+                  ),
+                ),
+              ],
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+              'duration': { kind: 'blackboard', key: 'duration' },
+              'atb': { kind: 'blackboard', key: 'atb' },
+              'atk_up': { kind: 'blackboard', key: 'atk_up' },
+              'potential_1': { kind: 'blackboard', key: 'potential_1' },
+              'usp': { kind: 'blackboard', key: 'usp' },
+            },
+          }),
+        ),
+      ),
+      scheduled(
         300,
         sequence(
+          step('finishBuffsById', {
+            target: 'party',
+            buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+            reason: 'other',
+          }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+            definition: {
+              stackingType: 'stack',
+              priority: 0,
+              maxStackCount: 1,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: {
+                'atb': 0,
+                'atk_scale': 0,
+                'atk_up': 0,
+                'duration': 0,
+                'poise': 0,
+                'potential_1': 0,
+              },
+              lifecycleSequences: {
+                start: sequence(
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0026_lastrite_normal_skill',
+                      definition: {
+                        stackingType: 'stack',
+                        priority: 0,
+                        maxStackCount: 1,
+                        durationSeconds: { blackboardKey: 'duration' },
+                        blackboard: {
+                          'atb': 30,
+                          'atk_scale': 3,
+                          'atk_up': 0,
+                          'duration': 15,
+                          'poise': 0,
+                          'potential_1': 0,
+                        },
+                        damageModifiers: [
+                          {
+                            enabledSide: 'attacker',
+                            condition: {
+                              kind: 'all',
+                              conditions: [
+                                {
+                                  kind: 'casterControlled',
+                                },
+                                {
+                                  kind: 'eventDamageTagsMatch',
+                                  match: 'hasAny',
+                                  tags: ['normalAttackLastCombo'],
+                                },
+                                {
+                                  kind: 'buffBlackboardCompare',
+                                  left: { blackboardKey: 'potential_1' },
+                                  operator: 'equal',
+                                  right: 1,
+                                },
+                              ],
+                            },
+                            processors: [
+                              {
+                                kind: 'damageScale',
+                                side: 'attacker',
+                                zone: 'normal',
+                                addition: { blackboardKey: 'atk_up' },
+                              },
+                            ],
+                          },
+                        ],
+                        abilityEventResponses: [
+                          {
+                            event: 'outputDamage',
+                            priority: 0,
+                            sequence:
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'eventDamageTagsMatch',
+                                    match: 'hasAny',
+                                    tags: ['normalAttackLastCombo'],
+                                  },
+                                  sequence(
+                                    branch(
+                                      { kind: 'casterControlled' },
+                                      sequence(
+                                        branch(
+                                          {
+                                            kind: 'actionValueCompare',
+                                            left: { kind: 'blackboard', key: 'potential_1' },
+                                            operator: 'equal',
+                                            right: { kind: 'constant', value: 1 },
+                                          },
+                                          sequence(
+                                            step('dealStagger', {
+                                              value: { kind: 'blackboard', key: 'poise' },
+                                            }),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          },
+                          {
+                            event: 'outputDamage',
+                            priority: 0,
+                            sequence:
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'eventDamageTagsMatch',
+                                    match: 'hasAny',
+                                    tags: ['normalAttackLastCombo'],
+                                  },
+                                  sequence(
+                                    branch(
+                                      { kind: 'casterControlled' },
+                                      sequence(
+                                        branch(
+                                          {
+                                            kind: 'entityTagMatch',
+                                            target: 'caster',
+                                            tagQueryType: 'hasAny',
+                                            tagIds: [264623624],
+                                          },
+                                          sequence(
+                                            step('applyBuff', {
+                                              buffId: 'buff_chr_0026_lastrite_normal_skill_phantom_main',
+                                              definition: {
+                                                stackingType: 'unlimited',
+                                                priority: 0,
+                                                maxStackCount: 2,
+                                                durationSeconds: 3,
+                                                blackboard: {
+                                                  'atk_scale1': 0,
+                                                  'atk_scale2': 0,
+                                                },
+                                                scheduledSequences: [
+                                                  scheduled(
+                                                    21,
+                                                    sequence(
+                                                      step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                                      step('dealDamage', {
+                                                        damageType: 'cryo',
+                                                        attackScale: { kind: 'blackboard', key: 'atk_scale1' },
+                                                        tags: ['normalSkill'],
+                                                        features: ['canBreakWeakness'],
+                                                      }, '48:buff_chr_0026_lastrite_normal_skill_phantom_main4:buff48:buff_chr_0026_lastrite_normal_skill_phantom_main11:actionOrder2:12'),
+                                                    ),
+                                                  ),
+                                                  scheduled(
+                                                    21,
+                                                    sequence(
+                                                      step('dealDamage', {
+                                                        damageType: 'cryo',
+                                                        attackScale: { kind: 'blackboard', key: 'atk_scale1' },
+                                                        tags: ['normalSkill'],
+                                                        features: ['canBreakWeakness'],
+                                                      }, '48:buff_chr_0026_lastrite_normal_skill_phantom_main4:buff48:buff_chr_0026_lastrite_normal_skill_phantom_main11:actionOrder2:15'),
+                                                    ),
+                                                  ),
+                                                ],
+                                              },
+                                              target: 'enemy',
+                                              inheritSourceSkillCastInfo: true,
+                                              blackboardAssignments: {
+                                                'atk_scale1': { kind: 'blackboard', key: 'atk_scale' },
+                                              },
+                                            }),
+                                            step('applyBuff', {
+                                              buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
+                                              definition: {
+                                                stackingType: 'stack',
+                                                priority: 0,
+                                                maxStackCount: 1,
+                                                abilityEventResponses: [
+                                                  {
+                                                    event: 'addedBuff',
+                                                    priority: 0,
+                                                    sequence:
+                                                      sequence(
+                                                        step('finishBuffsById', {
+                                                          target: 'party',
+                                                          buffIds: ['buff_chr_0026_lastrite_normal_skill'],
+                                                          reason: 'other',
+                                                        }),
+                                                        step('finishBuffsById', {
+                                                          target: 'caster',
+                                                          buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+                                                          reason: 'other',
+                                                        }),
+                                                      ),
+                                                  },
+                                                ],
+                                              },
+                                              target: 'caster',
+                                              inheritSourceSkillCastInfo: true,
+                                            }),
+                                          ),
+                                          sequence(
+                                            step('applyBuff', {
+                                              buffId: 'buff_chr_0026_lastrite_normal_skill_phantom',
+                                              definition: {
+                                                stackingType: 'unlimited',
+                                                priority: 0,
+                                                maxStackCount: 2,
+                                                durationSeconds: 3,
+                                                blackboard: {
+                                                  'atk_scale': 0,
+                                                },
+                                                scheduledSequences: [
+                                                  scheduled(
+                                                    9,
+                                                    sequence(
+                                                      step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                                      step('dealDamage', {
+                                                        damageType: 'cryo',
+                                                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                                                        tags: ['normalSkill'],
+                                                        features: ['canBreakWeakness'],
+                                                      }, '43:buff_chr_0026_lastrite_normal_skill_phantom4:buff43:buff_chr_0026_lastrite_normal_skill_phantom11:actionOrder1:7'),
+                                                    ),
+                                                  ),
+                                                  scheduled(
+                                                    9,
+                                                    sequence(
+                                                      step('dealDamage', {
+                                                        damageType: 'cryo',
+                                                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                                                        tags: ['normalSkill'],
+                                                        features: ['canBreakWeakness'],
+                                                      }, '43:buff_chr_0026_lastrite_normal_skill_phantom4:buff43:buff_chr_0026_lastrite_normal_skill_phantom11:actionOrder2:10'),
+                                                    ),
+                                                  ),
+                                                ],
+                                              },
+                                              target: 'enemy',
+                                              inheritSourceSkillCastInfo: true,
+                                              blackboardAssignments: {
+                                                'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                                              },
+                                            }),
+                                            step('applyBuff', {
+                                              buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
+                                              definition: {
+                                                stackingType: 'stack',
+                                                priority: 0,
+                                                maxStackCount: 1,
+                                                abilityEventResponses: [
+                                                  {
+                                                    event: 'addedBuff',
+                                                    priority: 0,
+                                                    sequence:
+                                                      sequence(
+                                                        step('finishBuffsById', {
+                                                          target: 'party',
+                                                          buffIds: ['buff_chr_0026_lastrite_normal_skill'],
+                                                          reason: 'other',
+                                                        }),
+                                                        step('finishBuffsById', {
+                                                          target: 'caster',
+                                                          buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
+                                                          reason: 'other',
+                                                        }),
+                                                      ),
+                                                  },
+                                                ],
+                                              },
+                                              target: 'caster',
+                                              inheritSourceSkillCastInfo: true,
+                                            }),
+                                          ),
+                                        ),
+                                        step('createTimedMarker', {
+                                          target: 'caster',
+                                          markerId: 'buff_chr_0026_lastrite_normal_skill_marker',
+                                          durationSeconds: { kind: 'constant', value: 0.1 },
+                                          autoFinishByAction: false,
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          },
+                        ],
+                      },
+                      target: 'party',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        'duration': { kind: 'blackboard', key: 'duration' },
+                        'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                        'atb': { kind: 'blackboard', key: 'atb' },
+                        'poise': { kind: 'blackboard', key: 'poise' },
+                        'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                        'potential_1': { kind: 'blackboard', key: 'potential_1' },
+                      },
+                    }),
+                    step('changeResourceByActionValue', {
+                      resource: 'sp',
+                      amount: { kind: 'blackboard', key: 'atb' },
+                      recipient: 'team',
+                      spGainKind: 'refund',
+                      spGainSource: 'skill',
+                    }),
+                  ),
+                ),
+              },
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+              'duration': { kind: 'blackboard', key: 'duration' },
+              'atb': { kind: 'blackboard', key: 'atb' },
+              'atk_up': { kind: 'blackboard', key: 'atk_up' },
+              'potential_1': { kind: 'blackboard', key: 'potential_1' },
+              'poise': { kind: 'blackboard', key: 'poise' },
+            },
+          }),
           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
           step('changeResourceByActionValue', {
             resource: 'ultimateEnergy',
@@ -389,10 +1057,13 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
   },
   {
-    'atb': 30,
     'atk_scale': [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
     'duration': 15,
+    'atb': 30,
+    'atk_up': 0.2,
+    'potential_1': 0,
     'usp': 16,
+    'poise': 5,
   },
 );
 
@@ -421,15 +1092,18 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         2,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop',
+              definition: {
+                stackingType: 'stack',
+                priority: 0,
+                maxStackCount: 1,
+                durationSeconds: 2,
+              },
+              target: 'enemy',
+              inheritSourceSkillCastInfo: true,
+            }),
           ),
         ),
       ),
@@ -888,5 +1562,5 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

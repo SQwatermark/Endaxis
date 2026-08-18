@@ -135,6 +135,7 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly trigger?: (buff: CombatBuff<Key>) => void;
+  readonly ignite?: (buff: CombatBuff<Key>, igniteType: string, sourceId: string) => boolean;
   readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
@@ -615,6 +616,36 @@ export class CombatBuffContainer<Key extends string> {
     let count = 0;
     for (const buff of this.#buffs) {
       if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) count += 1;
+    }
+    return count;
+  }
+
+  /** 按容器插入顺序结束最多 count 个 ID 匹配的 Buff 实例。 */
+  finishCountByIds(ids: readonly string[], count: number, reason: BuffFinishReason): number {
+    if (!Number.isFinite(count) || count < 0) {
+      throw new RangeError('Buff finish count must be a finite non-negative number');
+    }
+    const accepted = new Set(ids);
+    let finished = 0;
+    for (const buff of this.#buffs) {
+      if (finished >= count) break;
+      if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) {
+        finished += 1;
+      }
+    }
+    return finished;
+  }
+
+  /** 同步点燃所有在调用开始时仍活动的 Buff；响应可在处理过程中结束自身。 */
+  ignite(igniteType: string, sourceId: string): number {
+    if (igniteType.length === 0) throw new Error('Buff ignite type must not be empty');
+    if (sourceId.length === 0) throw new Error('Buff ignite source id must not be empty');
+    const active = this.#buffs.filter(buff => !buff.isFinished);
+    let count = 0;
+    for (const buff of active) {
+      if (!buff.isFinished && buff.definition.actions?.ignite?.(buff, igniteType, sourceId)) {
+        count += 1;
+      }
     }
     return count;
   }

@@ -32,11 +32,20 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 /** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
 export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
-  readonly event: 'beforeTakeDamage';
+  readonly event: 'beforeTakeDamage' | 'outputDamage';
   readonly sourceId: string;
   readonly targetId: string;
   readonly tags: readonly DamageTag[];
   readonly features: readonly DamageFeature[];
+}
+
+/** AbilitySystem 在技能正式启动前发出的施放事件。 */
+export interface CombatAbilitySkillEvent {
+  readonly kind: 'abilitySkill';
+  readonly event: 'beforeCastSkill';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly skillType: import('../../game-data/operatorDefinition').SkillType;
 }
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
@@ -50,7 +59,7 @@ export interface CombatOperationContext {
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
-  readonly event?: CombatSemanticEvent | CombatAbilityDamageEvent;
+  readonly event?: CombatSemanticEvent | CombatAbilityDamageEvent | CombatAbilitySkillEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */

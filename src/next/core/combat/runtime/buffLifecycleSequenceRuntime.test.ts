@@ -249,8 +249,10 @@ describe('attachBuffLifecycleSequences', () => {
           },
         },
       ],
-      (event, priority, handle) =>
-        dispatcher.registerAction(event, priority, context => handle(context.payload)),
+      (event, priority, handle) => {
+        if (event !== 'beforeTakeDamage') throw new Error(`unexpected event '${event}'`);
+        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+      },
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
     const buff = container.add(definition, 'seal')!;
@@ -310,8 +312,10 @@ describe('attachBuffLifecycleSequences', () => {
           },
         },
       ],
-      (event, priority, handle) =>
-        dispatcher.registerAction(event, priority, context => handle(context.payload)),
+      (event, priority, handle) => {
+        if (event !== 'beforeTakeDamage') throw new Error(`unexpected event '${event}'`);
+        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+      },
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
     const buff = container.add(definition, 'seal')!;
@@ -334,5 +338,112 @@ describe('attachBuffLifecycleSequences', () => {
 
     expect(executions).toBe(1);
     expect(buff.isFinished).toBe(true);
+  });
+
+  it('把同事件同优先级响应注册为一个回调并保持各序列独立短路', () => {
+    let registered = 0;
+    let handleAdded: ((payload: unknown) => void) | undefined;
+    let reached = 0;
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'same-priority', stackingType: 'unique' },
+      {},
+      () => ({
+        execute: () => {
+          reached += 1;
+          return true;
+        },
+        evaluate: () => false,
+      }),
+      undefined,
+      [
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'casterControlled' } },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'first', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'second', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+      (_event, _priority, handle) => {
+        registered += 1;
+        handleAdded = handle;
+        return { dispose: () => undefined };
+      },
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+
+    container.add(definition, 'source');
+    handleAdded?.({});
+
+    expect(registered).toBe(1);
+    expect(reached).toBe(1);
+  });
+
+  it('executes a matching ignite response with the ignite source and then finishes the Buff', () => {
+    const reached: string[] = [];
+    const terminal: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        reached.push(context?.buffSourceId ?? '<missing>');
+        return true;
+      },
+      evaluate: condition => {
+        throw new Error(`unexpected condition '${condition.kind}'`);
+      },
+    };
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'frozen', stackingType: 'unique' },
+      {},
+      () => terminal,
+      undefined,
+      [],
+      undefined,
+      [],
+      [
+        {
+          igniteType: 'EndminUlt',
+          finishAfterIgnited: true,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'reached', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    );
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'original-source')!;
+
+    expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
+    expect(container.ignite('EndminUlt', 'operator')).toBe(1);
+    expect(reached).toEqual(['operator']);
+    expect(buff.finishReason).toBe('other');
   });
 });

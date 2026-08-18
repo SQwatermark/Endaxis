@@ -1735,11 +1735,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["normalSkill"],
-            "costResource": "sp",
-            "unmodeledBuffIds": [
-              "buff_chr_0026_lastrite_normal_skill_main_start",
-              "buff_chr_0026_lastrite_normal_skill_self"
-            ]
+            "costResource": "sp"
           }
         },
         {

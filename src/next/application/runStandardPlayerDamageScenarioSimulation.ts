@@ -26,6 +26,8 @@ import {
   STANDARD_TIME_MANAGER_DELTA_MODE,
   timeDilationRuntimeConfig,
 } from '../data/combat/timeDilationConfig';
+import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
+import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -81,11 +83,17 @@ export function runStandardPlayerDamageScenarioSimulation(
     poise: enemyVitals.poise,
     maxPoise: enemyVitals.maxPoise,
   };
+  const controlTimeline = resolveControlTimeline(
+    input.scenario.tracks,
+    input.scenario.battle.controlSwitches,
+  );
 
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
     enemyVitals,
+    isOperatorControlled: (operatorId, frame) =>
+      isOperatorControlledAt(controlTimeline, operatorId, frame),
     ...(input.elementalInflictionDocument === undefined
       ? {}
       : { elementalInflictionDocument: input.elementalInflictionDocument }),

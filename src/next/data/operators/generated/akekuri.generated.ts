@@ -41,7 +41,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -68,17 +69,23 @@ export const akekuriGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0019_karin_potential_5_combo",
@@ -118,7 +125,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -132,6 +140,7 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -144,17 +153,121 @@ export const akekuriGeneratedSource = {
           "orderedActionTypes": [
             "FinishBuffAction"
           ],
-          "combatActions": [],
+          "combatActions": [
+            "FinishBuffAction"
+          ],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAction"
+              ],
+              "combatActions": [
+                "FinishBuffAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": {
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "buffIds": [
+                      "buff_chr_0019_karin_talent_2_combo"
+                    ],
+                    "finishAll": true,
+                    "finishLayerCount": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "limitSource": false,
+                    "buffSource": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "isFinishedEarly": false,
+                    "finishSource": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0019_karin_talent_2",
@@ -192,7 +305,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -206,6 +320,7 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -225,14 +340,232 @@ export const akekuriGeneratedSource = {
           "buffApplications": [],
           "createdBuffIds": [
             "buff_chr_0019_karin_potential_5_combo"
-          ]
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffStackNum",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "buffStack": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0019_karin_potential_5"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [],
+                          "countType": "BuffCount",
+                          "comparison": "GE",
+                          "value": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "limitSkillCastId": false
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 2,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0019_karin_potential_5_combo",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "potential_5_duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "potential_5_duration",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "FinishBuffAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 3,
+                        "legacyBuffFinish": {
+                          "target": {
+                            "targetSource": "Owner",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "buffIds": [
+                            "buff_chr_0019_karin_talent_2_combo"
+                          ],
+                          "finishAll": true,
+                          "finishLayerCount": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "limitSource": false,
+                          "buffSource": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "isFinishedEarly": false,
+                          "finishSource": {
+                            "targetSource": "Source",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          }
+                        },
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ]
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0019_karin_talent_2_combo",
@@ -270,7 +603,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -289,6 +623,7 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -304,14 +639,36 @@ export const akekuriGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateGlobalBuffAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -351,7 +708,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -369,17 +727,23 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -419,7 +783,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -437,6 +802,7 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -452,14 +818,36 @@ export const akekuriGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -497,7 +885,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -521,6 +910,7 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -536,14 +926,36 @@ export const akekuriGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -581,7 +993,8 @@ export const akekuriGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -595,17 +1008,23 @@ export const akekuriGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -1234,7 +1653,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1251,6 +1671,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1311,7 +1734,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1328,6 +1752,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 16,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1627,7 +2054,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1644,6 +2072,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1704,7 +2135,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1721,6 +2153,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 16,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1967,7 +2402,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -1984,6 +2420,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2210,7 +2649,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2227,6 +2667,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2642,7 +3085,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2659,6 +3103,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2979,7 +3426,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -2996,6 +3444,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3817,7 +4268,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3834,6 +4286,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4060,7 +4515,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": "tar"
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4077,6 +4533,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4402,7 +4861,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4419,6 +4879,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -4818,7 +5281,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4834,7 +5298,10 @@ export const akekuriGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 3
+              "serverActionIndex": 3,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -4848,7 +5315,10 @@ export const akekuriGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -4862,7 +5332,10 @@ export const akekuriGeneratedSource = {
                 "actionData",
                 "[3]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -4895,7 +5368,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4912,6 +5386,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -5355,7 +5832,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5393,7 +5871,46 @@ export const akekuriGeneratedSource = {
                     10.0
                   ]
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "StoreAttributeValue",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 20,
+              "blackboardCalculation": {
+                "key": "atb_up",
+                "operation": "Multiply",
+                "left": {
+                  "value": 0,
+                  "blackboardKey": "level",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 1.0,
+                  "blackboardKey": "sub_ratio",
+                  "levelValues": null
+                },
+                "addend": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -5416,7 +5933,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -5461,7 +5981,8 @@ export const akekuriGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -5489,7 +6010,10 @@ export const akekuriGeneratedSource = {
                         "blackboardKey": "atb_up",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -5517,10 +6041,16 @@ export const akekuriGeneratedSource = {
                         "blackboardKey": "max_ratio",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -5535,6 +6065,9 @@ export const akekuriGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5599,7 +6132,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5624,7 +6158,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -5639,6 +6176,9 @@ export const akekuriGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -5704,7 +6244,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5721,6 +6262,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5785,7 +6329,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -5810,7 +6355,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -5825,6 +6373,9 @@ export const akekuriGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -6397,7 +6948,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6435,7 +6987,46 @@ export const akekuriGeneratedSource = {
                     10.0
                   ]
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "StoreAttributeValue",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 20,
+              "blackboardCalculation": {
+                "key": "atb_up",
+                "operation": "Multiply",
+                "left": {
+                  "value": 0,
+                  "blackboardKey": "level",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 1.0,
+                  "blackboardKey": "sub_ratio",
+                  "levelValues": null
+                },
+                "addend": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -6458,7 +7049,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -6503,7 +7097,8 @@ export const akekuriGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -6531,7 +7126,10 @@ export const akekuriGeneratedSource = {
                         "blackboardKey": "atb_up",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -6559,10 +7157,16 @@ export const akekuriGeneratedSource = {
                         "blackboardKey": "max_ratio",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -6577,6 +7181,9 @@ export const akekuriGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6641,7 +7248,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6666,7 +7274,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -6681,6 +7292,9 @@ export const akekuriGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -6746,7 +7360,8 @@ export const akekuriGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6763,6 +7378,9 @@ export const akekuriGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6827,7 +7445,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6852,7 +7471,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -6867,6 +7489,9 @@ export const akekuriGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -6927,7 +7552,8 @@ export const akekuriGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -6944,7 +7570,10 @@ export const akekuriGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 57
+              "serverActionIndex": 57,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -7419,7 +8048,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7444,7 +8074,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -7467,7 +8100,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -7490,7 +8126,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7515,7 +8154,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -7538,7 +8180,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -7561,7 +8206,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -8237,7 +8885,8 @@ export const akekuriGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -8262,7 +8911,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -8285,7 +8937,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -8308,7 +8963,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "atb_up",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -8333,7 +8991,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -8356,7 +9017,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -8379,7 +9043,10 @@ export const akekuriGeneratedSource = {
                   "blackboardKey": "max_ratio",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }

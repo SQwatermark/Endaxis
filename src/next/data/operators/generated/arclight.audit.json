@@ -40,7 +40,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -72,6 +73,7 @@
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -165,6 +167,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -188,9 +193,12 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -237,7 +245,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -245,12 +254,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -297,7 +308,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -326,6 +338,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -471,8 +484,12 @@
                       "levelValues": [
                         0.0
                       ]
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -487,6 +504,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -549,14 +569,20 @@
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -605,7 +631,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -623,12 +650,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -677,7 +706,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -695,6 +725,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -725,9 +756,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -774,7 +808,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -798,6 +833,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -828,9 +864,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -877,7 +916,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -891,12 +931,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -943,7 +985,10 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": true
+        "hasStackEffects": true,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -951,12 +996,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1055,6 +1102,9 @@
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1320,6 +1370,9 @@
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1621,6 +1674,9 @@
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1699,6 +1755,9 @@
                 "[1]"
               ],
               "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2137,6 +2196,9 @@
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2215,6 +2277,9 @@
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2293,6 +2358,9 @@
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3034,6 +3102,9 @@
                 "[1]"
               ],
               "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3755,6 +3826,9 @@
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4224,6 +4298,9 @@
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "interrupt": {
                 "attacker": {
                   "targetSource": "Source",
@@ -4395,6 +4472,9 @@
                             "[0]"
                           ],
                           "serverActionIndex": 39,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -4472,7 +4552,10 @@
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -4490,6 +4573,9 @@
                       "[1]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -4540,6 +4626,9 @@
                       "[2]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "interrupt": {
                       "attacker": {
                         "targetSource": "Source",
@@ -4593,6 +4682,9 @@
                       "[3]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Pulse",
@@ -4678,7 +4770,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "DamageAction",
@@ -4696,6 +4791,9 @@
                       "[5]"
                     ],
                     "serverActionIndex": 44,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -4742,6 +4840,9 @@
                       "[6]"
                     ],
                     "serverActionIndex": 45,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -4791,7 +4892,10 @@
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -4811,6 +4915,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -4888,6 +4995,9 @@
                       "[2]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -4934,6 +5044,9 @@
                       "[4]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -4955,7 +5068,10 @@
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -4972,6 +5088,9 @@
                 "[0]"
               ],
               "serverActionIndex": 53,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -5015,6 +5134,9 @@
                 "[2]"
               ],
               "serverActionIndex": 55,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -5090,7 +5212,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -5923,7 +6048,28 @@
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
-      "buffFinishes": [],
+      "buffFinishes": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 40,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0007_ikut_combo_skill_counts"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAction",
+          "sequenceIndex": 12
+        }
+      ],
       "buffHolds": [],
       "resourceGains": [
         {
@@ -6178,6 +6324,19 @@
             7
           ],
           "itemType": "timeDilation",
+          "sourcePath": [
+            "chr_0007_ikut_combo_skill"
+          ]
+        },
+        {
+          "frame": 0,
+          "actionOrder": [
+            40
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "buffFinish",
           "sourcePath": [
             "chr_0007_ikut_combo_skill"
           ]
@@ -6689,6 +6848,7 @@
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
+        "FinishBuffAction",
         "ObtainCostAction"
       ]
     },
@@ -6761,7 +6921,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }

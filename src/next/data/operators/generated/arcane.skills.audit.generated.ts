@@ -352,21 +352,26 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     'max_spell_vul_will': [0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.075, 0.075, 0.075, 0.08],
     'rate_final': 0,
     'rate_pre': 0.04,
-    'atb_return_wisd': [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30],
+    'duration_total': 0,
+    'duration_final': 0,
+    'trigger_time': 0,
+    'EntityBB_wisd_greater_will': 0,
     'atk_scale_boom': [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
+    'poise_boom': 5,
+    'radius': 5.67,
+    'duration': 4,
+    'atk_scale_touch': [0.35, 0.39, 0.42, 0.46, 0.5, 0.53, 0.57, 0.6, 0.64, 0.68, 0.73, 0.8],
+    'poise_touch': 5,
+    'usp': 10,
+    'atb_return_wisd': [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30],
     'atk_scale_laser1': [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     'atk_scale_laser2': [1.15, 1.27, 1.38, 1.5, 1.62, 1.73, 1.85, 1.96, 2.08, 2.22, 2.39, 2.6],
-    'atk_scale_touch': [0.35, 0.39, 0.42, 0.46, 0.5, 0.53, 0.57, 0.6, 0.64, 0.68, 0.73, 0.8],
     'display_atk_scale_laser_wisd': [2.22, 2.44, 2.66, 2.89, 3.11, 3.33, 3.55, 3.77, 4, 4.27, 4.61, 5],
     'display_max_spell_vul_will': [560, 560, 560, 560, 560, 560, 560, 560, 600, 600, 600, 640],
-    'duration': 4,
     'duration_will': 6,
     'duration_wisd': 2,
-    'poise_boom': 5,
     'poise_laser': 0,
-    'poise_touch': 5,
     'spell_vul_per_will': 0.000125,
-    'usp': 10,
   },
 );
 
@@ -1367,12 +1372,13 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     'spell_vul_rate_calc': 0,
     'spell_vul_rate_per_will': 0,
     'spell_vul_rate_potential': 0,
+    'duration': 20,
+    'EntityBB_wisd_greater_will': 0,
     'atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     'atk_scale_laser': [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.45],
     'atk_scale_laser_will': [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.45],
     'display_atk_scale_laser': [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     'display_atk_scale_laser_will': [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
-    'duration': 20,
     'duration2': 15,
     'laser_count': 8,
     'poise': 10,
@@ -1562,6 +1568,39 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
+                },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'cd_minus' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+              ],
+            },
+            sequence(
+              step('adjustSkillCooldown', {
+                target: 'caster',
+                skill: { kind: 'id', skillId: 'chr_0032_lizhiyan_combo_skill' },
+                operation: 'reduce',
+                basis: 'baseDurationRatio',
+                value: { kind: 'blackboard', key: 'cd_minus' },
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        0,
+        sequence(
           step('startUltimateTimeDilation', {
             priority: 100,
             targetScale: { kind: 'constant', value: 0 },
@@ -1652,6 +1691,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     ],
   },
   {
+    'cd_minus': 0,
     'duration_vul': 0,
     'enhance_rate': 0,
     'lv': 0,

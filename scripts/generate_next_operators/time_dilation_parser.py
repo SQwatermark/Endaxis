@@ -275,9 +275,19 @@ def parse_time_dilation_action(
     if not isinstance(curve_key, str):
         raise ValueError(f"{path}.curveKey: expected string")
     raw_curve = action.get("timeScaleCurve")
-    inline_curve = parse_time_scale_curve(raw_curve, f"{path}.timeScaleCurve")
-    if use_curve_key == bool(inline_curve):
-        raise ValueError(f"{path}: expected exactly one named or inline curve")
+    parsed_inline_curve = parse_time_scale_curve(raw_curve, f"{path}.timeScaleCurve")
+    # Native 1.4.4 ExecuteInternal branches on Data.useCurveKey before selecting
+    # its curve source: true resolves Data.curveKey from TimeDilationConfig;
+    # false reads Data.timeScaleCurve. Some BuffData retain a populated inactive
+    # inline curve, so source presence alone cannot be used as an XOR guard.
+    if use_curve_key:
+        if not curve_key:
+            raise ValueError(f"{path}.curveKey: named curve key must not be empty")
+        inline_curve: tuple[TimeScaleCurveKeySource, ...] = ()
+    else:
+        if not parsed_inline_curve:
+            raise ValueError(f"{path}.timeScaleCurve: inline curve must not be empty")
+        inline_curve = parsed_inline_curve
     influence = None
     if require_bool(
         action.get("useTimeScaleForSkillCdTick"),

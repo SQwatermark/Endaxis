@@ -45,6 +45,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly definitions: CombatBuffDefinitionResolver<Key>,
     readonly currentTarget?: RuntimeTargetRef,
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
+    readonly onBuffApplied?: () => void,
   ) {}
 
   get ownerId(): string {
@@ -61,13 +62,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
         ? this.definitions.get(request.buffId)
         : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
-    return (
+    const applied =
       this.container.add(definition, request.sourceId, {
         blackboardValues: request.blackboardValues,
         sourceActionId: request.sourceActionId ?? request.buffId,
         ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
-      }) !== null
-    );
+      }) !== null;
+    if (applied) this.onBuffApplied?.();
+    return applied;
   }
 
   /**
@@ -95,12 +97,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
       scheduledSequences,
       lifecycleSequences,
       abilityEventResponses,
+      igniteEventResponses,
       ...runtimeDefinition
     } = source;
     if (
       (scheduledSequences !== undefined ||
         lifecycleSequences !== undefined ||
-        abilityEventResponses !== undefined) &&
+        abilityEventResponses !== undefined ||
+        igniteEventResponses !== undefined) &&
       this.#resolveLifecycleOperations === null
     ) {
       throw new Error(
@@ -111,6 +115,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       scheduledSequences === undefined &&
       lifecycleSequences === undefined &&
       abilityEventResponses === undefined &&
+      igniteEventResponses === undefined &&
       this.definitions.compile === undefined
     ) {
       throw new Error(
@@ -122,21 +127,38 @@ export class BuffDefinitionOperationTarget<Key extends string>
         `combat buff '${id}' uses an inline definition, but no compiler is configured`,
       );
     }
-    const entry: CombatBuffDefinitionEntry = { id, ...runtimeDefinition };
-    const baseDefinition = this.definitions.compile(entry);
+    const { maxStackCount, ...staticRuntimeDefinition } = runtimeDefinition;
+    const entry: CombatBuffDefinitionEntry = {
+      id,
+      ...staticRuntimeDefinition,
+      ...(typeof maxStackCount === 'number' ? { maxStackCount } : {}),
+    };
+    const compiledBaseDefinition = this.definitions.compile(entry);
+    const baseDefinition =
+      maxStackCount !== undefined && typeof maxStackCount !== 'number'
+        ? { ...compiledBaseDefinition, maxStackCount }
+        : compiledBaseDefinition;
     const definition =
       scheduledSequences === undefined &&
       lifecycleSequences === undefined &&
-      abilityEventResponses === undefined
+      abilityEventResponses === undefined &&
+      igniteEventResponses === undefined
         ? baseDefinition
         : attachBuffLifecycleSequences(
             baseDefinition,
             lifecycleSequences ?? {},
-            buff => this.#resolveLifecycleOperations!(buff),
+            buff =>
+              this.#resolveLifecycleOperations!({
+                ownerId: buff.owner.ownerId,
+                sourceId: buff.sourceId,
+                sourceActionId: buff.sourceActionId,
+                skillCastInfo: buff.skillCastInfo,
+              }),
             this.currentTarget,
             abilityEventResponses,
             this.registerAbilityEventAction,
             scheduledSequences,
+            igniteEventResponses,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;
@@ -165,6 +187,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
 
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
     return this.container.finishByIds(ids, reason);
+  }
+
+  finishCountByIds(ids: readonly string[], count: number, reason: BuffFinishReason): number {
+    return this.container.finishCountByIds(ids, count, reason);
+  }
+
+  ignite(igniteType: string, sourceId: string): number {
+    return this.container.ignite(igniteType, sourceId);
   }
 
   holdByIds(ids: readonly string[]): { release(): void } {

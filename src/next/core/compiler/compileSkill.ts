@@ -367,6 +367,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishCurrentBuff':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'igniteBuffs':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'holdBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createTimedMarker':
@@ -442,6 +444,7 @@ function resolveStep(
     case 'setContextFlag':
     case 'openComboWindow':
     case 'changeSkillSlot':
+    case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
     case 'listenForCombatEvents':
       return {
@@ -468,7 +471,13 @@ function resolveSkillBuffDefinition(
   skillLevel: number,
   path: string,
 ): ResolvedSkillBuffDefinition {
-  const { scheduledSequences, lifecycleSequences, abilityEventResponses, ...fields } = definition;
+  const {
+    scheduledSequences,
+    lifecycleSequences,
+    abilityEventResponses,
+    igniteEventResponses,
+    ...fields
+  } = definition;
   return {
     ...fields,
     ...(scheduledSequences === undefined
@@ -504,6 +513,19 @@ function resolveSkillBuffDefinition(
               response.sequence,
               skillLevel,
               `${path}.abilityEventResponses[${index}].sequence`,
+            ),
+          })),
+        }),
+    ...(igniteEventResponses === undefined
+      ? {}
+      : {
+          igniteEventResponses: igniteEventResponses.map((response, index) => ({
+            igniteType: response.igniteType,
+            finishAfterIgnited: response.finishAfterIgnited,
+            sequence: compileActionSequence(
+              response.sequence,
+              skillLevel,
+              `${path}.igniteEventResponses[${index}].sequence`,
             ),
           })),
         }),

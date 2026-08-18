@@ -139,6 +139,7 @@ KNOWN_TARGET_FINDER_TYPES = {
 }
 KNOWN_TARGET_VALIDATOR_TYPES = {
     "DistanceValidator",
+    "ExcludeOwnerValidator",
     "HittableObjectValidator",
     "MainCharacterValidator",
     "SkillCastIdValidator",

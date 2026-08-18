@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
 import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
@@ -76,6 +76,34 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
     expect(attributes.get('cost')).toBe(0);
+  });
+
+  it('keeps an inline dynamic max stack count until application blackboard resolution', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const compiledEntries: CombatBuffDefinitionEntry[] = [];
+    const target = new BuffDefinitionOperationTarget(container, {
+      get: () => undefined,
+      compile: entry => {
+        compiledEntries.push(entry);
+        return { id: entry.id, stackingType: entry.stackingType };
+      },
+    });
+    const definition = {
+      stackingType: 'stack',
+      maxStackCount: { blackboardKey: 'max_stack' },
+    } as const;
+
+    for (let index = 0; index < 3; index += 1) {
+      target.apply({
+        buffId: 'dynamic-stack',
+        definition,
+        sourceId: 'operator',
+        blackboardValues: { max_stack: 2 },
+      });
+    }
+
+    expect(compiledEntries[0]).not.toHaveProperty('maxStackCount');
+    expect(container.getCountById('dynamic-stack')).toBe(2);
   });
 
   it('rejects an unknown identity instead of creating an empty definition', () => {
@@ -192,6 +220,76 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
     expect(executed).toBe(true);
+  });
+
+  it('notifies the owner event boundary after a Buff is successfully applied', () => {
+    const onBuffApplied = vi.fn();
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+      undefined,
+      undefined,
+      onBuffApplied,
+    );
+
+    expect(
+      target.apply({
+        buffId: 'added-buff',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: { stackingType: 'unique' },
+      }),
+    ).toBe(true);
+    expect(onBuffApplied).toHaveBeenCalledOnce();
+  });
+
+  it('registers an added-Buff response before publishing the successful application', () => {
+    let handleAdded: ((payload: unknown) => void) | undefined;
+    const execute = vi.fn(() => true);
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+      undefined,
+      (event, _priority, handle) => {
+        expect(event).toBe('addedBuff');
+        handleAdded = handle;
+        return { dispose: vi.fn() };
+      },
+      () => handleAdded?.({}),
+    );
+    target.configureLifecycleOperations(() => ({ execute, evaluate: () => true }));
+
+    expect(
+      target.apply({
+        buffId: 'listens-for-add',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          abilityEventResponses: [
+            {
+              event: 'addedBuff',
+              priority: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'setContextFlag',
+                    parameters: { flag: 'added', value: true, target: 'caster' },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      }),
+    ).toBe(true);
+    expect(execute).toHaveBeenCalledOnce();
   });
 
   it('rejects configuring lifecycle operations more than once', () => {

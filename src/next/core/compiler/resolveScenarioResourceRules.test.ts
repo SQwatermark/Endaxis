@@ -23,6 +23,7 @@ function operator(costs: readonly number[]): CombatOperatorProgram {
 function panel(): ResolvedOperatorPanel {
   return {
     operatorId: 'operator:alpha',
+    level: 1,
     attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
     attack: 0,
     attackBeforeAttributeScalar: 0,

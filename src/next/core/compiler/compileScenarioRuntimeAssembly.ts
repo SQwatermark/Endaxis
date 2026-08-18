@@ -67,6 +67,7 @@ export function compileOperatorEntityBlackboardInitialValues(
 ): Readonly<Record<string, number>> {
   const initializers = operator.entityBlackboardInitializers ?? [];
   const values: Record<string, number> = {
+    level: panel.level,
     strength: Math.fround(panel.attributes.strength),
     agility: Math.fround(panel.attributes.agility),
     intellect: Math.fround(panel.attributes.intellect),

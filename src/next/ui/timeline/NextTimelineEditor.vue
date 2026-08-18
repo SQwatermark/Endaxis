@@ -116,7 +116,9 @@ import {
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 76;
-const LIVE_SIMULATION_INTERVAL_MS = 100;
+/** 拖动投影以约 30Hz 更新；技能块本身仍逐 pointermove 跟手。 */
+const LIVE_SIMULATION_RATE_HZ = 30;
+const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(true);
@@ -125,6 +127,7 @@ const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
 const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
 const showSkillDefinitionEditor = ref(false);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
+const hoveredCastId = ref<string | null>(null);
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
 const cursorGuide = ref<{ leftPx: number; sampleFrame: number; logicalFrame: number } | null>(null);
@@ -354,6 +357,11 @@ const timeDilationBands = computed(() => {
       : band,
   );
 });
+const highlightedTimeDilationSourceIds = computed<ReadonlySet<string>>(() => {
+  const ids = new Set(actionSelection.value.selectedIds);
+  if (hoveredCastId.value !== null) ids.add(hoveredCastId.value);
+  return ids;
+});
 const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
@@ -361,6 +369,25 @@ const timelineWidth = computed(() =>
     pxPerFrame.value,
   ),
 );
+
+function castTimeDilationSegments(
+  castId: string,
+  durationFrames: number,
+): readonly { readonly left: number; readonly width: number }[] {
+  const blockWidth = durationFrames * pxPerFrame.value;
+  const overlayWidth = timeDilationBands.value
+    .filter(band => band.sourceCastId === castId)
+    .reduce(
+      (maximum, band) => Math.max(maximum, (band.endFrame - band.startFrame) * pxPerFrame.value),
+      0,
+    );
+  return overlayWidth > 0 ? [{ left: 0, width: Math.min(blockWidth, overlayWidth) }] : [];
+}
+
+function setCastHovered(castId: string, hovered: boolean): void {
+  if (hovered) hoveredCastId.value = castId;
+  else if (hoveredCastId.value === castId) hoveredCastId.value = null;
+}
 
 function castActualStartFrame(castId: string, logicalStartFrame: number): number {
   const gesture = castMoveGesture.value;
@@ -930,6 +957,8 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     committed: false,
     moved: false,
   };
+  // 首次产生有效位移时立即模拟，不继承上一轮拖动的节流窗口。
+  lastCastMoveSimulationAt = performance.now() - LIVE_SIMULATION_INTERVAL_MS;
   const onMove = (moveEvent: PointerEvent) => updateCastMove(moveEvent);
   const onFinish = (finishEvent: PointerEvent) => finishCastMove(finishEvent);
   const onCancel = () => cancelCastMove();
@@ -1580,6 +1609,13 @@ function setPanelDialogVisible(visible: boolean): void {
           >
             <div class="cursor-guide-label">{{ cursorGuideText }}</div>
           </div>
+          <TimelineTimeDilationBands
+            :bands="timeDilationBands"
+            :source-cast-ids="highlightedTimeDilationSourceIds"
+            :prep-frames="scenario.battle.prepFrames"
+            :px-per-frame="pxPerFrame"
+            :horizontal-offset="TIMELINE_TRACK_HEADER_WIDTH"
+          />
 
           <div
             v-for="track in viewModel.tracks"
@@ -1634,12 +1670,6 @@ function setPanelDialogVisible(visible: boolean): void {
               @dragover.prevent
               @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
             >
-              <TimelineTimeDilationBands
-                :bands="timeDilationBands"
-                :operator-id="track.operatorInstanceId"
-                :prep-frames="scenario.battle.prepFrames"
-                :px-per-frame="pxPerFrame"
-              />
               <TimelineTrackGauge
                 :curve="gaugeCurveFor(track.trackIndex)"
                 :color="gaugeColorFor(track.trackIndex)"
@@ -1680,6 +1710,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :connection-tool-enabled="connectionToolEnabled"
                 :warning="diagnosticsByCastId.has(cast.id)"
                 :hits="castHitMarkers(track.trackIndex, cast.id)"
+                :time-dilation-segments="castTimeDilationSegments(cast.id, cast.durationFrames)"
                 :title="
                   [timelineCastLabel(cast, track), castWarningTitle(cast.id)]
                     .filter(Boolean)
@@ -1697,6 +1728,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   (event, port) => beginConnectionDrag(event, cast.id, port)
                 "
                 @move-pointer-down="beginCastMove($event, track.trackIndex, cast.id)"
+                @hover-change="setCastHovered(cast.id, $event)"
                 @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />
             </div>

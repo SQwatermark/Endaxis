@@ -41,7 +41,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -49,6 +50,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -79,7 +81,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -105,9 +109,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -154,7 +161,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -162,6 +170,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -192,7 +201,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -204,9 +215,12 @@ export const arcaneGeneratedSource = {
           "createdBuffIds": [],
           "forEachActions": [],
           "targetGroupWrites": [],
-          "sequences": []
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -253,7 +267,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -261,6 +276,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -291,9 +307,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -340,7 +359,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -348,6 +368,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -470,6 +491,42 @@ export const arcaneGeneratedSource = {
               "buffApplications": [],
               "actions": [],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -596,9 +653,46 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -678,6 +772,9 @@ export const arcaneGeneratedSource = {
                     "[3]"
                   ],
                   "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -739,6 +836,9 @@ export const arcaneGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "interrupt": {
                     "attacker": {
                       "targetSource": "Source",
@@ -789,6 +889,9 @@ export const arcaneGeneratedSource = {
                     "[3]"
                   ],
                   "serverActionIndex": 17,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Natural",
@@ -841,6 +944,9 @@ export const arcaneGeneratedSource = {
                     "[6]"
                   ],
                   "serverActionIndex": 20,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -879,6 +985,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 22,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Owner",
                     "targetGroupKey": "",
@@ -969,7 +1078,10 @@ export const arcaneGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": []
@@ -1101,6 +1213,8 @@ export const arcaneGeneratedSource = {
               "limitSource": false,
               "isFinishedEarly": false,
               "isAbsorbed": false,
+              "finishLayerCount": null,
+              "sourceActionType": "FinishBuffAdvanced",
               "sequenceIndex": 2
             }
           ],
@@ -1151,7 +1265,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -1180,6 +1295,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -1369,6 +1485,9 @@ export const arcaneGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 3,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -1423,6 +1542,9 @@ export const arcaneGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 4,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -1460,7 +1582,10 @@ export const arcaneGeneratedSource = {
                         }
                       }
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
@@ -1489,7 +1614,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -1607,6 +1734,42 @@ export const arcaneGeneratedSource = {
               "buffApplications": [],
               "actions": [],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 12,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -1728,6 +1891,42 @@ export const arcaneGeneratedSource = {
               "buffApplications": [],
               "actions": [],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 16,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -1856,9 +2055,46 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 21,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1938,6 +2174,9 @@ export const arcaneGeneratedSource = {
                     "[3]"
                   ],
                   "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -1999,6 +2238,9 @@ export const arcaneGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "interrupt": {
                     "attacker": {
                       "targetSource": "Source",
@@ -2049,6 +2291,9 @@ export const arcaneGeneratedSource = {
                     "[3]"
                   ],
                   "serverActionIndex": 17,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Natural",
@@ -2101,6 +2346,9 @@ export const arcaneGeneratedSource = {
                     "[6]"
                   ],
                   "serverActionIndex": 20,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -2139,6 +2387,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 22,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Owner",
                     "targetGroupKey": "",
@@ -2229,7 +2480,10 @@ export const arcaneGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": []
@@ -2361,6 +2615,8 @@ export const arcaneGeneratedSource = {
               "limitSource": false,
               "isFinishedEarly": false,
               "isAbsorbed": false,
+              "finishLayerCount": null,
+              "sourceActionType": "FinishBuffAdvanced",
               "sequenceIndex": 2
             }
           ],
@@ -2409,7 +2665,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -2460,6 +2717,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -2744,6 +3002,9 @@ export const arcaneGeneratedSource = {
                                       "[3]"
                                     ],
                                     "serverActionIndex": 3,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
                                     "resourceGain": {
                                       "resource": "sp",
                                       "amount": {
@@ -2779,7 +3040,10 @@ export const arcaneGeneratedSource = {
                                       "actionData",
                                       "[4]"
                                     ],
-                                    "serverActionIndex": 4
+                                    "serverActionIndex": 4,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
                                   },
                                   {
                                     "actionType": "InterruptAction",
@@ -2794,6 +3058,9 @@ export const arcaneGeneratedSource = {
                                       "[5]"
                                     ],
                                     "serverActionIndex": 5,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
                                     "interrupt": {
                                       "attacker": {
                                         "targetSource": "Source",
@@ -2844,6 +3111,9 @@ export const arcaneGeneratedSource = {
                                       "[6]"
                                     ],
                                     "serverActionIndex": 6,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
                                     "damageUnits": [
                                       {
                                         "damageType": "Natural",
@@ -2910,7 +3180,10 @@ export const arcaneGeneratedSource = {
                                       "limitSource": false,
                                       "isFinishedEarly": true,
                                       "isAbsorbed": false
-                                    }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
                                   },
                                   {
                                     "actionType": "FinishBuffAdvanced",
@@ -2936,26 +3209,63 @@ export const arcaneGeneratedSource = {
                                       "limitSource": false,
                                       "isFinishedEarly": true,
                                       "isAbsorbed": false
-                                    }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
                                   }
                                 ],
                                 "failActions": []
-                              }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[4]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3002,7 +3312,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3031,6 +3342,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3265,6 +3577,9 @@ export const arcaneGeneratedSource = {
                                 "[2]"
                               ],
                               "serverActionIndex": 2,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "resourceGain": {
                                 "resource": "sp",
                                 "amount": {
@@ -3300,7 +3615,10 @@ export const arcaneGeneratedSource = {
                                 "actionData",
                                 "[3]"
                               ],
-                              "serverActionIndex": 3
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
                             },
                             {
                               "actionType": "InterruptAction",
@@ -3315,6 +3633,9 @@ export const arcaneGeneratedSource = {
                                 "[4]"
                               ],
                               "serverActionIndex": 4,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "interrupt": {
                                 "attacker": {
                                   "targetSource": "Source",
@@ -3365,6 +3686,9 @@ export const arcaneGeneratedSource = {
                                 "[5]"
                               ],
                               "serverActionIndex": 5,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "damageUnits": [
                                 {
                                   "damageType": "Natural",
@@ -3417,6 +3741,9 @@ export const arcaneGeneratedSource = {
                                 "[6]"
                               ],
                               "serverActionIndex": 6,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "timedMarkerApplication": {
                                 "targetSource": "Source",
                                 "targetGroupKey": "",
@@ -3454,22 +3781,56 @@ export const arcaneGeneratedSource = {
                                 "limitSource": false,
                                 "isFinishedEarly": true,
                                 "isAbsorbed": false
-                              }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3518,7 +3879,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3537,6 +3899,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3575,9 +3938,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3626,7 +3992,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3645,6 +4012,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3679,7 +4047,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "ability",
@@ -3727,14 +4097,20 @@ export const arcaneGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3783,7 +4159,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3832,6 +4209,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3969,9 +4347,46 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "bunshin",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "SkillCastIdValidator",
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1480463572
+                  ]
+                ]
+              ]
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4133,7 +4548,10 @@ export const arcaneGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "SimpleCalcBBAction",
@@ -4162,8 +4580,12 @@ export const arcaneGeneratedSource = {
                       "value": 0.0,
                       "blackboardKey": null,
                       "levelValues": null
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -4188,7 +4610,10 @@ export const arcaneGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "SimpleCalcBBAction",
@@ -4219,8 +4644,12 @@ export const arcaneGeneratedSource = {
                       "levelValues": [
                         0.0
                       ]
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             },
@@ -4349,6 +4778,9 @@ export const arcaneGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 18,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -4385,6 +4817,9 @@ export const arcaneGeneratedSource = {
                           "[1]"
                         ],
                         "serverActionIndex": 19,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "abilityEntitySpawn": {
                           "abilityEntityId": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
                           "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_death_move",
@@ -4430,6 +4865,9 @@ export const arcaneGeneratedSource = {
                           "[2]"
                         ],
                         "serverActionIndex": 20,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -4493,7 +4931,10 @@ export const arcaneGeneratedSource = {
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": []
@@ -4544,6 +4985,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 27,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4597,6 +5041,9 @@ export const arcaneGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 28,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -4657,6 +5104,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 33,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -4683,6 +5133,9 @@ export const arcaneGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 34,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4763,6 +5216,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 35,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -4789,6 +5245,9 @@ export const arcaneGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 36,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4988,6 +5447,8 @@ export const arcaneGeneratedSource = {
               "limitSource": false,
               "isFinishedEarly": false,
               "isAbsorbed": false,
+              "finishLayerCount": null,
+              "sourceActionType": "FinishBuffAdvanced",
               "sequenceIndex": 2
             },
             {
@@ -5006,6 +5467,8 @@ export const arcaneGeneratedSource = {
               "limitSource": false,
               "isFinishedEarly": false,
               "isAbsorbed": false,
+              "finishLayerCount": null,
+              "sourceActionType": "FinishBuffAdvanced",
               "sequenceIndex": 7
             }
           ],
@@ -5054,7 +5517,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -5138,6 +5602,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [
         {
           "startFrame": 6,
@@ -5297,6 +5762,9 @@ export const arcaneGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 10,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "infliction": {
                             "element": "nature",
                             "isExtra": false
@@ -5383,6 +5851,9 @@ export const arcaneGeneratedSource = {
                                   "[0]"
                                 ],
                                 "serverActionIndex": 11,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null,
                                 "infliction": {
                                   "element": "cryo",
                                   "isExtra": false
@@ -5469,6 +5940,9 @@ export const arcaneGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 12,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "infliction": {
                                         "element": "electric",
                                         "isExtra": false
@@ -5555,6 +6029,9 @@ export const arcaneGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "infliction": {
                                               "element": "heat",
                                               "isExtra": false
@@ -5562,20 +6039,35 @@ export const arcaneGeneratedSource = {
                                           }
                                         ],
                                         "failActions": []
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "InterruptAction",
@@ -5590,6 +6082,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "interrupt": {
                 "attacker": {
                   "targetSource": "Source",
@@ -5640,6 +6135,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -5800,6 +6298,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Natural",
@@ -5860,6 +6361,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Natural",
@@ -5900,7 +6404,10 @@ export const arcaneGeneratedSource = {
                     ]
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -5967,6 +6474,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 25,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -5992,7 +6502,10 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -6121,6 +6634,9 @@ export const arcaneGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 33,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "infliction": {
                             "element": "nature",
                             "isExtra": false
@@ -6207,6 +6723,9 @@ export const arcaneGeneratedSource = {
                                   "[0]"
                                 ],
                                 "serverActionIndex": 34,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null,
                                 "infliction": {
                                   "element": "cryo",
                                   "isExtra": false
@@ -6293,6 +6812,9 @@ export const arcaneGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 35,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "infliction": {
                                         "element": "electric",
                                         "isExtra": false
@@ -6379,6 +6901,9 @@ export const arcaneGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 36,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "infliction": {
                                               "element": "heat",
                                               "isExtra": false
@@ -6386,20 +6911,35 @@ export const arcaneGeneratedSource = {
                                           }
                                         ],
                                         "failActions": []
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "InterruptAction",
@@ -6414,6 +6954,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "interrupt": {
                 "attacker": {
                   "targetSource": "Source",
@@ -6464,6 +7007,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -6624,6 +7170,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Natural",
@@ -6684,6 +7233,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 43,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Natural",
@@ -6724,7 +7276,10 @@ export const arcaneGeneratedSource = {
                     ]
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -6791,6 +7346,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -6816,7 +7374,10 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -6840,6 +7401,7 @@ export const arcaneGeneratedSource = {
             "blackboardKey": null,
             "levelValues": null
           },
+          "addend": null,
           "sequenceIndex": 4
         }
       ],
@@ -6871,9 +7433,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [
@@ -7165,7 +7730,10 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
       },
       "blackboard": [
         {
@@ -7189,6 +7757,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -7221,9 +7790,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -7270,7 +7842,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -7284,6 +7857,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -7314,9 +7888,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -7365,7 +7942,10 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
       },
       "blackboard": [
         {
@@ -7384,6 +7964,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -7416,9 +7997,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -7465,7 +8049,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -7473,6 +8058,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -7503,9 +8089,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -7554,7 +8143,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -7578,6 +8168,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -7624,7 +8215,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -7682,7 +8275,10 @@ export const arcaneGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ObtainCostAction",
@@ -7697,6 +8293,9 @@ export const arcaneGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "ultimateEnergy",
                     "amount": {
@@ -7721,7 +8320,9 @@ export const arcaneGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -7817,7 +8418,10 @@ export const arcaneGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ObtainCostAction",
@@ -7832,6 +8436,9 @@ export const arcaneGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "ultimateEnergy",
                     "amount": {
@@ -7974,7 +8581,10 @@ export const arcaneGeneratedSource = {
                           ],
                           "tagQueryType": "hasAny",
                           "buffTagIds": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "CompareFloat",
@@ -8039,6 +8649,9 @@ export const arcaneGeneratedSource = {
                                 "[4]"
                               ],
                               "serverActionIndex": 14,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "buffApplication": {
                                 "buffs": [
                                   {
@@ -8069,11 +8682,17 @@ export const arcaneGeneratedSource = {
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
@@ -8089,9 +8708,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -8180,7 +8802,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -8209,6 +8832,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -8399,7 +9023,10 @@ export const arcaneGeneratedSource = {
                           ],
                           "tagQueryType": "hasAny",
                           "buffTagIds": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "CompareFloat",
@@ -8464,6 +9091,9 @@ export const arcaneGeneratedSource = {
                                 "[4]"
                               ],
                               "serverActionIndex": 5,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "buffApplication": {
                                 "buffs": [
                                   {
@@ -8494,16 +9124,24 @@ export const arcaneGeneratedSource = {
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -8549,7 +9187,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -8731,6 +9371,9 @@ export const arcaneGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 14,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "resourceGain": {
                           "resource": "ultimateEnergy",
                           "amount": {
@@ -8753,7 +9396,10 @@ export const arcaneGeneratedSource = {
                         }
                       }
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FindTargetAction",
@@ -8767,7 +9413,10 @@ export const arcaneGeneratedSource = {
                     "actionData",
                     "[1]"
                   ],
-                  "serverActionIndex": 16
+                  "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -8782,6 +9431,9 @@ export const arcaneGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 17,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -8804,6 +9456,42 @@ export const arcaneGeneratedSource = {
                 }
               ],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 16,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "ult_aura",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator",
+                "SkillCastIdValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    464088014
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -8909,6 +9597,9 @@ export const arcaneGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 20,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -8931,12 +9622,17 @@ export const arcaneGeneratedSource = {
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "ability",
@@ -8962,9 +9658,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -9051,7 +9750,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -9059,12 +9759,14 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -9113,7 +9815,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -9131,12 +9834,14 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -9185,7 +9890,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -9203,6 +9909,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -9233,9 +9940,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -9284,7 +9994,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -9461,6 +10172,7 @@ export const arcaneGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -9497,7 +10209,9 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -9608,7 +10322,10 @@ export const arcaneGeneratedSource = {
                               0.0
                             ]
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "ModifyDynamicBlackboard",
@@ -9631,7 +10348,10 @@ export const arcaneGeneratedSource = {
                             "blackboardKey": null,
                             "levelValues": null
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "IfElseAction",
@@ -9712,19 +10432,30 @@ export const arcaneGeneratedSource = {
                                     0.0
                                   ]
                                 }
-                              }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
                             }
                           ]
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -9839,16 +10570,24 @@ export const arcaneGeneratedSource = {
                               0.0
                             ]
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -9874,9 +10613,12 @@ export const arcaneGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -9923,7 +10665,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -9997,6 +10740,7 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -10226,7 +10970,10 @@ export const arcaneGeneratedSource = {
                         1.0
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -10251,7 +10998,10 @@ export const arcaneGeneratedSource = {
                         1.0
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -10276,7 +11026,10 @@ export const arcaneGeneratedSource = {
                         1.0
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -10363,11 +11116,17 @@ export const arcaneGeneratedSource = {
                           "buffTagIds": [
                             -421286163
                           ]
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -10382,6 +11141,9 @@ export const arcaneGeneratedSource = {
                     "[5]"
                   ],
                   "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -10462,9 +11224,12 @@ export const arcaneGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -10511,7 +11276,8 @@ export const arcaneGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -10525,12 +11291,14 @@ export const arcaneGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -11001,8 +11769,12 @@ export const arcaneGeneratedSource = {
                     4.0,
                     4.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -11029,8 +11801,12 @@ export const arcaneGeneratedSource = {
                   "value": -0.633,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -11117,7 +11893,10 @@ export const arcaneGeneratedSource = {
                           0.04
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -11149,8 +11928,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -11193,8 +11976,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -11307,8 +12094,12 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -11356,8 +12147,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -11403,14 +12198,24 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11452,8 +12257,12 @@ export const arcaneGeneratedSource = {
                     6.0,
                     6.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -11506,8 +12315,12 @@ export const arcaneGeneratedSource = {
                     4.0,
                     4.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -11534,8 +12347,12 @@ export const arcaneGeneratedSource = {
                   "value": -0.633,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -11622,7 +12439,10 @@ export const arcaneGeneratedSource = {
                           0.04
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -11654,8 +12474,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -11698,8 +12522,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -11812,8 +12640,12 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -11861,8 +12693,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -11908,14 +12744,24 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -11941,6 +12787,9 @@ export const arcaneGeneratedSource = {
                 "[9]"
               ],
               "serverActionIndex": 54,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -11994,6 +12843,9 @@ export const arcaneGeneratedSource = {
                 "[10]"
               ],
               "serverActionIndex": 55,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12047,6 +12899,9 @@ export const arcaneGeneratedSource = {
                 "[11]"
               ],
               "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12100,6 +12955,9 @@ export const arcaneGeneratedSource = {
                 "[12]"
               ],
               "serverActionIndex": 57,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12177,6 +13035,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 60,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12218,6 +13079,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 61,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12259,6 +13123,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 62,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12300,6 +13167,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 63,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -12650,6 +13520,7 @@ export const arcaneGeneratedSource = {
             "blackboardKey": null,
             "levelValues": null
           },
+          "addend": null,
           "sequenceIndex": 16
         }
       ],
@@ -14277,8 +15148,12 @@ export const arcaneGeneratedSource = {
                     4.0,
                     4.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -14305,8 +15180,12 @@ export const arcaneGeneratedSource = {
                   "value": -0.633,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -14393,7 +15272,10 @@ export const arcaneGeneratedSource = {
                           0.04
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -14425,8 +15307,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -14469,8 +15355,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -14583,8 +15473,12 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -14632,8 +15526,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -14679,14 +15577,24 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -14728,8 +15636,12 @@ export const arcaneGeneratedSource = {
                     6.0,
                     6.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -14782,8 +15694,12 @@ export const arcaneGeneratedSource = {
                     4.0,
                     4.0
                   ]
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -14810,8 +15726,12 @@ export const arcaneGeneratedSource = {
                   "value": -0.633,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -14898,7 +15818,10 @@ export const arcaneGeneratedSource = {
                           0.04
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -14930,8 +15853,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -14974,8 +15901,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -15088,8 +16019,12 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -15137,8 +16072,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -15184,14 +16123,24 @@ export const arcaneGeneratedSource = {
                                 0.04,
                                 0.04
                               ]
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -15289,7 +16238,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 37
+              "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -15406,7 +16358,10 @@ export const arcaneGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 41
+                    "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -15425,7 +16380,10 @@ export const arcaneGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 42
+                    "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -15442,10 +16400,16 @@ export const arcaneGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 43
+                    "serverActionIndex": 43,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -15471,6 +16435,9 @@ export const arcaneGeneratedSource = {
                 "[9]"
               ],
               "serverActionIndex": 54,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15524,6 +16491,9 @@ export const arcaneGeneratedSource = {
                 "[10]"
               ],
               "serverActionIndex": 55,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15577,6 +16547,9 @@ export const arcaneGeneratedSource = {
                 "[11]"
               ],
               "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15630,6 +16603,9 @@ export const arcaneGeneratedSource = {
                 "[12]"
               ],
               "serverActionIndex": 57,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15707,6 +16683,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 60,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15748,6 +16727,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 61,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15789,6 +16771,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 62,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15830,6 +16815,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 63,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntityDurationAssignment": {
                 "setMultipleTarget": false,
                 "actionTargetType": "ContextTarget",
@@ -15902,7 +16890,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 83
+              "serverActionIndex": 83,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -16719,6 +17710,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -16764,6 +17758,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 19,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17096,6 +18093,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17141,6 +18141,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 19,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17777,6 +18780,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17825,6 +18831,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17934,6 +18943,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 29,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -17982,6 +18994,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18055,6 +19070,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -18169,6 +19187,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 43,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18217,6 +19238,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18290,6 +19314,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 51,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -18694,6 +19721,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18742,6 +19772,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18851,6 +19884,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 29,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18899,6 +19935,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 33,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -18972,6 +20011,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 37,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -19086,6 +20128,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 43,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -19134,6 +20179,9 @@ export const arcaneGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -19207,6 +20255,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 51,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -19705,6 +20756,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -19753,6 +20807,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -19826,6 +20883,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -19940,6 +21000,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -19988,6 +21051,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -20061,6 +21127,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -20399,6 +21468,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -20447,6 +21519,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -20520,6 +21595,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -20634,6 +21712,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -20682,6 +21763,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -20755,6 +21839,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -21671,6 +22758,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 44,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -22265,6 +23355,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 44,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -23019,11 +24112,17 @@ export const arcaneGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -23038,6 +24137,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -23119,6 +24221,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -23150,6 +24255,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 48,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -23556,11 +24664,17 @@ export const arcaneGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -23575,6 +24689,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -23656,6 +24773,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -23687,6 +24807,9 @@ export const arcaneGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 48,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -24745,6 +25868,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -25033,6 +26159,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -25340,6 +26469,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -25584,6 +26716,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -26086,12 +27221,19 @@ export const arcaneGeneratedSource = {
                             "value": 1.0,
                             "blackboardKey": null,
                             "levelValues": null
-                          }
-                        }
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             },
@@ -26140,6 +27282,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Natural",
@@ -26216,6 +27361,9 @@ export const arcaneGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 17,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Natural",
@@ -26325,6 +27473,9 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -27014,7 +28165,10 @@ export const arcaneGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 12
+                    "serverActionIndex": 12,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -27033,10 +28187,16 @@ export const arcaneGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 13
+                    "serverActionIndex": 13,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -27052,7 +28212,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 14
+              "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -27667,6 +28830,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 50,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -27809,6 +28975,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "infliction": {
                       "element": "nature",
                       "isExtra": false
@@ -27908,6 +29077,9 @@ export const arcaneGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 57,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "infliction": {
                             "element": "cryo",
                             "isExtra": false
@@ -28016,6 +29188,9 @@ export const arcaneGeneratedSource = {
                                   "[0]"
                                 ],
                                 "serverActionIndex": 60,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null,
                                 "infliction": {
                                   "element": "electric",
                                   "isExtra": false
@@ -28133,6 +29308,9 @@ export const arcaneGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 63,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "infliction": {
                                         "element": "heat",
                                         "isExtra": false
@@ -28140,16 +29318,28 @@ export const arcaneGeneratedSource = {
                                     }
                                   ],
                                   "failActions": []
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -28210,7 +29400,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -28236,7 +29429,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -28263,8 +29459,12 @@ export const arcaneGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "spell_vul_rate_potential",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CompareFloat",
@@ -28338,7 +29538,10 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "GetTargetBuffBBAdvanced",
@@ -28364,7 +29567,10 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "StoreAttributeValue",
@@ -28391,8 +29597,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -28419,8 +29629,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "spell_vul_rate_per_will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -28494,7 +29708,10 @@ export const arcaneGeneratedSource = {
                               "blackboardKey": "spell_vul_rate_potential",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -28512,6 +29729,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 78,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -28569,7 +29789,10 @@ export const arcaneGeneratedSource = {
                               "blackboardKey": "spell_vul_rate_potential",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -28587,6 +29810,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 80,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -28619,11 +29845,17 @@ export const arcaneGeneratedSource = {
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -28910,6 +30142,8 @@ export const arcaneGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 12
         }
       ],
@@ -28994,7 +30228,10 @@ export const arcaneGeneratedSource = {
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 3
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -29010,7 +30247,10 @@ export const arcaneGeneratedSource = {
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 4
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             }
@@ -30040,7 +31280,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -30056,7 +31299,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 7
+              "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -30070,7 +31316,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 8
+              "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -30084,7 +31333,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[2]"
               ],
-              "serverActionIndex": 9
+              "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -30128,7 +31380,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[2]"
               ],
-              "serverActionIndex": 14
+              "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -30178,6 +31433,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 50,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -30320,6 +31578,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "infliction": {
                       "element": "nature",
                       "isExtra": false
@@ -30419,6 +31680,9 @@ export const arcaneGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 57,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "infliction": {
                             "element": "cryo",
                             "isExtra": false
@@ -30527,6 +31791,9 @@ export const arcaneGeneratedSource = {
                                   "[0]"
                                 ],
                                 "serverActionIndex": 60,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null,
                                 "infliction": {
                                   "element": "electric",
                                   "isExtra": false
@@ -30644,6 +31911,9 @@ export const arcaneGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 63,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "infliction": {
                                         "element": "heat",
                                         "isExtra": false
@@ -30651,16 +31921,28 @@ export const arcaneGeneratedSource = {
                                     }
                                   ],
                                   "failActions": []
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -30721,7 +32003,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -30747,7 +32032,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -30774,8 +32062,12 @@ export const arcaneGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "spell_vul_rate_potential",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CompareFloat",
@@ -30849,7 +32141,10 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "GetTargetBuffBBAdvanced",
@@ -30875,7 +32170,10 @@ export const arcaneGeneratedSource = {
                       ],
                       "tagQueryType": "hasAny",
                       "buffTagIds": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "StoreAttributeValue",
@@ -30902,8 +32200,12 @@ export const arcaneGeneratedSource = {
                         "value": 1.0,
                         "blackboardKey": null,
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SimpleCalcBBAction",
@@ -30930,8 +32232,12 @@ export const arcaneGeneratedSource = {
                         "value": 0.0,
                         "blackboardKey": "spell_vul_rate_per_will",
                         "levelValues": null
-                      }
-                    }
+                      },
+                      "addend": null
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -31005,7 +32311,10 @@ export const arcaneGeneratedSource = {
                               "blackboardKey": "spell_vul_rate_potential",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -31023,6 +32332,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 78,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -31080,7 +32392,10 @@ export const arcaneGeneratedSource = {
                               "blackboardKey": "spell_vul_rate_potential",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "CreateBuffAction",
@@ -31098,6 +32413,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 80,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -31130,11 +32448,17 @@ export const arcaneGeneratedSource = {
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -31438,6 +32762,7 @@ export const arcaneGeneratedSource = {
           "startFrame": 0,
           "endFrame": 3,
           "actionTypes": [
+            "IfElseAction",
             "SetSkillCdAtOnce"
           ]
         },
@@ -31881,7 +33206,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -31907,7 +33235,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -31933,7 +33264,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -31959,7 +33293,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -31986,8 +33323,12 @@ export const arcaneGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "spell_vul_rate_potential",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -32107,6 +33448,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 12,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -32135,7 +33479,10 @@ export const arcaneGeneratedSource = {
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -32220,7 +33567,10 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "GetTargetBuffBBAdvanced",
@@ -32249,7 +33599,10 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "StoreAttributeValue",
@@ -32279,8 +33632,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -32310,8 +33667,12 @@ export const arcaneGeneratedSource = {
                               "value": 0.0,
                               "blackboardKey": "spell_vul_rate_per_will",
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -32394,7 +33755,10 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_calc",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               },
                               {
                                 "actionType": "ModifyDynamicBlackboard",
@@ -32423,7 +33787,10 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_potential",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -32454,17 +33821,29 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_potential",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -32565,6 +33944,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 73,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -32598,7 +33980,10 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -32613,6 +33998,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 74,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -32689,6 +34077,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 76,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -32751,6 +34142,130 @@ export const arcaneGeneratedSource = {
               ]
             }
           ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 89,
+          "actionPath": [
+            "timelineActions[20]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "EntityBB_wisd_greater_will",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            },
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "GT",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "cd_minus",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "SetSkillCdAtOnce",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[20]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": {
+                "target": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "useSkillType": false,
+                "skillTypeMask": "None",
+                "skillId": "chr_0032_lizhiyan_combo_skill",
+                "functionType": "Reduce",
+                "isPercentage": true,
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "cd_minus",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "buffIgnite": null
+            }
+          ],
+          "failActions": []
         }
       ],
       "inflictions": [],
@@ -32840,6 +34355,8 @@ export const arcaneGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 11
         }
       ],
@@ -33225,7 +34742,8 @@ export const arcaneGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "SetSkillCdAtOnce"
       ],
       "buffHolds": [],
       "targetGroupWrites": [
@@ -33543,7 +35061,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -33569,7 +35090,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -33595,7 +35119,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "GetTargetBuffBBAdvanced",
@@ -33621,7 +35148,10 @@ export const arcaneGeneratedSource = {
                 ],
                 "tagQueryType": "hasAny",
                 "buffTagIds": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -33648,8 +35178,12 @@ export const arcaneGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "spell_vul_rate_potential",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -33769,6 +35303,9 @@ export const arcaneGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 12,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -33797,7 +35334,10 @@ export const arcaneGeneratedSource = {
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -33882,7 +35422,10 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "GetTargetBuffBBAdvanced",
@@ -33911,7 +35454,10 @@ export const arcaneGeneratedSource = {
                             ],
                             "tagQueryType": "hasAny",
                             "buffTagIds": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "StoreAttributeValue",
@@ -33941,8 +35487,12 @@ export const arcaneGeneratedSource = {
                               "value": 1.0,
                               "blackboardKey": null,
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SimpleCalcBBAction",
@@ -33972,8 +35522,12 @@ export const arcaneGeneratedSource = {
                               "value": 0.0,
                               "blackboardKey": "spell_vul_rate_per_will",
                               "levelValues": null
-                            }
-                          }
+                            },
+                            "addend": null
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -34056,7 +35610,10 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_calc",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               },
                               {
                                 "actionType": "ModifyDynamicBlackboard",
@@ -34085,7 +35642,10 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_potential",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -34116,17 +35676,29 @@ export const arcaneGeneratedSource = {
                                     "blackboardKey": "spell_vul_rate_potential",
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -34176,7 +35748,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 26
+              "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -34192,7 +35767,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 27
+              "serverActionIndex": 27,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -34206,7 +35784,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 28
+              "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -34220,7 +35801,10 @@ export const arcaneGeneratedSource = {
                 "actionData",
                 "[2]"
               ],
-              "serverActionIndex": 29
+              "serverActionIndex": 29,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -34403,7 +35987,10 @@ export const arcaneGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 36
+                          "serverActionIndex": 36,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -34518,18 +36105,30 @@ export const arcaneGeneratedSource = {
                                   "actionData",
                                   "[0]"
                                 ],
-                                "serverActionIndex": 41
+                                "serverActionIndex": 41,
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -34630,6 +36229,9 @@ export const arcaneGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 73,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -34663,7 +36265,10 @@ export const arcaneGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "DamageAction",
@@ -34678,6 +36283,9 @@ export const arcaneGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 74,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -34754,6 +36362,9 @@ export const arcaneGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 76,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Natural",
@@ -34816,6 +36427,130 @@ export const arcaneGeneratedSource = {
               ]
             }
           ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 89,
+          "actionPath": [
+            "timelineActions[20]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "EntityBB_wisd_greater_will",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            },
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "GT",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "cd_minus",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "SetSkillCdAtOnce",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[20]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 92,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": {
+                "target": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "useSkillType": false,
+                "skillTypeMask": "None",
+                "skillId": "chr_0032_lizhiyan_combo_skill",
+                "functionType": "Reduce",
+                "isPercentage": true,
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "cd_minus",
+                  "levelValues": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "buffIgnite": null
+            }
+          ],
+          "failActions": []
         }
       ],
       "auraActions": [],

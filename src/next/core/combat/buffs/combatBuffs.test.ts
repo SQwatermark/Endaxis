@@ -1745,4 +1745,56 @@ describe('CombatBuffContainer', () => {
     expect(globalBuff.passedTime).toBe(0.5);
     expect(selfBuff.passedTime).toBe(0.25);
   });
+
+  it('finishes a limited number of matching Buff instances in insertion order', () => {
+    const finished: number[] = [];
+    const container = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet<Attribute>(),
+      undefined,
+      null,
+      undefined,
+      buff => finished.push(buff.instanceId),
+    );
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.stack',
+      stackingType: 'stack',
+      maxStackCount: 3,
+    };
+    const first = requireAddedBuff(container.add(definition, 'operator'));
+    requireAddedBuff(container.add(definition, 'operator'));
+    requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(container.finishCountByIds([definition.id], 1, 'other')).toBe(1);
+    expect(finished).toEqual([first.instanceId]);
+    expect(container.getCountById(definition.id)).toBe(2);
+  });
+
+  it('dispatches typed ignite events only to active matching Buff definitions', () => {
+    const reached: string[] = [];
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+    const matching = requireAddedBuff(
+      container.add(
+        {
+          id: 'frozen',
+          stackingType: 'unlimited',
+          actions: {
+            ignite: (buff, igniteType, sourceId) => {
+              if (igniteType !== 'EndminUlt') return false;
+              reached.push(`${buff.instanceId}:${sourceId}`);
+              buff.finish('other');
+              return true;
+            },
+          },
+        },
+        'original-source',
+      ),
+    );
+    container.add({ id: 'other', stackingType: 'unlimited' }, 'original-source');
+
+    expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
+    expect(container.ignite('EndminUlt', 'operator')).toBe(1);
+    expect(container.ignite('EndminUlt', 'operator')).toBe(0);
+    expect(reached).toEqual([`${matching.instanceId}:operator`]);
+  });
 });

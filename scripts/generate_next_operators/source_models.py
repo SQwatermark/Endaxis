@@ -36,6 +36,7 @@ __all__ = [
     "UnparsedBuffPayloadSource",
     "BuffAttributeModifierSource",
     "BuffDamageModifierSource",
+    "BuffDamageNumberComparisonSource",
     "BuffDamageScaleProcessorSource",
     "BuffEventActionSource",
     "EventBuffApplicationSource",
@@ -511,6 +512,7 @@ class BuffLifecycleSource:
     negatePriority: bool
     maxStackCount: ScalarSource
     hasStackEffects: bool
+    stackEffectActionTypes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -525,12 +527,14 @@ class BuffDefinitionSource:
     attributeModifiers: tuple["BuffAttributeModifierSource", ...]
     damageModifiers: tuple["BuffDamageModifierSource", ...]
     directDamageHits: tuple[TimedDamageSource, ...]
+    inflictions: tuple[TimedInflictionSource, ...]
     conditionalActions: tuple["ConditionalActionSource", ...]
     blackboardCalculations: tuple["BlackboardCalculationSource", ...]
     blackboardMutations: tuple["BlackboardMutationSource", ...]
     buffBlackboardReads: tuple["BuffBlackboardReadSource", ...]
     buffFinishes: tuple["BuffFinishSource", ...]
     eventActions: tuple["BuffEventActionSource", ...]
+    igniteEventActions: tuple["BuffEventActionSource", ...]
     sourceDeathFinish: "BuffSourceDeathFinishSource | None"
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
@@ -606,6 +610,13 @@ class BuffDamageScaleProcessorSource:
 
 
 @dataclass(frozen=True)
+class BuffDamageNumberComparisonSource:
+    left: ScalarSource
+    comparison: str
+    right: ScalarSource
+
+
+@dataclass(frozen=True)
 class BuffDamageModifierSource:
     enabledSide: str
     targetSource: str
@@ -613,11 +624,17 @@ class BuffDamageModifierSource:
     tagQueryType: str
     tagIds: tuple[int, ...]
     processors: tuple[BuffDamageScaleProcessorSource, ...]
+    ownerControlled: bool = False
+    damageTagMatch: str | None = None
+    damageTags: tuple[str, ...] = ()
+    damageFeatureMatch: str | None = None
+    damageFeatures: tuple[str, ...] = ()
+    numberComparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
 
 
 @dataclass(frozen=True)
 class BuffEventActionSource:
-    eventSource: Literal["buff", "ability"]
+    eventSource: Literal["buff", "ability", "ignite"]
     event: str
     orderedActionTypes: tuple[str, ...]
     combatActions: tuple[str, ...]
@@ -627,6 +644,8 @@ class BuffEventActionSource:
     forEachActions: tuple["BuffEventForEachSource", ...] = ()
     targetGroupWrites: tuple["BuffEventTargetGroupWriteSource", ...] = ()
     sequences: tuple["SkillEventActionSequenceSource", ...] = ()
+    finishAfterIgnited: bool = False
+    runtimeTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -888,6 +907,7 @@ class BlackboardCalculationPayload:
     operation: str
     left: ScalarSource
     right: ScalarSource
+    addend: ScalarSource | None = None
 
 
 @dataclass(frozen=True)
@@ -921,6 +941,37 @@ class BuffFinishPayload:
     limitSource: bool
     isFinishedEarly: bool
     isAbsorbed: bool
+
+
+@dataclass(frozen=True)
+class LegacyBuffFinishPayload:
+    target: TargetReferenceSource
+    buffIds: tuple[str, ...]
+    finishAll: bool
+    finishLayerCount: ScalarSource
+    limitSource: bool
+    buffSource: TargetReferenceSource
+    isFinishedEarly: bool
+    finishSource: TargetReferenceSource
+
+
+@dataclass(frozen=True)
+class SkillCooldownAdjustmentPayload:
+    target: TargetReferenceSource
+    useSkillType: bool
+    skillTypeMask: str
+    skillId: str
+    functionType: str
+    isPercentage: bool
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffIgnitePayload:
+    source: TargetReferenceSource
+    target: TargetReferenceSource
+    igniteType: str
+    successTargetContextKey: str
 
 
 @dataclass(frozen=True)
@@ -1141,6 +1192,9 @@ class ConditionalBranchActionSource:
     blackboardMutation: BlackboardMutationPayload | None = None
     buffBlackboardRead: BuffBlackboardReadPayload | None = None
     buffFinish: BuffFinishPayload | None = None
+    legacyBuffFinish: LegacyBuffFinishPayload | None = None
+    skillCooldownAdjustment: SkillCooldownAdjustmentPayload | None = None
+    buffIgnite: BuffIgnitePayload | None = None
     buffStackRead: BuffStackReadPayload | None = None
     buffApplication: BuffApplicationPayload | None = None
     timedMarkerApplication: TimedMarkerApplicationPayload | None = None
@@ -1217,6 +1271,7 @@ class BlackboardCalculationSource:
     operation: str
     left: ScalarSource
     right: ScalarSource
+    addend: ScalarSource | None = None
     sequenceIndex: int = -1
 
 
@@ -1262,6 +1317,8 @@ class BuffFinishSource:
     limitSource: bool
     isFinishedEarly: bool
     isAbsorbed: bool
+    finishLayerCount: ScalarSource | None = None
+    sourceActionType: str = "FinishBuffAdvanced"
     sequenceIndex: int = -1
 
 

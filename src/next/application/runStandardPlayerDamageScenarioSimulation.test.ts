@@ -5,6 +5,8 @@ import { perlica } from '../data/operators/perlica';
 import { perlicaGeneratedOperator } from '../data/operators/generated/perlica.operator.generated';
 import { arclightGeneratedOperator } from '../data/operators/generated/arclight.operator.generated';
 import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.operator.generated';
+import { endministratorGeneratedOperator } from '../data/operators/generated/endministrator.operator.generated';
+import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -247,6 +249,105 @@ function createGeneratedLifengScenario(talentLevel: number) {
   }).scenario;
 }
 
+function createGeneratedEndministratorIgniteScenario() {
+  const scenario = createEmptyScenario('scenario:endministrator-ignite', '管理员冻结点燃样本');
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 0,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:endministrator',
+    operator: {
+      operatorSlug: endministratorGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 80 },
+    skillCasts: [],
+  };
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:${++nextId}` };
+  const withFrozen = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: endministratorGeneratedOperator,
+    skillGroupKey: 'comboSkill',
+    skillKey: 'comboSkill',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  return placeSkillGroup({
+    scenario: withFrozen,
+    trackIndex: 0,
+    operator: endministratorGeneratedOperator,
+    skillGroupKey: 'ultimate',
+    skillKey: 'ultimate',
+    startFrame: 80,
+    ids,
+  }).scenario;
+}
+
+function createGeneratedLastRitePartyBuffScenario() {
+  const scenario = createEmptyScenario('scenario:last-rite-party-buff', '余烬队伍 Buff 样本');
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 100,
+    spRecoveryPerSecond: 0,
+  };
+  const build = () => ({
+    operatorSlug: lastRiteGeneratedOperator.slug,
+    level: 90,
+    promoted: true,
+    potential: 0,
+    trustLevel: 4,
+    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+    talentStates: {},
+  });
+  scenario.tracks[0] = {
+    id: 'track:last-rite-source',
+    operator: build(),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  scenario.tracks[1] = {
+    id: 'track:last-rite-ally',
+    operator: build(),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  scenario.battle.controlSwitches.push({ id: 'switch:last-rite-ally', frame: 35, trackIndex: 1 });
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:${++nextId}` };
+  const withBuff = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: lastRiteGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  return placeSkillGroup({
+    scenario: withBuff,
+    trackIndex: 1,
+    operator: lastRiteGeneratedOperator,
+    skillGroupKey: 'basicAttack',
+    skillKey: 'basicAttack4',
+    startFrame: 40,
+    ids,
+  }).scenario;
+}
+
 function runGeneratedLifengScenario(talentLevel: number) {
   return runStandardPlayerDamageScenarioSimulation({
     scenario: createGeneratedLifengScenario(talentLevel),
@@ -271,6 +372,93 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('runs generated Last Rite party Buff events relative to the controlled owner', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedLastRitePartyBuffScenario(),
+      endFrame: 100,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === lastRiteGeneratedOperator.slug ? lastRiteGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    const phantomDamage = result.receiptEntries.find(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        String(entry.data?.stepKey).includes('buff_chr_0026_lastrite_normal_skill_phantom'),
+    );
+    expect(phantomDamage).toMatchObject({ sourceId: 'track:last-rite-ally' });
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ElementalInflictionApplied',
+        sourceId: 'track:last-rite-ally',
+      }),
+    );
+  });
+
+  it('runs generated Endministrator freeze and ultimate ignition through production simulation', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedEndministratorIgniteScenario(),
+      endFrame: 220,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === endministratorGeneratedOperator.slug ? endministratorGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => entry.data?.skillId),
+    ).toEqual(['comboSkill', 'ultimate']);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'BuffFinished',
+        targetId: 'enemy',
+        data: expect.objectContaining({
+          buffId: 'buff_common_originum_frozen',
+          reason: 'other',
+        }),
+      }),
+    );
+    const damageEntries = result.receiptEntries.filter(
+      entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:endministrator',
+    );
+    expect(damageEntries).toHaveLength(5);
+    expect(damageEntries).toContainEqual(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          stepKey: expect.stringContaining('buff_common_originum_frozen:ignite:EndminUlt'),
+        }),
+      }),
+    );
+  });
+
   it('ends generated Arclight ultimate time freeze and advances the scenario timeline', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedArclightUltimateScenario(),

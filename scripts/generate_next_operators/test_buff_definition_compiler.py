@@ -3,7 +3,10 @@
 import unittest
 from types import SimpleNamespace
 
-from buff_definition_compiler import compile_inline_buff_definition
+from buff_definition_compiler import (
+    compile_inline_buff_definition,
+    is_strictly_presentation_only_buff,
+)
 from generate_next_operators import compile_buff_application_values
 from source_models import ScalarSource
 
@@ -36,6 +39,7 @@ def definition(**overrides):
         "attributeModifiers": (),
         "damageModifiers": (),
         "directDamageHits": (),
+        "inflictions": (),
         "conditionalActions": (),
         "blackboardCalculations": (),
         "blackboardMutations": (),
@@ -46,6 +50,10 @@ def definition(**overrides):
         "resourceGains": (),
         "combatActions": (),
         "auraActions": (),
+        "invokedAbilityEntitySkills": (),
+        "auxiliaryActions": (),
+        "targetGroupWrites": (),
+        "skillReplacements": (),
         "unparsedPayloads": (),
     }
     values.update(overrides)
@@ -53,6 +61,51 @@ def definition(**overrides):
 
 
 class BuffDefinitionCompilerTests(unittest.TestCase):
+    def test_ignores_strictly_presentation_only_stack_effects(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {
+            "hasStackEffects": True,
+            "stackEffectActionTypes": ("EffectAction",),
+        }
+        source = definition(lifecycle=SimpleNamespace(**lifecycle))
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("stackingType:", compiled)
+        self.assertTrue(is_strictly_presentation_only_buff(source))
+
+    def test_rejects_non_presentation_stack_effects(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {
+            "hasStackEffects": True,
+            "stackEffectActionTypes": ("DamageAction",),
+        }
+        source = definition(lifecycle=SimpleNamespace(**lifecycle))
+
+        with self.assertRaisesRegex(ValueError, "unsupported stack effects"):
+            compile_inline_buff_definition(source, "skill.buff")
+        self.assertFalse(is_strictly_presentation_only_buff(source))
+
+    def test_gameplay_payload_prevents_presentation_only_classification(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {
+            "hasStackEffects": True,
+            "stackEffectActionTypes": ("EffectAction",),
+        }
+        source = definition(
+            lifecycle=SimpleNamespace(**lifecycle),
+            applyTagIds=(123,),
+        )
+
+        self.assertFalse(is_strictly_presentation_only_buff(source))
+
+    def test_compiles_dynamic_max_stack_count_from_buff_blackboard(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {
+            "maxStackCount": scalar(0, "max_stack"),
+        }
+        source = definition(lifecycle=SimpleNamespace(**lifecycle))
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("maxStackCount: { blackboardKey: 'max_stack' }", compiled)
+
     def test_compiles_a_complete_simple_definition_without_id(self) -> None:
         result = compile_inline_buff_definition(definition(), "fixture")
 
@@ -163,6 +216,51 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("tagIds: [1925762097]", result)
         self.assertIn("zone: 'normal'", result)
         self.assertIn("addition: { blackboardKey: 'dmg_up' }", result)
+
+    def test_compiles_lastrite_style_composite_damage_modifier(self) -> None:
+        source = definition(
+            blackboard=(
+                SimpleNamespace(key="potential_1", value=1),
+                SimpleNamespace(key="atk_up", value=0.2),
+            ),
+            damageModifiers=(
+                SimpleNamespace(
+                    enabledSide="Attacker",
+                    targetSource="",
+                    targetGroupKey="",
+                    tagQueryType="hasAny",
+                    tagIds=(),
+                    ownerControlled=True,
+                    damageTagMatch="hasAny",
+                    damageTags=("normalAttackLastCombo",),
+                    damageFeatureMatch=None,
+                    damageFeatures=(),
+                    numberComparisons=(
+                        SimpleNamespace(
+                            left=scalar(0, "potential_1"),
+                            comparison="Equals",
+                            right=scalar(1),
+                        ),
+                    ),
+                    processors=(
+                        SimpleNamespace(
+                            side="Attacker",
+                            zone="NormalCalcZone",
+                            addition=scalar(0.2, "atk_up"),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("kind: 'all'", result)
+        self.assertIn("kind: 'casterControlled'", result)
+        self.assertIn("kind: 'eventDamageTagsMatch'", result)
+        self.assertIn("tags: ['normalAttackLastCombo']", result)
+        self.assertIn("kind: 'buffBlackboardCompare'", result)
+        self.assertIn("left: { blackboardKey: 'potential_1' }", result)
 
 
 if __name__ == "__main__":

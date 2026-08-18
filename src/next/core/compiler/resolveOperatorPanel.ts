@@ -85,6 +85,7 @@ export interface OperatorPanelContributionReceipt {
 /** 可见面板及战斗初始化需要的静态修正。比率字段统一使用小数。 */
 export interface ResolvedOperatorPanel {
   readonly operatorId: string;
+  readonly level: number;
   readonly attributes: OperatorPanelAttributes;
   readonly attack: number;
   /** 运行时重新计算攻击派生倍率所需的、尚未乘四维倍率的攻击值。 */
@@ -423,6 +424,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
 
   return {
     operatorId: build.track.id,
+    level: build.operatorInstance.level,
     attributes: { ...values.attributes },
     attack,
     attackBeforeAttributeScalar,

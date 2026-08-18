@@ -116,6 +116,7 @@ function createAssembly(
   >[0]['createAbilityEntityBuffRuntime'],
   initialEntityBlackboard?: Readonly<Record<string, number>>,
   skillSlotGroups?: readonly CompiledSkillSlotGroup[],
+  emitAbilityEvent?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['emitAbilityEvent'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -152,10 +153,53 @@ function createAssembly(
     ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
     ...(resolveVitals === undefined ? {} : { resolveVitals }),
+    ...(emitAbilityEvent === undefined ? {} : { emitAbilityEvent }),
   });
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('emits before-cast events for both direct and deferred skill starts', () => {
+    const emitAbilityEvent = vi.fn();
+    const first = skill({ skillId: 'first', costs: [], costFrame: undefined });
+    const second = skill({
+      skillGroupKey: 'ultimate',
+      skillId: 'second',
+      skillType: 'ultimate',
+      costs: [],
+      costFrame: undefined,
+    });
+    const assembly = createAssembly(
+      [first, second],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      emitAbilityEvent,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'first')).toBe(true);
+    assembly.requestPostSkillCast('operator', { skillId: 'second' });
+    assembly.advanceFrame();
+
+    expect(emitAbilityEvent.mock.calls).toEqual([
+      [
+        'operator',
+        'beforeCastSkill',
+        { sourceId: 'operator', targetId: 'operator', skillType: 'battleSkill' },
+      ],
+      [
+        'operator',
+        'beforeCastSkill',
+        { sourceId: 'operator', targetId: 'operator', skillType: 'ultimate' },
+      ],
+    ]);
+  });
+
   it('keeps a frame-zero slot change on the current release and selects it next time', () => {
     const base = skill({
       castId: 'ultimate-cast',
@@ -1014,6 +1058,108 @@ describe('CombatRuntimeAssembly', () => {
     });
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
+    );
+  });
+
+  it('executes party Buff lifecycle steps relative to each actual operator owner', () => {
+    const sourceBuffs = new CombatBuffContainer<string>('source', new CombatAttributeSet<string>());
+    const allyBuffs = new CombatBuffContainer<string>('ally', new CombatAttributeSet<string>());
+    const createBuffRuntime = (container: CombatBuffContainer<string>) =>
+      new BuffDefinitionOperationTarget(container, {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      });
+    const sourceBuffRuntime = createBuffRuntime(sourceBuffs);
+    const allyBuffRuntime = createBuffRuntime(allyBuffs);
+    const program = skill({
+      operatorId: 'source',
+      castId: 'party-cast',
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'party-owner-buff',
+                  target: 'party',
+                  inheritSourceSkillCastInfo: true,
+                  definition: {
+                    stackingType: 'unique',
+                    lifecycleSequences: {
+                      start: {
+                        steps: [
+                          {
+                            kind: 'changeResource',
+                            parameters: {
+                              resource: 'ultimateEnergy',
+                              amount: 10,
+                              recipient: 'caster',
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'source',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+          {
+            operatorId: 'ally',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        { operatorId: 'source', skills: [program], buffRuntime: sourceBuffRuntime },
+        { operatorId: 'ally', skills: [], buffRuntime: allyBuffRuntime },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(assembly.tryStartSkill('source', 'skill', 'party-cast')).toBe(true);
+    expect(sourceBuffs.buffs).toHaveLength(1);
+    expect(allyBuffs.buffs).toHaveLength(1);
+    expect(assembly.resources.snapshot().squad).toEqual([
+      expect.objectContaining({ operatorId: 'source', ultimateEnergy: 10 }),
+      expect.objectContaining({ operatorId: 'ally', ultimateEnergy: 10 }),
+    ]);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'UltimateEnergyChanged'),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sourceId: 'source', targetId: 'source' }),
+        expect.objectContaining({ sourceId: 'ally', targetId: 'ally' }),
+      ]),
     );
   });
 

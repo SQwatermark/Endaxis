@@ -105,6 +105,65 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(definition)).toEqual([]);
   });
 
+  it('严格校验时间膨胀中的能力实体 ID 与 Context 查询', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'startTimeDilation',
+              parameters: {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 1 },
+                slot: 1,
+                priority: 2,
+                curve: { kind: 'named', key: 'ComboSkill' },
+                finishByAction: false,
+                targets: [],
+                abilityEntityTargets: [
+                  {
+                    kind: 'ownerSpawned',
+                    abilityEntityIds: ['abilityentity_test'],
+                  },
+                  { kind: 'context', contextKey: 'mirrors' },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+
+    const queries = (
+      definition.scheduledSequences as Array<{
+        sequence: {
+          steps: Array<{
+            parameters: { abilityEntityTargets: Array<Record<string, unknown>> };
+          }>;
+        };
+      }>
+    )[0]!.sequence.steps[0]!.parameters.abilityEntityTargets;
+    queries[0]!.abilityEntityIds = [];
+    queries[1]!.contextKey = '';
+
+    expect(validateSkillDefinition(definition)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[0].parameters.abilityEntityTargets[0].abilityEntityIds',
+          message: 'expected a non-empty array',
+        }),
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[0].parameters.abilityEntityTargets[1].contextKey',
+          message: 'expected a non-empty string',
+        }),
+      ]),
+    );
+  });
+
   it('accepts a structurally valid skill', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [
@@ -242,6 +301,33 @@ describe('validateSkillDefinition', () => {
                       ],
                     },
                   },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+
+  it('accepts an inline Buff max stack count resolved from its application blackboard', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.dynamic-stack',
+                target: 'caster',
+                blackboardAssignments: { max_stack: { kind: 'constant', value: 2 } },
+                definition: {
+                  stackingType: 'stack',
+                  maxStackCount: { blackboardKey: 'max_stack' },
                 },
               },
             },

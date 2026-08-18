@@ -41,7 +41,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -49,12 +50,14 @@ export const lifengGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -103,7 +106,10 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
       },
       "blackboard": [
         {
@@ -139,10 +145,17 @@ export const lifengGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": []
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -173,9 +186,12 @@ export const lifengGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -222,7 +238,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -261,12 +278,14 @@ export const lifengGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -315,7 +334,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -333,12 +353,14 @@ export const lifengGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -387,7 +409,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -405,6 +428,7 @@ export const lifengGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -435,9 +459,12 @@ export const lifengGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -484,7 +511,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -508,6 +536,7 @@ export const lifengGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -538,9 +567,12 @@ export const lifengGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -587,7 +619,8 @@ export const lifengGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -601,12 +634,14 @@ export const lifengGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -924,6 +959,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1002,6 +1040,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1290,6 +1331,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1368,6 +1412,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1667,6 +1714,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1911,6 +1961,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2210,6 +2263,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2477,6 +2533,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2891,6 +2950,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 25,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -2970,6 +3032,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -3094,6 +3159,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3476,6 +3544,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 25,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -3555,6 +3626,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -3679,6 +3753,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4384,6 +4461,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4628,6 +4708,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5246,6 +5329,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 60,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -5778,6 +5864,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 60,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -6363,11 +6452,17 @@ export const lifengGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -7108,11 +7203,17 @@ export const lifengGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -7208,7 +7309,10 @@ export const lifengGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 59
+                    "serverActionIndex": 59,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -7227,10 +7331,16 @@ export const lifengGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 60
+                    "serverActionIndex": 60,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7246,7 +7356,10 @@ export const lifengGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 61
+              "serverActionIndex": 61,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7341,7 +7454,10 @@ export const lifengGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 71
+                    "serverActionIndex": 71,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -7360,10 +7476,16 @@ export const lifengGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 72
+                    "serverActionIndex": 72,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7379,7 +7501,10 @@ export const lifengGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 73
+              "serverActionIndex": 73,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7424,7 +7549,10 @@ export const lifengGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 96
+              "serverActionIndex": 96,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -7819,7 +7947,10 @@ export const lifengGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -7870,6 +8001,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
@@ -7899,6 +8033,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
@@ -8270,7 +8407,10 @@ export const lifengGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             }
@@ -8757,7 +8897,10 @@ export const lifengGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -8823,11 +8966,17 @@ export const lifengGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 7
+                    "serverActionIndex": 7,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -8885,7 +9034,10 @@ export const lifengGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -8935,7 +9087,10 @@ export const lifengGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 39
+              "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -8950,6 +9105,9 @@ export const lifengGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
@@ -8979,6 +9137,9 @@ export const lifengGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
                 "skillId": "chr_0015_lifeng_ultimate_skill_abentity",

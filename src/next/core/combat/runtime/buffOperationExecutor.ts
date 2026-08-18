@@ -22,6 +22,9 @@ export interface BuffQueryResult {
 
 /** Buff 生命周期解析操作链时可使用的稳定实例来源。 */
 export interface BuffLifecycleOperationSource {
+  /** Buff 当前实际宿主；队伍 Buff 的生命周期必须相对此实体执行。 */
+  readonly ownerId: string;
+  /** 创建 Buff 的来源实体；用于回溯原始施法或常驻动作绑定。 */
   readonly sourceId: string;
   readonly sourceActionId: string;
   readonly skillCastInfo: CombatSkillCastInfo | null;
@@ -39,6 +42,8 @@ export interface BuffOperationTarget {
   getCountByIds(ids: readonly string[]): number;
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
+  finishCountByIds?(ids: readonly string[], count: number, reason: BuffFinishReason): number;
+  ignite?(igniteType: string, sourceId: string): number;
   holdByIds(ids: readonly string[]): { release(): void };
   getCountByTags(
     tags: readonly GameplayTagId[],
@@ -200,10 +205,21 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'finishBuffsById') {
-      this.#resolveSingleTarget(step.parameters.target, context).finishByIds(
-        step.parameters.buffIds,
-        step.parameters.reason,
-      );
+      const targets = this.#resolveApplicationTargets(step.parameters.target, context);
+      for (const target of targets) {
+        if (step.parameters.count === undefined) {
+          target.finishByIds(step.parameters.buffIds, step.parameters.reason);
+        } else {
+          if (context === undefined) {
+            throw new Error('finishBuffsById runtime count requires a combat operation context');
+          }
+          const count = resolveActionValueOperand(step.parameters.count, context.blackboard);
+          if (target.finishCountByIds === undefined) {
+            throw new Error('finishBuffsById count requires a count-aware Buff target');
+          }
+          target.finishCountByIds(step.parameters.buffIds, count, step.parameters.reason);
+        }
+      }
       return true;
     }
 
@@ -212,6 +228,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('finishCurrentBuff requires a Buff operation context');
       }
       context.finishCurrentBuff(step.parameters.reason);
+      return true;
+    }
+
+    if (step.kind === 'igniteBuffs') {
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      if (target.ignite === undefined) {
+        throw new Error(`Buff target '${target.ownerId}' does not support ignite events`);
+      }
+      const sourceId =
+        step.parameters.source === 'currentBuffSource'
+          ? context?.buffSourceId
+          : this.dependencies.resolveTarget(step.parameters.source).ownerId;
+      if (sourceId === undefined) {
+        throw new Error('igniteBuffs current Buff source requires a Buff operation context');
+      }
+      target.ignite(step.parameters.igniteType, sourceId);
       return true;
     }
 
@@ -248,7 +280,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
     const resolved = this.dependencies.resolveApplicationTargets?.(target);
     if (resolved !== undefined) return resolved;
-    if (target === 'party') {
+    if (target === 'party' || target === 'partyExceptCaster') {
       throw new Error('party Buff application requires a collection target resolver');
     }
     return [this.dependencies.resolveTarget(target)];

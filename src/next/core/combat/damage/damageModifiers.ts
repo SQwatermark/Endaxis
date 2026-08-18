@@ -3,7 +3,13 @@
  * 修正必须明确所属阶段、作用方和条件，不能直接回调或任意修改完整伤害上下文。
  */
 import type { DamageScaleSide, DamageScaleZone } from './damageScale';
-import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type {
+  ComparisonOperator,
+  CombatTarget,
+  DamageFeature,
+  DamageTag,
+} from '../../game-data/operatorDefinition';
+import { compareCombatNumbers } from '../runtime/numericComparison';
 import type {
   AttributeModifierTiming,
   AttributeModifierValues,
@@ -19,7 +25,42 @@ import type {
 export type DamageModifierNumber = number | { readonly blackboardKey: string };
 
 /** 战斗装配层负责使用统一条件系统判断当前伤害修正是否成立。 */
-export type DamageModifierConditionEvaluator = (condition: CombatCondition) => boolean;
+export type DamageModifierExternalCondition =
+  | {
+      readonly kind: 'entityTagMatch';
+      readonly target: CombatTarget;
+      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly tagIds: readonly number[];
+    }
+  | { readonly kind: 'casterControlled' }
+  | {
+      readonly kind: 'eventDamageTagsMatch';
+      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly tags: readonly DamageTag[];
+    }
+  | {
+      readonly kind: 'eventDamageFeaturesMatch';
+      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly features: readonly DamageFeature[];
+    };
+
+/** 伤害修正专用条件树；Buff 黑板只在持有该修正的实例内求值。 */
+export type DamageModifierCondition =
+  | DamageModifierExternalCondition
+  | {
+      readonly kind: 'buffBlackboardCompare';
+      readonly left: DamageModifierNumber;
+      readonly operator: ComparisonOperator;
+      readonly right: DamageModifierNumber;
+    }
+  | { readonly kind: 'not'; readonly condition: DamageModifierCondition }
+  | { readonly kind: 'all'; readonly conditions: readonly DamageModifierCondition[] }
+  | { readonly kind: 'any'; readonly conditions: readonly DamageModifierCondition[] };
+
+/** 战斗装配层只判断依赖场景或当前伤害包的叶子条件。 */
+export type DamageModifierConditionEvaluator = (
+  condition: DamageModifierExternalCondition,
+) => boolean;
 
 /** 在指定阶段向倍率区间或即时属性写入修正的处理器定义。 */
 export type DamageProcessorDefinition =
@@ -47,7 +88,7 @@ export type DamageProcessorDefinition =
 export interface DamageModifierDefinition {
   readonly enabledSide: DamageModifierSide;
   readonly processors: readonly DamageProcessorDefinition[];
-  readonly condition?: CombatCondition;
+  readonly condition?: DamageModifierCondition;
 }
 
 /** 由一个已启用 Buff 实例持有的运行时修正。 */
@@ -76,10 +117,34 @@ export class DamageModifier {
       if (evaluateCondition === undefined) {
         throw new Error('conditional damage modifier requires a condition evaluator');
       }
-      if (!evaluateCondition(this.definition.condition)) return;
+      if (!this.#evaluateCondition(this.definition.condition, evaluateCondition)) return;
     }
     for (const processor of this.definition.processors) {
       applyProcessor(processor, timing, context, this.resolveNumber);
+    }
+  }
+
+  #evaluateCondition(
+    condition: DamageModifierCondition,
+    evaluateExternal: DamageModifierConditionEvaluator,
+  ): boolean {
+    switch (condition.kind) {
+      case 'buffBlackboardCompare':
+        return compareCombatNumbers(
+          this.resolveNumber(condition.left),
+          this.resolveNumber(condition.right),
+          condition.operator,
+        );
+      case 'not':
+        return !this.#evaluateCondition(condition.condition, evaluateExternal);
+      case 'all':
+        return condition.conditions.every(child =>
+          this.#evaluateCondition(child, evaluateExternal),
+        );
+      case 'any':
+        return condition.conditions.some(child => this.#evaluateCondition(child, evaluateExternal));
+      default:
+        return evaluateExternal(condition);
     }
   }
 }

@@ -166,6 +166,27 @@ describe('standardPlayerDamageCompatibility', () => {
               whenTrue: { steps: [] },
             },
             {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'all',
+                  conditions: [
+                    {
+                      kind: 'eventDamageTagsMatch',
+                      match: 'hasAny',
+                      tags: ['normalAttackLastCombo'],
+                    },
+                    {
+                      kind: 'eventDamageFeaturesMatch',
+                      match: 'exceptAny',
+                      features: ['dot'],
+                    },
+                  ],
+                },
+              },
+              whenTrue: { steps: [] },
+            },
+            {
               kind: 'createTimedMarker',
               parameters: {
                 markerId: 'marker',

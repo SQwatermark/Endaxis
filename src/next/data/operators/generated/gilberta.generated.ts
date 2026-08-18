@@ -41,7 +41,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -49,12 +50,14 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -101,7 +104,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -109,6 +113,7 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -141,9 +146,12 @@ export const gilbertaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": {
         "skipDieDisplay": false
       },
@@ -194,7 +202,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -212,6 +221,7 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -242,9 +252,12 @@ export const gilbertaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -293,7 +306,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -318,6 +332,7 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -348,9 +363,12 @@ export const gilbertaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -397,7 +415,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -421,6 +440,7 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -451,9 +471,12 @@ export const gilbertaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -500,7 +523,8 @@ export const gilbertaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -514,12 +538,14 @@ export const gilbertaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -848,6 +874,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2272,6 +2301,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2463,6 +2495,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2654,6 +2689,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3380,6 +3418,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3633,6 +3674,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3886,6 +3930,9 @@ export const gilbertaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -5226,6 +5273,9 @@ export const gilbertaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5470,6 +5520,9 @@ export const gilbertaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6110,7 +6163,10 @@ export const gilbertaGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -6135,7 +6191,10 @@ export const gilbertaGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -7006,7 +7065,10 @@ export const gilbertaGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7031,7 +7093,10 @@ export const gilbertaGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7080,7 +7145,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 17
+              "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7148,7 +7216,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 20
+                    "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -7165,7 +7236,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 21
+                    "serverActionIndex": 21,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -7182,7 +7256,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[2]"
                     ],
-                    "serverActionIndex": 22
+                    "serverActionIndex": 22,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -7201,7 +7278,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 23
+                    "serverActionIndex": 23,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -7218,10 +7298,16 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 24
+                    "serverActionIndex": 24,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7357,10 +7443,16 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 54
+                    "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -8342,7 +8434,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -8358,7 +8453,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -8372,7 +8470,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -8386,7 +8487,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[2]"
               ],
-              "serverActionIndex": 7
+              "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -8522,10 +8626,16 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 32
+                    "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -8571,7 +8681,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 47
+              "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -9984,7 +10097,10 @@ export const gilbertaGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -10052,7 +10168,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 8
+                    "serverActionIndex": 8,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -10069,7 +10188,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 9
+                    "serverActionIndex": 9,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -10086,7 +10208,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[2]"
                     ],
-                    "serverActionIndex": 10
+                    "serverActionIndex": 10,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -10105,7 +10230,10 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 11
+                    "serverActionIndex": 11,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -10122,10 +10250,16 @@ export const gilbertaGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 12
+                    "serverActionIndex": 12,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }

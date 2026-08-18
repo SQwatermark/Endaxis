@@ -2,7 +2,7 @@
  * 单次玩家伤害包跨原生处理阶段传递的唯一上下文。
  * 每次命中都应新建实例；处理器只能在自己的阶段修改允许的字段。
  */
-import type { DamageType } from '../../game-data/operatorDefinition';
+import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
 import type {
   AttributeModifierTiming,
   AttributeModifierValues,
@@ -59,6 +59,8 @@ interface PlayerDamageContextInput {
   readonly targetId: string;
   readonly damageType: DamageType;
   readonly targetHealthType: DamageTargetHealthType;
+  readonly tags?: readonly DamageTag[];
+  readonly features?: readonly DamageFeature[];
   readonly ports: PlayerDamageContextPorts;
 }
 
@@ -68,6 +70,8 @@ export class PlayerDamageContext {
   readonly targetId: string;
   readonly damageType: DamageType;
   readonly targetHealthType: DamageTargetHealthType;
+  readonly tags: readonly DamageTag[];
+  readonly features: readonly DamageFeature[];
   readonly damageScales = new DamageScaleAccumulator();
   readonly #ports: PlayerDamageContextPorts;
   #baseValue = 0;
@@ -81,6 +85,8 @@ export class PlayerDamageContext {
     this.targetId = input.targetId;
     this.damageType = input.damageType;
     this.targetHealthType = input.targetHealthType;
+    this.tags = input.tags ?? [];
+    this.features = input.features ?? [];
     this.#ports = input.ports;
     this.#snapshots = input.ports.captureAttributeSnapshots();
   }

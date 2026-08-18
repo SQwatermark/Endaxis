@@ -78,6 +78,8 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'casterControlled':
     case 'enemyRankIn':
     case 'eventSourceMatchesBuffSource':
+    case 'eventDamageTagsMatch':
+    case 'eventDamageFeaturesMatch':
     case 'buffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':
@@ -209,6 +211,7 @@ function inspectSequence(
       case 'finishBuffsByTag':
       case 'finishBuffsById':
       case 'finishCurrentBuff':
+      case 'igniteBuffs':
       case 'holdBuffsById':
         return;
       case 'dealStagger':

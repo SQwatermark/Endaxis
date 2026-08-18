@@ -51,6 +51,41 @@ function createContext(damageType: 'physical' | 'lifeDrain' = 'physical') {
 }
 
 describe('DamageModifier', () => {
+  it('evaluates composite event conditions and Buff-instance blackboard comparisons', () => {
+    const context = createContext();
+    const evaluateCondition = vi.fn(() => true);
+    const modifier = new DamageModifier(
+      'operator',
+      {
+        enabledSide: 'attacker',
+        condition: {
+          kind: 'all',
+          conditions: [
+            { kind: 'casterControlled' },
+            {
+              kind: 'eventDamageTagsMatch',
+              match: 'hasAny',
+              tags: ['normalAttackLastCombo'],
+            },
+            {
+              kind: 'buffBlackboardCompare',
+              left: { blackboardKey: 'potential_1' },
+              operator: 'equal',
+              right: 1,
+            },
+          ],
+        },
+        processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.25 }],
+      },
+      value => (typeof value === 'number' ? value : value.blackboardKey === 'potential_1' ? 1 : 0),
+    );
+
+    modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);
+
+    expect(evaluateCondition).toHaveBeenCalledTimes(2);
+    expect(context.damageScales.getFinalValue()).toBeCloseTo(1.25);
+  });
+
   it('checks side, owner and condition before running processors in declaration order', () => {
     const condition = {
       kind: 'entityTagMatch',

@@ -41,7 +41,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -51,17 +52,23 @@ export const fluoriteGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_4",
@@ -101,7 +108,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -133,17 +141,23 @@ export const fluoriteGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_1",
@@ -181,7 +195,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -214,21 +229,33 @@ export const fluoriteGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": []
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -268,7 +295,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -286,6 +314,7 @@ export const fluoriteGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -316,14 +345,21 @@ export const fluoriteGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -363,7 +399,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -388,6 +425,7 @@ export const fluoriteGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -418,14 +456,21 @@ export const fluoriteGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -463,7 +508,8 @@ export const fluoriteGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -477,17 +523,23 @@ export const fluoriteGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
-      "auraActions": []
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
     }
   ],
   "skills": [
@@ -1646,7 +1698,8 @@ export const fluoriteGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1665,7 +1718,8 @@ export const fluoriteGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -1682,6 +1736,9 @@ export const fluoriteGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2260,7 +2317,8 @@ export const fluoriteGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2279,7 +2337,8 @@ export const fluoriteGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2296,6 +2355,9 @@ export const fluoriteGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2925,7 +2987,8 @@ export const fluoriteGeneratedSource = {
                     "targetGroupKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2944,7 +3007,8 @@ export const fluoriteGeneratedSource = {
                     "storeKey": ""
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -2961,6 +3025,9 @@ export const fluoriteGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3847,7 +3914,8 @@ export const fluoriteGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -3864,6 +3932,9 @@ export const fluoriteGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4151,7 +4222,8 @@ export const fluoriteGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -4168,6 +4240,9 @@ export const fluoriteGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4459,6 +4534,7 @@ export const fluoriteGeneratedSource = {
               "nestedCombatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "FinishBuffAction",
                 "IfElseAction",
                 "SlowAction",
                 "SpellInfliction"
@@ -4734,7 +4810,8 @@ export const fluoriteGeneratedSource = {
                         }
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "directConditionsSupported": true,
@@ -4784,7 +4861,8 @@ export const fluoriteGeneratedSource = {
                         "limitSkillCastId": false
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "directConditionsSupported": true,
@@ -4835,7 +4913,8 @@ export const fluoriteGeneratedSource = {
                       },
                       "skillTypes": [],
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -4852,6 +4931,9 @@ export const fluoriteGeneratedSource = {
                         "[0]"
                       ],
                       "serverActionIndex": 10,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "keywordAction": {
                         "startFrame": 89,
                         "endFrame": 90,
@@ -4960,7 +5042,8 @@ export const fluoriteGeneratedSource = {
                         "storeKey": ""
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -4977,6 +5060,9 @@ export const fluoriteGeneratedSource = {
                         "[0]"
                       ],
                       "serverActionIndex": 13,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "buffApplication": {
                         "buffs": [
                           {
@@ -5040,7 +5126,8 @@ export const fluoriteGeneratedSource = {
                       },
                       "skillTypes": [],
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -5057,6 +5144,9 @@ export const fluoriteGeneratedSource = {
                         "[0]"
                       ],
                       "serverActionIndex": 24,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "keywordAction": {
                         "startFrame": 149,
                         "endFrame": 150,
@@ -5165,7 +5255,8 @@ export const fluoriteGeneratedSource = {
                         "storeKey": ""
                       },
                       "damageDecorateMask": null,
-                      "contextBuffId": null
+                      "contextBuffId": null,
+                      "deckAttributeCompare": null
                     }
                   ],
                   "succeedActions": [
@@ -5182,6 +5273,9 @@ export const fluoriteGeneratedSource = {
                         "[0]"
                       ],
                       "serverActionIndex": 27,
+                      "legacyBuffFinish": null,
+                      "skillCooldownAdjustment": null,
+                      "buffIgnite": null,
                       "buffApplication": {
                         "buffs": [
                           {
@@ -5232,6 +5326,7 @@ export const fluoriteGeneratedSource = {
               "combatActions": [
                 "CreateBuffAction",
                 "DamageAction",
+                "FinishBuffAction",
                 "IfElseAction",
                 "SlowAction",
                 "SpellInfliction"
@@ -5283,7 +5378,50 @@ export const fluoriteGeneratedSource = {
               "blackboardCalculations": [],
               "blackboardMutations": [],
               "buffBlackboardReads": [],
-              "buffFinishes": [],
+              "buffFinishes": [
+                {
+                  "startFrame": 89,
+                  "endFrame": 90,
+                  "actionIndex": 2,
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "buffCheckType": "Id",
+                  "buffIds": [
+                    "buff_chr_0022_bounda_normal_skill_onlymark",
+                    "buff_chr_0022_bounda_ultimate_skill"
+                  ],
+                  "tagQueryType": "hasAny",
+                  "buffTagIds": [],
+                  "finishAll": true,
+                  "limitSource": false,
+                  "isFinishedEarly": false,
+                  "isAbsorbed": false,
+                  "finishLayerCount": null,
+                  "sourceActionType": "FinishBuffAction",
+                  "sequenceIndex": 1
+                },
+                {
+                  "startFrame": 149,
+                  "endFrame": 150,
+                  "actionIndex": 16,
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "buffCheckType": "Id",
+                  "buffIds": [
+                    "buff_chr_0022_bounda_normal_skill_onlymark",
+                    "buff_chr_0022_bounda_ultimate_skill"
+                  ],
+                  "tagQueryType": "hasAny",
+                  "buffTagIds": [],
+                  "finishAll": true,
+                  "limitSource": false,
+                  "isFinishedEarly": false,
+                  "isAbsorbed": false,
+                  "finishLayerCount": null,
+                  "sourceActionType": "FinishBuffAction",
+                  "sequenceIndex": 3
+                }
+              ],
               "auraActions": []
             }
           ],
@@ -6131,7 +6269,8 @@ export const fluoriteGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6150,6 +6289,9 @@ export const fluoriteGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "infliction": {
                 "element": "cryo",
                 "isExtra": false
@@ -6198,7 +6340,8 @@ export const fluoriteGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -6217,6 +6360,9 @@ export const fluoriteGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 18,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "infliction": {
                       "element": "nature",
                       "isExtra": false
@@ -6224,7 +6370,10 @@ export const fluoriteGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -6256,7 +6405,8 @@ export const fluoriteGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6273,6 +6423,9 @@ export const fluoriteGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -6967,7 +7120,8 @@ export const fluoriteGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -6983,7 +7137,10 @@ export const fluoriteGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 3
+              "serverActionIndex": 3,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -7017,7 +7174,8 @@ export const fluoriteGeneratedSource = {
               },
               "skillTypes": [],
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7036,6 +7194,9 @@ export const fluoriteGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "infliction": {
                 "element": "cryo",
                 "isExtra": false
@@ -7084,7 +7245,8 @@ export const fluoriteGeneratedSource = {
                     },
                     "skillTypes": [],
                     "damageDecorateMask": null,
-                    "contextBuffId": null
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
                 "succeedActions": [
@@ -7103,6 +7265,9 @@ export const fluoriteGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 18,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "infliction": {
                       "element": "nature",
                       "isExtra": false
@@ -7110,7 +7275,10 @@ export const fluoriteGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7142,7 +7310,8 @@ export const fluoriteGeneratedSource = {
                 "storeKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [
@@ -7159,6 +7328,9 @@ export const fluoriteGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -7219,7 +7391,8 @@ export const fluoriteGeneratedSource = {
                 "targetGroupKey": ""
               },
               "damageDecorateMask": null,
-              "contextBuffId": null
+              "contextBuffId": null,
+              "deckAttributeCompare": null
             }
           ],
           "succeedActions": [],
@@ -7236,7 +7409,10 @@ export const fluoriteGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 64
+              "serverActionIndex": 64,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -7337,7 +7513,8 @@ export const fluoriteGeneratedSource = {
                           "checkType": "HasAll",
                           "mask": 8192
                         },
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -7384,7 +7561,8 @@ export const fluoriteGeneratedSource = {
                               },
                               "skillTypes": [],
                               "damageDecorateMask": null,
-                              "contextBuffId": null
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
@@ -7401,6 +7579,9 @@ export const fluoriteGeneratedSource = {
                                 "[2]"
                               ],
                               "serverActionIndex": 30,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "buffApplication": {
                                 "buffs": [
                                   {
@@ -7434,11 +7615,17 @@ export const fluoriteGeneratedSource = {
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
@@ -8559,7 +8746,8 @@ export const fluoriteGeneratedSource = {
                     "limitSkillCastId": false
                   },
                   "damageDecorateMask": null,
-                  "contextBuffId": null
+                  "contextBuffId": null,
+                  "deckAttributeCompare": null
                 }
               ],
               "succeedActions": [
@@ -8576,6 +8764,9 @@ export const fluoriteGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "infliction": {
                     "element": "nature",
                     "isExtra": false
@@ -8636,7 +8827,8 @@ export const fluoriteGeneratedSource = {
                           "limitSkillCastId": false
                         },
                         "damageDecorateMask": null,
-                        "contextBuffId": null
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
@@ -8656,6 +8848,9 @@ export const fluoriteGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 5,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "infliction": {
                           "element": "cryo",
                           "isExtra": false
@@ -8663,7 +8858,10 @@ export const fluoriteGeneratedSource = {
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ]
             }

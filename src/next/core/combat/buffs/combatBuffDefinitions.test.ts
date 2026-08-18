@@ -277,6 +277,59 @@ describe('compileCombatBuffDefinitions', () => {
     ]);
   });
 
+  it('parses composite damage-event and Buff-blackboard modifier conditions', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-composite-damage-modifier',
+      buffs: [
+        {
+          id: 'buff.last-rite.skill',
+          stackingType: 'unique',
+          blackboard: { potential_1: 1, atk_up: 0.2 },
+          damageModifiers: [
+            {
+              enabledSide: 'attacker',
+              condition: {
+                kind: 'all',
+                conditions: [
+                  { kind: 'casterControlled' },
+                  {
+                    kind: 'eventDamageTagsMatch',
+                    match: 'hasAny',
+                    tags: ['normalAttackLastCombo'],
+                  },
+                  {
+                    kind: 'buffBlackboardCompare',
+                    left: { blackboardKey: 'potential_1' },
+                    operator: 'equal',
+                    right: 1,
+                  },
+                ],
+              },
+              processors: [
+                {
+                  kind: 'damageScale',
+                  side: 'attacker',
+                  zone: 'normal',
+                  addition: { blackboardKey: 'atk_up' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(document.buffs[0]?.damageModifiers?.[0]?.condition).toMatchObject({
+      kind: 'all',
+      conditions: [
+        { kind: 'casterControlled' },
+        { kind: 'eventDamageTagsMatch', tags: ['normalAttackLastCombo'] },
+        { kind: 'buffBlackboardCompare', operator: 'equal' },
+      ],
+    });
+  });
+
   it('rejects unsupported damage modifier semantics at the stored-data boundary', () => {
     const base = {
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,

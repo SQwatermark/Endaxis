@@ -53,15 +53,25 @@ DAMAGE_SCALE_ZONES = {
     "VulnerableDmgIncreace": "vulnerable",
     "RaceCalcZone": "race",
 }
+COMPARISON_OPERATORS = {
+    "LT": "less",
+    "LE": "lessOrEqual",
+    "GT": "greater",
+    "GE": "greaterOrEqual",
+    "Equals": "equal",
+    "NotEquals": "notEqual",
+}
 
 BEHAVIOR_FIELDS = (
     "directDamageHits",
+    "inflictions",
     "conditionalActions",
     "blackboardCalculations",
     "blackboardMutations",
     "buffBlackboardReads",
     "buffFinishes",
     "eventActions",
+    "igniteEventActions",
     "resourceGains",
     "combatActions",
     "auraActions",
@@ -72,6 +82,7 @@ BEHAVIOR_FIELDS = (
 SCHEDULE_BEHAVIOR_FIELDS = frozenset(
     {
         "directDamageHits",
+        "inflictions",
         "conditionalActions",
         "blackboardCalculations",
         "blackboardMutations",
@@ -84,6 +95,7 @@ SCHEDULE_BEHAVIOR_FIELDS = frozenset(
 )
 
 PRESENTATION_EVENT_ACTION_TYPES = frozenset({"EffectAction"})
+PRESENTATION_STACK_EFFECT_ACTION_TYPES = frozenset({"EffectAction"})
 
 
 def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
@@ -117,6 +129,45 @@ def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:
     )
 
 
+def is_strictly_presentation_only_buff(source: BuffDefinitionSource) -> bool:
+    """判断一个 Buff 是否只有已识别的表现型 stack effect，因而可从模拟中剔除。"""
+    lifecycle = source.lifecycle
+    if not source.sourceAvailable or lifecycle is None:
+        return False
+    if (
+        not lifecycle.hasStackEffects
+        or not lifecycle.stackEffectActionTypes
+        or not set(lifecycle.stackEffectActionTypes)
+        <= PRESENTATION_STACK_EFFECT_ACTION_TYPES
+    ):
+        return False
+    return not any(
+        (
+            source.blackboard,
+            source.applyTagIds,
+            source.extendTagIds,
+            source.attributeModifiers,
+            source.damageModifiers,
+            source.directDamageHits,
+            source.inflictions,
+            source.conditionalActions,
+            source.blackboardCalculations,
+            source.blackboardMutations,
+            source.buffBlackboardReads,
+            source.buffFinishes,
+            source.eventActions,
+            getattr(source, "igniteEventActions", ()),
+            source.sourceDeathFinish,
+            source.resourceGains,
+            source.combatActions,
+            source.unparsedPayloads,
+            source.auraActions,
+            source.invokedAbilityEntitySkills,
+            source.auxiliaryActions,
+            source.targetGroupWrites,
+            source.skillReplacements,
+        )
+    )
 def compile_inline_buff_definition(
     source: BuffDefinitionSource,
     path: str,
@@ -134,7 +185,7 @@ def compile_inline_buff_definition(
         if getattr(source, field, ())
         and not (
             (
-                field == "eventActions"
+                field in {"eventActions", "igniteEventActions"}
                 and (
                     source_death_finish is not None
                     or _event_actions_are_presentation_only(source)
@@ -151,7 +202,10 @@ def compile_inline_buff_definition(
             + ", ".join(unsupported)
         )
     lifecycle = source.lifecycle
-    if lifecycle.hasStackEffects:
+    if lifecycle.hasStackEffects and (
+        not lifecycle.stackEffectActionTypes
+        or not set(lifecycle.stackEffectActionTypes) <= PRESENTATION_STACK_EFFECT_ACTION_TYPES
+    ):
         raise ValueError(f"{path}: Buff {source.buffId!r} uses unsupported stack effects")
 
     fields = [f"stackingType: {ts_inline_literal(STACKING_TYPES[lifecycle.stackingType])},"]
@@ -160,7 +214,7 @@ def compile_inline_buff_definition(
     fields.extend(
         [
             f"priority: {_compile_scalar(lifecycle.priority, negate=lifecycle.negatePriority)},",
-            f"maxStackCount: {_require_fixed_integer(lifecycle.maxStackCount, 'maxStackCount')},",
+            f"maxStackCount: {_compile_non_negative_integer(lifecycle.maxStackCount, f'{path}.maxStackCount')},",
         ]
     )
     if lifecycle.lifeType == "Limited":
@@ -173,7 +227,7 @@ def compile_inline_buff_definition(
             [
                 f"triggerIntervalSeconds: {_compile_scalar(lifecycle.triggerInterval)},",
                 f"waitFirstTriggerInterval: {ts_inline_literal(lifecycle.waitFirstTriggerInterval)},",
-                f"maxTriggerCount: {_require_fixed_integer(lifecycle.maxTriggerCount, 'maxTriggerCount')},",
+                f"maxTriggerCount: {_require_fixed_integer(lifecycle.maxTriggerCount, f'{path}.maxTriggerCount')},",
             ]
         )
     if source.applyTagIds:
@@ -225,15 +279,62 @@ def compile_inline_buff_definition(
                 "  {",
                 f"    enabledSide: {ts_inline_literal(DAMAGE_SIDES[modifier.enabledSide])},",
             ])
+            conditions: list[list[str]] = []
             if modifier.tagIds:
-                fields.extend([
-                    "    condition: {",
-                    "      kind: 'entityTagMatch',",
-                    "      target: 'enemy',",
-                    f"      tagQueryType: {ts_inline_literal(modifier.tagQueryType)},",
-                    f"      tagIds: {ts_inline_literal(modifier.tagIds)},",
-                    "    },",
+                conditions.append([
+                    "{",
+                    "  kind: 'entityTagMatch',",
+                    "  target: 'enemy',",
+                    f"  tagQueryType: {ts_inline_literal(modifier.tagQueryType)},",
+                    f"  tagIds: {ts_inline_literal(modifier.tagIds)},",
+                    "}",
                 ])
+            if getattr(modifier, "ownerControlled", False):
+                conditions.append(["{", "  kind: 'casterControlled',", "}"])
+            damage_tags = getattr(modifier, "damageTags", ())
+            if damage_tags:
+                conditions.append([
+                    "{",
+                    "  kind: 'eventDamageTagsMatch',",
+                    f"  match: {ts_inline_literal(modifier.damageTagMatch)},",
+                    f"  tags: {ts_inline_literal(damage_tags)},",
+                    "}",
+                ])
+            damage_features = getattr(modifier, "damageFeatures", ())
+            if damage_features:
+                conditions.append([
+                    "{",
+                    "  kind: 'eventDamageFeaturesMatch',",
+                    f"  match: {ts_inline_literal(modifier.damageFeatureMatch)},",
+                    f"  features: {ts_inline_literal(damage_features)},",
+                    "}",
+                ])
+            for comparison in getattr(modifier, "numberComparisons", ()):
+                operator = COMPARISON_OPERATORS.get(comparison.comparison)
+                if operator is None:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported damage comparison "
+                        f"{comparison.comparison!r}"
+                    )
+                conditions.append([
+                    "{",
+                    "  kind: 'buffBlackboardCompare',",
+                    f"  left: {_compile_scalar(comparison.left)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  right: {_compile_scalar(comparison.right)},",
+                    "}",
+                ])
+            if len(conditions) == 1:
+                condition = conditions[0]
+                fields.append(f"    condition: {condition[0]}")
+                fields.extend(f"    {line}" for line in condition[1:-1])
+                fields.append(f"    {condition[-1]},")
+            elif conditions:
+                fields.extend(["    condition: {", "      kind: 'all',", "      conditions: ["])
+                for condition in conditions:
+                    fields.extend(f"        {line}" for line in condition[:-1])
+                    fields.append(f"        {condition[-1]},")
+                fields.extend(["      ],", "    },"])
             fields.append("    processors: [")
             for processor in modifier.processors:
                 zone = DAMAGE_SCALE_ZONES.get(processor.zone)
@@ -270,6 +371,10 @@ def compile_inline_buff_definition(
         compiled_events = compile_event_responses(source, f"{path}.eventActions")
         if compiled_events:
             fields.extend(compiled_events.splitlines())
+    if getattr(source, "igniteEventActions", ()) and compile_event_responses is not None:
+        compiled_events = compile_event_responses(source, f"{path}.igniteEventActions")
+        if compiled_events:
+            fields.extend(compiled_events.splitlines())
     if compile_scheduled_sequences is not None:
         compiled_schedule = compile_scheduled_sequences(source, f"{path}.scheduledSequences")
         if compiled_schedule:
@@ -294,3 +399,11 @@ def _require_fixed_integer(source: ScalarSource, field: str) -> int:
     if source.blackboardKey is not None or not float(source.value).is_integer():
         raise ValueError(f"{field} requires an unresolved dynamic or non-integer value")
     return int(source.value)
+
+
+def _compile_non_negative_integer(source: ScalarSource, field: str) -> str:
+    if source.blackboardKey is not None:
+        return "{ blackboardKey: " + ts_inline_literal(source.blackboardKey) + " }"
+    if not float(source.value).is_integer() or source.value < 0:
+        raise ValueError(f"{field} requires a non-negative integer value")
+    return str(int(source.value))

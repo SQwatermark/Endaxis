@@ -322,6 +322,11 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                 scheduled(
                   89,
                   sequence(
+                    step('finishBuffsById', {
+                      target: 'caster',
+                      buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
+                      reason: 'other',
+                    }),
                     step('applyElementalInfliction', { element: 'nature', isExtra: false }),
                     step('dealDamage', {
                       damageType: 'nature',
@@ -358,11 +363,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                       ),
                     ),
                     sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
+                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     ),
                   ),
                 ),
@@ -375,6 +376,11 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                 scheduled(
                   149,
                   sequence(
+                    step('finishBuffsById', {
+                      target: 'caster',
+                      buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
+                      reason: 'other',
+                    }),
                     step('applyElementalInfliction', { element: 'nature', isExtra: false }),
                     step('dealDamage', {
                       damageType: 'nature',
@@ -411,11 +417,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                       ),
                     ),
                     sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
+                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     ),
                   ),
                 ),
@@ -498,6 +500,23 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_potential_4',
+                              definition: {
+                                stackingType: 'refresh',
+                                priority: 0,
+                                maxStackCount: 1,
+                                durationSeconds: { blackboardKey: 'duration_potential_4' },
+                                blackboard: {
+                                  'atk_up_potential_4': 0,
+                                  'duration_potential_4': 0,
+                                },
+                                attributeModifiers: [
+                                  {
+                                    attribute: 'Atk',
+                                    slot: 'baseMultiplier',
+                                    value: { blackboardKey: 'atk_up_potential_4' },
+                                  },
+                                ],
+                              },
                               target: 'caster',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {

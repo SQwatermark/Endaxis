@@ -43,7 +43,8 @@ export const perlicaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -61,12 +62,14 @@ export const perlicaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -115,7 +118,8 @@ export const perlicaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -133,6 +137,7 @@ export const perlicaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -163,9 +168,12 @@ export const perlicaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -212,7 +220,8 @@ export const perlicaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -236,6 +245,7 @@ export const perlicaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -266,9 +276,12 @@ export const perlicaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -315,7 +328,8 @@ export const perlicaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -329,12 +343,14 @@ export const perlicaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -666,6 +682,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1199,6 +1218,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1370,6 +1392,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -1986,6 +2011,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2177,6 +2205,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -2368,6 +2399,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -3014,6 +3048,9 @@ export const perlicaGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 6,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "resourceGain": {
                     "resource": "sp",
                     "amount": {
@@ -5666,7 +5703,10 @@ export const perlicaGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "LaunchProjectile",
@@ -5681,6 +5721,9 @@ export const perlicaGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 6,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "projectileLaunch": {
                     "projectileId": "projectile_chr_0004_pelica_combo_skill",
                     "skillTriggers": [
@@ -5949,7 +5992,10 @@ export const perlicaGeneratedSource = {
                                   "blackboardKey": null,
                                   "levelValues": null
                                 }
-                              }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
                             },
                             {
                               "actionType": "LaunchProjectile",
@@ -5964,6 +6010,9 @@ export const perlicaGeneratedSource = {
                                 "[2]"
                               ],
                               "serverActionIndex": 6,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "projectileLaunch": {
                                 "projectileId": "projectile_chr_0004_pelica_combo_skill",
                                 "skillTriggers": [
@@ -6692,7 +6741,10 @@ export const perlicaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -6737,7 +6789,10 @@ export const perlicaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 18
+              "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }

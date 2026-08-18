@@ -12,12 +12,14 @@ import {
   COMBAT_TARGETS,
   TIME_DILATION_IGNORE_TARGETS,
   type ActionValueOperand,
+  type AbilityEntityTargetQuery,
   type CombatStepDefinition,
   type TimeDilationIgnoreTarget,
   type TimeScaleCurveDefinition,
   type TimeScaleCurveKeyDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
+import AbilityEntityTargetQueryEditor from './AbilityEntityTargetQueryEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
 type TimeDilationStep = Extract<
@@ -52,6 +54,10 @@ function setScope(event: Event): void {
   const step = ordinary.value;
   if (step === undefined) return;
   const scope = (event.target as HTMLSelectElement).value as 'global' | 'entity';
+  const abilityEntityQueries =
+    step.parameters.scope === 'global'
+      ? step.parameters.ignoredAbilityEntityTargets
+      : step.parameters.abilityEntityTargets;
   const common = {
     durationSeconds: step.parameters.durationSeconds,
     slot: step.parameters.slot,
@@ -61,8 +67,22 @@ function setScope(event: Event): void {
   };
   updateOrdinary(
     scope === 'global'
-      ? { ...common, scope, ignoredTargets: ['caster'] }
-      : { ...common, scope, targets: ['caster'] },
+      ? {
+          ...common,
+          scope,
+          ignoredTargets: ['caster'],
+          ...(abilityEntityQueries === undefined
+            ? {}
+            : { ignoredAbilityEntityTargets: abilityEntityQueries }),
+        }
+      : {
+          ...common,
+          scope,
+          targets: ['caster'],
+          ...(abilityEntityQueries === undefined
+            ? {}
+            : { abilityEntityTargets: abilityEntityQueries }),
+        },
   );
 }
 
@@ -102,7 +122,32 @@ function setTarget(target: TimeDilationIgnoreTarget, checked: boolean): void {
   const targets = checked
     ? [...new Set([...step.parameters.targets, target])]
     : step.parameters.targets.filter(item => item !== target);
-  if (targets.length > 0) updateOrdinary({ ...step.parameters, targets });
+  if (targets.length > 0 || (step.parameters.abilityEntityTargets?.length ?? 0) > 0) {
+    updateOrdinary({ ...step.parameters, targets });
+  }
+}
+
+function setOrdinaryAbilityEntityQueries(queries: readonly AbilityEntityTargetQuery[]): void {
+  const step = ordinary.value;
+  if (step === undefined) return;
+  if (step.parameters.scope === 'global') {
+    const { ignoredAbilityEntityTargets: _removed, ...parameters } = step.parameters;
+    updateOrdinary({
+      ...parameters,
+      ...(queries.length > 0 ? { ignoredAbilityEntityTargets: queries } : {}),
+    });
+    return;
+  }
+  const { abilityEntityTargets: _removed, ...parameters } = step.parameters;
+  const targets =
+    parameters.targets.length === 0 && queries.length === 0
+      ? ['caster' as const]
+      : parameters.targets;
+  updateOrdinary({
+    ...parameters,
+    targets,
+    ...(queries.length > 0 ? { abilityEntityTargets: queries } : {}),
+  });
 }
 
 function hasTarget(target: TimeDilationIgnoreTarget): boolean {
@@ -260,6 +305,18 @@ function setUltimateIgnoredTarget(target: TimeDilationIgnoreTarget, checked: boo
     : props.step.parameters.ignoredTargets.filter(item => item !== target);
   emit('update', { ...props.step, parameters: { ...props.step.parameters, ignoredTargets } });
 }
+
+function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQuery[]): void {
+  if (props.step.kind !== 'startUltimateTimeDilation') return;
+  const { ignoredAbilityEntityTargets: _removed, ...parameters } = props.step.parameters;
+  emit('update', {
+    ...props.step,
+    parameters: {
+      ...parameters,
+      ...(queries.length > 0 ? { ignoredAbilityEntityTargets: queries } : {}),
+    },
+  });
+}
 </script>
 
 <template>
@@ -307,6 +364,11 @@ function setUltimateIgnoredTarget(target: TimeDilationIgnoreTarget, checked: boo
         {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
       </label>
     </fieldset>
+    <AbilityEntityTargetQueryEditor
+      class="step-editor__operand"
+      :queries="step.parameters.ignoredAbilityEntityTargets ?? []"
+      @update="setUltimateAbilityEntityQueries"
+    />
   </div>
 
   <template v-else>
@@ -448,6 +510,15 @@ function setUltimateIgnoredTarget(target: TimeDilationIgnoreTarget, checked: boo
         {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
       </label>
     </fieldset>
+
+    <AbilityEntityTargetQueryEditor
+      :queries="
+        step.parameters.scope === 'global'
+          ? (step.parameters.ignoredAbilityEntityTargets ?? [])
+          : (step.parameters.abilityEntityTargets ?? [])
+      "
+      @update="setOrdinaryAbilityEntityQueries"
+    />
 
     <fieldset class="curve-editor">
       <legend>

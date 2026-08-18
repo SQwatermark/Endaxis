@@ -113,6 +113,7 @@ describe('compileScenarioRuntimeAssembly', () => {
         attributes: { ...panel.attributes, intellect: 20, will: 20 },
       }),
     ).toEqual({
+      level: panel.level,
       strength: panel.attributes.strength,
       agility: panel.attributes.agility,
       intellect: 20,
@@ -125,6 +126,7 @@ describe('compileScenarioRuntimeAssembly', () => {
         attributes: { ...panel.attributes, intellect: 19, will: 20 },
       }),
     ).toEqual({
+      level: panel.level,
       strength: panel.attributes.strength,
       agility: panel.attributes.agility,
       intellect: 19,

@@ -10,7 +10,7 @@ import type {
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
-import type { CombatTarget } from '../../game-data/operatorDefinition';
+import type { CombatTarget, SkillType } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
@@ -63,6 +63,7 @@ import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
 import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
+import { SkillCooldownOperationExecutor } from './skillCooldownOperationExecutor';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
@@ -203,6 +204,16 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createOperationExecutor: (
     context: CombatOperationExecutorContext,
   ) => CombatOperationExecutor;
+  /** 技能施放边界向所有者 AbilitySystem 发出的同步事件。 */
+  readonly emitAbilityEvent?: (
+    entityId: string,
+    event: 'beforeCastSkill',
+    payload: {
+      readonly sourceId: string;
+      readonly targetId: string;
+      readonly skillType: SkillType;
+    },
+  ) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
   readonly createEquipmentEventOperationExecutor?: (
     context: EquipmentEventOperationExecutorContext,
@@ -237,6 +248,8 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
+  /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
+  readonly #operators = new Map<string, CombatOperatorProgram>();
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #enemyBuffRuntime: EnemyBuffRuntime;
@@ -359,6 +372,7 @@ export class CombatRuntimeAssembly {
         options.createOperatorBuffRuntime?.(operator.operatorId, operator.panel);
       const runtimeOperator =
         buffRuntime === operator.buffRuntime ? operator : { ...operator, buffRuntime };
+      this.#operators.set(operator.operatorId, runtimeOperator);
       const entityBlackboard = buffRuntime?.entityBlackboard ?? new ActionBlackboard();
       entityBlackboard.assign(operator.initialEntityBlackboard);
       this.#operatorOrder.push(operator.operatorId);
@@ -425,6 +439,8 @@ export class CombatRuntimeAssembly {
           skills,
           skillSlotGroups: runtimeOperator.skillSlotGroups,
           actionRuntime: operator.actionRuntime,
+          beforePostSkillCastStart: request =>
+            this.#prepareSkillStart(operator.operatorId, request.skillId, request.castId),
           ...(this.timeDilation === null
             ? {}
             : {
@@ -602,6 +618,12 @@ export class CombatRuntimeAssembly {
   tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
     if (!ability.canStartSkill(skillId, castId)) return false;
+    this.#prepareSkillStart(operatorId, skillId, castId);
+    return ability.tryStartSkill(skillId, castId);
+  }
+
+  #prepareSkillStart(operatorId: string, skillId: string, castId?: string): void {
+    const ability = this.#requireAbilitySystem(operatorId);
     const program = this.#skillPrograms.get(`${operatorId}\u0000${skillId}\u0000${castId ?? ''}`);
     if (program?.skillType === 'comboSkill') {
       const result = this.comboWindows.consume(operatorId, skillId);
@@ -623,7 +645,13 @@ export class CombatRuntimeAssembly {
         });
       }
     }
-    return ability.tryStartSkill(skillId, castId);
+    if (program !== undefined) {
+      this.#options.emitAbilityEvent?.(operatorId, 'beforeCastSkill', {
+        sourceId: operatorId,
+        targetId: operatorId,
+        skillType: program.skillType,
+      });
+    }
   }
 
   requestPostSkillCast(operatorId: string, request: PostSkillCastRequest): void {
@@ -713,6 +741,32 @@ export class CombatRuntimeAssembly {
     return { cooldown, advancesCooldown: true };
   }
 
+  #reduceSkillCooldownsByBaseDurationRatio(
+    operatorId: string,
+    skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
+    ratio: number,
+  ): number {
+    const matchedKeys = new Set<string>();
+    let changed = 0;
+    for (const program of this.#skillPrograms.values()) {
+      if (
+        program.operatorId !== operatorId ||
+        (skill.kind === 'type'
+          ? program.skillType !== skill.skillType
+          : program.skillId !== skill.skillId)
+      ) {
+        continue;
+      }
+      const key = `${operatorId}\u0000${program.skillId}`;
+      if (matchedKeys.has(key)) continue;
+      matchedKeys.add(key);
+      if (this.#skillCooldowns.get(key)?.cooldown.reduceByBaseDurationRatio(ratio)) {
+        changed += 1;
+      }
+    }
+    return changed;
+  }
+
   #createBuffLifecycleOperationChain(
     source: BuffLifecycleOperationSource,
     options: CombatRuntimeAssemblyOptions,
@@ -735,19 +789,28 @@ export class CombatRuntimeAssembly {
     if (binding === undefined) {
       throw new Error(`Buff lifecycle references unknown source action '${castId}'`);
     }
-    if (
-      binding.operator.operatorId !== source.sourceId ||
-      (cast !== null && binding.program.skillId !== cast.originSkillId)
-    ) {
+    if (cast !== null && binding.program.skillId !== cast.originSkillId) {
       throw new Error(
         `Buff lifecycle source '${source.sourceId}' does not match action '${castId}'`,
       );
     }
+    // 干员宿主上的 Buff 生命周期相对实际宿主执行；敌方与能力实体仍沿用
+    // 当前创建来源干员。施法快照只负责定位原程序，不强迫后代 Buff 继续归因原施法者。
+    const ownerOperator = this.#operators.get(source.ownerId);
+    const sourceOperator = this.#operators.get(source.sourceId);
+    const operationOperator = ownerOperator ?? sourceOperator ?? binding.operator;
+    const operationProgram =
+      operationOperator.operatorId === binding.program.operatorId
+        ? binding.program
+        : { ...binding.program, operatorId: operationOperator.operatorId };
     return this.#createOperationChain({
-      operator: binding.operator,
-      program: binding.program,
+      operator: operationOperator,
+      program: operationProgram,
       enemy: options.enemy,
-      statusRuntime: binding.statusRuntime,
+      statusRuntime:
+        operationOperator === binding.operator
+          ? binding.statusRuntime
+          : this.#operatorStatuses.get(operationOperator.operatorId),
       createDelegate: options.createOperationExecutor,
       isOperatorControlled: options.isOperatorControlled,
       resolveVitals: options.resolveVitals,
@@ -786,6 +849,11 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
+    const cooldownDelegate = new SkillCooldownOperationExecutor({
+      reduceByBaseDurationRatio: (skill, ratio) =>
+        this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
+      delegate: terminalDelegate,
+    });
     const baseDelegate = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey) => {
         this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
@@ -797,7 +865,7 @@ export class CombatRuntimeAssembly {
           data: { skillGroupKey, targetSkillKey },
         });
       },
-      delegate: terminalDelegate,
+      delegate: cooldownDelegate,
     });
     let rootOperations: CombatOperationExecutor | undefined;
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
@@ -825,8 +893,8 @@ export class CombatRuntimeAssembly {
       sourceActionId: program.castId ?? program.skillId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
-        target === 'party'
-          ? this.#requirePartyBuffTargets()
+        target === 'party' || target === 'partyExceptCaster'
+          ? this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? operatorId : undefined)
           : [this.#resolveBuffTarget(target, operatorId)],
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
@@ -949,8 +1017,8 @@ export class CombatRuntimeAssembly {
       sourceActionId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
-        target === 'party'
-          ? this.#requirePartyBuffTargets()
+        target === 'party' || target === 'partyExceptCaster'
+          ? this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? operatorId : undefined)
           : [this.#resolveBuffTarget(target, operatorId)],
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, options),
@@ -1154,14 +1222,17 @@ export class CombatRuntimeAssembly {
     return runtime;
   }
 
-  #requirePartyBuffTargets(): readonly BuffOperationTarget[] {
+  #requirePartyBuffTargets(excludedOperatorId?: string): readonly BuffOperationTarget[] {
     // 当前不结算队员死亡，已装配干员即存活队伍；逆序保持原生 CharacterTeamFinder 的遍历顺序。
-    return [...this.#operatorOrder].reverse().map(operatorId => {
-      const target = this.#operatorBuffs.get(operatorId);
-      if (target === undefined) {
-        throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
-      }
-      return target;
-    });
+    return [...this.#operatorOrder]
+      .reverse()
+      .filter(operatorId => operatorId !== excludedOperatorId)
+      .map(operatorId => {
+        const target = this.#operatorBuffs.get(operatorId);
+        if (target === undefined) {
+          throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+        }
+        return target;
+      });
   }
 }

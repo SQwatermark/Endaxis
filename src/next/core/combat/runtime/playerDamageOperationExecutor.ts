@@ -118,6 +118,8 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       targetId: this.dependencies.targetId,
       damageType: step.parameters.damageType,
       targetHealthType: 'normal',
+      tags: step.parameters.tags,
+      features: step.parameters.features ?? [],
       ports: {
         captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
         applyModifiers: (timing, side, damageContext) =>

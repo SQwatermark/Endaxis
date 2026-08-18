@@ -76,6 +76,29 @@ describe('AbilitySystemRuntime', () => {
     expect(ability.currentSkillId).toBe('third');
   });
 
+  it('runs deferred cast preparation after interrupt and before the next skill starts', () => {
+    const events: string[] = [];
+    const first = new FixtureRuntime('first', events);
+    const second = new FixtureRuntime('second', events);
+    const ability = new AbilitySystemRuntime({
+      skills: [first, second],
+      beforePostSkillCastStart: request => events.push(`before:${request.skillId}`),
+    });
+    expect(ability.tryStartSkill('first')).toBe(true);
+    events.length = 0;
+    ability.requestPostSkillCast({ skillId: 'second' });
+
+    ability.advanceFrame();
+
+    expect(events).toEqual([
+      'tick:first',
+      'tick:second',
+      'interrupt:first:castNextSkill',
+      'before:second',
+      'start:second',
+    ]);
+  });
+
   it('treats each placed skill as an instruction to replace the previous skill', () => {
     const events: string[] = [];
     const basicAttack = new FixtureRuntime('basic', events, 'basicAttack');

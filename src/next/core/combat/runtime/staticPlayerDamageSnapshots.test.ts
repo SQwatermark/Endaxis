@@ -46,6 +46,7 @@ const enemy: CombatEnemyProgram = {
 
 const panel: ResolvedOperatorPanel = {
   operatorId: 'operator',
+  level: 1,
   attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
   attack: 700,
   attackBeforeAttributeScalar: 700,

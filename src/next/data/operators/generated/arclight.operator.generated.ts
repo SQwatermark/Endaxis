@@ -633,6 +633,16 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
         12,
       ),
       scheduled(
+        0,
+        sequence(
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0007_ikut_combo_skill_counts'],
+            reason: 'other',
+          }),
+        ),
+      ),
+      scheduled(
         17,
         sequence(
           step('changeResourceByActionValue', {

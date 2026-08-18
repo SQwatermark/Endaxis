@@ -61,4 +61,15 @@ describe('SkillCooldown', () => {
       progress: 1,
     });
   });
+
+  it('reduces the remaining cooldown by a ratio of the configured base duration', () => {
+    const cooldown = new SkillCooldown(100, 0);
+    cooldown.tryReserve();
+    cooldown.advance(10);
+
+    expect(cooldown.reduceByBaseDurationRatio(0.5)).toBe(true);
+    expect(cooldown.snapshot.remainingFrames).toBe(40);
+    expect(cooldown.reduceByBaseDurationRatio(0.5)).toBe(true);
+    expect(cooldown.snapshot.ready).toBe(true);
+  });
 });

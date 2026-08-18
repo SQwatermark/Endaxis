@@ -41,7 +41,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -55,6 +56,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -85,9 +87,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -134,7 +139,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -142,6 +148,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -184,7 +191,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -210,9 +219,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -261,7 +273,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -332,6 +345,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -439,8 +453,12 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": [
                         0.0
                       ]
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FindTargetAction",
@@ -454,7 +472,10 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[1]"
                   ],
-                  "serverActionIndex": 1
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -520,11 +541,17 @@ export const zhuangFangyiGeneratedSource = {
                           "actionData",
                           "[0]"
                         ],
-                        "serverActionIndex": 4
+                        "serverActionIndex": 4,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FindTargetAction",
@@ -538,10 +565,106 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[3]"
                   ],
-                  "serverActionIndex": 5
+                  "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "swordTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "swordTar",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1913169726
+                  ]
+                ]
+              ]
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 5,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]"
+              ],
+              "targetGroupKey": "sword",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [
+                "PriorityFilter"
+              ],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -13979809
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -784,6 +907,9 @@ export const zhuangFangyiGeneratedSource = {
                           "[3]"
                         ],
                         "serverActionIndex": 9,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -873,16 +999,24 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardKey": null,
                             "levelValues": null
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -935,7 +1069,10 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 11
+                  "serverActionIndex": 11,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FinishBuffAdvanced",
@@ -963,14 +1100,42 @@ export const zhuangFangyiGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 11,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "thunderTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1017,7 +1182,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -1027,6 +1193,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -1057,7 +1224,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -1114,7 +1283,10 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 1
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "SpawnAbilityEntity",
@@ -1129,6 +1301,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "abilityEntitySpawn": {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                     "skillId": null,
@@ -1145,6 +1320,30 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "fakePos",
+              "producerType": "FindTargetAction",
+              "finderType": "FixedPointFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
             }
           ]
         },
@@ -1210,7 +1409,10 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 3
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -1277,6 +1479,9 @@ export const zhuangFangyiGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 6,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -1314,7 +1519,10 @@ export const zhuangFangyiGeneratedSource = {
                           "actionData",
                           "[0]"
                         ],
-                        "serverActionIndex": 7
+                        "serverActionIndex": 7,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "SpawnAbilityEntity",
@@ -1332,6 +1540,9 @@ export const zhuangFangyiGeneratedSource = {
                           "[1]"
                         ],
                         "serverActionIndex": 8,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "abilityEntitySpawn": {
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                           "skillId": null,
@@ -1347,14 +1558,71 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       }
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "nextTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "DistanceValidator"
+              ],
+              "postProcessorTypes": [
+                "ExcludeTarget",
+                "PriorityFilter"
+              ],
+              "inputTargets": [],
+              "intervalSeconds": null
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 7,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "fakePos",
+              "producerType": "FindTargetAction",
+              "finderType": "FixedPointFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1401,7 +1669,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -1409,6 +1678,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -1439,9 +1709,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1488,7 +1761,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -1588,6 +1862,7 @@ export const zhuangFangyiGeneratedSource = {
           "sequenceIndex": 6
         }
       ],
+      "inflictions": [],
       "conditionalActions": [
         {
           "startFrame": 3,
@@ -1611,6 +1886,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -1674,6 +1952,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1761,6 +2042,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 24,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1786,7 +2070,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -1803,6 +2090,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 25,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1890,6 +2180,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1915,7 +2208,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -1968,6 +2264,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -2016,6 +2315,7 @@ export const zhuangFangyiGeneratedSource = {
               0.0
             ]
           },
+          "addend": null,
           "sequenceIndex": 6
         }
       ],
@@ -2052,10 +2352,13 @@ export const zhuangFangyiGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 2
         }
       ],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [
@@ -2325,7 +2628,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": "max_stack",
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -2333,12 +2637,14 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -2385,7 +2691,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": "max_stack",
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -2393,12 +2700,14 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -2447,7 +2756,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -2485,6 +2795,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -2515,7 +2826,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2616,6 +2929,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2639,7 +2955,9 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2667,7 +2985,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2767,6 +3087,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 15,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2795,7 +3118,9 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2806,7 +3131,8 @@ export const zhuangFangyiGeneratedSource = {
             "SetSkillCdAtOnce"
           ],
           "combatActions": [
-            "IfElseAction"
+            "IfElseAction",
+            "SetSkillCdAtOnce"
           ],
           "damageUnits": [],
           "buffApplications": [],
@@ -2823,13 +3149,61 @@ export const zhuangFangyiGeneratedSource = {
                 "SetSkillCdAtOnce"
               ],
               "combatActions": [
-                "IfElseAction"
+                "IfElseAction",
+                "SetSkillCdAtOnce"
               ],
               "buffApplications": [],
-              "actions": [],
+              "actions": [
+                {
+                  "actionType": "SetSkillCdAtOnce",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": {
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "useSkillType": true,
+                    "skillTypeMask": "UltimateSkill",
+                    "skillId": "chr_0016_laevat_ultimate_skill",
+                    "functionType": "Set",
+                    "isPercentage": false,
+                    "value": {
+                      "value": 15.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "buffIgnite": null
+                }
+              ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2918,6 +3292,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 24,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2941,9 +3318,12 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3068,7 +3448,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3076,6 +3457,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3108,7 +3490,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "ability",
@@ -3295,6 +3679,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "[3]"
                               ],
                               "serverActionIndex": 9,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "buffApplication": {
                                 "buffs": [
                                   {
@@ -3317,18 +3704,27 @@ export const zhuangFangyiGeneratedSource = {
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3375,7 +3771,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3383,6 +3780,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3415,9 +3813,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3464,7 +3865,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3472,6 +3874,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3502,9 +3905,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3551,7 +3957,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3559,6 +3966,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3652,6 +4060,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -3675,9 +4086,12 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3724,7 +4138,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3743,12 +4158,14 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3797,7 +4214,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3815,12 +4233,14 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3869,7 +4289,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3887,6 +4308,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3917,9 +4339,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3966,7 +4391,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3990,6 +4416,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4020,9 +4447,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4069,7 +4499,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -4083,12 +4514,14 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4135,7 +4568,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -4174,6 +4608,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4406,11 +4841,17 @@ export const zhuangFangyiGeneratedSource = {
                               0.0
                             ]
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -4425,6 +4866,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4484,9 +4928,12 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4535,7 +4982,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -4571,6 +5019,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4617,7 +5066,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4706,6 +5157,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4729,7 +5183,9 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4823,7 +5279,10 @@ export const zhuangFangyiGeneratedSource = {
                     "actionData",
                     "[1]"
                   ],
-                  "serverActionIndex": 10
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4848,7 +5307,10 @@ export const zhuangFangyiGeneratedSource = {
                         1.0
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -4863,6 +5325,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[3]"
                   ],
                   "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4886,7 +5351,9 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4912,7 +5379,9 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4938,9 +5407,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4992,7 +5464,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -5000,6 +5473,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -5038,9 +5512,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -5087,7 +5564,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -5095,6 +5573,7 @@ export const zhuangFangyiGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -5125,9 +5604,12 @@ export const zhuangFangyiGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -5905,7 +6387,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -5930,7 +6415,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -6009,6 +6497,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -6038,6 +6529,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -6479,6 +6973,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -6533,7 +7030,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -6553,6 +7053,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -6607,7 +7110,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "executionFrames": [
@@ -7013,7 +7519,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -7027,7 +7536,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 7
+              "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7052,7 +7564,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -7066,7 +7581,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 9
+              "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -7144,7 +7662,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 15
+              "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -7158,7 +7679,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 16
+              "serverActionIndex": 16,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -7173,6 +7697,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -7201,7 +7728,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 18
+              "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -7215,7 +7745,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 19
+              "serverActionIndex": 19,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -7230,6 +7763,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -7503,7 +8039,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7528,7 +8067,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -8244,7 +8786,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -8258,7 +8803,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 7
+              "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -8283,7 +8831,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -8297,7 +8848,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 9
+              "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -8538,6 +9092,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -8567,6 +9124,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -8784,6 +9344,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -8838,7 +9401,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -8858,6 +9424,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -8912,7 +9481,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "executionFrames": [
@@ -9246,7 +9818,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 8
+              "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -9260,7 +9835,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 9
+              "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -9275,6 +9853,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -9303,7 +9884,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 11
+              "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -9317,7 +9901,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 12
+              "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -9332,6 +9919,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -9759,6 +10349,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9809,6 +10402,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 17,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9869,7 +10465,10 @@ export const zhuangFangyiGeneratedSource = {
                           "dieOnEnd": false
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -9889,6 +10488,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9949,7 +10551,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -9966,6 +10571,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -10989,7 +11597,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 12
+                          "serverActionIndex": 12,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FindTargetAction",
@@ -11009,7 +11620,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[1]"
                           ],
-                          "serverActionIndex": 13
+                          "serverActionIndex": 13,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SpawnAbilityEntity",
@@ -11030,6 +11644,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -11079,7 +11696,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 15
+                          "serverActionIndex": 15,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FindTargetAction",
@@ -11099,7 +11719,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[1]"
                           ],
-                          "serverActionIndex": 16
+                          "serverActionIndex": 16,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "SpawnAbilityEntity",
@@ -11120,6 +11743,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 17,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -11150,7 +11776,10 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -11169,7 +11798,10 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 18
+                    "serverActionIndex": 18,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -11186,7 +11818,10 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[1]"
                     ],
-                    "serverActionIndex": 19
+                    "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "SpawnAbilityEntity",
@@ -11204,6 +11839,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -11234,7 +11872,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11250,7 +11891,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 21
+              "serverActionIndex": 21,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -11264,7 +11908,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 22
+              "serverActionIndex": 22,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SpawnAbilityEntity",
@@ -11279,6 +11926,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -11657,6 +12307,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -11719,7 +12372,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -11739,6 +12395,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 17,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -11817,7 +12476,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11881,6 +12543,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -11937,6 +12602,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 21,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -11999,7 +12667,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -12041,7 +12712,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -12181,6 +12855,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -12237,6 +12914,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 28,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -12315,7 +12995,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -12379,6 +13062,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -12435,6 +13121,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -12513,7 +13202,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -12653,6 +13345,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -12709,6 +13404,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -12787,7 +13485,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -12851,6 +13552,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -12907,6 +13611,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -12985,7 +13692,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -13125,6 +13835,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -13181,6 +13894,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -13259,7 +13975,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -13323,6 +14042,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -13379,6 +14101,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -13457,7 +14182,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -14488,6 +15216,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -14550,7 +15281,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -14570,6 +15304,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 17,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -14609,7 +15346,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -14673,6 +15413,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -14729,6 +15472,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 21,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -14791,10 +15537,16 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -14895,6 +15647,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -14951,6 +15706,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 28,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -14990,7 +15748,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -15054,6 +15815,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -15110,6 +15874,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -15149,7 +15916,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -15250,6 +16020,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -15306,6 +16079,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -15345,7 +16121,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -15409,6 +16188,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -15465,6 +16247,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -15504,7 +16289,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -15605,6 +16393,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -15661,6 +16452,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -15700,7 +16494,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -15764,6 +16561,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -15820,6 +16620,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -15859,7 +16662,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -16210,6 +17016,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 14,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -16272,7 +17081,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -16292,6 +17104,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -16370,7 +17185,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -16434,6 +17252,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -16490,6 +17311,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -16552,7 +17376,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -16594,7 +17421,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -16734,6 +17564,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 26,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -16790,6 +17623,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -16868,7 +17704,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -16932,6 +17771,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 30,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -16988,6 +17830,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -17066,7 +17911,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -17206,6 +18054,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 36,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -17262,6 +18113,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -17340,7 +18194,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -17404,6 +18261,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -17460,6 +18320,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -17538,7 +18401,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -17678,6 +18544,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 46,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -17734,6 +18603,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -17812,7 +18684,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -17876,6 +18751,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -17932,6 +18810,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -18010,7 +18891,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -19027,6 +19911,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 14,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -19089,7 +19976,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -19109,6 +19999,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -19148,7 +20041,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -19212,6 +20108,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -19268,6 +20167,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -19330,10 +20232,16 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -19434,6 +20342,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 26,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -19490,6 +20401,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -19529,7 +20443,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -19593,6 +20510,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 30,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -19649,6 +20569,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -19688,7 +20611,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -19789,6 +20715,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 36,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -19845,6 +20774,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -19884,7 +20816,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -19948,6 +20883,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -20004,6 +20942,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -20043,7 +20984,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -20144,6 +21088,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 46,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -20200,6 +21147,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -20239,7 +21189,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -20303,6 +21256,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -20359,6 +21315,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -20398,7 +21357,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -20702,6 +21664,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -20749,6 +21714,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -20809,7 +21777,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -20873,6 +21844,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -20920,6 +21894,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -20980,7 +21957,10 @@ export const zhuangFangyiGeneratedSource = {
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -21558,6 +22538,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -21605,6 +22588,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -21635,7 +22621,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -21699,6 +22688,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -21746,6 +22738,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -21776,7 +22771,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -22680,7 +23678,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 24
+              "serverActionIndex": 24,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -23121,6 +24122,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -23136,7 +24140,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -23210,7 +24217,10 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSource": false,
                 "isFinishedEarly": false,
                 "isAbsorbed": false
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -23261,6 +24271,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 44,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -23366,7 +24379,10 @@ export const zhuangFangyiGeneratedSource = {
                       "buffTagIds": [
                         1466867135
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FinishBuffAdvanced",
@@ -23397,7 +24413,10 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -23423,7 +24442,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": "conductCnt",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -23449,7 +24471,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -23559,10 +24584,16 @@ export const zhuangFangyiGeneratedSource = {
                                 3.0
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -23580,6 +24611,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -23705,11 +24739,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -23727,6 +24767,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[8]"
                     ],
                     "serverActionIndex": 59,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -23875,6 +24918,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 8,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23924,6 +24970,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 9,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23988,7 +25037,10 @@ export const zhuangFangyiGeneratedSource = {
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -24066,6 +25118,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 12,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24115,6 +25170,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 13,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24179,7 +25237,10 @@ export const zhuangFangyiGeneratedSource = {
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "projectedAbilityEntitySpawns": [
@@ -24349,6 +25410,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[10]"
                     ],
                     "serverActionIndex": 61,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -24465,11 +25529,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -24562,11 +25632,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -24584,6 +25660,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 69,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -24732,6 +25811,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 8,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24781,6 +25863,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 9,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24845,7 +25930,10 @@ export const zhuangFangyiGeneratedSource = {
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -24923,6 +26011,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 12,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24972,6 +26063,9 @@ export const zhuangFangyiGeneratedSource = {
                                         "[0]"
                                       ],
                                       "serverActionIndex": 13,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -25036,7 +26130,10 @@ export const zhuangFangyiGeneratedSource = {
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "projectedAbilityEntitySpawns": [
@@ -25206,6 +26303,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 71,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -25227,7 +26327,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -25244,6 +26347,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -25317,8 +26423,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 90.0,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -25341,7 +26451,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -25368,8 +26481,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 90.0,
                   "blackboardKey": "swordTriggerInterval",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -25409,8 +26526,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "conductCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -25425,6 +26546,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 79,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -25604,6 +26728,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 85,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -25691,6 +26818,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 88,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -25713,7 +26843,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -26442,10 +27575,16 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 11
+                    "serverActionIndex": 11,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -26540,6 +27679,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -26555,7 +27697,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -26629,7 +27774,10 @@ export const zhuangFangyiGeneratedSource = {
                 "limitSource": false,
                 "isFinishedEarly": false,
                 "isAbsorbed": false
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -26680,6 +27828,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 44,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -26785,7 +27936,10 @@ export const zhuangFangyiGeneratedSource = {
                       "buffTagIds": [
                         1466867135
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FinishBuffAdvanced",
@@ -26816,7 +27970,10 @@ export const zhuangFangyiGeneratedSource = {
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -26842,7 +27999,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": "conductCnt",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -26868,7 +28028,10 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -26978,10 +28141,16 @@ export const zhuangFangyiGeneratedSource = {
                                 3.0
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -26999,6 +28168,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -27124,11 +28296,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -27145,7 +28323,10 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[7]"
                     ],
-                    "serverActionIndex": 58
+                    "serverActionIndex": 58,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -27163,6 +28344,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[8]"
                     ],
                     "serverActionIndex": 59,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -27191,6 +28375,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[10]"
                     ],
                     "serverActionIndex": 61,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -27307,11 +28494,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -27404,11 +28597,17 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FindTargetAction",
@@ -27425,7 +28624,10 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[2]"
                     ],
-                    "serverActionIndex": 68
+                    "serverActionIndex": 68,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -27443,6 +28645,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 69,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -27471,6 +28676,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 71,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -27492,7 +28700,10 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -27509,6 +28720,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -27582,8 +28796,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 90.0,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -27606,7 +28824,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -27633,8 +28854,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 90.0,
                   "blackboardKey": "swordTriggerInterval",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -27674,8 +28899,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "conductCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -27690,6 +28919,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 79,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -27869,6 +29101,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 85,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -27956,6 +29191,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 88,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -27978,7 +29216,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -28340,6 +29581,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -28355,7 +29599,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -28407,6 +29654,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -28568,6 +29818,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 38,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -28718,6 +29971,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -28767,6 +30023,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -28831,7 +30090,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -28909,6 +30171,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -28958,6 +30223,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -29022,7 +30290,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -29210,7 +30481,10 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -29233,6 +30507,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 42,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -29383,6 +30660,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -29432,6 +30712,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -29496,7 +30779,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -29574,6 +30860,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -29623,6 +30912,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -29687,7 +30979,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -29875,10 +31170,16 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -29976,7 +31277,10 @@ export const zhuangFangyiGeneratedSource = {
                             "buffTagIds": [
                               1466867135
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -30010,7 +31314,10 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": true,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -30039,7 +31346,10 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": "conductCnt",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -30068,7 +31378,10 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -30187,10 +31500,16 @@ export const zhuangFangyiGeneratedSource = {
                                       3.0
                                     ]
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ObtainCostAction",
@@ -30211,6 +31530,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[5]"
                           ],
                           "serverActionIndex": 54,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "resourceGain": {
                             "resource": "sp",
                             "amount": {
@@ -30345,11 +31667,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -30370,6 +31698,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[8]"
                           ],
                           "serverActionIndex": 59,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -30520,6 +31851,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -30569,6 +31903,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -30633,7 +31970,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -30711,6 +32051,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -30760,6 +32103,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -30824,7 +32170,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -30999,6 +32348,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[10]"
                           ],
                           "serverActionIndex": 61,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -31124,11 +32476,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -31230,11 +32588,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -31255,6 +32619,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[3]"
                           ],
                           "serverActionIndex": 69,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -31405,6 +32772,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -31454,6 +32824,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -31518,7 +32891,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -31596,6 +32972,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -31645,6 +33024,9 @@ export const zhuangFangyiGeneratedSource = {
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -31709,7 +33091,10 @@ export const zhuangFangyiGeneratedSource = {
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -31884,6 +33269,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[5]"
                           ],
                           "serverActionIndex": 71,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -31905,10 +33293,16 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -31925,6 +33319,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -31978,6 +33375,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -32065,6 +33465,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 78,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -32087,7 +33490,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -32149,6 +33555,7 @@ export const zhuangFangyiGeneratedSource = {
               0.18
             ]
           },
+          "addend": null,
           "sequenceIndex": 11
         }
       ],
@@ -32171,6 +33578,8 @@ export const zhuangFangyiGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 12
         }
       ],
@@ -32355,6 +33764,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 13,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -32391,6 +33803,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "interrupt": {
                     "attacker": {
                       "targetSource": "Source",
@@ -32501,6 +33916,9 @@ export const zhuangFangyiGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 17,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -32539,6 +33957,9 @@ export const zhuangFangyiGeneratedSource = {
                           "[0]"
                         ],
                         "serverActionIndex": 19,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -32568,7 +33989,10 @@ export const zhuangFangyiGeneratedSource = {
                       53,
                       60
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -32594,7 +34018,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [],
@@ -32669,7 +34096,10 @@ export const zhuangFangyiGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [],
@@ -32707,6 +34137,9 @@ export const zhuangFangyiGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 60,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -32850,6 +34283,7 @@ export const zhuangFangyiGeneratedSource = {
                   0.0
                 ]
               },
+              "addend": null,
               "sequenceIndex": 0
             },
             {
@@ -32881,6 +34315,7 @@ export const zhuangFangyiGeneratedSource = {
                   6.0
                 ]
               },
+              "addend": null,
               "sequenceIndex": 6
             }
           ],
@@ -33667,10 +35102,16 @@ export const zhuangFangyiGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 10
+                    "serverActionIndex": 10,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -33765,6 +35206,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -33780,7 +35224,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -33832,6 +35279,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -33992,7 +35442,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 37
+                          "serverActionIndex": 37,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -34013,6 +35466,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 38,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -34057,7 +35513,10 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -34079,7 +35538,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[0]"
                           ],
-                          "serverActionIndex": 41
+                          "serverActionIndex": 41,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -34100,6 +35562,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[1]"
                           ],
                           "serverActionIndex": 42,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -34144,10 +35609,16 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -34245,7 +35716,10 @@ export const zhuangFangyiGeneratedSource = {
                             "buffTagIds": [
                               1466867135
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -34279,7 +35753,10 @@ export const zhuangFangyiGeneratedSource = {
                             "limitSource": false,
                             "isFinishedEarly": true,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -34308,7 +35785,10 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": "conductCnt",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -34337,7 +35817,10 @@ export const zhuangFangyiGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -34456,10 +35939,16 @@ export const zhuangFangyiGeneratedSource = {
                                       3.0
                                     ]
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ObtainCostAction",
@@ -34480,6 +35969,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[5]"
                           ],
                           "serverActionIndex": 54,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "resourceGain": {
                             "resource": "sp",
                             "amount": {
@@ -34614,11 +36106,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FindTargetAction",
@@ -34638,7 +36136,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[7]"
                           ],
-                          "serverActionIndex": 58
+                          "serverActionIndex": 58,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -34659,6 +36160,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[8]"
                           ],
                           "serverActionIndex": 59,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -34690,6 +36194,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[10]"
                           ],
                           "serverActionIndex": 61,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -34815,11 +36322,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -34921,11 +36434,17 @@ export const zhuangFangyiGeneratedSource = {
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FindTargetAction",
@@ -34945,7 +36464,10 @@ export const zhuangFangyiGeneratedSource = {
                             "actionData",
                             "[2]"
                           ],
-                          "serverActionIndex": 68
+                          "serverActionIndex": 68,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -34966,6 +36488,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[3]"
                           ],
                           "serverActionIndex": 69,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -34997,6 +36522,9 @@ export const zhuangFangyiGeneratedSource = {
                             "[5]"
                           ],
                           "serverActionIndex": 71,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -35018,10 +36546,16 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -35038,6 +36572,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -35091,6 +36628,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -35178,6 +36718,9 @@ export const zhuangFangyiGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 78,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -35200,7 +36743,10 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -35579,6 +37125,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -35614,7 +37163,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -35698,11 +37250,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -35776,11 +37334,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -35795,6 +37359,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -35870,6 +37437,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -35942,8 +37512,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -35958,6 +37532,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -36018,6 +37595,8 @@ export const zhuangFangyiGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": true,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 12
         }
       ],
@@ -36382,7 +37961,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 13
+              "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -36441,6 +38023,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -36476,7 +38061,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -36560,11 +38148,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -36638,11 +38232,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -36657,6 +38257,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -36732,6 +38335,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -36804,8 +38410,12 @@ export const zhuangFangyiGeneratedSource = {
                   "value": 0.0,
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -36820,6 +38430,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -37303,6 +38916,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -37338,7 +38954,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -37422,11 +39041,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -37500,11 +39125,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -37519,6 +39150,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 49,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -37571,6 +39205,8 @@ export const zhuangFangyiGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": true,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 14
         }
       ],
@@ -37931,7 +39567,10 @@ export const zhuangFangyiGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 14
+              "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -37990,6 +39629,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -38025,7 +39667,10 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -38109,11 +39754,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -38187,11 +39838,17 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -38206,6 +39863,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[4]"
               ],
               "serverActionIndex": 49,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -38675,6 +40335,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -39089,6 +40752,9 @@ export const zhuangFangyiGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {

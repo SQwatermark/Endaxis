@@ -1,31 +1,35 @@
 <script setup lang="ts">
-/**
- * 在单条干员轨道上显示模拟产生的时间膨胀区间。
- * 全局区间出现在每条轨道，实体区间只显示在其目标轨道；组件不解释倍率规则。
- */
+/** 悬停或选中来源技能时，在整个时间轴纵向显示其时间膨胀持续区间。 */
 import { computed } from 'vue';
+import { PROJECT_FPS } from '../../../core/project/schema';
 import type { TimelineTimeDilationBand } from '../timelineDisplayTime';
 import { frameToTimelinePx } from '../timelineGeometry';
 
 const props = defineProps<{
   bands: readonly TimelineTimeDilationBand[];
-  operatorId: string | null;
+  sourceCastIds: ReadonlySet<string>;
   prepFrames: number;
   pxPerFrame: number;
+  horizontalOffset: number;
 }>();
 
 const visibleBands = computed(() =>
   props.bands
-    .filter(
-      band =>
-        band.kind === 'global' || (props.operatorId !== null && band.targetId === props.operatorId),
-    )
+    .filter(band => band.sourceCastId !== undefined && props.sourceCastIds.has(band.sourceCastId))
     .map(band => ({
       ...band,
-      left: frameToTimelinePx(band.startFrame, props.prepFrames, props.pxPerFrame),
+      left:
+        props.horizontalOffset +
+        frameToTimelinePx(band.startFrame, props.prepFrames, props.pxPerFrame),
       width: Math.max(1, (band.endFrame - band.startFrame) * props.pxPerFrame),
+      duration: formatDuration(band.endFrame - band.startFrame),
     })),
 );
+
+function formatDuration(frames: number): string {
+  const seconds = frames / PROJECT_FPS;
+  return `${Number(seconds.toFixed(2))}s`;
+}
 </script>
 
 <template>
@@ -34,16 +38,18 @@ const visibleBands = computed(() =>
       v-for="band in visibleBands"
       :key="`${band.kind}:${band.instanceId}`"
       class="time-dilation-band"
-      :class="`time-dilation-band--${band.kind}`"
       :style="{ left: `${band.left}px`, width: `${band.width}px` }"
-    ></span>
+    >
+      <span class="time-dilation-duration">{{ band.duration }}</span>
+    </span>
   </div>
 </template>
 
 <style scoped>
 .time-dilation-bands {
   position: absolute;
-  inset: 0;
+  z-index: 5;
+  inset: 76px 0 0;
   overflow: hidden;
   pointer-events: none;
 }
@@ -53,19 +59,29 @@ const visibleBands = computed(() =>
   top: 0;
   bottom: 0;
   box-sizing: border-box;
-  border-inline: 1px solid color-mix(in srgb, var(--ea-gold) 32%, transparent);
-  background: repeating-linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ea-gold) 7%, transparent) 0 4px,
-    transparent 4px 9px
-  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border-inline: 1px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: time-dilation-fade-in 0.2s ease-out;
 }
 
-.time-dilation-band--entity {
-  top: 53px;
-  bottom: auto;
-  height: 54px;
-  border-color: color-mix(in srgb, var(--ea-fg-secondary) 28%, transparent);
-  background: color-mix(in srgb, var(--ea-fg-secondary) 5%, transparent);
+.time-dilation-duration {
+  color: rgba(255, 255, 255, 0.4);
+  font:
+    700 10px/1 'Roboto Mono',
+    monospace;
+  white-space: nowrap;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  user-select: none;
+}
+
+@keyframes time-dilation-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 </style>

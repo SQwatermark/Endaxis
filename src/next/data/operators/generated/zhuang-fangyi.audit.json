@@ -38,7 +38,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -52,6 +53,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -82,9 +84,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -131,7 +136,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -139,6 +145,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -181,7 +188,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -207,9 +216,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -258,7 +270,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -329,6 +342,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -436,8 +450,12 @@
                       "levelValues": [
                         0.0
                       ]
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FindTargetAction",
@@ -451,7 +469,10 @@
                     "actionData",
                     "[1]"
                   ],
-                  "serverActionIndex": 1
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -517,11 +538,17 @@
                           "actionData",
                           "[0]"
                         ],
-                        "serverActionIndex": 4
+                        "serverActionIndex": 4,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FindTargetAction",
@@ -535,10 +562,106 @@
                     "actionData",
                     "[3]"
                   ],
-                  "serverActionIndex": 5
+                  "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "swordTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 4,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "swordTar",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1913169726
+                  ]
+                ]
+              ]
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 5,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]"
+              ],
+              "targetGroupKey": "sword",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [
+                "PriorityFilter"
+              ],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -13979809
+                  ]
+                ]
+              ]
             }
           ]
         },
@@ -781,6 +904,9 @@
                           "[3]"
                         ],
                         "serverActionIndex": 9,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -870,16 +996,24 @@
                             "blackboardKey": null,
                             "levelValues": null
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -932,7 +1066,10 @@
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 11
+                  "serverActionIndex": 11,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "FinishBuffAdvanced",
@@ -960,14 +1097,42 @@
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 11,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "thunderTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1014,7 +1179,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -1024,6 +1190,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -1054,7 +1221,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -1111,7 +1280,10 @@
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 1
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "SpawnAbilityEntity",
@@ -1126,6 +1298,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "abilityEntitySpawn": {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                     "skillId": null,
@@ -1142,6 +1317,30 @@
                 }
               ],
               "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "fakePos",
+              "producerType": "FindTargetAction",
+              "finderType": "FixedPointFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
             }
           ]
         },
@@ -1207,7 +1406,10 @@
                     "actionData",
                     "[0]"
                   ],
-                  "serverActionIndex": 3
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "IfElseAction",
@@ -1274,6 +1476,9 @@
                           "[0]"
                         ],
                         "serverActionIndex": 6,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "buffApplication": {
                           "buffs": [
                             {
@@ -1311,7 +1516,10 @@
                           "actionData",
                           "[0]"
                         ],
-                        "serverActionIndex": 7
+                        "serverActionIndex": 7,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       },
                       {
                         "actionType": "SpawnAbilityEntity",
@@ -1329,6 +1537,9 @@
                           "[1]"
                         ],
                         "serverActionIndex": 8,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "abilityEntitySpawn": {
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                           "skillId": null,
@@ -1344,14 +1555,71 @@
                         }
                       }
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 3,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "nextTar",
+              "producerType": "FindTargetAction",
+              "finderType": "SmartTargetFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "DistanceValidator"
+              ],
+              "postProcessorTypes": [
+                "ExcludeTarget",
+                "PriorityFilter"
+              ],
+              "inputTargets": [],
+              "intervalSeconds": null
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 7,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "fakePos",
+              "producerType": "FindTargetAction",
+              "finderType": "FixedPointFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
           ]
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1398,7 +1666,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -1406,6 +1675,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -1436,9 +1706,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1485,7 +1758,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -1585,6 +1859,7 @@
           "sequenceIndex": 6
         }
       ],
+      "inflictions": [],
       "conditionalActions": [
         {
           "startFrame": 3,
@@ -1608,6 +1883,9 @@
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "timedMarkerApplication": {
                 "targetSource": "Source",
                 "targetGroupKey": "",
@@ -1671,6 +1949,9 @@
                 "[0]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1758,6 +2039,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 24,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1783,7 +2067,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -1800,6 +2087,9 @@
                 "[0]"
               ],
               "serverActionIndex": 25,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Pulse",
@@ -1887,6 +2177,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "ultimateEnergy",
                       "amount": {
@@ -1912,7 +2205,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -1965,6 +2261,9 @@
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -2013,6 +2312,7 @@
               0.0
             ]
           },
+          "addend": null,
           "sequenceIndex": 6
         }
       ],
@@ -2049,10 +2349,13 @@
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 2
         }
       ],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [
@@ -2322,7 +2625,8 @@
           "blackboardKey": "max_stack",
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -2330,12 +2634,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -2382,7 +2688,8 @@
           "blackboardKey": "max_stack",
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -2390,12 +2697,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -2444,7 +2753,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -2482,6 +2792,7 @@
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -2512,7 +2823,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2613,6 +2926,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2636,7 +2952,9 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2664,7 +2982,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2764,6 +3084,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 15,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2792,7 +3115,9 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2803,7 +3128,8 @@
             "SetSkillCdAtOnce"
           ],
           "combatActions": [
-            "IfElseAction"
+            "IfElseAction",
+            "SetSkillCdAtOnce"
           ],
           "damageUnits": [],
           "buffApplications": [],
@@ -2820,13 +3146,61 @@
                 "SetSkillCdAtOnce"
               ],
               "combatActions": [
-                "IfElseAction"
+                "IfElseAction",
+                "SetSkillCdAtOnce"
               ],
               "buffApplications": [],
-              "actions": [],
+              "actions": [
+                {
+                  "actionType": "SetSkillCdAtOnce",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": {
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "useSkillType": true,
+                    "skillTypeMask": "UltimateSkill",
+                    "skillId": "chr_0016_laevat_ultimate_skill",
+                    "functionType": "Set",
+                    "isPercentage": false,
+                    "value": {
+                      "value": 15.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "buffIgnite": null
+                }
+              ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -2915,6 +3289,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 24,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -2938,9 +3315,12 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3065,7 +3445,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3073,6 +3454,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3105,7 +3487,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "ability",
@@ -3292,6 +3676,9 @@
                                 "[3]"
                               ],
                               "serverActionIndex": 9,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
                               "buffApplication": {
                                 "buffs": [
                                   {
@@ -3314,18 +3701,27 @@
                             }
                           ],
                           "failActions": []
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3372,7 +3768,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3380,6 +3777,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3412,9 +3810,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3461,7 +3862,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3469,6 +3871,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3499,9 +3902,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3548,7 +3954,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3556,6 +3963,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3649,6 +4057,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -3672,9 +4083,12 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3721,7 +4135,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -3740,12 +4155,14 @@
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3794,7 +4211,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3812,12 +4230,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3866,7 +4286,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3884,6 +4305,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -3914,9 +4336,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -3963,7 +4388,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -3987,6 +4413,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4017,9 +4444,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4066,7 +4496,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -4080,12 +4511,14 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4132,7 +4565,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -4171,6 +4605,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4403,11 +4838,17 @@
                               0.0
                             ]
                           }
-                        }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
                     "failActions": []
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -4422,6 +4863,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4481,9 +4925,12 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4532,7 +4979,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -4568,6 +5016,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -4614,7 +5063,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4703,6 +5154,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4726,7 +5180,9 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4820,7 +5276,10 @@
                     "actionData",
                     "[1]"
                   ],
-                  "serverActionIndex": 10
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -4845,7 +5304,10 @@
                         1.0
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -4860,6 +5322,9 @@
                     "[3]"
                   ],
                   "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -4883,7 +5348,9 @@
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4909,7 +5376,9 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         },
         {
           "eventSource": "buff",
@@ -4935,9 +5404,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -4989,7 +5461,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -4997,6 +5470,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -5035,9 +5509,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -5084,7 +5561,8 @@
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -5092,6 +5570,7 @@
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -5122,9 +5601,12 @@
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -5644,7 +6126,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -5669,7 +6154,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -5748,6 +6236,9 @@
                 "[2]"
               ],
               "serverActionIndex": 17,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -5777,6 +6268,9 @@
                 "[2]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -6218,6 +6712,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -6272,7 +6769,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -6292,6 +6792,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -6346,7 +6849,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "executionFrames": [
@@ -7086,7 +7592,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7111,7 +7620,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -8017,6 +8529,9 @@
                 "[2]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -8046,6 +8561,9 @@
                 "[2]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
                 "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
@@ -8263,6 +8781,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -8317,7 +8838,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [
@@ -8337,6 +8861,9 @@
                     "[2]"
                   ],
                   "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Pulse",
@@ -8391,7 +8918,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "executionFrames": [
@@ -9085,6 +9615,9 @@
                             "[2]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9135,6 +9668,9 @@
                             "[2]"
                           ],
                           "serverActionIndex": 17,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "abilityEntitySpawn": {
                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                             "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9195,7 +9731,10 @@
                           "dieOnEnd": false
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -9215,6 +9754,9 @@
                       "[2]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                       "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -9275,7 +9817,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -9292,6 +9837,9 @@
                 "[2]"
               ],
               "serverActionIndex": 23,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
                 "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
@@ -10326,6 +10874,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -10388,7 +10939,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -10408,6 +10962,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 17,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -10486,7 +11043,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -10550,6 +11110,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -10606,6 +11169,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 21,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -10668,7 +11234,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -10710,7 +11279,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -10850,6 +11422,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -10906,6 +11481,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 28,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -10984,7 +11562,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11048,6 +11629,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -11104,6 +11688,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -11182,7 +11769,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -11322,6 +11912,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -11378,6 +11971,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -11456,7 +12052,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11520,6 +12119,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -11576,6 +12178,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -11654,7 +12259,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -11794,6 +12402,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -11850,6 +12461,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -11928,7 +12542,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -11992,6 +12609,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -12048,6 +12668,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -12126,7 +12749,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -13225,6 +13851,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 14,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -13287,7 +13916,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -13307,6 +13939,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -13385,7 +14020,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -13449,6 +14087,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -13505,6 +14146,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
@@ -13567,7 +14211,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -13609,7 +14256,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -13749,6 +14399,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 26,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -13805,6 +14458,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -13883,7 +14539,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -13947,6 +14606,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 30,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -14003,6 +14665,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
@@ -14081,7 +14746,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -14221,6 +14889,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 36,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -14277,6 +14948,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 37,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -14355,7 +15029,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -14419,6 +15096,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -14475,6 +15155,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
@@ -14553,7 +15236,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -14693,6 +15379,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 46,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -14749,6 +15438,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 47,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -14827,7 +15519,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -14891,6 +15586,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -14947,6 +15645,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 51,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
                       "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
@@ -15025,7 +15726,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -16106,6 +16810,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 15,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -16153,6 +16860,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 16,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -16213,7 +16923,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -16277,6 +16990,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 19,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -16324,6 +17040,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 20,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntitySpawn": {
                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
                       "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
@@ -16384,7 +17103,10 @@
                     "dieOnEnd": false
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -17543,6 +18265,9 @@
                       "[1]"
                     ],
                     "serverActionIndex": 38,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -17558,7 +18283,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -17632,7 +18360,10 @@
                 "limitSource": false,
                 "isFinishedEarly": false,
                 "isAbsorbed": false
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -17683,6 +18414,9 @@
                 "[0]"
               ],
               "serverActionIndex": 44,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -17788,7 +18522,10 @@
                       "buffTagIds": [
                         1466867135
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "FinishBuffAdvanced",
@@ -17819,7 +18556,10 @@
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -17845,7 +18585,10 @@
                         "blackboardKey": "conductCnt",
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -17871,7 +18614,10 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -17981,10 +18727,16 @@
                                 3.0
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -18002,6 +18754,9 @@
                       "[5]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -18127,11 +18882,17 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -18149,6 +18910,9 @@
                       "[8]"
                     ],
                     "serverActionIndex": 59,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -18297,6 +19061,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 8,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -18346,6 +19113,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 9,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -18410,7 +19180,10 @@
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -18488,6 +19261,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 12,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -18537,6 +19313,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 13,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -18601,7 +19380,10 @@
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "projectedAbilityEntitySpawns": [
@@ -18771,6 +19553,9 @@
                       "[10]"
                     ],
                     "serverActionIndex": 61,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -18887,11 +19672,17 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "IfElseAction",
@@ -18984,11 +19775,17 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "LaunchProjectile",
@@ -19006,6 +19803,9 @@
                       "[3]"
                     ],
                     "serverActionIndex": 69,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "projectileLaunch": {
                       "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                       "skillTriggers": [
@@ -19154,6 +19954,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 8,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -19203,6 +20006,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 9,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -19267,7 +20073,10 @@
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": [
@@ -19345,6 +20154,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 12,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -19394,6 +20206,9 @@
                                         "[0]"
                                       ],
                                       "serverActionIndex": 13,
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null,
                                       "abilityEntitySpawn": {
                                         "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                         "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -19458,7 +20273,10 @@
                                       "dieOnEnd": false
                                     }
                                   ]
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "projectedAbilityEntitySpawns": [
@@ -19628,6 +20446,9 @@
                       "[5]"
                     ],
                     "serverActionIndex": 71,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -19649,7 +20470,10 @@
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -19666,6 +20490,9 @@
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -19739,8 +20566,12 @@
                   "value": 90.0,
                   "blackboardKey": null,
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -19763,7 +20594,10 @@
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -19790,8 +20624,12 @@
                   "value": 90.0,
                   "blackboardKey": "swordTriggerInterval",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "SimpleCalcBBAction",
@@ -19831,8 +20669,12 @@
                   "value": 0.0,
                   "blackboardKey": "conductCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -19847,6 +20689,9 @@
                 "[4]"
               ],
               "serverActionIndex": 79,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -20026,6 +20871,9 @@
                 "[0]"
               ],
               "serverActionIndex": 85,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -20113,6 +20961,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 88,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -20135,7 +20986,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -20652,6 +21506,9 @@
                       "[1]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "abilityEntityDurationAssignment": {
                       "setMultipleTarget": false,
                       "actionTargetType": "InputTarget",
@@ -20667,7 +21524,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [],
@@ -20719,6 +21579,9 @@
                 "[0]"
               ],
               "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -20880,6 +21743,9 @@
                             "[1]"
                           ],
                           "serverActionIndex": 38,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -21030,6 +21896,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21079,6 +21948,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21143,7 +22015,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -21221,6 +22096,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21270,6 +22148,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21334,7 +22215,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -21522,7 +22406,10 @@
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ],
                       "failActions": [
@@ -21545,6 +22432,9 @@
                             "[1]"
                           ],
                           "serverActionIndex": 42,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -21695,6 +22585,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21744,6 +22637,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21808,7 +22704,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -21886,6 +22785,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21935,6 +22837,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -21999,7 +22904,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -22187,10 +23095,16 @@
                             "limitSource": false,
                             "isFinishedEarly": false,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -22288,7 +23202,10 @@
                             "buffTagIds": [
                               1466867135
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "FinishBuffAdvanced",
@@ -22322,7 +23239,10 @@
                             "limitSource": false,
                             "isFinishedEarly": true,
                             "isAbsorbed": false
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -22351,7 +23271,10 @@
                               "blackboardKey": "conductCnt",
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -22380,7 +23303,10 @@
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -22499,10 +23425,16 @@
                                       3.0
                                     ]
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ]
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ObtainCostAction",
@@ -22523,6 +23455,9 @@
                             "[5]"
                           ],
                           "serverActionIndex": 54,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "resourceGain": {
                             "resource": "sp",
                             "amount": {
@@ -22657,11 +23592,17 @@
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -22682,6 +23623,9 @@
                             "[8]"
                           ],
                           "serverActionIndex": 59,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -22832,6 +23776,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -22881,6 +23828,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -22945,7 +23895,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -23023,6 +23976,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23072,6 +24028,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23136,7 +24095,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -23311,6 +24273,9 @@
                             "[10]"
                           ],
                           "serverActionIndex": 61,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -23436,11 +24401,17 @@
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "IfElseAction",
@@ -23542,11 +24513,17 @@
                                     "blackboardKey": null,
                                     "levelValues": null
                                   }
-                                }
+                                },
+                                "legacyBuffFinish": null,
+                                "skillCooldownAdjustment": null,
+                                "buffIgnite": null
                               }
                             ],
                             "failActions": []
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "LaunchProjectile",
@@ -23567,6 +24544,9 @@
                             "[3]"
                           ],
                           "serverActionIndex": 69,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "projectileLaunch": {
                             "projectileId": "projectile_chr_0030_zhuangfy_normal_skill_gene_sword",
                             "skillTriggers": [
@@ -23717,6 +24697,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 8,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23766,6 +24749,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 9,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23830,7 +24816,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "failActions": [
@@ -23908,6 +24897,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 12,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -23957,6 +24949,9 @@
                                               "[0]"
                                             ],
                                             "serverActionIndex": 13,
+                                            "legacyBuffFinish": null,
+                                            "skillCooldownAdjustment": null,
+                                            "buffIgnite": null,
                                             "abilityEntitySpawn": {
                                               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
                                               "skillId": "chr_0030_zhuangfy_normal_skill_sword",
@@ -24021,7 +25016,10 @@
                                             "dieOnEnd": false
                                           }
                                         ]
-                                      }
+                                      },
+                                      "legacyBuffFinish": null,
+                                      "skillCooldownAdjustment": null,
+                                      "buffIgnite": null
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -24196,6 +25194,9 @@
                             "[5]"
                           ],
                           "serverActionIndex": 71,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -24217,10 +25218,16 @@
                           }
                         }
                       ]
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -24237,6 +25244,9 @@
                 "[0]"
               ],
               "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "abilityEntitySpawn": {
                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
                 "skillId": null,
@@ -24290,6 +25300,9 @@
                 "[0]"
               ],
               "serverActionIndex": 75,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -24377,6 +25390,9 @@
                       "[0]"
                     ],
                     "serverActionIndex": 78,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -24399,7 +25415,10 @@
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -24460,6 +25479,7 @@
               0.18
             ]
           },
+          "addend": null,
           "sequenceIndex": 11
         }
       ],
@@ -24482,6 +25502,8 @@
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 12
         }
       ],
@@ -24682,6 +25704,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 13,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -24718,6 +25743,9 @@
                     "[1]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "interrupt": {
                     "attacker": {
                       "targetSource": "Source",
@@ -24828,6 +25856,9 @@
                           "[0]"
                         ],
                         "serverActionIndex": 17,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -24866,6 +25897,9 @@
                           "[0]"
                         ],
                         "serverActionIndex": 19,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
                         "damageUnits": [
                           {
                             "damageType": "Pulse",
@@ -24895,7 +25929,10 @@
                       53,
                       60
                     ]
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -24921,7 +25958,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [],
@@ -24996,7 +26036,10 @@
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "failActions": [],
@@ -25034,6 +26077,9 @@
                     "[0]"
                   ],
                   "serverActionIndex": 60,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "timedMarkerApplication": {
                     "targetSource": "Source",
                     "targetGroupKey": "",
@@ -25177,6 +26223,7 @@
                   0.0
                 ]
               },
+              "addend": null,
               "sequenceIndex": 0
             },
             {
@@ -25208,6 +26255,7 @@
                   6.0
                 ]
               },
+              "addend": null,
               "sequenceIndex": 6
             }
           ],
@@ -26357,6 +27405,9 @@
                 "[0]"
               ],
               "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -26392,7 +27443,10 @@
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -26476,11 +27530,17 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -26554,11 +27614,17 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -26573,6 +27639,9 @@
                 "[4]"
               ],
               "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -26648,6 +27717,9 @@
                 "[0]"
               ],
               "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -26720,8 +27792,12 @@
                   "value": 0.0,
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
-                }
-              }
+                },
+                "addend": null
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "ObtainCostAction",
@@ -26736,6 +27812,9 @@
                 "[2]"
               ],
               "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -26795,6 +27874,8 @@
           "limitSource": false,
           "isFinishedEarly": true,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 12
         }
       ],
@@ -27285,6 +28366,9 @@
                 "[0]"
               ],
               "serverActionIndex": 41,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffStackRead": {
                 "outputKey": "inflictCnt",
                 "targetSource": "Context",
@@ -27320,7 +28404,10 @@
                   "blackboardKey": "inflictCnt",
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -27404,11 +28491,17 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -27482,11 +28575,17 @@
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": []
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "CreateBuffAction",
@@ -27501,6 +28600,9 @@
                 "[4]"
               ],
               "serverActionIndex": 49,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -27552,6 +28654,8 @@
           "limitSource": false,
           "isFinishedEarly": true,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 14
         }
       ],
@@ -28005,6 +29109,9 @@
                 "[0]"
               ],
               "serverActionIndex": 8,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {

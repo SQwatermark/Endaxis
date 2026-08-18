@@ -571,6 +571,65 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(action.targets, ("caster",))
         self.assertEqual(action.ignoredTargets, ("caster",))
 
+    def test_named_time_dilation_curve_ignores_populated_inactive_inline_curve(self) -> None:
+        action = {
+            "$type": "Example.TimeDilationAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 6,
+            "layer": "Entity",
+            "slot": {"tagId": 1464849466},
+            "timeDilationPriority": {"tagId": -693798243},
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 0.1,
+                "blackboardKey": "",
+            },
+            "useCurveKey": True,
+            "curveKey": "interrupt_weakness",
+            "timeScaleCurve": [
+                {
+                    "time": 0,
+                    "value": 0,
+                    "inTangent": 0.0193165354,
+                    "outTangent": 0.0193165354,
+                    "inWeight": 0,
+                    "outWeight": 0.833228469,
+                    "weightedMode": 2,
+                },
+                {
+                    "time": 1,
+                    "value": 1,
+                    "inTangent": 2.92288566,
+                    "outTangent": 2.92288566,
+                    "inWeight": 0.02202642,
+                    "outWeight": 0,
+                    "weightedMode": 0,
+                },
+            ],
+            "finishByAction": False,
+            "ignoreTargets": [],
+            "effectTargets": [target_settings_fixture("Target")],
+            "useTimeScaleForSkillCdTick": False,
+            "influenceSkillCdTime": {
+                "useBlackboardKey": False,
+                "value": 0,
+                "blackboardKey": "",
+            },
+        }
+
+        parsed = parse_time_dilation_action(
+            action,
+            "fixture.timeDilation",
+            {},
+            start_frame=0,
+            end_frame=3,
+        )
+
+        self.assertEqual(parsed.namedCurve, "interrupt_weakness")
+        self.assertEqual(parsed.inlineCurve, ())
+
     def test_ability_entity_time_dilation_target_requires_closure_proof(self) -> None:
         entity_target = target_settings_fixture(
             "InstantSearch",
@@ -1733,6 +1792,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("  tags: [],", source)
 
+    def test_damage_compiler_preserves_native_shatter_feature(self) -> None:
+        unit = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=134217728,
+        )
+
+        source = compile_damage_units_step(
+            (unit,),
+            (),
+            "fixture.shatter",
+        )
+
+        self.assertIn("  tags: [],", source)
+        self.assertIn("  features: ['shatter'],", source)
+
     def test_damage_compiler_allows_native_final_hit_as_a_basic_attack_specialization(self) -> None:
         unit = DamageUnitSource(
             damageType="Physical",
@@ -2882,6 +2961,47 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("target: 'caster'", source)
         self.assertIn("source: 'enemy'", source)
+
+    def test_buff_event_owner_application_reuses_current_buff_owner(self) -> None:
+        source = compile_buff_application_values(
+            buff_id="buff.fixture.child",
+            blackboard_assignments={},
+            target_source="Owner",
+            target_group_key="",
+            count=ScalarSource(1, None, None),
+            buff_source="ActionSource",
+            inherit_source_skill_cast_info=True,
+            root_skill_context=False,
+            path="fixture.buffEvent",
+            buff_owner_target="enemy",
+            current_buff_environment=True,
+        )
+
+        self.assertIn("target: 'enemy'", source)
+
+    def test_buff_event_owner_blackboard_read_reuses_current_buff_owner(self) -> None:
+        read = BuffBlackboardReadSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=1,
+            desiredKey="value",
+            outputKey="result",
+            targetSource="Owner",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=("buff.fixture",),
+            tagQueryType="HasAny",
+            buffTagIds=(),
+        )
+
+        source = compile_buff_blackboard_read(
+            read,
+            "fixture.buffEvent",
+            buff_owner_target="enemy",
+            current_buff_environment=True,
+        )
+
+        self.assertIn("target: 'enemy'", source)
 
     def test_buff_application_compiles_unfiltered_instant_team_search_as_party(self) -> None:
         action = AuxiliaryActionSource(
@@ -11220,6 +11340,166 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("buffIds: ['seal', 'seal-effect']", compiled)
         self.assertIn("step('finishCurrentBuff', { reason: 'early' })", compiled)
 
+    def test_buff_start_damage_compiles_as_a_lifecycle_sequence(self) -> None:
+        damage = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(50, None, (50,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=134217728,
+        )
+        action = SimpleNamespace(
+            actionType="DamageAction",
+            actionPath=("buffEventAction", "0", "actions", "actionData", "0"),
+            actionIndex=0,
+            serverActionIndex=0,
+            damageUnits=(damage,),
+        )
+        event = SimpleNamespace(
+            eventSource="buff",
+            event="OnBuffStart",
+            damageUnits=(damage,),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("DamageAction",),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(action,),
+                    priority=0,
+                ),
+            ),
+        )
+        source = SimpleNamespace(
+            buffId="shatter",
+            blackboard=(),
+            eventActions=(event,),
+        )
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "shatter.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={},
+        )
+
+        self.assertIn("lifecycleSequences: {", compiled)
+        self.assertIn("start: sequence(", compiled)
+        self.assertIn("features: ['shatter']", compiled)
+        self.assertNotIn("abilityEventResponses", compiled)
+
+    def test_buff_finish_application_compiles_as_a_lifecycle_sequence(self) -> None:
+        application = SimpleNamespace(
+            buffs=(SimpleNamespace(buffId="after-finish", blackboardAssignments={}),),
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            buffSourceContextKey="",
+            inheritSourceSkillCastInfo=True,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
+        )
+        action = SimpleNamespace(
+            actionType="CreateBuffAction",
+            actionIndex=0,
+            actionPath=("buffEventAction", "1", "actions", "actionData", "0"),
+            serverActionIndex=2,
+            buffApplication=application,
+        )
+        event = SimpleNamespace(
+            eventSource="buff",
+            event="OnBuffFinish",
+            damageUnits=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("CreateBuffAction",),
+                    combatActions=(),
+                    buffApplications=(application,),
+                    actions=(action,),
+                    priority=0,
+                ),
+            ),
+        )
+        after_finish = SimpleNamespace(
+            buffId="after-finish",
+            sourceAvailable=True,
+            lifecycle=SimpleNamespace(
+                hasStackEffects=False,
+                stackingType="Refresh",
+                stackingIdentifierType="Id",
+                stackingKey="",
+                priority=ScalarSource(0, None, None),
+                negatePriority=False,
+                maxStackCount=ScalarSource(1, None, None),
+                lifeType="Limited",
+                duration=ScalarSource(1, None, None),
+                triggerInterval=ScalarSource(-1, None, None),
+                waitFirstTriggerInterval=True,
+                maxTriggerCount=ScalarSource(0, None, None),
+            ),
+            unparsedPayloads=(),
+            sourceDeathFinish=None,
+            applyTagIds=(),
+            extendTagIds=(),
+            blackboard=(),
+            attributeModifiers=(),
+            damageModifiers=(),
+            eventActions=(),
+            directDamageHits=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            resourceGains=(),
+            combatActions=(),
+            auraActions=(),
+            auxiliaryActions=(),
+            skillReplacements=(),
+        )
+        source = SimpleNamespace(
+            buffId="owner-buff",
+            blackboard=(),
+            eventActions=(event,),
+            sourceDeathFinish=None,
+        )
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "owner-buff.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={"after-finish": after_finish},
+        )
+
+        self.assertIn("finish: sequence(", compiled)
+        self.assertIn("buffId: 'after-finish'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+
+        after_enhance_event = SimpleNamespace(
+            **{**vars(event), "event": "OnBuffAfterTryEnhanced"}
+        )
+        after_enhance_source = SimpleNamespace(
+            buffId="owner-buff",
+            blackboard=(),
+            eventActions=(after_enhance_event,),
+            sourceDeathFinish=None,
+        )
+        after_enhance = compile_inline_buff_event_responses(
+            after_enhance_source,
+            "owner-buff.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={"after-finish": after_finish},
+        )
+
+        self.assertIn("afterEnhance: sequence(", after_enhance)
+
     def test_buff_local_timeline_compiles_on_instance_frames(self) -> None:
         calculation = SimpleNamespace(
             startFrame=2,
@@ -11257,6 +11537,49 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("scheduled(\n    2,", compiled)
         self.assertIn("step('calculateActionValue'", compiled)
         self.assertIn("key: 'duration_effect'", compiled)
+
+    def test_buff_local_timeline_reuses_skill_cost_ultimate_energy_step(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=4,
+            endFrame=4,
+            actionIndex=2,
+            sequenceIndex=1,
+            actionType="CreateBuffAction",
+            sourceId="buff_common_obtain_ultimate_sp",
+            classification="skillCostUltimateEnergyGain",
+            targetSource="Source",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+        source = SimpleNamespace(
+            buffId="controller",
+            blackboard=(),
+            auxiliaryActions=(action,),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            resourceGains=(),
+            conditionalActions=(),
+            directDamageHits=(),
+            targetGroupWrites=(),
+            combatActions=("CreateBuffAction",),
+        )
+
+        compiled = compile_inline_buff_scheduled_sequences(
+            source,
+            "controller.scheduledSequences",
+            buff_owner_target="caster",
+            buff_definitions={},
+        )
+
+        self.assertIn("scheduled(\n    4,", compiled)
+        self.assertIn("step('gainSquadUltimateEnergyFromSkillCost'", compiled)
+        self.assertNotIn("applyBuff", compiled)
 
     def test_context_target_identity_uses_explicit_prior_enemy_write(self) -> None:
         condition = SimpleNamespace(

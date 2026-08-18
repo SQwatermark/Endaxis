@@ -4,7 +4,9 @@
  */
 import {
   INFLICTION_ELEMENTS,
-  type CombatCondition,
+  COMPARISON_OPERATORS,
+  DAMAGE_FEATURES,
+  DAMAGE_TAGS,
   type DamageType,
   type InflictionElement,
 } from '../../game-data/operatorDefinition';
@@ -34,6 +36,7 @@ import {
 } from '../attributes/combatAttributes';
 import type {
   DamageModifierDefinition,
+  DamageModifierCondition,
   DamageModifierNumber,
   DamageProcessorDefinition,
 } from '../damage/damageModifiers';
@@ -144,7 +147,7 @@ export type CombatBuffDefinitionDamageProcessor = {
 /** Buff 激活期间向伤害生命周期注册的一项纯数据修正。 */
 export interface CombatBuffDefinitionDamageModifier {
   readonly enabledSide: DamageModifierDefinition['enabledSide'];
-  readonly condition?: CombatCondition;
+  readonly condition?: DamageModifierCondition;
   readonly processors: readonly CombatBuffDefinitionDamageProcessor[];
 }
 
@@ -464,33 +467,87 @@ function parseOptionalDamageModifiers(
   };
 }
 
-function parseDamageModifierCondition(input: unknown, path: string): CombatCondition {
+function parseDamageModifierCondition(input: unknown, path: string): DamageModifierCondition {
   const condition = requireObject(input, path);
-  requireOnlyKeys(condition, path, ['kind', 'target', 'tagQueryType', 'tagIds']);
-  if (condition.kind !== 'entityTagMatch') {
-    throw new Error(
-      `${path}.kind: unsupported damage modifier condition '${String(condition.kind)}'`,
-    );
-  }
-  if (!Array.isArray(condition.tagIds) || condition.tagIds.length === 0) {
-    throw new Error(`${path}.tagIds: expected non-empty array`);
-  }
-  return {
-    kind: 'entityTagMatch',
-    target: requireEnum(condition.target, ['caster', 'enemy'] as const, `${path}.target`),
-    tagQueryType: requireEnum(
-      condition.tagQueryType,
-      ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
-      `${path}.tagQueryType`,
-    ),
-    tagIds: condition.tagIds.map((value, index) => {
-      try {
-        return gameplayTagId(value as number);
-      } catch {
-        throw new Error(`${path}.tagIds[${index}]: expected signed 32-bit integer`);
+  switch (condition.kind) {
+    case 'entityTagMatch': {
+      requireOnlyKeys(condition, path, ['kind', 'target', 'tagQueryType', 'tagIds']);
+      if (!Array.isArray(condition.tagIds) || condition.tagIds.length === 0) {
+        throw new Error(`${path}.tagIds: expected non-empty array`);
       }
-    }),
-  };
+      return {
+        kind: 'entityTagMatch',
+        target: requireEnum(condition.target, ['caster', 'enemy'] as const, `${path}.target`),
+        tagQueryType: requireEnum(
+          condition.tagQueryType,
+          ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
+          `${path}.tagQueryType`,
+        ),
+        tagIds: condition.tagIds.map((value, index) => {
+          try {
+            return gameplayTagId(value as number);
+          } catch {
+            throw new Error(`${path}.tagIds[${index}]: expected signed 32-bit integer`);
+          }
+        }),
+      };
+    }
+    case 'casterControlled':
+      requireOnlyKeys(condition, path, ['kind']);
+      return { kind: 'casterControlled' };
+    case 'eventDamageTagsMatch':
+      requireOnlyKeys(condition, path, ['kind', 'match', 'tags']);
+      return {
+        kind: 'eventDamageTagsMatch',
+        match: requireEnum(
+          condition.match,
+          ['exact', 'hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
+          `${path}.match`,
+        ),
+        tags: parseEnumArray(condition.tags, DAMAGE_TAGS, `${path}.tags`),
+      };
+    case 'eventDamageFeaturesMatch':
+      requireOnlyKeys(condition, path, ['kind', 'match', 'features']);
+      return {
+        kind: 'eventDamageFeaturesMatch',
+        match: requireEnum(
+          condition.match,
+          ['exact', 'hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
+          `${path}.match`,
+        ),
+        features: parseEnumArray(condition.features, DAMAGE_FEATURES, `${path}.features`),
+      };
+    case 'buffBlackboardCompare':
+      requireOnlyKeys(condition, path, ['kind', 'left', 'operator', 'right']);
+      return {
+        kind: 'buffBlackboardCompare',
+        left: parseDefinitionNumberOperand(condition.left, `${path}.left`),
+        operator: requireEnum(condition.operator, COMPARISON_OPERATORS, `${path}.operator`),
+        right: parseDefinitionNumberOperand(condition.right, `${path}.right`),
+      };
+    case 'not':
+      requireOnlyKeys(condition, path, ['kind', 'condition']);
+      return {
+        kind: 'not',
+        condition: parseDamageModifierCondition(condition.condition, `${path}.condition`),
+      };
+    case 'all':
+    case 'any':
+      requireOnlyKeys(condition, path, ['kind', 'conditions']);
+      if (!Array.isArray(condition.conditions) || condition.conditions.length === 0) {
+        throw new Error(`${path}.conditions: expected non-empty array`);
+      }
+      return {
+        kind: condition.kind,
+        conditions: condition.conditions.map((child, index) =>
+          parseDamageModifierCondition(child, `${path}.conditions[${index}]`),
+        ),
+      };
+    default:
+      throw new Error(
+        `${path}.kind: unsupported damage modifier condition '${String(condition.kind)}'`,
+      );
+  }
 }
 
 function parseDamageModifierProcessor(
@@ -920,6 +977,17 @@ function requireEnum<const Values extends readonly string[]>(
     throw new Error(`${path}: unknown value '${String(input)}'`);
   }
   return input;
+}
+
+function parseEnumArray<const Values extends readonly string[]>(
+  input: unknown,
+  values: Values,
+  path: string,
+): readonly Values[number][] {
+  if (!Array.isArray(input) || input.length === 0) {
+    throw new Error(`${path}: expected non-empty array`);
+  }
+  return input.map((value, index) => requireEnum(value, values, `${path}[${index}]`));
 }
 
 function compileLifecycleActions<Key extends string>(

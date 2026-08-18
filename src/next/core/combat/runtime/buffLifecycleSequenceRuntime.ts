@@ -6,6 +6,7 @@ import type {
   CompiledTimelineAction,
   ResolvedActionSequence,
   ResolvedSkillBuffAbilityEventResponse,
+  ResolvedSkillBuffIgniteEventResponse,
   ResolvedSkillBuffLifecycleSequences,
 } from '../../compiler/combatProgram';
 import type {
@@ -22,7 +23,7 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
-import type { CombatAbilityDamageEvent } from './skillRuntime';
+import type { CombatAbilityDamageEvent, CombatAbilitySkillEvent } from './skillRuntime';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
@@ -91,6 +92,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   abilityEventResponses: readonly ResolvedSkillBuffAbilityEventResponse[] = [],
   registerAbilityEventAction?: RegisterBuffAbilityEventAction,
   scheduledSequences: readonly CompiledTimelineAction[] = [],
+  igniteEventResponses: readonly ResolvedSkillBuffIgniteEventResponse[] = [],
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -133,17 +135,41 @@ export function attachBuffLifecycleSequences<Key extends string>(
     }
     const registrations: AbilityEventRegistration[] = [];
     try {
+      const responseGroups = new Map<
+        string,
+        {
+          readonly event: ResolvedSkillBuffAbilityEventResponse['event'];
+          readonly priority: number;
+          readonly responses: ResolvedSkillBuffAbilityEventResponse[];
+        }
+      >();
       for (const response of abilityEventResponses) {
+        const key = `${response.event}\u0000${response.priority}`;
+        const group = responseGroups.get(key);
+        if (group === undefined) {
+          responseGroups.set(key, {
+            event: response.event,
+            priority: response.priority,
+            responses: [response],
+          });
+        } else {
+          group.responses.push(response);
+        }
+      }
+      for (const group of responseGroups.values()) {
         registrations.push(
-          registerAbilityEventAction(response.event, response.priority, payload => {
-            const event = normalizeAbilityDamageEvent(response.event, payload);
+          registerAbilityEventAction(group.event, group.priority, payload => {
             const runtime = runtimeFor(buff);
-            runtime
-              .createSequence(response.sequence, {
-                ...runtime.context,
-                event,
-              })
-              .executeInstant({});
+            for (const response of group.responses) {
+              runtime
+                .createSequence(response.sequence, {
+                  ...runtime.context,
+                  ...(response.event === 'addedBuff'
+                    ? {}
+                    : { event: normalizeBuffAbilityEvent(response.event, payload) }),
+                })
+                .executeInstant({});
+            }
           }),
         );
       }
@@ -188,6 +214,27 @@ export function attachBuffLifecycleSequences<Key extends string>(
     ...(sequences.trigger === undefined
       ? {}
       : { trigger: buff => execute(sequences.trigger, buff) }),
+    ...(igniteEventResponses.length === 0
+      ? {}
+      : {
+          ignite: (buff, igniteType, sourceId) => {
+            const responses = igniteEventResponses.filter(
+              response => response.igniteType === igniteType,
+            );
+            if (responses.length === 0) return false;
+            const runtime = runtimeFor(buff);
+            for (const response of responses) {
+              runtime
+                .createSequence(response.sequence, {
+                  ...runtime.context,
+                  buffSourceId: sourceId,
+                })
+                .executeInstant({});
+            }
+            if (responses.some(response => response.finishAfterIgnited)) buff.finish('other');
+            return true;
+          },
+        }),
     ...(sequences.finish === undefined && abilityEventResponses.length === 0
       ? {}
       : {
@@ -200,16 +247,35 @@ export function attachBuffLifecycleSequences<Key extends string>(
   return { ...definition, actions };
 }
 
-function normalizeAbilityDamageEvent(
-  event: ResolvedSkillBuffAbilityEventResponse['event'],
+function normalizeBuffAbilityEvent(
+  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'addedBuff'>,
   payload: unknown,
-): CombatAbilityDamageEvent {
+): CombatAbilityDamageEvent | CombatAbilitySkillEvent {
   if (typeof payload !== 'object' || payload === null) {
     throw new TypeError(`Buff ability event '${event}' payload must be an object`);
   }
   const source = payload as Record<string, unknown>;
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
     throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
+  }
+  if (event === 'beforeCastSkill') {
+    if (
+      source.skillType !== 'basicAttack' &&
+      source.skillType !== 'battleSkill' &&
+      source.skillType !== 'comboSkill' &&
+      source.skillType !== 'ultimate' &&
+      source.skillType !== 'finisher' &&
+      source.skillType !== 'plungingAttack'
+    ) {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid skill type`);
+    }
+    return {
+      kind: 'abilitySkill',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      skillType: source.skillType,
+    };
   }
   if (
     !Array.isArray(source.tags) ||

@@ -319,6 +319,8 @@ export interface GeneratedBuffLifecycleSource {
   readonly negatePriority: boolean;
   readonly maxStackCount: GeneratedScalarSource;
   readonly hasStackEffects: boolean;
+  /** stackEffects 中按原生类型化动作槽审计出的动作类别。 */
+  readonly stackEffectActionTypes?: readonly string[];
 }
 
 /** 与应用位置解耦的 Buff 定义；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
@@ -339,12 +341,14 @@ export interface GeneratedBuffDefinitionSource {
   /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
   readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];
   readonly blackboardMutations: readonly GeneratedBlackboardMutationSource[];
   readonly buffBlackboardReads: readonly GeneratedBuffBlackboardReadSource[];
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly eventActions: readonly GeneratedBuffEventActionSource[];
+  readonly igniteEventActions: readonly GeneratedBuffEventActionSource[];
   /** 严格识别的周期 Source 死亡检查与 Owner 结束组合。 */
   readonly sourceDeathFinish: { readonly skipDieDisplay: boolean } | null;
   readonly resourceGains: readonly GeneratedTimedResourceGainSource[];
@@ -436,6 +440,16 @@ export interface GeneratedBuffDamageModifierSource {
   readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
   readonly tagIds: readonly number[];
   readonly processors: readonly GeneratedBuffDamageScaleProcessorSource[];
+  readonly ownerControlled: boolean;
+  readonly damageTagMatch: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | null;
+  readonly damageTags: readonly string[];
+  readonly damageFeatureMatch: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | null;
+  readonly damageFeatures: readonly string[];
+  readonly numberComparisons: readonly {
+    readonly left: GeneratedScalarSource;
+    readonly comparison: string;
+    readonly right: GeneratedScalarSource;
+  }[];
 }
 
 /** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */
@@ -696,6 +710,7 @@ export interface GeneratedBlackboardCalculationPayload {
   readonly operation: string;
   readonly left: GeneratedScalarSource;
   readonly right: GeneratedScalarSource;
+  readonly addend?: GeneratedScalarSource | null;
 }
 
 export interface GeneratedBlackboardMutationPayload {
@@ -727,6 +742,34 @@ export interface GeneratedBuffFinishPayload {
   readonly limitSource: boolean;
   readonly isFinishedEarly: boolean;
   readonly isAbsorbed: boolean;
+}
+
+export interface GeneratedLegacyBuffFinishPayload {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly buffIds: readonly string[];
+  readonly finishAll: boolean;
+  readonly finishLayerCount: GeneratedScalarSource;
+  readonly limitSource: boolean;
+  readonly buffSource: GeneratedTargetReferenceSource;
+  readonly isFinishedEarly: boolean;
+  readonly finishSource: GeneratedTargetReferenceSource;
+}
+
+export interface GeneratedSkillCooldownAdjustmentPayload {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly useSkillType: boolean;
+  readonly skillTypeMask: string;
+  readonly skillId: string;
+  readonly functionType: string;
+  readonly isPercentage: boolean;
+  readonly value: GeneratedScalarSource;
+}
+
+export interface GeneratedBuffIgnitePayload {
+  readonly source: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly igniteType: string;
+  readonly successTargetContextKey: string;
 }
 
 export interface GeneratedBuffStackReadPayload {
@@ -852,6 +895,9 @@ export interface GeneratedConditionalBranchActionSource {
   readonly blackboardMutation?: GeneratedBlackboardMutationPayload;
   readonly buffBlackboardRead?: GeneratedBuffBlackboardReadPayload;
   readonly buffFinish?: GeneratedBuffFinishPayload;
+  readonly legacyBuffFinish?: GeneratedLegacyBuffFinishPayload | null;
+  readonly skillCooldownAdjustment?: GeneratedSkillCooldownAdjustmentPayload | null;
+  readonly buffIgnite?: GeneratedBuffIgnitePayload | null;
   readonly buffStackRead?: GeneratedBuffStackReadPayload;
   readonly buffApplication?: GeneratedBuffApplicationPayload;
   readonly timedMarkerApplication?: GeneratedTimedMarkerApplicationPayload;
@@ -905,6 +951,8 @@ export interface GeneratedBuffFinishSource
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;
+  readonly finishLayerCount?: GeneratedScalarSource | null;
+  readonly sourceActionType?: string;
 }
 
 /** 在原生时间区间内禁止结束开始时匹配到的 Buff 实例。 */
@@ -973,7 +1021,7 @@ export interface GeneratedTargetGroupWriteSource {
 
 export interface GeneratedBuffEventActionSource {
   /** 事件由 Buff 生命周期还是 Buff 宿主实体发出。 */
-  readonly eventSource: 'buff' | 'ability';
+  readonly eventSource: 'buff' | 'ability' | 'ignite';
   readonly event: string;
   /** 启用动作按原生 SequenceAction 的执行顺序排列，不能用 combatActions 代替。 */
   readonly orderedActionTypes: readonly string[];
@@ -987,6 +1035,8 @@ export interface GeneratedBuffEventActionSource {
   readonly targetGroupWrites?: readonly GeneratedBuffEventTargetGroupWriteSource[];
   /** Buff/宿主事件中的有序同步动作树。 */
   readonly sequences?: readonly GeneratedSkillEventActionSequenceSource[];
+  readonly finishAfterIgnited?: boolean;
+  readonly runtimeTargetGroupWrites?: readonly GeneratedTargetGroupWriteSource[];
 }
 
 export interface GeneratedBuffEventTargetGroupWriteSource {

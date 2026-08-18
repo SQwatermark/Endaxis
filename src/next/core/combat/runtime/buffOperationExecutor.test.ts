@@ -82,6 +82,46 @@ describe('BuffOperationExecutor', () => {
     expect(finished).toEqual([['effect', 'effect-line']]);
   });
 
+  it('resolves a partial Buff finish count from the current action blackboard', () => {
+    const calls: { ids: readonly string[]; count: number; reason: string }[] = [];
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: 'operator',
+        getCountByIds: () => 0,
+        findFirstByIds: () => undefined,
+        finishByIds: () => 0,
+        finishCountByIds: (ids, count, reason) => {
+          calls.push({ ids, count, reason });
+          return count;
+        },
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+    const blackboard = new ActionBlackboard({ layers: 1 });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'finishBuffsById',
+          parameters: {
+            target: 'caster',
+            buffIds: ['preparation'],
+            reason: 'other',
+            count: { kind: 'blackboard', key: 'layers' },
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(calls).toEqual([{ ids: ['preparation'], count: 1, reason: 'other' }]);
+  });
+
   it('writes a matching Buff stack count to the action blackboard', () => {
     const blackboard = new ActionBlackboard();
     const executor = new BuffOperationExecutor({

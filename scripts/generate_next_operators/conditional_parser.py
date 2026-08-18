@@ -39,6 +39,7 @@ from source_models import (
     AbilityEntityDurationConditionSource,
     BlackboardCalculationPayload,
     BuffIdInContextConditionSource,
+    BuffIgnitePayload,
     BuffStackConditionSource,
     ConditionSource,
     ConditionalActionSource,
@@ -54,8 +55,10 @@ from source_models import (
     ForEachContextActionSource,
     GlobalCooldownConditionSource,
     HealthConditionSource,
+    LegacyBuffFinishPayload,
     MainOperatorConditionSource,
     SequenceGuardActionSource,
+    SkillCooldownAdjustmentPayload,
     ScalarSource,
     SkillHasHitConditionSource,
     SwitchActionSource,
@@ -81,7 +84,44 @@ __all__ = [
     "parse_conditional_actions",
     "parse_ordered_action_sequence",
     "parse_timeline_jump_condition",
+    "parse_legacy_buff_finish_payload",
 ]
+
+
+def parse_legacy_buff_finish_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> LegacyBuffFinishPayload:
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "buffOwner", "buffIds", "finishAll", "finishLayerCnt", "limitSource",
+        "buffSource", "isFinishedEarly", "finishSource",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected FinishBuffAction fields {sorted(action)}")
+    raw_ids = require_list(action.get("buffIds"), f"{path}.buffIds")
+    buff_ids: list[str] = []
+    for buff_index, raw_buff in enumerate(raw_ids):
+        buff_path = f"{path}.buffIds[{buff_index}]"
+        buff = require_dict(raw_buff, buff_path)
+        if set(buff) != {"buffId"} or not isinstance(buff.get("buffId"), str):
+            raise ValueError(f"{buff_path}: expected literal buffId")
+        buff_ids.append(buff["buffId"])
+    return LegacyBuffFinishPayload(
+        target=parse_target_reference(action.get("buffOwner"), f"{path}.buffOwner"),
+        buffIds=tuple(buff_ids),
+        finishAll=require_bool(action.get("finishAll"), f"{path}.finishAll"),
+        finishLayerCount=parse_scalar(
+            action.get("finishLayerCnt"), f"{path}.finishLayerCnt", inherited_blackboard
+        ),
+        limitSource=require_bool(action.get("limitSource"), f"{path}.limitSource"),
+        buffSource=parse_target_reference(action.get("buffSource"), f"{path}.buffSource"),
+        isFinishedEarly=require_bool(
+            action.get("isFinishedEarly"), f"{path}.isFinishedEarly"
+        ),
+        finishSource=parse_target_reference(action.get("finishSource"), f"{path}.finishSource"),
+    )
 
 # 这些动作本身不会进入 Next 执行序列，但它们决定后续 Context 目标组的身份。
 # 条件树必须保留它们，编译阶段才能证明分支外读取来自哪个目标。
@@ -100,10 +140,13 @@ EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
 
 # 这些叶子只改变运行时状态，仍应让前置顺序守卫把它们纳入控制流。
 ORDERED_STATE_EFFECT_ACTION_NAMES = {
+    "FinishBuffAction",
     "FinishBuffAdvanced",
     "ModifyDynamicBlackboard",
     "TimeDilationAction",
     "UltimateTimeAction",
+    "SetSkillCdAtOnce",
+    "IgniteAction",
 }
 
 # 这些 ForEach 守卫尾部仍会被现有根级解析器递归展开。在建立显式消费身份前
@@ -970,6 +1013,9 @@ def parse_conditional_actions(
                 mutation = None
                 buff_read = None
                 buff_finish = None
+                legacy_buff_finish = None
+                skill_cooldown_adjustment = None
+                buff_ignite = None
                 buff_stack_read = None
                 buff_application = None
                 timed_marker_application = None
@@ -1004,18 +1050,19 @@ def parse_conditional_actions(
                             f"{source_path}: unexpected StoreAttributeValue fields {sorted(action)}"
                         )
                     target = parse_target_reference(action.get("targetSettings"), source_path)
-                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will"}.get(
+                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will", "Level": "level"}.get(
                         action.get("attributeType")
                     )
                     divisor = parse_scalar(action.get("divisorValue"), source_path, inherited_blackboard)
                     base = parse_scalar(action.get("baseValue"), source_path, inherited_blackboard)
                     output_key = action.get("key")
                     supported_store_shape = (
-                        target.targetSource == "Source"
+                        target.targetSource in {"Source", "Owner"}
                         and not target.targetGroupKey
                         and not target.validatorTypes
                         and not target.postProcessorTypes
-                        and action.get("primaryAttributeType") == "Specific"
+                        and action.get("primaryAttributeType")
+                        == ("Sub" if action.get("attributeType") == "Level" else "Specific")
                         and attribute_key is not None
                         # Next 当前只把构筑期已解析面板放入共享动作黑板；没有
                         # 运行时四维 converted 修正。因此 BaseNonConverted 与
@@ -1026,7 +1073,6 @@ def parse_conditional_actions(
                         and divisor.blackboardKey is None
                         and divisor.value == 1
                         and base.blackboardKey is None
-                        and base.value == 0
                         and isinstance(output_key, str)
                         and output_key
                     )
@@ -1038,11 +1084,74 @@ def parse_conditional_actions(
                             right=parse_scalar(
                                 action.get("multiplierValue"), source_path, inherited_blackboard
                             ),
+                            addend=None if base.value == 0 else base,
                         )
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)
                 elif action_type == "FinishBuffAdvanced":
                     buff_finish = parse_buff_finish_payload(action, source_path)
+                elif action_type == "FinishBuffAction":
+                    legacy_buff_finish = parse_legacy_buff_finish_payload(
+                        action, source_path, inherited_blackboard
+                    )
+                elif action_type == "SetSkillCdAtOnce":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "target", "useSkillType", "skillTypeMask",
+                        "skillId", "functionType", "isPercentage", "value",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected SetSkillCdAtOnce fields {sorted(action)}"
+                        )
+                    skill_id = action.get("skillId")
+                    if not isinstance(skill_id, str):
+                        raise ValueError(f"{source_path}.skillId: expected string")
+                    skill_type_mask = action.get("skillTypeMask")
+                    function_type = action.get("functionType")
+                    if not isinstance(skill_type_mask, str) or not isinstance(function_type, str):
+                        raise ValueError(f"{source_path}: expected cooldown enum names")
+                    skill_cooldown_adjustment = SkillCooldownAdjustmentPayload(
+                        target=parse_target_reference(action.get("target"), f"{source_path}.target"),
+                        useSkillType=require_bool(
+                            action.get("useSkillType"), f"{source_path}.useSkillType"
+                        ),
+                        skillTypeMask=skill_type_mask,
+                        skillId=skill_id,
+                        functionType=function_type,
+                        isPercentage=require_bool(
+                            action.get("isPercentage"), f"{source_path}.isPercentage"
+                        ),
+                        value=parse_scalar(action.get("value"), f"{source_path}.value", inherited_blackboard),
+                    )
+                elif action_type == "IgniteAction":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "igniteSource", "targetSettings",
+                        "igniteType", "successTargetContextKey",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected IgniteAction fields {sorted(action)}"
+                        )
+                    ignite_type = action.get("igniteType")
+                    success_key = action.get("successTargetContextKey")
+                    if not isinstance(ignite_type, str) or not ignite_type:
+                        raise ValueError(f"{source_path}.igniteType: expected non-empty string")
+                    if not isinstance(success_key, str):
+                        raise ValueError(
+                            f"{source_path}.successTargetContextKey: expected string"
+                        )
+                    buff_ignite = BuffIgnitePayload(
+                        source=parse_target_reference(
+                            action.get("igniteSource"), f"{source_path}.igniteSource"
+                        ),
+                        target=parse_target_reference(
+                            action.get("targetSettings"), f"{source_path}.targetSettings"
+                        ),
+                        igniteType=ignite_type,
+                        successTargetContextKey=success_key,
+                    )
                 elif action_type == "SaveBuffStackNumAdvanced":
                     buff_stack_read = parse_buff_stack_read_payload(action, source_path)
                 elif action_type == "CreateBuffAction":
@@ -1120,6 +1229,9 @@ def parse_conditional_actions(
                     "blackboardMutation": mutation,
                     "buffBlackboardRead": buff_read,
                     "buffFinish": buff_finish,
+                    "legacyBuffFinish": legacy_buff_finish,
+                    "skillCooldownAdjustment": skill_cooldown_adjustment,
+                    "buffIgnite": buff_ignite,
                     "buffStackRead": buff_stack_read,
                     "buffApplication": buff_application,
                     "timedMarkerApplication": timed_marker_application,

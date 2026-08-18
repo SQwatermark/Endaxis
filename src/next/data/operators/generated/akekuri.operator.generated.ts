@@ -308,15 +308,8 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         20,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
+          sequence(
+            step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
           ),
         ),
       ),
@@ -353,49 +346,59 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         22,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
+          sequence(
+            step('modifyActionValue', {
+              key: 'sub_ratio',
+              operation: 'divide',
+              value: { kind: 'blackboard', key: 'rate' },
+            }),
             sequence(
-              step('modifyActionValue', {
-                key: 'sub_ratio',
-                operation: 'divide',
-                value: { kind: 'blackboard', key: 'rate' },
+              step('calculateActionValue', {
+                key: 'atb_up',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'level' },
+                right: { kind: 'blackboard', key: 'sub_ratio' },
               }),
               step('modifyActionValue', {
-                key: 'max_ratio',
+                key: 'atb_up',
                 operation: 'add',
                 value: { kind: 'constant', value: 1 },
               }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'atb_up' },
-                  operator: 'less',
-                  right: { kind: 'blackboard', key: 'max_ratio' },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'atb',
-                    operation: 'multiply',
-                    value: { kind: 'blackboard', key: 'atb_up' },
-                  }),
-                ),
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'atb',
-                    operation: 'multiply',
-                    value: { kind: 'blackboard', key: 'max_ratio' },
-                  }),
-                ),
-              ),
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'skill',
-              }),
             ),
+            step('modifyActionValue', {
+              key: 'max_ratio',
+              operation: 'add',
+              value: { kind: 'constant', value: 1 },
+            }),
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'atb_up' },
+                operator: 'less',
+                right: { kind: 'blackboard', key: 'max_ratio' },
+              },
+              sequence(
+                step('modifyActionValue', {
+                  key: 'atb',
+                  operation: 'multiply',
+                  value: { kind: 'blackboard', key: 'atb_up' },
+                }),
+              ),
+              sequence(
+                step('modifyActionValue', {
+                  key: 'atb',
+                  operation: 'multiply',
+                  value: { kind: 'blackboard', key: 'max_ratio' },
+                }),
+              ),
+            ),
+            step('changeResourceByActionValue', {
+              resource: 'sp',
+              amount: { kind: 'blackboard', key: 'atb' },
+              recipient: 'team',
+              spGainKind: 'gain',
+              spGainSource: 'skill',
+            }),
           ),
           step('dealDamage', {
             damageType: 'physical',
@@ -434,17 +437,14 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
             operation: 'assign',
             value: { kind: 'constant', value: 0 },
           }),
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'skill',
-              }),
-            ),
+          sequence(
+            step('changeResourceByActionValue', {
+              resource: 'sp',
+              amount: { kind: 'blackboard', key: 'atb' },
+              recipient: 'team',
+              spGainKind: 'gain',
+              spGainSource: 'skill',
+            }),
           ),
           step('dealDamage', {
             damageType: 'physical',
@@ -648,6 +648,10 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     'atb_3': [20, 21, 21, 22, 23, 23, 24, 25, 25, 26, 27, 27],
     'atb_up': 1,
     'max_ratio': 0,
+    'atk': 0,
+    'potential_5_duration': 0,
+    'imbue_scale': 0,
+    'duration': 10,
     'atb_display': [58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80],
   },
 );

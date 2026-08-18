@@ -49,4 +49,25 @@ describe('Next timeline simulation projection retention', () => {
     expect(movement).toContain('pointerOffsetActualFrames');
     expect(movement).toContain('resolveTimelineCastMoveFrame');
   });
+
+  it('updates drag-dependent simulation projections at interactive frequency', () => {
+    const movement = projectionSource('function beginCastMove', '\nasync function finishCastMove');
+
+    expect(source).toContain('const LIVE_SIMULATION_RATE_HZ = 30');
+    expect(source).toContain('const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ');
+    expect(movement).toContain(
+      'lastCastMoveSimulationAt = performance.now() - LIVE_SIMULATION_INTERVAL_MS',
+    );
+    expect(movement).toContain('now - lastCastMoveSimulationAt >= LIVE_SIMULATION_INTERVAL_MS');
+    expect(movement).toContain('void nextTick(simulateNow)');
+  });
+
+  it('shows time dilation on its source block and expands it only for hovered or selected casts', () => {
+    expect(source).toContain('castTimeDilationSegments');
+    expect(source).toContain(':time-dilation-segments=');
+    expect(source).toContain('const highlightedTimeDilationSourceIds = computed');
+    expect(source).toContain('@hover-change="setCastHovered(cast.id, $event)"');
+    expect(source).toContain(':source-cast-ids="highlightedTimeDilationSourceIds"');
+    expect(source.match(/<TimelineTimeDilationBands/g)).toHaveLength(1);
+  });
 });

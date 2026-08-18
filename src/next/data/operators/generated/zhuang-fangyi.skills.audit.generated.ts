@@ -908,8 +908,8 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     ],
   },
   {
-    'combo_cd_rate': 4,
     'duration': 25,
+    'combo_cd_rate': 4,
     'duration_extra': 1,
   },
 );

@@ -13,9 +13,9 @@
 
 ## 2. Git 基线
 
-- 当前仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
+- 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 分支：`feature/next`
-- 本文更新前的 HEAD：`066eeb0a feat(next): advance ability entity editing and Arcane audit`；实际 HEAD 始终以 `git log` 为准。
+- 本文更新前的 HEAD：`879683d2 feat(next): advance generated combat and timeline simulation`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -38,7 +38,7 @@
 - `spawnAbilityEntity` 使用 `abilityEntityId + definition`。`abilityEntityId` 保留原生身份，供审计、日志和查询；`definition` 只携带可执行蓝图，包括默认生命周期和可选子技能组件树。
 - 本次生成才决定的字段仍留在 spawn 层，例如 target、动态覆盖时长、动作黑板继承、实体黑板赋值、Context 输出和 `dieWhenSourceDies`；不要混入公共证据定义。
 - VFS 提取文件 `src/next/data/ability-entities/ability-entity-templates-1.4.4.json` 继续作为版本化生成证据和审计来源；前端、项目存档、编译器与运行时不通过它进行共享模板查找。
-- 当前机器不是台式机，也没有原始游戏文件。54 个模板的版本化证据已经进入仓库；只有重新提取原始资源、恢复 GameplayTag 名称或补充反编译证据时，才需要回到台式机环境。
+- 当前机器是台式机，原始游戏文件、VFS 工具、运行时 IL2CPP dump 与 `combat-probe` 均可用。54 个模板的版本化证据已经进入仓库；普通生成和 UI 工作仍不应依赖 `tmp/`，只有重新提取资源或补充反编译证据时才使用这些台式机工具。
 - 生成器在每个使用点把 VFS 模板证据和已证明的子 SkillData 原子展开为完整 `AbilityEntityDefinition`。原生 born tags 只留在证据层；能力实体标签查询会在生成期严格求值并降为明确的 `abilityEntityIds`，生产 DSL、存档、编辑器和运行时不再携带无语义裸 ID。
 - `assetPath`、`assetIndex`、`rawSha256`、组件计数等只属于证据；没有执行规则的字段也不能伪装成可编辑、可执行定义。`maxStackingCount` 只有来源事实，达到上限时如何处理尚无规则证据，因此没有进入 `AbilityEntityDefinition`，继续只留在证据投影中。
 
@@ -69,7 +69,7 @@ step('spawnAbilityEntity', {
 - Next 技能编辑器已经把 `spawnAbilityEntity` 纳入可新增步骤，并提供专用内联表单；默认步骤本身能通过严格 `SkillDefinition` 校验，不再只能加载、排序、复制或删除。
 - 表单直接编辑当前技能组件树中的 `abilityEntityId + definition`，覆盖目标、Context 输出、来源死亡联动、动作黑板继承、动态寿命覆盖、实体黑板赋值和有限/无限默认生命周期；没有恢复 `templateId`、共享模板选择器或 `bornTagIds` 裸 ID 字段。
 - 可选子技能复用现有初始黑板、调度序列和战斗步骤编辑器，并通过异步递归组件支持子时间线中的嵌套能力实体。子技能仍只有实体局部时间，不提供独立费用、冷却或施法身份。
-- VFS 原始模板证据保持只读，不允许用户修改公共模板。当前表单修改的是单个技能使用点的内联定义，不会影响其他技能；能力实体时间膨胀查询字段仍未在时间膨胀表单暴露。
+- VFS 原始模板证据保持只读，不允许用户修改公共模板。当前表单修改的是单个技能使用点的内联定义，不会影响其他技能。时间膨胀表单现已覆盖普通全局、普通实体和终结技三种能力实体查询：可编辑生成期已经证明的 owner-spawned 明确实体 ID 集合，或运行时已有的 Context 实体组；不会重新暴露 born-tag。普通实体目标可以只包含能力实体查询而不强制附加施法者/敌人，删除最后一个实体查询时若没有普通目标则安全恢复施法者目标。
 - `type-check:next`、默认定义严格校验、三语言资源与组件接线测试已覆盖。默认 Next 项目第二轨放置并选中 Arclight 终结技，直接引用当前生成定义；其 5 秒能力实体包含局部第 7、63 帧两段真实子时间线，可直接进入“编辑逻辑”验收。此前零倍率终结技造成的时间线停滞已经修复；当前真实阻塞改为 `Pulse` 法术爆发缺少原生 `SkillSetting` / `spellInflictionSettings` 数据，现有本地 AKEDB 与版本化证据均没有可注入内容，不能猜造。
 
 ## 4. 本轮已经完成
@@ -125,7 +125,7 @@ step('spawnAbilityEntity', {
 
 - 单次模拟的场景输入和完整运行结果现在组合成一个 `PublishedScenarioSimulation`。新模拟在局部数据中构建，成功后一次性替换已发布快照；等待和失败期间继续展示上一份完整结果，不再分别更新全局时间映射、效果条、命中与诊断，也不在模块级全局变量中保存某次模拟的中间信息。
 - 模拟服务记录编译、预检、运行和投影等阶段的墙钟耗时；时间轴底部新增实时性能审计，可查看最近样本、阶段占比、预算超限和最慢阶段。该审计衡量的是编辑交互路径的实际耗时，不改变战斗规则。
-- 技能块拖动期间持续节流模拟，但视觉位置不等待模拟回执。主块实际起点直接跟随鼠标；由该技能产生的时间膨胀阴影按同一实际位移即时平移，松手后保留预览，直到对应场景的新模拟快照原子发布，避免旧回执导致回弹。
+- 技能块拖动期间持续节流模拟，但视觉位置不等待模拟回执。此前实时投影硬限制为每 100ms 一次（约 10Hz），导致技能块逐指针事件移动而其他模拟投影明显跳动；当前已提升为约 30Hz，并在每次新拖动的第一次有效位移立即触发，不继承上一轮节流窗口。主块实际起点直接跟随鼠标；由该技能产生的时间膨胀投影按同一实际位移即时平移，松手后保留预览，直到对应场景的新模拟快照原子发布，避免旧回执导致回弹。视觉语义已与旧版对齐：常态只在来源技能块内显示从左侧开始、按持续量裁剪的流动动画；悬停来源块或选中一个/多个来源块时，才在全部轨道纵向展开对应真实起止区间的黑色阴影，并在中央显示持续秒数。
 - 冻屏拖动遵循旧版已经验证的因果边界：按下时保存技能的逻辑起点和已发布实际起点，拖动时用“按下逻辑起点 + 鼠标实际位移”写回逻辑帧。不得把包含被拖技能自身冻屏的整局 `actual -> logical` 逆映射用于该技能，否则技能块会被自身冻屏推到阴影右侧，松手再回到阴影左侧。冻屏源本身的开始位置由手势决定，它的冻屏只重排后续行为。
 - 当前自动测试覆盖上述锚点计算、旧投影保留和原子发布；仍需在 `/next/timeline` 手工复验截图中的 Arclight 终结技路径，尤其是跨出阴影、阴影跟手、松手不回弹及位于冻屏后的其他技能块稳定性。
 
@@ -133,11 +133,11 @@ step('spawnAbilityEntity', {
 
 当前验证结果：
 
-- Python 生成器规则测试最近基线：289 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
+- Python 生成器规则测试最近基线：301 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前全量审计基线仍为 30 名、320 个入口、318 个可解析、281 个可编译，完整干员 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
-- 本文提交前 `npm run type-check:next` 通过；Next 全量 Vitest 为 175 个文件、1025 项全部通过。此前两项终结技时间线停滞回归已经修复。
+- 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 175 个文件、1046 项全部通过。新增回归覆盖 Buff 点燃、队伍排除来源目标、技能冷却调整、旧式 Buff 结束、延迟接续施放的 `beforeCastSkill` 顺序与装配接线、Endministrator 冻结点燃生产场景、伤害修正复合条件、Buff 成功加入事件边界，以及 Last Rite 队伍 Buff 的宿主相对生产模拟。
 - 全仓 `npm test -- --run`：249 个文件中 244 个、1536 项中 1528 项通过。8 项失败均位于旧版：`TimelineEditor.structure` 3 项、`SimLogPanel.structure` 1 项、`statusOptions` 1 项、`patchSkillLeveledCap` 2 项、`simulator` 1 项；本轮没有为通过这些断言而修改旧版代码。Next 全量通过不能替代这条全仓结论。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
@@ -146,7 +146,7 @@ step('spawnAbilityEntity', {
 
 目录：`scripts/generate_next_operators`。
 
-生成目录中，除首个佩丽卡样本外，已有九名技能主体可完整转换并注册的干员：Arclight、Gilberta、Lifeng、Estella、大潘、Akekuri、Fluorite、Endministrator、Last Rite。
+生成目录中，除首个佩丽卡样本外，已有九名输出正式定义并注册的干员：Arclight、Gilberta、Lifeng、Estella、大潘、Akekuri、Fluorite、Endministrator、Last Rite。正式输出不等于该干员 `conversionSupport.complete`；Endministrator 与 Last Rite 仍明确携带技能行为、天赋或潜能缺口。
 
 当前生成器已经能够处理：
 
@@ -170,19 +170,19 @@ step('spawnAbilityEntity', {
 
 下一会话应先重新确认工作树和提交。能力实体内联重构已经完成，后续不再扩展或恢复 `templateId` 前端、编译或运行时接口：
 
-1. 先在 `/next/timeline` 手工验收本轮冻屏拖动：Arclight 终结技应始终位于鼠标落点，自己的时间阴影同步移动，松手不回弹，后续技能块也不乱跳。若仍有偏移，先记录指针实际帧、手势锚点、预览逻辑/实际帧和新回执，不能重新引入整局逆映射；
-2. Arclight 生成样本已证明真实内联能力实体和两段子时间线能够渲染；继续人工检查递归新增/复制/移动/删除、窄宽布局与保存后严格校验，随后再补能力实体时间膨胀查询字段；`Pulse` 的 `SkillSetting` 必须等原生导出证据，不做默认值；
+1. Last Rite 普通战技已经完整穿过生成、场景编译和生产模拟；下一项不再扩展这条已闭环链，而是逐项审计庄方宜与诀仍处于 `outputStage: audit` 的干员级缺口。诀优先核对形态展示、形态感知连携注册、天赋和潜能；庄方宜继续以首个未闭环来源动作为准。任一层未闭环都不能把审计产物提升为正式定义；
+2. 后续若出现新的集合 Buff，必须复用已建立的来源施法、当前创建来源和实际宿主三重身份：施法快照定位原程序，干员宿主优先成为执行主体，敌方/能力实体上的后代 Buff 则由当前创建来源干员归因；不得重新把三者压成单一 caster；
 3. 扩大能力实体子图动态迁移的严格覆盖，并为原生 owner/tag 查询建立干员级匹配生成点闭包；查询只在生成期使用标签证据，只有闭包内所有生成点都已迁移时才输出实体 ID 形式的 `effectAbilityEntityTargets`；
-4. 诀（`arcane`）的 `seal_total` 所有权链已经纠正并完成严格试编译：根连携在第 9 帧把控制 Buff 施加给诀；该 Buff 的实例本地第 2 帧把 `seal` 与 listener 施加给 `Context/trigger` 的敌人；敌人持有的 `seal` 在启用时施加法术易伤，在触发时查询同次施法分身并让每个分身以内联隐藏子技能攻击该敌人。Buff 实例本地 `scheduledSequences`、事件响应、Owner/Environment Buff 结束、实体局部 timed marker 与隐藏子技能均已闭环；`InterruptAction` 继续按无敌方主动行为模型归约为零效果。形态实体黑板已自动生成；终结技槽的 `ultimate -> arcana -> ultimate` 替换闭环也已由 Buff 与二段第 0 帧动作证明并直接渲染成 DSL，正式技能组会自动区分基础技能与 `replacementSkills`。下一步逐项对照形态展示、形态感知连携注册与天赋潜能；任一层未闭环都不能用生成定义替换现有 `arcane.ts`。
-5. Gilberta 的严格来源死亡监视器已经作为首个真实 Owner-Buff 闭环；下一步从 Yvonne 或 Li Zhiyan 中选择一个可独立证明的最小动作子集，但不得忽略其余条件、伤害、资源、Buff 结束、owner/tag 实体结束或 Aura。之后再处理 Camille 的设置目标和 Avywenna 的投射物来源；
+4. 当前单敌人模型没有敌方技能/动画时钟。遇到敌方时间膨胀、控制或标签动作时，先决定完整模拟是否需要建立敌方行为时钟；在此之前只允许已记录的精确不可观察投影，不能扩大成通用忽略；
+5. 在 `/next/timeline` 手工验收冻屏拖动和能力实体递归编辑：Arclight 终结技应位于鼠标落点，阴影同步移动，松手不回弹；`Pulse` 的 `SkillSetting` 必须等原生导出证据，不做默认值；
 6. FractureAction 必须等完整操作链和运行时语义齐备后再接，不做只解析名称的半成品；
 7. 以后公共 JSON 的 `sharedRevision` 改变时必须重新确认 manifest `latest`，不得与旧表混用。
 
-本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前验证为 Python 规则测试 289/289、Arclight 定向生成 `--check`、Next 类型检查和相关 Buff/伤害/生成产物 Vitest 77/77 通过。庄方宜 `enhancedBasicAttack1` 的全量生成阻塞已解决；普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
+本轮已从 AKEDB `latest=1.4.4@9433094-12`、`sharedRevision=2026-08-15T09:56:33.735394+00:00` 拉取五张版本化 TableCfg、2459 个 SkillData 和 2678 个 BuffData。当前验证为 manifest 全量生成与 `--check` 通过、Python 规则测试 301/301、Next 类型检查通过、Next 全量 Vitest 175 个文件 1046/1046。普通/强化技能仍是可直接拖放的独立技能，只有 manifest 明确声明的 `arcana` 走运行时换槽。
 
-Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍在 audit 中，且只通过该技能 manifest 的 `ignoreBuffIds` 显式省略。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
+Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍保留在 audit；生成器现保存 stack effect 动作类别，并且只有定义完整证明“唯一行为是非空 `EffectAction` stack effect”时才自动从战斗序列剔除，不能按 ID 或命名泛化。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
 
-全量生成现已连续越过 Perlica、庄方宜、诀、Arclight、Gilberta、Lifeng、Estella。Lifeng 与 Estella 的严格 `VulnerableAction` 形状会投影成随 Buff 生命周期注册的 defender/vulnerable 伤害修正；其他易伤形状继续保留并失败关闭。当前新的首个阻塞是后续干员依赖的 `buff_physical_handle_cryst_break` 内嵌 `TimeDilationAction` 同时缺少唯一 named/inline curve，不能猜测曲线。全量生成仍未通过；`tmp/` 未纳入修改或提交。
+达坂第一天赋的剩余阻塞已经关闭：原生反编译证明百分比冷却减少使用技能配置的基础周期；旧式 `FinishBuffAction` 按已证明的 Id、目标和来源限制进入统一 Buff 结束操作。`OnOutputDamage -> 减少连携技冷却 -> 消耗准备层 -> 结束自身` 已完整参与模拟，达坂 9/9 生成。Endministrator 的三类 `igniteEventAction` 已形成内联 Buff 响应，`IgniteAction` 从技能生成 `igniteBuffs` 并携带实际点燃来源；生产场景已验证连携创建冻结、终结技直接/条件/点燃伤害和冻结结束处于同一次运行。Last Rite 普通战技也已关闭原子阻塞：`main_start -> self -> party main Buff` 完整内联，队伍实例以实际宿主执行主控/标签/黑板条件，同事件同优先级响应在一个注册回调内保持独立短路，敌方分身 Buff 以当前创建来源干员执行伤害并保留原始施法快照。manifest 已移除 `main_start/self` 的 `unmodeledBuffIds`，双轨生产回归验证队友末段普攻触发的分身伤害和元素附着均归因到队友。当前 manifest 全量生成通过：佩丽卡及另外九名干员生成正式定义，庄方宜与诀保持审计阶段；`tmp/` 未纳入修改或提交。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
 

@@ -43,7 +43,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -75,6 +76,7 @@ export const arclightGeneratedSource = {
       ],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -168,6 +170,9 @@ export const arclightGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -191,9 +196,12 @@ export const arclightGeneratedSource = {
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -240,7 +248,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -248,12 +257,14 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -300,7 +311,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -329,6 +341,7 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -474,8 +487,12 @@ export const arclightGeneratedSource = {
                       "levelValues": [
                         0.0
                       ]
-                    }
-                  }
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "CreateBuffAction",
@@ -490,6 +507,9 @@ export const arclightGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -552,14 +572,20 @@ export const arclightGeneratedSource = {
                     "limitSource": false,
                     "isFinishedEarly": false,
                     "isAbsorbed": false
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -608,7 +634,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -626,12 +653,14 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -680,7 +709,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -698,6 +728,7 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -728,9 +759,12 @@ export const arclightGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -777,7 +811,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -801,6 +836,7 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -831,9 +867,12 @@ export const arclightGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -880,7 +919,8 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -894,12 +934,14 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -946,7 +988,10 @@ export const arclightGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": true
+        "hasStackEffects": true,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
       },
       "blackboard": [],
       "applyTagIds": [],
@@ -954,12 +999,14 @@ export const arclightGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -1199,6 +1246,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1443,6 +1493,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1706,6 +1759,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1950,6 +2006,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2311,6 +2370,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2389,6 +2451,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2677,6 +2742,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2755,6 +2823,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 18,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3248,6 +3319,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3326,6 +3400,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3404,6 +3481,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3965,6 +4045,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4043,6 +4126,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4121,6 +4207,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4452,6 +4541,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -4725,6 +4817,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5510,6 +5605,9 @@ export const arclightGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -5754,6 +5852,9 @@ export const arclightGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -6707,6 +6808,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "interrupt": {
                 "attacker": {
                   "targetSource": "Source",
@@ -6878,6 +6982,9 @@ export const arclightGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 39,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -6955,7 +7062,10 @@ export const arclightGeneratedSource = {
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -6973,6 +7083,9 @@ export const arclightGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -7023,6 +7136,9 @@ export const arclightGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "interrupt": {
                       "attacker": {
                         "targetSource": "Source",
@@ -7076,6 +7192,9 @@ export const arclightGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Pulse",
@@ -7161,7 +7280,10 @@ export const arclightGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "DamageAction",
@@ -7179,6 +7301,9 @@ export const arclightGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 44,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -7225,6 +7350,9 @@ export const arclightGeneratedSource = {
                       "[6]"
                     ],
                     "serverActionIndex": 45,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -7274,7 +7402,10 @@ export const arclightGeneratedSource = {
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -7294,6 +7425,9 @@ export const arclightGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -7371,6 +7505,9 @@ export const arclightGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -7417,6 +7554,9 @@ export const arclightGeneratedSource = {
                       "[4]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -7438,7 +7578,10 @@ export const arclightGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7455,6 +7598,9 @@ export const arclightGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 53,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -7498,6 +7644,9 @@ export const arclightGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 55,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -7573,7 +7722,10 @@ export const arclightGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -8187,6 +8339,9 @@ export const arclightGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "interrupt": {
                 "attacker": {
                   "targetSource": "Source",
@@ -8358,6 +8513,9 @@ export const arclightGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 39,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -8435,7 +8593,10 @@ export const arclightGeneratedSource = {
                         }
                       ],
                       "failActions": []
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "ObtainCostAction",
@@ -8453,6 +8614,9 @@ export const arclightGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "resourceGain": {
                       "resource": "sp",
                       "amount": {
@@ -8503,6 +8667,9 @@ export const arclightGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 41,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "interrupt": {
                       "attacker": {
                         "targetSource": "Source",
@@ -8556,6 +8723,9 @@ export const arclightGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 42,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Pulse",
@@ -8641,7 +8811,10 @@ export const arclightGeneratedSource = {
                         "blackboardKey": null,
                         "levelValues": null
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "DamageAction",
@@ -8659,6 +8832,9 @@ export const arclightGeneratedSource = {
                       "[5]"
                     ],
                     "serverActionIndex": 44,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -8705,6 +8881,9 @@ export const arclightGeneratedSource = {
                       "[6]"
                     ],
                     "serverActionIndex": 45,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -8754,7 +8933,10 @@ export const arclightGeneratedSource = {
                       "limitSource": false,
                       "isFinishedEarly": true,
                       "isAbsorbed": false
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -8774,6 +8956,9 @@ export const arclightGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -8851,6 +9036,9 @@ export const arclightGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 50,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -8897,6 +9085,9 @@ export const arclightGeneratedSource = {
                       "[4]"
                     ],
                     "serverActionIndex": 52,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -8918,7 +9109,10 @@ export const arclightGeneratedSource = {
                     }
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -8935,6 +9129,9 @@ export const arclightGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 53,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -8978,6 +9175,9 @@ export const arclightGeneratedSource = {
                 "[2]"
               ],
               "serverActionIndex": 55,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "buffApplication": {
                 "buffs": [
                   {
@@ -9053,7 +9253,10 @@ export const arclightGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -9538,7 +9741,28 @@ export const arclightGeneratedSource = {
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
-      "buffFinishes": [],
+      "buffFinishes": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 40,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0007_ikut_combo_skill_counts"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAction",
+          "sequenceIndex": 12
+        }
+      ],
       "resourceGains": [
         {
           "startFrame": 17,
@@ -9985,6 +10209,7 @@ export const arclightGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
+        "FinishBuffAction",
         "ObtainCostAction"
       ],
       "buffHolds": [],
@@ -10242,7 +10467,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -10256,7 +10484,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 6
+              "serverActionIndex": 6,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -10272,7 +10503,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 10
+              "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -10286,7 +10520,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 11
+              "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -10300,7 +10537,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[2]"
               ],
-              "serverActionIndex": 12
+              "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -10345,7 +10585,10 @@ export const arclightGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 27
+              "serverActionIndex": 27,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -10756,7 +10999,10 @@ export const arclightGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -11420,7 +11666,10 @@ export const arclightGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 7
+                    "serverActionIndex": 7,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ],
                 "failActions": [
@@ -11439,10 +11688,16 @@ export const arclightGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 10
+                    "serverActionIndex": 10,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": []
@@ -11508,7 +11763,10 @@ export const arclightGeneratedSource = {
                   "blackboardKey": null,
                   "levelValues": null
                 }
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }

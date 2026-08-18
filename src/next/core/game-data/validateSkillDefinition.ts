@@ -27,6 +27,7 @@ import {
   RESOURCE_RECIPIENTS,
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
+  SKILL_TYPES,
   STATUS_MODIFIER_KINDS,
   TIME_DILATION_IGNORE_TARGETS,
 } from './operatorDefinition';
@@ -59,6 +60,7 @@ const DAMAGE_CALCULATIONS_SET = new Set<string>(DAMAGE_CALCULATIONS);
 const SP_GAIN_KINDS_SET = new Set<string>(SP_GAIN_KINDS);
 const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
 const STATUS_MODIFIER_KINDS_SET = new Set<string>(STATUS_MODIFIER_KINDS);
+const SKILL_TYPES_SET = new Set<string>(SKILL_TYPES);
 const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
 const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
   ACTION_VALUE_CALCULATION_OPERATIONS,
@@ -517,6 +519,17 @@ function validateCombatCondition(
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageFeatures(record.features, `${path}.features`, out);
       break;
+    case 'eventSkillTypeIn':
+      if (!Array.isArray(record.skillTypes) || record.skillTypes.length === 0) {
+        push(out, `${path}.skillTypes`, 'expected a non-empty array');
+      } else {
+        record.skillTypes.forEach((value, index) => {
+          if (!SKILL_TYPES_SET.has(value as never)) {
+            push(out, `${path}.skillTypes[${index}]`, 'expected a known skill type');
+          }
+        });
+      }
+      break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
       if (record.minimumStacks !== undefined) {
@@ -910,13 +923,31 @@ function validateCombatStep(
               scheduledSequences,
               lifecycleSequences,
               abilityEventResponses,
+              igniteEventResponses,
               actions,
+              maxStackCount,
               ...runtimeDefinition
             } = definition;
             parseCombatBuffDefinitionEntry(
-              { id: buffId, ...runtimeDefinition },
+              {
+                id: buffId,
+                ...runtimeDefinition,
+                ...(typeof maxStackCount === 'number' ? { maxStackCount } : {}),
+              },
               `${path}.parameters.definition`,
             );
+            if (maxStackCount !== undefined && typeof maxStackCount !== 'number') {
+              const maxStackPath = `${path}.parameters.definition.maxStackCount`;
+              const operand = asRecord(maxStackCount, maxStackPath, out);
+              if (operand !== null) {
+                requireString(operand, 'blackboardKey', maxStackPath, out);
+                for (const key of Object.keys(operand)) {
+                  if (key !== 'blackboardKey') {
+                    push(out, `${maxStackPath}.${key}`, 'unexpected field');
+                  }
+                }
+              }
+            }
             if (actions !== undefined) {
               push(
                 out,
@@ -971,10 +1002,32 @@ function validateCombatStep(
                       push(out, `${responsePath}.${key}`, 'unknown Buff ability event field');
                     }
                   }
-                  if (response.event !== 'beforeTakeDamage') {
+                  if (response.event !== 'beforeTakeDamage' && response.event !== 'outputDamage') {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }
                   requireInteger(response, 'priority', responsePath, out);
+                  validateActionSequence(response.sequence, `${responsePath}.sequence`, out);
+                }
+              }
+            }
+            if (igniteEventResponses !== undefined) {
+              const responsesPath = `${path}.parameters.definition.igniteEventResponses`;
+              if (!Array.isArray(igniteEventResponses)) {
+                push(out, responsesPath, 'expected an array');
+              } else {
+                for (const [index, value] of igniteEventResponses.entries()) {
+                  const responsePath = `${responsesPath}[${index}]`;
+                  const response = asRecord(value, responsePath, out);
+                  if (response === null) continue;
+                  for (const key of Object.keys(response)) {
+                    if (!['igniteType', 'finishAfterIgnited', 'sequence'].includes(key)) {
+                      push(out, `${responsePath}.${key}`, 'unknown Buff ignite event field');
+                    }
+                  }
+                  requireString(response, 'igniteType', responsePath, out);
+                  if (typeof response.finishAfterIgnited !== 'boolean') {
+                    push(out, `${responsePath}.finishAfterIgnited`, 'expected boolean');
+                  }
                   validateActionSequence(response.sequence, `${responsePath}.sequence`, out);
                 }
               }
@@ -985,7 +1038,8 @@ function validateCombatStep(
                   typeof lifecycleSequences === 'object' &&
                   lifecycleSequences !== null &&
                   Object.keys(lifecycleSequences).length > 0) ||
-                (Array.isArray(abilityEventResponses) && abilityEventResponses.length > 0)) &&
+                (Array.isArray(abilityEventResponses) && abilityEventResponses.length > 0) ||
+                (Array.isArray(igniteEventResponses) && igniteEventResponses.length > 0)) &&
               parameters.inheritSourceSkillCastInfo !== true
             ) {
               push(
@@ -1102,15 +1156,53 @@ function validateCombatStep(
       requireEnum(
         parameters,
         'target',
-        new Set(['caster', 'enemy', 'currentAbilityEntity']),
+        new Set(BUFF_APPLICATION_TARGETS),
         `${path}.parameters`,
         out,
       );
       validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      if (parameters.count !== undefined) {
+        validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
+      }
       break;
     case 'finishCurrentBuff':
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      break;
+    case 'igniteBuffs':
+      requireEnum(parameters, 'target', COMBAT_TARGETS_SET, `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'source',
+        new Set([...COMBAT_TARGETS, 'currentBuffSource']),
+        `${path}.parameters`,
+        out,
+      );
+      requireString(parameters, 'igniteType', `${path}.parameters`, out);
+      break;
+    case 'adjustSkillCooldown':
+      if (parameters.target !== 'caster') {
+        push(out, `${path}.parameters.target`, "expected 'caster'");
+      }
+      {
+        const skill = asRecord(parameters.skill, `${path}.parameters.skill`, out);
+        if (skill !== null) {
+          if (skill.kind === 'type') {
+            requireEnum(skill, 'skillType', SKILL_TYPES_SET, `${path}.parameters.skill`, out);
+          } else if (skill.kind === 'id') {
+            requireString(skill, 'skillId', `${path}.parameters.skill`, out);
+          } else {
+            push(out, `${path}.parameters.skill.kind`, "expected 'type' or 'id'");
+          }
+        }
+      }
+      if (parameters.operation !== 'reduce') {
+        push(out, `${path}.parameters.operation`, "expected 'reduce'");
+      }
+      if (parameters.basis !== 'baseDurationRatio') {
+        push(out, `${path}.parameters.basis`, "expected 'baseDurationRatio'");
+      }
+      validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;
     case 'holdBuffsById':
       if (parameters.target !== 'caster') {

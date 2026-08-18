@@ -20,6 +20,7 @@ import type {
   SkillBuffDefinition,
   SkillBuffLifecycleSequences,
   SkillBuffAbilityEventResponse,
+  SkillBuffIgniteEventResponse,
   SpGainKind,
   SpGainSource,
   SkillType,
@@ -54,14 +55,22 @@ export type ResolvedSkillBuffAbilityEventResponse = Omit<
   readonly sequence: ResolvedActionSequence;
 };
 
+export type ResolvedSkillBuffIgniteEventResponse = Omit<
+  SkillBuffIgniteEventResponse,
+  'sequence'
+> & {
+  readonly sequence: ResolvedActionSequence;
+};
+
 /** 技能等级已经展开、可用于创建 Buff 实例的内联定义。 */
 export type ResolvedSkillBuffDefinition = Omit<
   SkillBuffDefinition,
-  'scheduledSequences' | 'lifecycleSequences' | 'abilityEventResponses'
+  'scheduledSequences' | 'lifecycleSequences' | 'abilityEventResponses' | 'igniteEventResponses'
 > & {
   readonly scheduledSequences?: readonly CompiledTimelineAction[];
   readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
   readonly abilityEventResponses?: readonly ResolvedSkillBuffAbilityEventResponse[];
+  readonly igniteEventResponses?: readonly ResolvedSkillBuffIgniteEventResponse[];
 };
 
 /** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
@@ -122,6 +131,8 @@ export interface ResolvedCombatStepParameters {
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
   finishCurrentBuff: CombatStepParameters['finishCurrentBuff'];
+  igniteBuffs: CombatStepParameters['igniteBuffs'];
+  adjustSkillCooldown: CombatStepParameters['adjustSkillCooldown'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
   createTimedMarker: CombatStepParameters['createTimedMarker'];
   createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];

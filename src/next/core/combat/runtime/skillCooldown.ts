@@ -78,6 +78,17 @@ export class SkillCooldown {
     return this.advance(1);
   }
 
+  /** 原生 SetSkillCdAtOnce(Reduce, percentage) 从剩余值扣除基础周期乘比例。 */
+  reduceByBaseDurationRatio(ratio: number): boolean {
+    if (!Number.isFinite(ratio) || ratio < 0) {
+      throw new RangeError('skill cooldown reduction ratio must be a non-negative finite number');
+    }
+    const timer = this.#timer;
+    if (timer === undefined || timer.isReady) return false;
+    timer.update(this.#periodFrames * ratio);
+    return true;
+  }
+
   /**
    * 结束当前施放；确认帧存在且冷却尚未越过该帧时，返还本次预占。
    * 返回值只表示本次结束是否实际发生了返还。

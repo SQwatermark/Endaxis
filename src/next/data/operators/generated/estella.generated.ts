@@ -43,7 +43,8 @@ export const estellaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -79,10 +80,17 @@ export const estellaGeneratedSource = {
                 ]
               }
             }
-          ]
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": []
         }
       ],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -113,9 +121,12 @@ export const estellaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -164,7 +175,8 @@ export const estellaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -182,12 +194,14 @@ export const estellaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -236,7 +250,8 @@ export const estellaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [
         {
@@ -254,6 +269,7 @@ export const estellaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
@@ -284,9 +300,12 @@ export const estellaGeneratedSource = {
               "actions": [],
               "priority": 0
             }
-          ]
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
         }
       ],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -333,7 +352,8 @@ export const estellaGeneratedSource = {
           "blackboardKey": null,
           "levelValues": null
         },
-        "hasStackEffects": false
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
       },
       "blackboard": [],
       "applyTagIds": [
@@ -347,12 +367,14 @@ export const estellaGeneratedSource = {
       "attributeModifiers": [],
       "damageModifiers": [],
       "directDamageHits": [],
+      "inflictions": [],
       "conditionalActions": [],
       "blackboardCalculations": [],
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
@@ -595,6 +617,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -839,6 +864,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 13,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1112,6 +1140,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1356,6 +1387,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1722,6 +1756,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -1800,6 +1837,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2117,6 +2157,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 12,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2195,6 +2238,9 @@ export const estellaGeneratedSource = {
                 "[3]"
               ],
               "serverActionIndex": 20,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2539,6 +2585,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -2826,6 +2875,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3488,6 +3540,9 @@ export const estellaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3732,6 +3787,9 @@ export const estellaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 7,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "sp",
                 "amount": {
@@ -3991,6 +4049,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 65,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -4077,7 +4138,10 @@ export const estellaGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -4116,7 +4180,10 @@ export const estellaGeneratedSource = {
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -4134,6 +4201,9 @@ export const estellaGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -4211,6 +4281,9 @@ export const estellaGeneratedSource = {
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -4249,6 +4322,9 @@ export const estellaGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -4366,6 +4442,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 67,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -4452,7 +4531,10 @@ export const estellaGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -4491,7 +4573,10 @@ export const estellaGeneratedSource = {
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -4509,6 +4594,9 @@ export const estellaGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -4586,6 +4674,9 @@ export const estellaGeneratedSource = {
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -4624,6 +4715,9 @@ export const estellaGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -4815,7 +4909,10 @@ export const estellaGeneratedSource = {
                               "blackboardKey": null,
                               "levelValues": null
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "ModifyDynamicBlackboard",
@@ -4854,7 +4951,10 @@ export const estellaGeneratedSource = {
                                 3.5
                               ]
                             }
-                          }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
                         },
                         {
                           "actionType": "DamageAction",
@@ -4872,6 +4972,9 @@ export const estellaGeneratedSource = {
                             "[2]"
                           ],
                           "serverActionIndex": 9,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -4949,6 +5052,9 @@ export const estellaGeneratedSource = {
                             "[4]"
                           ],
                           "serverActionIndex": 11,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "buffApplication": {
                             "buffs": [
                               {
@@ -4987,6 +5093,9 @@ export const estellaGeneratedSource = {
                             "[0]"
                           ],
                           "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
                           "damageUnits": [
                             {
                               "damageType": "Cryst",
@@ -5131,6 +5240,8 @@ export const estellaGeneratedSource = {
           "limitSource": false,
           "isFinishedEarly": false,
           "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
           "sequenceIndex": 9
         }
       ],
@@ -5237,7 +5348,10 @@ export const estellaGeneratedSource = {
                       "blackboardKey": null,
                       "levelValues": null
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "ModifyDynamicBlackboard",
@@ -5276,7 +5390,10 @@ export const estellaGeneratedSource = {
                         3.5
                       ]
                     }
-                  }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 },
                 {
                   "actionType": "DamageAction",
@@ -5294,6 +5411,9 @@ export const estellaGeneratedSource = {
                     "[2]"
                   ],
                   "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Cryst",
@@ -5371,6 +5491,9 @@ export const estellaGeneratedSource = {
                     "[4]"
                   ],
                   "serverActionIndex": 11,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "buffApplication": {
                     "buffs": [
                       {
@@ -5409,6 +5532,9 @@ export const estellaGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 14,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
                   "damageUnits": [
                     {
                       "damageType": "Cryst",
@@ -6065,7 +6191,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -6114,7 +6243,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 9
+              "serverActionIndex": 9,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -6178,10 +6310,16 @@ export const estellaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 17
+                    "serverActionIndex": 17,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         },
@@ -6230,7 +6368,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 64
+              "serverActionIndex": 64,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "LaunchProjectile",
@@ -6245,6 +6386,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 65,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -6271,7 +6415,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 66
+              "serverActionIndex": 66,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "LaunchProjectile",
@@ -6286,6 +6433,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 67,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "projectileLaunch": {
                 "projectileId": "projectile_chr_0021_whiten_normal_skill",
                 "skillTriggers": [
@@ -6687,7 +6837,10 @@ export const estellaGeneratedSource = {
                           -0.1
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "CreateBuffAction",
@@ -6708,6 +6861,9 @@ export const estellaGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 25,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -6784,6 +6940,9 @@ export const estellaGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -6866,6 +7025,9 @@ export const estellaGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -6942,6 +7104,9 @@ export const estellaGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -7004,7 +7169,10 @@ export const estellaGeneratedSource = {
                     ]
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -7024,6 +7192,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -7133,6 +7304,9 @@ export const estellaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -7764,7 +7938,10 @@ export const estellaGeneratedSource = {
                           -0.1
                         ]
                       }
-                    }
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   },
                   {
                     "actionType": "CreateBuffAction",
@@ -7785,6 +7962,9 @@ export const estellaGeneratedSource = {
                       "[1]"
                     ],
                     "serverActionIndex": 25,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -7861,6 +8041,9 @@ export const estellaGeneratedSource = {
                       "[3]"
                     ],
                     "serverActionIndex": 27,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -7943,6 +8126,9 @@ export const estellaGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 29,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "buffApplication": {
                       "buffs": [
                         {
@@ -8019,6 +8205,9 @@ export const estellaGeneratedSource = {
                       "[2]"
                     ],
                     "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
                     "damageUnits": [
                       {
                         "damageType": "Physical",
@@ -8081,7 +8270,10 @@ export const estellaGeneratedSource = {
                     ]
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ],
           "failActions": [
@@ -8101,6 +8293,9 @@ export const estellaGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 34,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "damageUnits": [
                 {
                   "damageType": "Physical",
@@ -8210,6 +8405,9 @@ export const estellaGeneratedSource = {
                 "[0]"
               ],
               "serverActionIndex": 38,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
               "resourceGain": {
                 "resource": "ultimateEnergy",
                 "amount": {
@@ -8288,7 +8486,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 53
+              "serverActionIndex": 53,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
@@ -9057,7 +9258,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[0]"
               ],
-              "serverActionIndex": 4
+              "serverActionIndex": 4,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "FindTargetAction",
@@ -9071,7 +9275,10 @@ export const estellaGeneratedSource = {
                 "actionData",
                 "[1]"
               ],
-              "serverActionIndex": 5
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             },
             {
               "actionType": "IfElseAction",
@@ -9138,10 +9345,16 @@ export const estellaGeneratedSource = {
                       "actionData",
                       "[0]"
                     ],
-                    "serverActionIndex": 11
+                    "serverActionIndex": 11,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
                   }
                 ]
-              }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
             }
           ]
         }
