@@ -10283,6 +10283,39 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "skill",
             )
 
+    def test_skill_patch_deduplicates_identical_values_but_rejects_conflicts(self) -> None:
+        patch = parse_skill_patch(
+            {
+                "SkillPatchDataBundle": [
+                    {
+                        "level": 1,
+                        "blackboard": [
+                            {"key": "music_trigger", "value": 3},
+                            {"key": "music_trigger", "value": 3.0},
+                        ],
+                    }
+                ]
+            },
+            "skill",
+        )
+        self.assertEqual(patch.blackboard["music_trigger"], (3.0,))
+
+        with self.assertRaisesRegex(ValueError, "conflicting duplicate blackboard key"):
+            parse_skill_patch(
+                {
+                    "SkillPatchDataBundle": [
+                        {
+                            "level": 1,
+                            "blackboard": [
+                                {"key": "music_trigger", "value": 3},
+                                {"key": "music_trigger", "value": 4},
+                            ],
+                        }
+                    ]
+                },
+                "skill",
+            )
+
     def test_inline_typescript_literal_keeps_short_values_compact(self) -> None:
         self.assertEqual(
             ts_inline_literal({"final": True, "values": (0.25, 15.0)}),

@@ -6083,7 +6083,11 @@ def parse_skill_patch(raw: Any, skill_id: str) -> SkillPatchSource:
             if not isinstance(value, (int, float)) or isinstance(value, bool):
                 raise ValueError(f"SkillPatchTable.{skill_id}[{index}].blackboard.{key}: expected number")
             if key in row:
-                raise ValueError(f"SkillPatchTable.{skill_id}[{index}]: duplicate blackboard key {key}")
+                if row[key] != float(value):
+                    raise ValueError(
+                        f"SkillPatchTable.{skill_id}[{index}]: conflicting duplicate blackboard key {key}"
+                    )
+                continue
             row[key] = float(value)
         blackboard_rows.append(row)
         cooldowns.append(float(bundle.get("coolDown", 0)))

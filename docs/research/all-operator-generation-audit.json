@@ -4461,7 +4461,7 @@
       "skillType": "battleSkill",
       "stage": "source-or-parser-blocked",
       "blockerKind": "other",
-      "blocker": "ValueError: SkillPatchTable.chr_0035_liino_normal_skill_combo[0]: duplicate blackboard key music_trigger",
+      "blocker": "ValueError: chr_0035_liino_normal_skill_combo.json.timelineActions[9]._sequenceActionData.actionData.[0]: only a fixed literal interval is supported",
       "unresolvedActions": [],
       "conditionCount": 0,
       "referencedBuffCount": 0,

@@ -192,6 +192,8 @@ Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入�
 
 下一批横向覆盖把 Buff 来源 `ContextTarget/smart_target` 复用到统一单敌人身份归约，Yvonne 战技由此严格编译。治疗 DSL 新增原生 `DefiniteValueCalculation` 的直接治疗量分支：编译、校验、运行时和编辑器均不读取虚构属性，Liino 连携的 `final_heal_value` 可以从动作黑板进入主控治疗。该技能仍被无标签 owner-spawned AbilityEntity 时间膨胀阻塞，因为查询可能命中此前技能留下的任意实体，不能偷换成当前技能生成物。严格审计现为 318/320 可解析、289/320 可编译、13 名完整直转。`FractureAction` 也再次核对并保持阻塞：它不只是空间击退，还包含破防层、前后事件、碎甲 Buff 与伤害链，零距离模型不能把整项当作无效果。
 
+Liino 强化战技的补丁表重复键已核对：全表仅该技能的 12 个等级出现重复，且每级都是两条完全相同的 `music_trigger=3`。生成器现只去重同键同值，异值重复仍失败。去重后，普通战技与强化战技都停在同一真实阻塞：长区间 `TickIntervalAction.executeEachFrame=true` 每帧执行 `StoreCurSkillExecuteFrame -> music_loop`，再除以 `frame_radio` 写入 `normalskill_frame`，普通战技随后把该值传给额外攻击 Buff 的 `music_frame`。因此它不是可忽略的纯表现循环；下一步应增加读取当前技能/能力实体局部帧的通用动作和逐帧执行容器，不能把 1646/1801 帧静态展开或冻结成生成时常量。
+
 达坂第一天赋的剩余阻塞已经关闭：原生反编译证明百分比冷却减少使用技能配置的基础周期；旧式 `FinishBuffAction` 按已证明的 Id、目标和来源限制进入统一 Buff 结束操作。`OnOutputDamage -> 减少连携技冷却 -> 消耗准备层 -> 结束自身` 已完整参与模拟，达坂 9/9 生成。Endministrator 的三类 `igniteEventAction` 已形成内联 Buff 响应，`IgniteAction` 从技能生成 `igniteBuffs` 并携带实际点燃来源；生产场景已验证连携创建冻结、终结技直接/条件/点燃伤害和冻结结束处于同一次运行。Last Rite 普通战技也已关闭原子阻塞：`main_start -> self -> party main Buff` 完整内联，队伍实例以实际宿主执行主控/标签/黑板条件，同事件同优先级响应在一个注册回调内保持独立短路，敌方分身 Buff 以当前创建来源干员执行伤害并保留原始施法快照。manifest 已移除 `main_start/self` 的 `unmodeledBuffIds`，双轨生产回归验证队友末段普攻触发的分身伤害和元素附着均归因到队友。当前 manifest 全量生成通过：佩丽卡及另外九名干员生成正式定义，庄方宜与诀保持审计阶段；`tmp/` 未纳入修改或提交。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。
