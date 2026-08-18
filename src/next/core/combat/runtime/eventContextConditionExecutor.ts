@@ -32,7 +32,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (
       condition.kind !== 'eventDamageTagsMatch' &&
-      condition.kind !== 'eventDamageFeaturesMatch'
+      condition.kind !== 'eventDamageFeaturesMatch' &&
+      condition.kind !== 'eventSourceMatchesBuffSource'
     ) {
       return context === undefined
         ? this.delegate.evaluate(condition)
@@ -40,6 +41,14 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (context?.event === undefined) {
       throw new Error(`${condition.kind} requires a combat event context`);
+    }
+    if (condition.kind === 'eventSourceMatchesBuffSource') {
+      if (context.buffSourceId === undefined) {
+        throw new Error('eventSourceMatchesBuffSource requires a Buff source identity');
+      }
+      return context.event.kind === 'abilityDamage'
+        ? context.event.sourceId === context.buffSourceId
+        : false;
     }
     const damageEvent = eventDamageProperties(context.event);
     if (damageEvent === null) return false;
@@ -53,6 +62,8 @@ function eventDamageProperties(
   event: NonNullable<CombatOperationContext['event']>,
 ): { readonly tags: readonly DamageTag[]; readonly features: readonly DamageFeature[] } | null {
   switch (event.kind) {
+    case 'abilityDamage':
+      return { tags: event.tags, features: event.features };
     case 'damageTagHit':
     case 'enemyDefeated':
       return { tags: event.tags, features: event.features ?? [] };

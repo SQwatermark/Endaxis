@@ -73,6 +73,7 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'elementalReactionActive':
     case 'casterControlled':
     case 'enemyRankIn':
+    case 'eventSourceMatchesBuffSource':
       return;
     case 'healthCompare':
       if (condition.target !== 'enemy') {

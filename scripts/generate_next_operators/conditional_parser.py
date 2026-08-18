@@ -26,6 +26,7 @@ from action_payload_parser import (
     parse_damage_units,
     parse_global_cooldown_application_payload,
     parse_infliction_payload,
+    parse_interrupt_payload,
     parse_physical_infliction_payload,
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
@@ -933,6 +934,7 @@ def parse_conditional_actions(
                 resource_gain = None
                 infliction = None
                 physical_infliction = None
+                interrupt = None
                 projectile_launch = None
                 ability_entity_spawn = None
                 ability_entity_duration_assignment = None
@@ -975,6 +977,8 @@ def parse_conditional_actions(
                     physical_infliction = parse_physical_infliction_payload(
                         action, source_path, inherited_blackboard
                     )
+                elif action_type == "InterruptAction":
+                    interrupt = parse_interrupt_payload(action, source_path)
                 elif action_type == "LaunchProjectile":
                     projectile_launch = parse_projectile_launch_payload(action, source_path)
                 elif action_type == "SpawnAbilityEntity":
@@ -1033,6 +1037,7 @@ def parse_conditional_actions(
                     "resourceGain": resource_gain,
                     "infliction": infliction,
                     "physicalInfliction": physical_infliction,
+                    "interrupt": interrupt,
                     "projectileLaunch": projectile_launch,
                     "abilityEntitySpawn": ability_entity_spawn,
                     "abilityEntityDurationAssignment": ability_entity_duration_assignment,
@@ -1356,6 +1361,8 @@ def parse_ordered_action_sequence(
     action_data: Any,
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
+    *,
+    include_target_group_provenance: bool = False,
 ) -> tuple[ConditionalBranchActionSource, ...]:
     """解析事件回调等没有时间轴外壳的同步动作序列。
 
@@ -1384,7 +1391,12 @@ def parse_ordered_action_sequence(
             ]
         }
     }
-    parsed = parse_conditional_actions(wrapper, source_name, inherited_blackboard)
+    parsed = parse_conditional_actions(
+        wrapper,
+        source_name,
+        inherited_blackboard,
+        include_target_group_provenance=include_target_group_provenance,
+    )
     if not parsed:
         return ()
     if len(parsed) != 1 or parsed[0].conditions:

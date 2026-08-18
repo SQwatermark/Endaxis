@@ -5,12 +5,7 @@ const LOW = 10;
 const HIGH = 20;
 
 function createRuntime() {
-  return new TimeDilationRuntime({
-    priorities: new Map([
-      [LOW, 10],
-      [HIGH, 50],
-    ]),
-  });
+  return new TimeDilationRuntime({});
 }
 
 describe('TimeDilationRuntime', () => {
@@ -64,12 +59,7 @@ describe('TimeDilationRuntime', () => {
   it('reports accepted, replaced and rejected instances with their source', () => {
     const events: string[] = [];
     const runtime = new TimeDilationRuntime(
-      {
-        priorities: new Map([
-          [LOW, 10],
-          [HIGH, 50],
-        ]),
-      },
+      {},
       {
         started: (_kind, instance) => events.push(`started:${instance.source?.sourceActionId}`),
         rejected: (_kind, instance) => events.push(`rejected:${instance.source?.sourceActionId}`),
@@ -211,7 +201,6 @@ describe('TimeDilationRuntime', () => {
 
   it('uses global-scaled lifetime only for configured entity slots', () => {
     const runtime = new TimeDilationRuntime({
-      priorities: new Map([[LOW, 10]]),
       entityLifetimeUsesGlobalScaleBySlot: new Map([[2, true]]),
     });
     runtime.startGlobal({

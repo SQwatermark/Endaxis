@@ -1,7 +1,6 @@
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import { gameplayTagId } from '../tags/gameplayTags';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
@@ -43,14 +42,20 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       }
       const targets = this.#entities.findOwnerSpawned({
         ownerId: this.#operatorId,
-        ...(step.parameters.tagQuery === undefined
+        ...(step.parameters.abilityEntityIds === undefined
           ? {}
-          : {
-              tagQuery: {
-                ...step.parameters.tagQuery,
-                tagIds: step.parameters.tagQuery.tagIds.map(gameplayTagId),
-              },
-            }),
+          : { abilityEntityIds: step.parameters.abilityEntityIds }),
+        ...(step.parameters.sameSourceSkillCast
+          ? {
+              sourceSkillCastId:
+                context.skillCastInfo?.skillCastId ??
+                (() => {
+                  throw new Error(
+                    'AbilityEntity same-cast query requires inherited skill-cast info',
+                  );
+                })(),
+            }
+          : {}),
       });
       context.targetContext.set(step.parameters.saveToContextKey, targets);
       if (step.parameters.saveCountToBlackboardKey !== undefined) {
@@ -111,7 +116,10 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       ...explicitAssignments,
     };
     const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
-    if (parameters.childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
+    if (
+      parameters.definition.childSkill !== undefined &&
+      this.#childRuntimeDependencies === undefined
+    ) {
       throw new Error('spawnAbilityEntity child skill runtime is not configured');
     }
     const target =
@@ -121,11 +129,14 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           ? ({ kind: 'enemy' } as const)
           : source;
     const entity = this.#entities.spawn({
-      templateId: parameters.templateId,
+      abilityEntityId: parameters.abilityEntityId,
+      definition: parameters.definition,
       ownerId: this.#operatorId,
       source,
+      ...(context.skillCastInfo === undefined
+        ? {}
+        : { sourceSkillCastId: context.skillCastInfo.skillCastId }),
       ...(target === undefined ? {} : { target }),
-      ...(parameters.childSkillId === undefined ? {} : { childSkillId: parameters.childSkillId }),
       ...(parameters.overrideDurationSeconds === undefined
         ? {}
         : {
@@ -136,11 +147,11 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           }),
       dieWhenSourceDies: parameters.dieWhenSourceDies,
       ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-      ...(parameters.childSkill === undefined
+      ...(parameters.definition.childSkill === undefined
         ? {}
         : {
             createChildRuntime: (entity, entityBlackboard) =>
-              new AbilityEntityChildSkillRuntime(parameters.childSkill!, {
+              new AbilityEntityChildSkillRuntime(parameters.definition.childSkill!, {
                 entity,
                 entityBlackboard,
                 operations: this.#childRuntimeDependencies!.resolveOperations(),

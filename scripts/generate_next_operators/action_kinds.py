@@ -81,4 +81,7 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "TimeDilationAction",
     "UltimateTimeAction",
     "SetAbilityEntityDuration",
+    # 中断的具体运行时语义尚未闭环，但它会改变后续行为，不能从有序事件树中消失。
+    # 保留为无 payload 的叶子，使编译器继续以 unsupported conditional leaf 显式阻塞。
+    "InterruptAction",
 }

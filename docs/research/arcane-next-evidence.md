@@ -91,3 +91,45 @@
 4. `exclusiveFrame` 与用户实际可衔接输入边界的全角色通用关系。
 5. 编译器与模拟器尚未实现新增的状态、复合条件、事件处理器和升级修正；本轮完成的是有证据的
    配置与类型模型，不代表现有 `/timeline` 已能执行它。
+
+## 生成审计现状（1.4.4@9433094-12）
+
+当前生成清单以 `outputStage: audit` 收录 Arcane 的连携、五段普攻、处决、下落攻击、战技和
+两个原生终结技入口，共 11 个技能。严格技能序列均可编译，并生成
+`arcane.generated.ts`、`arcane.audit.json` 与 `arcane.skills.audit.generated.ts`；这些文件只用于
+逐项对照，不是正式 `OperatorDefinition`，也没有替换本文件审计的手写定义。
+
+正式生成仍有四条相互独立的证据/实现缺口：
+
+1. 连携封印 Buff 的 `DuringBuffEnable` 含 `ForEachAction`：它以 Buff 的 `ActionSource` 为 owner，
+   用 `OwnerSpawnedEntityFinder(AbilityEntity)`、标签 `-1480463572` 与
+   `SkillCastIdValidator` 找到同次施法的封印实体，再逐个向当前 `Target` 施加
+   `buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect` 和
+   `..._effect_line`。同 Buff 的 `OnBuffTrigger` 则先把同类实体写入 `bunshin`，再逐个以实体为
+   caster 释放 `chr_0032_lizhiyan_combo_skill_abilityentity_end`。审计模型已新增“集合身份 + 循环体”
+   事实，并进一步确认
+   `OnOwnerDead`、`OnBeforePartDisable` 也执行同一实体结束技能；22 个关联 Buff 定义均已解析，
+   `buffDefinitionResolutionIssues` 已消失。生成期现能把标签降为明确封印实体 ID，运行时实体
+   保存来源施法序号，Buff 生命周期也有独立目标 Context；两个子 Buff 只有表现事件，可严格
+   省略。结束子技能仍包含定时标记门、伤害、监听 Buff、Buff 结束和实体结束。监听 Buff 的
+   `OnBeforeTakeDamage` 同步树现完整保留为：`isWisd >= 1`、`DamageDecorateMask HasAll 256`
+   （既有枚举证据为 `normalSkill`）、`Target == Source`，随后依次返还 ATB、把 HitBox 目标写入
+   `tar`、以 `Source` 为攻击者中断 `Context/tar`（`overrideSuperArmorLimit=-1`、
+   `immobilizedTime=1`）、造成伤害并结束 Buff。生成器不再丢失目标查找与中断叶。1.4.4 原生
+   `SequenceAction.Init` 与元数据现已证明事件序列优先级取首个启用动作的
+   `priorityLevel + priorityOffset`，枚举为 `Low=-100 / Default=0 / High=100`；本监听精确为 `0`。
+   `TriggerEvent` 又证明 `OnBeforeTakeDamage` 的动作 `Target` 是事件上下文中的
+   `Modifier.source`（本次伤害攻击者），而 Buff 动作 `Source` 是 Buff 来源，因此这里的等价检查
+   精确表示“伤害来源等于创建 Buff 的能力实体”。Next 已有按 Buff 实例启停的承伤订阅、事件
+   tags/features 与来源身份条件。当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，
+   因此 `InterruptAction` 在模型内没有可观察效果；原生又证明该动作恒返回成功，生成器现保留
+   完整审计载荷并将其归约为空序列。剩余硬阻塞是把事件响应正式接入 Buff 生成编译链，以及
+   严格闭环两个 `FinishBuffAdvanced` 的 Owner/Environment 查询语义。
+2. 四个形态相关技能直接读取实体动作黑板 `EntityBB_wisd_greater_will`。当前场景装配没有从
+   已解析面板属性向技能实例写入该键的通用桥；旧手写定义中的 `deckAttributesChanged`
+   事件处理器也尚未被编译/运行时装配消费，不能把它当作已经存在的桥。
+3. 原始数据把首次终结技和二次终结技保存为两个技能资源，而手写定义对外保持一个稳定技能
+   身份并根据强化/就绪状态选择阶段。生成目录尚无证据完备的状态选择与注册策略，不能把两个
+   原生入口都作为可自由排入的独立终结技。
+4. `presentationVariants`、形态感知连携注册、天赋和潜能的行为仍需逐项与手写定义及原始数据
+   对照；11/11 只证明技能主体通过严格编译，不证明干员级形态、养成和展示语义完整。

@@ -19,6 +19,7 @@ __all__ = [
     "EntityBlackboardAssignmentSource",
     "AuxiliaryActionSource",
     "InflictionPayload",
+    "InterruptPayload",
     "TimedInflictionSource",
     "TimedResourceGainSource",
     "AbilityEntityTimeDilationTargetSource",
@@ -214,6 +215,16 @@ class PhysicalInflictionPayload:
     totalTime: ScalarSource
     isExtra: bool
     deadOption: str
+    immobilizedTime: float
+
+
+@dataclass(frozen=True)
+class InterruptPayload:
+    """原生 InterruptAction 的完整数据载荷；仅保留事实，不解释控制效果。"""
+
+    attacker: "TargetReferenceSource"
+    defender: "TargetReferenceSource"
+    overrideSuperArmorLimit: float
     immobilizedTime: float
 
 
@@ -572,6 +583,48 @@ class BuffEventActionSource:
     damageUnits: tuple[DamageUnitSource, ...]
     buffApplications: tuple["EventBuffApplicationSource", ...]
     createdBuffIds: tuple[str, ...]
+    forEachActions: tuple["BuffEventForEachSource", ...] = ()
+    targetGroupWrites: tuple["BuffEventTargetGroupWriteSource", ...] = ()
+    sequences: tuple["SkillEventActionSequenceSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffEventTargetGroupWriteSource:
+    actionIndex: int
+    targetGroupKey: str
+    finderType: str
+    finderFactionTarget: str | None
+    finderTargetObjectType: str | int | None
+    finderCheckAlive: bool | None
+    validatorTypes: tuple[str, ...]
+    postProcessorTypes: tuple[str, ...]
+    spawnedObjectType: str | None
+    tagQueries: tuple[tuple[str, tuple[int, ...]], ...]
+    center: str
+    selectorOwner: str
+
+
+@dataclass(frozen=True)
+class BuffEventSkillCastSource:
+    actionIndex: int
+    caster: TargetReferenceSource
+    target: TargetReferenceSource
+    skillId: str
+    skipApplyCost: bool
+    inheritSourceSkillCastId: bool
+
+
+@dataclass(frozen=True)
+class BuffEventForEachSource:
+    """Buff 事件中的目标集合与同步循环体；只保存来源事实，不执行目标搜索。"""
+
+    actionIndex: int
+    target: TargetReferenceSource
+    spawnedObjectType: str | None
+    tagQueries: tuple[tuple[str, tuple[int, ...]], ...]
+    orderedActionTypes: tuple[str, ...]
+    buffApplications: tuple["EventBuffApplicationSource", ...]
+    skillCasts: tuple[BuffEventSkillCastSource, ...]
 
 
 @dataclass(frozen=True)
@@ -591,6 +644,8 @@ class SkillEventActionSequenceSource:
     buffApplications: tuple[EventBuffApplicationSource, ...]
     # 事件回调中的同步动作树。顺序守卫会包住其后的动作，不能只靠动作类型摘要还原。
     actions: tuple["ConditionalBranchActionSource", ...] = ()
+    # 原生 SequenceAction 取首个启用动作的 priorityLevel + priorityOffset。
+    priority: int = 0
 
 
 @dataclass(frozen=True)
@@ -1040,6 +1095,7 @@ class ConditionalBranchActionSource:
     resourceGain: ResourceGainPayload | None = None
     infliction: InflictionPayload | None = None
     physicalInfliction: PhysicalInflictionPayload | None = None
+    interrupt: InterruptPayload | None = None
     projectileLaunch: ProjectileLaunchPayload | None = None
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
@@ -1212,6 +1268,11 @@ class TargetGroupWriteSource:
     intervalSeconds: float | None
     finderSpawnedObjectType: str | None = None
     validatorTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
+    finderFixedPointSnapToNavmesh: bool | None = None
+    center: str | None = None
+    centerContextKey: str = ""
+    selectorOwner: str | None = None
+    selectorOwnerContextKey: str = ""
 
 
 @dataclass(frozen=True)

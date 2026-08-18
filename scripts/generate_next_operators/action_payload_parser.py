@@ -23,6 +23,7 @@ from source_models import (
     EntityBlackboardAssignmentSource,
     GlobalCooldownApplicationPayload,
     InflictionPayload,
+    InterruptPayload,
     PhysicalInflictionPayload,
     ProjectileLaunchPayload,
     ProjectileSkillTriggerSource,
@@ -57,6 +58,7 @@ __all__ = [
     "parse_entity_blackboard_assignments",
     "parse_global_cooldown_application_payload",
     "parse_infliction_payload",
+    "parse_interrupt_payload",
     "parse_physical_infliction_payload",
     "parse_projectile_launch_payload",
     "parse_resource_gain_payload",
@@ -945,6 +947,35 @@ def parse_physical_infliction_payload(
         isExtra=require_bool(action.get("isExtra"), f"{path}.isExtra"),
         deadOption=dead_option,
         immobilizedTime=require_number(action.get("immobilizedTime"), f"{path}.immobilizedTime"),
+    )
+
+
+def parse_interrupt_payload(action: dict[str, Any], path: str) -> InterruptPayload:
+    """严格保存 InterruptAction 字段；运行时控制效果需由独立证据闭环。"""
+    expected_fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "attacker",
+        "defender",
+        "overrideSuperArmorLimit",
+        "immobilizedTime",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected fields {sorted(action)}")
+    if action_name(str(action.get("$type", ""))) != "InterruptAction":
+        raise ValueError(f"{path}: expected InterruptAction")
+    return InterruptPayload(
+        attacker=parse_target_reference(action.get("attacker"), f"{path}.attacker"),
+        defender=parse_target_reference(action.get("defender"), f"{path}.defender"),
+        overrideSuperArmorLimit=require_number(
+            action.get("overrideSuperArmorLimit"), f"{path}.overrideSuperArmorLimit"
+        ),
+        immobilizedTime=require_number(
+            action.get("immobilizedTime"), f"{path}.immobilizedTime"
+        ),
     )
 
 

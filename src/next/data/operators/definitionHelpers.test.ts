@@ -4,6 +4,8 @@ import {
   damageOfType,
   multiplyLevelValues,
   reactionActive,
+  sequence,
+  step,
   scaleDamageByStatusStacks,
   statusActive,
   statusStacksExactly,
@@ -153,5 +155,19 @@ describe('operator definition helpers', () => {
       },
     });
     expect(damage).not.toHaveProperty('attackScalePerStatusStack');
+  });
+  it('flattens nested generated sequences without changing step order', () => {
+    const first = step('modifyActionValue', {
+      key: 'value',
+      operation: 'assign',
+      value: { kind: 'constant', value: 1 },
+    });
+    const second = step('modifyActionValue', {
+      key: 'value',
+      operation: 'add',
+      value: { kind: 'constant', value: 2 },
+    });
+
+    expect(sequence(sequence(first), second)).toEqual({ steps: [first, second] });
   });
 });

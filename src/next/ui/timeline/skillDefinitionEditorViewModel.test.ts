@@ -8,6 +8,7 @@ import {
   applySkillEditorField,
   applySkillEditorSequenceFrames,
   createSkillEditorDraft,
+  createSkillEditorStep,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorStep,
   duplicateSkillEditorSequence,
@@ -172,6 +173,24 @@ function templateDefinition(): SkillDefinition {
 }
 
 describe('skillDefinitionEditorViewModel', () => {
+  it('新建能力实体步骤提供可释放且可递归编辑的合法默认定义', () => {
+    const draft = createSkillEditorDraft(templateDefinition(), undefined);
+    const step = createSkillEditorStep(draft, 'spawnAbilityEntity');
+    const withStep = replaceSkillEditorStep(draft, 0, 0, step);
+
+    expect(step).toEqual({
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        abilityEntityId: 'custom-ability-entity',
+        definition: {
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+        },
+        dieWhenSourceDies: false,
+      },
+    });
+    expect(validateSkillDefinition(withStep)).toEqual([]);
+  });
+
   it('建立隔离草稿，编辑不影响模板', () => {
     const template = templateDefinition();
     const draft = createSkillEditorDraft(template, undefined);

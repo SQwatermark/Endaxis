@@ -92,11 +92,8 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
         15,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0030_zhuangfy_attack2',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
-            inheritActionBlackboard: true,
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
               scheduledSequences: [
                 scheduled(
@@ -146,7 +143,9 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
           }),
         ),
       ),
@@ -250,11 +249,8 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
         11,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0030_zhuangfy_attack2',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
-            inheritActionBlackboard: true,
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
               scheduledSequences: [
                 scheduled(
@@ -304,7 +300,9 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
           }),
         ),
       ),
@@ -325,12 +323,8 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
         20,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0030_zhuangfy_attack5',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange',
-            inheritActionBlackboard: true,
-            target: 'enemy',
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack5_abilityrange',
               scheduledSequences: [
                 scheduled(
@@ -388,7 +382,10 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
+            target: 'enemy',
           }),
         ),
       ),
@@ -486,13 +483,8 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
         3,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
-            inheritActionBlackboard: true,
-            target: 'enemy',
-            saveToContextKey: 'thunder',
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
               scheduledSequences: [
                 scheduled(
@@ -519,7 +511,11 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
+            target: 'enemy',
+            saveToContextKey: 'thunder',
           }),
         ),
       ),
@@ -606,7 +602,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 0,
-            priority: -593023102,
+            priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
@@ -746,7 +742,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 0,
-            priority: -593023102,
+            priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
@@ -875,7 +871,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
             slot: 1464849466,
-            priority: -2059842104,
+            priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
             targets: ['caster'],
@@ -887,7 +883,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('startUltimateTimeDilation', {
-            priority: -1742631616,
+            priority: 100,
             targetScale: { kind: 'constant', value: 0 },
             ignoredTargets: [],
             ignoredAbilityEntityTargets: [{ kind: 'context', contextKey: 'ult_postmodel_mirror' }, { kind: 'context', contextKey: 'ult_postmodel' }],

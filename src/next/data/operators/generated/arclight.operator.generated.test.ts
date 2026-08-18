@@ -47,7 +47,7 @@ describe('arclight generated operator', () => {
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('missing AbilityEntity spawn');
 
     expect(spawn.parameters.inheritActionBlackboard).toBe(true);
-    expect(spawn.parameters.childSkill?.scheduledSequences.map(sequence => sequence.startFrame)).toEqual([
+    expect(spawn.parameters.definition.childSkill?.scheduledSequences.map(sequence => sequence.startFrame)).toEqual([
       7, 63,
     ]);
     expect(ultimate.scheduledSequences.map(sequence => sequence.startFrame)).not.toEqual(

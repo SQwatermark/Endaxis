@@ -13,10 +13,8 @@ import { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 import {
   logicalAbilityEntityRuntimeId,
-  type LogicalAbilityEntityTemplate,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { logicalAbilityEntityTemplates } from '../../../data/ability-entities/abilityEntityTemplateEvidence';
 import { gilbertaBattleSkill } from '../../../data/operators/generated/gilberta.operator.generated';
 
 const emptyEnemyBuffRuntime = {
@@ -112,7 +110,6 @@ function createAssembly(
     typeof CombatRuntimeAssembly
   >[0]['createOperatorBuffRuntime'],
   enemy: CombatEnemyProgram = testEnemy,
-  abilityEntityTemplates: readonly LogicalAbilityEntityTemplate[] = [],
   timeDilation?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['timeDilation'],
   createAbilityEntityBuffRuntime?: ConstructorParameters<
     typeof CombatRuntimeAssembly
@@ -139,7 +136,6 @@ function createAssembly(
       ],
     },
     enemyBuffRuntime,
-    abilityEntityTemplates,
     ...(timeDilation === undefined ? {} : { timeDilation }),
     operators: [{ operatorId: 'operator', skills: programs }],
     createOperationExecutor: () => rejectingExecutor,
@@ -163,8 +159,15 @@ describe('CombatRuntimeAssembly', () => {
               {
                 kind: 'spawnAbilityEntity',
                 parameters: {
-                  templateId: 'fixture_entity',
-                  childSkillId: 'fixture_child',
+                  abilityEntityId: 'fixture_entity',
+                  definition: {
+                    lifetime: { kind: 'limited', durationSeconds: 5 },
+                    childSkill: {
+                      skillId: 'fixture_child',
+                      initialBlackboard: {},
+                      timelineActions: [],
+                    },
+                  },
                   target: 'enemy',
                   overrideDurationSeconds: { kind: 'constant', value: 2 },
                   saveToContextKey: 'spawned',
@@ -183,14 +186,6 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [
-        {
-          id: 'fixture_entity',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 5 },
-          maxStackingCount: -1,
-        },
-      ],
     );
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
@@ -201,7 +196,7 @@ describe('CombatRuntimeAssembly', () => {
           event: 'AbilityEntitySpawned',
           sourceId: 'operator',
           data: expect.objectContaining({
-            templateId: 'fixture_entity',
+            abilityEntityId: 'fixture_entity',
             remainingDurationSeconds: 2,
           }),
         }),
@@ -221,21 +216,14 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [
-        {
-          id: 'fixture_entity',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 1 },
-          maxStackingCount: -1,
-        },
-      ],
       {
-        config: { priorities: new Map([[10, 10]]) },
+        config: {},
         timeManagerDeltaMode: 0,
       },
     );
     const entity = assembly.abilityEntities.spawn({
-      templateId: 'fixture_entity',
+      abilityEntityId: 'fixture_entity',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 1 } },
       ownerId: 'operator',
       source: { kind: 'operator', operatorId: 'operator' },
     });
@@ -267,25 +255,27 @@ describe('CombatRuntimeAssembly', () => {
               {
                 kind: 'spawnAbilityEntity',
                 parameters: {
-                  templateId: 'fixture_entity',
-                  childSkillId: 'fixture_child',
+                  abilityEntityId: 'fixture_entity',
                   dieWhenSourceDies: false,
-                  childSkill: {
-                    skillId: 'fixture_child',
-                    initialBlackboard: {},
-                    timelineActions: [
-                      {
-                        startFrame: 2,
-                        sequence: {
-                          steps: [
-                            {
-                              kind: 'changeResource',
-                              parameters: { resource: 'sp', amount: 10, recipient: 'team' },
-                            },
-                          ],
+                  definition: {
+                    lifetime: { kind: 'limited', durationSeconds: 10 },
+                    childSkill: {
+                      skillId: 'fixture_child',
+                      initialBlackboard: {},
+                      timelineActions: [
+                        {
+                          startFrame: 2,
+                          sequence: {
+                            steps: [
+                              {
+                                kind: 'changeResource',
+                                parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                              },
+                            ],
+                          },
                         },
-                      },
-                    ],
+                      ],
+                    },
                   },
                 },
               },
@@ -301,16 +291,8 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [
-        {
-          id: 'fixture_entity',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-          maxStackingCount: -1,
-        },
-      ],
       {
-        config: { priorities: new Map([[10, 10]]) },
+        config: {},
         timeManagerDeltaMode: 0,
       },
     );
@@ -379,42 +361,44 @@ describe('CombatRuntimeAssembly', () => {
               {
                 kind: 'spawnAbilityEntity',
                 parameters: {
-                  templateId: 'buff-host',
-                  childSkillId: 'buff-child',
+                  abilityEntityId: 'buff-host',
                   dieWhenSourceDies: false,
-                  childSkill: {
-                    skillId: 'buff-child',
-                    initialBlackboard: {},
-                    timelineActions: [
-                      {
-                        startFrame: 0,
-                        sequence: {
-                          steps: [
-                            {
-                              kind: 'applyBuff',
-                              parameters: {
-                                buffId: 'entity-monitor',
-                                target: 'currentAbilityEntity',
-                                inheritSourceSkillCastInfo: true,
-                                definition: {
-                                  stackingType: 'unique',
-                                  triggerIntervalSeconds: 1 / 30,
-                                  waitFirstTriggerInterval: true,
-                                  maxTriggerCount: 1,
-                                  lifecycleSequences: {
-                                    trigger: {
-                                      steps: [
-                                        { kind: 'finishCurrentAbilityEntity', parameters: {} },
-                                      ],
+                  definition: {
+                    lifetime: { kind: 'limited', durationSeconds: 10 },
+                    childSkill: {
+                      skillId: 'buff-child',
+                      initialBlackboard: {},
+                      timelineActions: [
+                        {
+                          startFrame: 0,
+                          sequence: {
+                            steps: [
+                              {
+                                kind: 'applyBuff',
+                                parameters: {
+                                  buffId: 'entity-monitor',
+                                  target: 'currentAbilityEntity',
+                                  inheritSourceSkillCastInfo: true,
+                                  definition: {
+                                    stackingType: 'unique',
+                                    triggerIntervalSeconds: 1 / 30,
+                                    waitFirstTriggerInterval: true,
+                                    maxTriggerCount: 1,
+                                    lifecycleSequences: {
+                                      trigger: {
+                                        steps: [
+                                          { kind: 'finishCurrentAbilityEntity', parameters: {} },
+                                        ],
+                                      },
                                     },
                                   },
                                 },
                               },
-                            },
-                          ],
+                            ],
+                          },
                         },
-                      },
-                    ],
+                      ],
+                    },
                   },
                 },
               },
@@ -430,14 +414,6 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [
-        {
-          id: 'buff-host',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-          maxStackingCount: -1,
-        },
-      ],
       undefined,
       createAbilityEntityBuffRuntime,
     );
@@ -508,10 +484,6 @@ describe('CombatRuntimeAssembly', () => {
       costs: [],
       timelineActions: [{ ...spawnAction, startFrame: 0 }],
     };
-    const template = logicalAbilityEntityTemplates.find(
-      item => item.id === 'abilityentity_chr_0013_aglina_normal_skill',
-    );
-    if (template === undefined) throw new Error('Gilberta AbilityEntity template is missing');
     const assembly = createAssembly(
       [program],
       undefined,
@@ -519,7 +491,6 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [template],
       undefined,
       createAbilityEntityBuffRuntime,
     );
@@ -544,8 +515,7 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
-  it('resolves owner/tag AbilityEntity targets through the assembled time-dilation chain', () => {
-    const marked = gameplayTagIdFromPath('AbilityEntity/Test/Marked');
+  it('resolves owner/entity-id AbilityEntity targets through the assembled time-dilation chain', () => {
     const program = skill({
       costs: [],
       costFrame: undefined,
@@ -567,7 +537,7 @@ describe('CombatRuntimeAssembly', () => {
                   abilityEntityTargets: [
                     {
                       kind: 'ownerSpawned',
-                      tagQuery: { type: 'hasAny', tagIds: [marked] },
+                      abilityEntityIds: ['marked'],
                     },
                   ],
                 },
@@ -584,35 +554,24 @@ describe('CombatRuntimeAssembly', () => {
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
-      [
-        {
-          id: 'marked',
-          bornTagIds: [marked],
-          lifetime: { kind: 'limited', durationSeconds: 2 },
-          maxStackingCount: -1,
-        },
-        {
-          id: 'plain',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 2 },
-          maxStackingCount: -1,
-        },
-      ],
       {
         config: {
-          priorities: new Map([[10, 10]]),
           curves: new Map([['half', () => 0.5]]),
         },
         timeManagerDeltaMode: 0,
       },
     );
     const markedEntity = assembly.abilityEntities.spawn({
-      templateId: 'marked',
+      abilityEntityId: 'marked',
+      definition: {
+        lifetime: { kind: 'limited', durationSeconds: 2 },
+      },
       ownerId: 'operator',
       source: { kind: 'operator', operatorId: 'operator' },
     });
     assembly.abilityEntities.spawn({
-      templateId: 'plain',
+      abilityEntityId: 'plain',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 2 } },
       ownerId: 'operator',
       source: { kind: 'operator', operatorId: 'operator' },
     });
@@ -729,7 +688,6 @@ describe('CombatRuntimeAssembly', () => {
       inputs: [{ frame: 1, operatorId: 'other', skillId: 'follow-up' }],
       timeDilation: {
         config: {
-          priorities: new Map([[10, 10]]),
           curves: new Map([['half', () => 0.5]]),
         },
         timeManagerDeltaMode: 2,

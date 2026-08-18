@@ -21,8 +21,9 @@ function collectGeneratedDamageSchedule(skill: typeof generatedBasicAttack2) {
       .filter(step => step.kind === 'dealDamage')
       .map(step => ({ startFrame: item.startFrame, step }));
     const childDamage = collectSteps(item.sequence).flatMap(step => {
-      if (step.kind !== 'spawnAbilityEntity' || step.parameters.childSkill === undefined) return [];
-      return step.parameters.childSkill.scheduledSequences.flatMap(childItem =>
+      if (step.kind !== 'spawnAbilityEntity' || step.parameters.definition.childSkill === undefined)
+        return [];
+      return step.parameters.definition.childSkill.scheduledSequences.flatMap(childItem =>
         collectSteps(childItem.sequence)
           .filter(childStep => childStep.kind === 'dealDamage')
           .map(childStep => ({
@@ -101,17 +102,24 @@ describe('next Zhuang Fangyi definition', () => {
       expect.objectContaining({
         kind: 'spawnAbilityEntity',
         parameters: expect.objectContaining({
-          templateId: 'abilityentity_chr_0030_zhuangfy_attack5',
-          childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+          abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
+          definition: expect.objectContaining({
+            childSkill: expect.objectContaining({
+              skillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+            }),
+          }),
         }),
       }),
     );
     const spawn = generatedRootSteps.find(step => step.kind === 'spawnAbilityEntity');
-    if (spawn?.kind !== 'spawnAbilityEntity' || spawn.parameters.childSkill === undefined) {
+    if (
+      spawn?.kind !== 'spawnAbilityEntity' ||
+      spawn.parameters.definition.childSkill === undefined
+    ) {
       throw new Error('missing generated AbilityEntity child timeline');
     }
-    const generatedChildSteps = spawn.parameters.childSkill.scheduledSequences.flatMap(item =>
-      collectSteps(item.sequence),
+    const generatedChildSteps = spawn.parameters.definition.childSkill.scheduledSequences.flatMap(
+      item => collectSteps(item.sequence),
     );
     const generatedDamage = generatedChildSteps.find(step => step.kind === 'dealDamage');
     const currentDamage = currentSteps.find(step => step.kind === 'dealDamage');

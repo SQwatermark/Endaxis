@@ -1,24 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
-import { gameplayTagId } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext } from './skillRuntime';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 describe('AbilityEntityOperationExecutor', () => {
   it('spawns from operands and writes the resulting handle to Context', () => {
-    const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'seal',
-          bornTagIds: [gameplayTagId(1)],
-          lifetime: { kind: 'limited', durationSeconds: 5 },
-          maxStackingCount: 4,
-        },
-      ],
-    });
+    const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
       evaluate: () => false,
@@ -30,8 +21,11 @@ describe('AbilityEntityOperationExecutor', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
-            templateId: 'seal',
-            childSkillId: 'seal_skill',
+            abilityEntityId: 'seal',
+            definition: {
+              lifetime: { kind: 'limited', durationSeconds: 5 },
+            },
+
             target: 'enemy',
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
             saveToContextKey: 'bunshin1',
@@ -54,30 +48,22 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.snapshot(entity)).toMatchObject({
       ownerId: 'arcane',
       target: { kind: 'enemy' },
-      childSkillId: 'seal_skill',
       remainingDurationSeconds: 40,
       blackboard: { EntityBB_wisd_greater_will: 3 },
     });
   });
 
   it('finds all owner-tag matches in zero space and exposes their count', () => {
-    const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'lance',
-          bornTagIds: [gameplayTagId(1447025331)],
-          lifetime: { kind: 'infinite' },
-          maxStackingCount: -1,
-        },
-      ],
-    });
+    const entities = new LogicalAbilityEntityRuntime({});
     entities.spawn({
-      templateId: 'lance',
+      abilityEntityId: 'lance',
+      definition: { lifetime: { kind: 'infinite' } },
       ownerId: 'avywenna',
       source: { kind: 'operator', operatorId: 'avywenna' },
     });
     entities.spawn({
-      templateId: 'lance',
+      abilityEntityId: 'lance',
+      definition: { lifetime: { kind: 'infinite' } },
       ownerId: 'other',
       source: { kind: 'operator', operatorId: 'other' },
     });
@@ -94,7 +80,7 @@ describe('AbilityEntityOperationExecutor', () => {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
             saveToContextKey: 'ComboLances',
-            tagQuery: { type: 'hasAny', tagIds: [1447025331] },
+            abilityEntityIds: ['lance'],
             saveCountToBlackboardKey: 'ComboLanceCount',
           },
         },
@@ -106,19 +92,51 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(blackboard.getNumber('ComboLanceCount')).toBe(1);
   });
 
-  it('reads finite remaining duration from the current iterated entity', () => {
-    const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'water',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 12 },
-          maxStackingCount: -1,
-        },
-      ],
+  it('applies SkillCastIdValidator semantics to owner-spawned queries', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    for (const sourceSkillCastId of [21, 22]) {
+      entities.spawn({
+        abilityEntityId: 'seal',
+        definition: { lifetime: { kind: 'infinite' } },
+        ownerId: 'arcane',
+        source: { kind: 'operator', operatorId: 'arcane' },
+        sourceSkillCastId,
+      });
+    }
+    const executor = new AbilityEntityOperationExecutor('arcane', entities, {
+      execute: () => false,
+      evaluate: () => false,
     });
+    const targetContext = new RuntimeTargetContext();
+    const skillCastInfo: CombatSkillCastInfo = {
+      skillCastId: 22,
+      originSkillId: 'comboSkill',
+      nonReturnedSpCost: 0,
+    };
+
+    executor.execute(
+      {
+        kind: 'findOwnerSpawnedAbilityEntities',
+        parameters: {
+          saveToContextKey: 'seals',
+          abilityEntityIds: ['seal'],
+          sameSourceSkillCast: true,
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext, skillCastInfo },
+    );
+
+    const [matched] = targetContext.get('seals');
+    expect(matched).toBeDefined();
+    if (matched === undefined) throw new Error('expected same-cast entity');
+    expect(entities.snapshot(matched).sourceSkillCastId).toBe(22);
+  });
+
+  it('reads finite remaining duration from the current iterated entity', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
     const entity = entities.spawn({
-      templateId: 'water',
+      abilityEntityId: 'water',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 12 } },
       ownerId: 'tangtang',
       source: { kind: 'operator', operatorId: 'tangtang' },
     });
@@ -171,14 +189,6 @@ describe('AbilityEntityOperationExecutor', () => {
 
   it('advances an embedded child timeline with the entity local clock', () => {
     const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'child-host',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-          maxStackingCount: -1,
-        },
-      ],
       resolveDeltaSeconds: () => 1 / 60,
     });
     const execute = vi.fn(
@@ -193,32 +203,35 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
-          templateId: 'child-host',
-          childSkillId: 'child-skill',
+          abilityEntityId: 'child-host',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+            childSkill: {
+              skillId: 'child-skill',
+              initialBlackboard: { local: 3 },
+              timelineActions: [
+                {
+                  startFrame: 2,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'modifyActionValue',
+                        parameters: {
+                          key: 'result',
+                          operation: 'assign',
+                          value: { kind: 'blackboard', key: 'inherited' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+
           dieWhenSourceDies: false,
           inheritActionBlackboard: true,
           blackboardAssignments: { inherited: { kind: 'constant', value: 7 } },
-          childSkill: {
-            skillId: 'child-skill',
-            initialBlackboard: { local: 3 },
-            timelineActions: [
-              {
-                startFrame: 2,
-                sequence: {
-                  steps: [
-                    {
-                      kind: 'modifyActionValue',
-                      parameters: {
-                        key: 'result',
-                        operation: 'assign',
-                        value: { kind: 'blackboard', key: 'inherited' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
         },
       },
       { blackboard: new ActionBlackboard({ inheritedParent: 11 }) },
@@ -239,14 +252,6 @@ describe('AbilityEntityOperationExecutor', () => {
 
   it('applies child-skill timeline jumps on the ability entity local clock', () => {
     const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'jump-host',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-          maxStackingCount: -1,
-        },
-      ],
       resolveDeltaSeconds: () => 1 / 60,
     });
     const execute = vi.fn(
@@ -262,44 +267,47 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
-          templateId: 'jump-host',
-          childSkillId: 'jump-child',
-          dieWhenSourceDies: false,
-          childSkill: {
-            skillId: 'jump-child',
-            initialBlackboard: {},
-            timelineActions: [
-              {
-                startFrame: 1,
-                endFrame: 2,
-                sequence: {
-                  steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+          abilityEntityId: 'jump-host',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+            childSkill: {
+              skillId: 'jump-child',
+              initialBlackboard: {},
+              timelineActions: [
+                {
+                  startFrame: 1,
+                  endFrame: 2,
+                  sequence: {
+                    steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+                  },
                 },
-              },
-              {
-                startFrame: 3,
-                sequence: {
-                  steps: [
-                    {
-                      kind: 'setContextFlag',
-                      parameters: { flag: 'skipped', value: true, target: 'caster' },
-                    },
-                  ],
+                {
+                  startFrame: 3,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'setContextFlag',
+                        parameters: { flag: 'skipped', value: true, target: 'caster' },
+                      },
+                    ],
+                  },
                 },
-              },
-              {
-                startFrame: 5,
-                sequence: {
-                  steps: [
-                    {
-                      kind: 'setContextFlag',
-                      parameters: { flag: 'destination', value: true, target: 'caster' },
-                    },
-                  ],
+                {
+                  startFrame: 5,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'setContextFlag',
+                        parameters: { flag: 'destination', value: true, target: 'caster' },
+                      },
+                    ],
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
+
+          dieWhenSourceDies: false,
         },
       },
       { blackboard: new ActionBlackboard() },
@@ -321,16 +329,7 @@ describe('AbilityEntityOperationExecutor', () => {
   });
 
   it('allows an embedded child timeline to finish its own host entity', () => {
-    const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'self-finishing-host',
-          bornTagIds: [],
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-          maxStackingCount: -1,
-        },
-      ],
-    });
+    const entities = new LogicalAbilityEntityRuntime({});
     const delegate = { execute: () => false, evaluate: () => false };
     let executor!: AbilityEntityOperationExecutor;
     executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
@@ -341,22 +340,25 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
-          templateId: 'self-finishing-host',
-          childSkillId: 'self-finishing-skill',
+          abilityEntityId: 'self-finishing-host',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+            childSkill: {
+              skillId: 'self-finishing-skill',
+              initialBlackboard: {},
+              timelineActions: [
+                {
+                  startFrame: 1,
+                  sequence: {
+                    steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }],
+                  },
+                },
+              ],
+            },
+          },
+
           dieWhenSourceDies: false,
           inheritActionBlackboard: false,
-          childSkill: {
-            skillId: 'self-finishing-skill',
-            initialBlackboard: {},
-            timelineActions: [
-              {
-                startFrame: 1,
-                sequence: {
-                  steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }],
-                },
-              },
-            ],
-          },
         },
       },
       { blackboard: new ActionBlackboard() },
@@ -368,23 +370,15 @@ describe('AbilityEntityOperationExecutor', () => {
   });
 
   it('keeps a source-death monitor alive until its recorded source dies', () => {
-    const entities = new LogicalAbilityEntityRuntime({
-      templates: [
-        {
-          id: 'source-monitor',
-          bornTagIds: [],
-          lifetime: { kind: 'infinite' },
-          maxStackingCount: -1,
-        },
-      ],
-    });
+    const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('gilberta', entities, {
       execute: () => false,
       evaluate: () => false,
     });
     const source = { kind: 'operator' as const, operatorId: 'gilberta' };
     const entity = entities.spawn({
-      templateId: 'source-monitor',
+      abilityEntityId: 'source-monitor',
+      definition: { lifetime: { kind: 'infinite' } },
       ownerId: 'gilberta',
       source,
       dieWhenSourceDies: false,

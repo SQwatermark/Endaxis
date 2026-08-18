@@ -347,6 +347,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'applyElementalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
+  'spawnAbilityEntity',
   'applyBuff',
   'readBuffBlackboard',
   'readBuffStackCount',
@@ -509,6 +510,17 @@ export function createSkillEditorStep(
       };
     case 'consumeElementalReaction':
       return { kind, parameters: { reaction: 'electrification', target: 'enemy' } };
+    case 'spawnAbilityEntity':
+      return {
+        kind,
+        parameters: {
+          abilityEntityId: 'custom-ability-entity',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+          },
+          dieWhenSourceDies: false,
+        },
+      };
     case 'applyBuff':
       return {
         kind,

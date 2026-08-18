@@ -56,6 +56,24 @@ BEHAVIOR_FIELDS = (
     "auraActions",
 )
 
+PRESENTATION_EVENT_ACTION_TYPES = frozenset({"EffectAction"})
+
+
+def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
+    if not source.eventActions:
+        return True
+    return all(
+        hasattr(event, "orderedActionTypes")
+        and set(event.orderedActionTypes) <= PRESENTATION_EVENT_ACTION_TYPES
+        and not getattr(event, "combatActions", ())
+        and not getattr(event, "damageUnits", ())
+        and not getattr(event, "buffApplications", ())
+        and not getattr(event, "createdBuffIds", ())
+        and not getattr(event, "forEachActions", ())
+        and not getattr(event, "targetGroupWrites", ())
+        for event in source.eventActions
+    )
+
 
 def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> str:
     """生成不含 Buff ID 的完整定义；无法无损表达时明确拒绝。"""
@@ -67,7 +85,13 @@ def compile_inline_buff_definition(source: BuffDefinitionSource, path: str) -> s
         field
         for field in BEHAVIOR_FIELDS
         if getattr(source, field)
-        and not (field == "eventActions" and source_death_finish is not None)
+        and not (
+            field == "eventActions"
+            and (
+                source_death_finish is not None
+                or _event_actions_are_presentation_only(source)
+            )
+        )
     )
     if unsupported:
         raise ValueError(

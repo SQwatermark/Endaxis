@@ -277,6 +277,8 @@ export type CombatCondition =
       match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       features: readonly DamageFeature[];
     }
+  /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
+  | { kind: 'eventSourceMatchesBuffSource' }
   | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
@@ -314,6 +316,7 @@ export const COMBAT_CONDITION_KINDS = [
   'timedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
+  'eventSourceMatchesBuffSource',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',
@@ -375,15 +378,11 @@ export const SP_GAIN_SOURCES = ['default', 'normalAttack', 'powerAttack', 'skill
 /** 原生共享 SP 获取效率用于区分普攻、重击和其他动作来源。 */
 export type SpGainSource = (typeof SP_GAIN_SOURCES)[number];
 
-/** 原生 OwnerSpawnedEntityFinder 在零空间模型中的可执行能力实体查询。 */
+/** 生成期已从原生 born-tag 证据解析出的可执行能力实体查询。 */
 export type AbilityEntityTargetQuery =
   | {
       readonly kind: 'ownerSpawned';
-      readonly tagQuery?: {
-        readonly type: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-        readonly tagIds: readonly number[];
-        readonly exact?: boolean;
-      };
+      readonly abilityEntityIds?: readonly string[];
     }
   | { readonly kind: 'context'; readonly contextKey: string };
 
@@ -420,19 +419,24 @@ export interface AbilityEntityChildSkillDefinition {
   readonly scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
+/** 技能生成步骤内联携带的完整逻辑能力实体蓝图。 */
+export interface AbilityEntityDefinition {
+  readonly lifetime:
+    { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  readonly childSkill?: AbilityEntityChildSkillDefinition;
+}
+
 /**
  * 所有战斗步骤与参数结构的集中映射。
  * 增加步骤时必须同时提供编译、运行时执行和严格校验，不能只扩展此类型。
  */
 export interface CombatStepParameters {
-  /** 按 owner 与原生 GameplayTag 查询逻辑能力实体，并保存为本次释放的 Context 目标组。 */
+  /** 按 owner 与生成期已解析的实体身份查询，并保存为本次释放的 Context 目标组。 */
   findOwnerSpawnedAbilityEntities: {
     saveToContextKey: string;
-    tagQuery?: {
-      type: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      tagIds: readonly number[];
-      exact?: boolean;
-    };
+    abilityEntityIds?: readonly string[];
+    /** 使用当前技能或 Buff 继承的施法序号执行 SkillCastIdValidator。 */
+    sameSourceSkillCast?: boolean;
     /** 可选地把同一查询结果数量写入动作黑板，后续复用 actionValueCompare。 */
     saveCountToBlackboardKey?: string;
   };
@@ -454,13 +458,9 @@ export interface CombatStepParameters {
   finishCurrentAbilityEntityWhenSourceDies: Record<string, never>;
   /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
   spawnAbilityEntity: {
-    templateId: string;
-    childSkillId?: string;
-    /**
-     * 能力实体生成后按自身局部时间推进的子技能。它复用普通技能的序列协议，
-     * 但没有施法、费用、冷却或时间轴放置身份。
-     */
-    childSkill?: AbilityEntityChildSkillDefinition;
+    abilityEntityId: string;
+    /** 完整蓝图随技能定义内联，不在编译或运行时查找共享模板。 */
+    definition: AbilityEntityDefinition;
     /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
     inheritActionBlackboard?: boolean;
     target?: CombatTarget;
@@ -836,12 +836,23 @@ export interface SkillBuffLifecycleSequences {
   finish?: ActionSequenceDefinition;
 }
 
+/** Buff 启用期间注册在其所有者 AbilitySystem 上的一条同步事件响应。 */
+export interface SkillBuffAbilityEventResponse {
+  /** 当前只开放已经接入标准伤害管线的目标承伤前事件。 */
+  event: 'beforeTakeDamage';
+  /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
+  priority: number;
+  sequence: ActionSequenceDefinition;
+}
+
 export type SkillBuffDefinition = Omit<
   import('../combat/buffs/combatBuffDefinitions').CombatBuffDefinitionEntry,
   'id' | 'actions'
 > & {
   /** 使用与技能相同的步骤协议描述 Buff 行为；旧外部定义的低层 actions 不进入技能内联定义。 */
   lifecycleSequences?: SkillBuffLifecycleSequences;
+  /** 每个 Buff 实例独立注册、停用或结束时注销的 Ability 事件响应。 */
+  abilityEventResponses?: readonly SkillBuffAbilityEventResponse[];
   /** 不参与战斗计算的显示信息。 */
   presentation?: SkillBuffPresentation;
 };

@@ -117,6 +117,80 @@ export const arclightGeneratedSource = {
           ],
           "createdBuffIds": [
             "buff_common_vfx_char_atk_up"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_vfx_char_atk_up",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_vfx_char_atk_up",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -313,6 +387,143 @@ export const arclightGeneratedSource = {
           ],
           "createdBuffIds": [
             "buff_chr_0007_ikut_atk_buff_talent"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "StoreAttributeValue",
+                "CreateBuffAction",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0007_ikut_atk_buff_talent",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "pulse_up": {
+                            "value": 0.0,
+                            "blackboardKey": "final_pulse_up",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "InstantSearch",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true,
+                    "targetFinderType": "CharacterTeamFinder"
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0007_ikut_atk_buff_talent",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "pulse_up": {
+                            "value": 0.0,
+                            "blackboardKey": "final_pulse_up",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "InstantSearch",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true,
+                    "targetFinderType": "CharacterTeamFinder"
+                  }
+                },
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0007_ikut_normal_skill_extra_count"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -461,7 +672,22 @@ export const arclightGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -545,7 +771,22 @@ export const arclightGeneratedSource = {
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -6378,6 +6619,56 @@ export const arclightGeneratedSource = {
           ],
           "succeedActions": [
             {
+              "actionType": "InterruptAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 34,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
+            {
               "actionType": "IfElseAction",
               "actionIndex": 2,
               "actionPath": [
@@ -6636,6 +6927,59 @@ export const arclightGeneratedSource = {
                       "useUltimateRecoveryTag": false,
                       "ultimateRecoveryTagId": 0,
                       "ignoreUltimateGainScalar": false
+                    }
+                  },
+                  {
+                    "actionType": "InterruptAction",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 41,
+                    "interrupt": {
+                      "attacker": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "defender": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideSuperArmorLimit": -1.0,
+                      "immobilizedTime": 1.0
                     }
                   },
                   {
@@ -7751,6 +8095,56 @@ export const arclightGeneratedSource = {
           ],
           "succeedActions": [
             {
+              "actionType": "InterruptAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 34,
+              "interrupt": {
+                "attacker": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "defender": {
+                  "targetSource": "Context",
+                  "targetGroupKey": "smart_target",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "overrideSuperArmorLimit": -1.0,
+                "immobilizedTime": 1.0
+              }
+            },
+            {
               "actionType": "IfElseAction",
               "actionIndex": 2,
               "actionPath": [
@@ -8009,6 +8403,59 @@ export const arclightGeneratedSource = {
                       "useUltimateRecoveryTag": false,
                       "ultimateRecoveryTagId": 0,
                       "ignoreUltimateGainScalar": false
+                    }
+                  },
+                  {
+                    "actionType": "InterruptAction",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 41,
+                    "interrupt": {
+                      "attacker": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "defender": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "overrideSuperArmorLimit": -1.0,
+                      "immobilizedTime": 1.0
                     }
                   },
                   {

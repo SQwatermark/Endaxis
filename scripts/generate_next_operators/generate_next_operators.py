@@ -44,6 +44,9 @@ from source_models import (
     BuffDamageModifierSource,
     BuffDamageScaleProcessorSource,
     BuffEventActionSource,
+    BuffEventForEachSource,
+    BuffEventSkillCastSource,
+    BuffEventTargetGroupWriteSource,
     EventBuffApplicationSource,
     SkillEventActionSequenceSource,
     SkillEventListenerSource,
@@ -271,6 +274,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "resourceGain",
         "infliction",
         "physicalInfliction",
+        "interrupt",
         "projectileLaunch",
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
@@ -297,12 +301,33 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
 
 # 这些字段只服务于生成期归约，不属于可审计的游戏源数据。
 INTERNAL_SOURCE_KEYS = frozenset({"localTargetGroupWrites"})
+TARGET_GROUP_WRITE_INTERNAL_KEYS = frozenset(
+    {
+        "finderFixedPointSnapToNavmesh",
+        "center",
+        "centerContextKey",
+        "selectorOwner",
+        "selectorOwnerContextKey",
+    }
+)
 
 
 def serialize_audit_value(value: Any) -> Any:
     """序列化审计对象，并省略仅对特定条件有意义的空详情。"""
+    if isinstance(value, TargetGroupWriteSource):
+        return serialize_audit_value(
+            {
+                key: item
+                for key, item in (
+                    (field.name, getattr(value, field.name)) for field in fields(value)
+                )
+                if key not in TARGET_GROUP_WRITE_INTERNAL_KEYS
+            }
+        )
     if hasattr(value, "__dataclass_fields__"):
-        return serialize_audit_value(asdict(value))
+        return serialize_audit_value(
+            {field.name: getattr(value, field.name) for field in fields(value)}
+        )
     if isinstance(value, dict):
         return {
             key: serialize_audit_value(item)
@@ -320,8 +345,20 @@ def serialize_audit_value(value: Any) -> Any:
 
 def omit_empty_execution_frames(value: Any) -> Any:
     """保留旧审计结构，只省略没有重复执行语义的空帧列表。"""
+    if isinstance(value, TargetGroupWriteSource):
+        return omit_empty_execution_frames(
+            {
+                key: item
+                for key, item in (
+                    (field.name, getattr(value, field.name)) for field in fields(value)
+                )
+                if key not in TARGET_GROUP_WRITE_INTERNAL_KEYS
+            }
+        )
     if hasattr(value, "__dataclass_fields__"):
-        return omit_empty_execution_frames(asdict(value))
+        return omit_empty_execution_frames(
+            {field.name: getattr(value, field.name) for field in fields(value)}
+        )
     if isinstance(value, dict):
         return {
             key: omit_empty_execution_frames(item)
@@ -1865,6 +1902,34 @@ def parse_buff_damage_modifiers(
     return tuple(result), unsupported_count
 
 
+ABILITY_ACTION_PRIORITY_LEVELS = {
+    "Low": -100,
+    "Default": 0,
+    "High": 100,
+}
+
+
+def parse_sequence_action_priority(
+    actions: list[dict[str, Any]], path: str
+) -> int:
+    """还原原生 SequenceAction.Init 采用的首个启用动作排序值。"""
+    if not actions:
+        raise ValueError(f"{path}.actionData: expected at least one enabled action")
+    entry = actions[0]
+    level = entry.get("priorityLevel")
+    offset = entry.get("priorityOffset")
+    if not isinstance(level, str) or not level:
+        raise ValueError(f"{path}.actionData[0].priorityLevel: expected non-empty string")
+    base = ABILITY_ACTION_PRIORITY_LEVELS.get(level)
+    if base is None:
+        raise ValueError(
+            f"{path}.actionData[0].priorityLevel: unsupported value {level!r}"
+        )
+    if not isinstance(offset, int) or isinstance(offset, bool):
+        raise ValueError(f"{path}.actionData[0].priorityOffset: expected integer")
+    return base + offset
+
+
 def parse_buff_event_actions(
     buff: dict[str, Any],
     source_name: str,
@@ -1894,6 +1959,203 @@ def parse_buff_event_actions(
             ordered_action_types = tuple(
                 action_name(item["$type"]) for item in walked_actions
             )
+            for_each_actions: list[BuffEventForEachSource] = []
+            event_target_group_writes: list[BuffEventTargetGroupWriteSource] = []
+            for item in walked_actions:
+                if action_name(item["$type"]) == "FindTargetAction":
+                    item_path = f"{event_path}.FindTargetAction"
+                    if set(item) != set(TARGET_GROUP_FIND_ACTION_FIELDS):
+                        raise ValueError(
+                            f"{item_path}: unexpected fields {sorted(item)}"
+                        )
+                    target_group_key = item.get("targetGroupKey")
+                    if not isinstance(target_group_key, str) or not target_group_key:
+                        raise ValueError(
+                            f"{item_path}.targetGroupKey: expected non-empty string"
+                        )
+                    (
+                        finder,
+                        finder_faction_target,
+                        finder_target_object_type,
+                        finder_check_alive,
+                        validators,
+                        post_processors,
+                    ) = parse_selector_summary(
+                        item.get("selectorData"),
+                        f"{item_path}.selectorData",
+                        finder_required=True,
+                    )
+                    if finder is None:
+                        raise ValueError(f"{item_path}: expected finder")
+                    spawned_object_type, tag_queries = parse_spawned_entity_selector_identity(
+                        item.get("selectorData"), f"{item_path}.selectorData"
+                    )
+                    event_target_group_writes.append(
+                        BuffEventTargetGroupWriteSource(
+                            actionIndex=require_server_action_index(item, item_path),
+                            targetGroupKey=target_group_key,
+                            finderType=finder,
+                            finderFactionTarget=finder_faction_target,
+                            finderTargetObjectType=finder_target_object_type,
+                            finderCheckAlive=finder_check_alive,
+                            validatorTypes=validators,
+                            postProcessorTypes=post_processors,
+                            spawnedObjectType=spawned_object_type,
+                            tagQueries=tag_queries,
+                            center=str(item.get("center", "")),
+                            selectorOwner=str(item.get("selectorOwner", "")),
+                        )
+                    )
+                    continue
+                if action_name(item["$type"]) != "ForEachAction":
+                    continue
+                item_path = f"{event_path}.ForEachAction"
+                expected_fields = {
+                    "$type", "isEnable", "priorityLevel", "priorityOffset",
+                    "serverActionIndex", "target", "action",
+                }
+                if set(item) != expected_fields:
+                    raise ValueError(
+                        f"{item_path}: unexpected fields {sorted(item)}"
+                    )
+                target_value = item.get("target")
+                target = parse_target_reference(target_value, f"{item_path}.target")
+                spawned_object_type, tag_queries = parse_spawned_entity_selector_identity(
+                    require_dict(target_value, f"{item_path}.target").get("selectorData"),
+                    f"{item_path}.target.selectorData",
+                )
+                body = require_dict(item.get("action"), f"{item_path}.action")
+                body_actions = tuple(
+                    require_dict(raw, f"{item_path}.action.actionData[{index}]")
+                    for index, raw in enumerate(
+                        require_list(body.get("actionData"), f"{item_path}.action.actionData")
+                    )
+                    if not isinstance(raw, dict) or raw.get("isEnable") is not False
+                )
+                body_types = tuple(action_name(action["$type"]) for action in body_actions)
+                nested_buff_applications = tuple(
+                    EventBuffApplicationSource(
+                        actionIndex=require_server_action_index(action, item_path),
+                        payload=parse_buff_application_payload(action, item_path, blackboard),
+                    )
+                    for action in body_actions
+                    if action_name(action["$type"]) == "CreateBuffAction"
+                )
+                skill_casts: list[BuffEventSkillCastSource] = []
+                for action in body_actions:
+                    if action_name(action["$type"]) != "CastSkill":
+                        continue
+                    cast_path = f"{item_path}.CastSkill"
+                    expected_cast_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "caster", "target", "skillId",
+                        "skipApplyCost", "inheritSourceSkillCastId",
+                    }
+                    if set(action) != expected_cast_fields:
+                        raise ValueError(
+                            f"{cast_path}: unexpected fields {sorted(action)}"
+                        )
+                    skill_id = require_dict(action.get("skillId"), f"{cast_path}.skillId")
+                    if (
+                        skill_id.get("useBlackboardKey") is not False
+                        or not isinstance(skill_id.get("value"), str)
+                        or not skill_id["value"]
+                    ):
+                        raise ValueError(f"{cast_path}.skillId: expected direct non-empty id")
+                    skip_apply_cost = action.get("skipApplyCost")
+                    inherit_cast_id = action.get("inheritSourceSkillCastId")
+                    if not isinstance(skip_apply_cost, bool) or not isinstance(inherit_cast_id, bool):
+                        raise ValueError(f"{cast_path}: expected boolean cast flags")
+                    skill_casts.append(
+                        BuffEventSkillCastSource(
+                            actionIndex=require_server_action_index(action, cast_path),
+                            caster=parse_target_reference(action.get("caster"), f"{cast_path}.caster"),
+                            target=parse_target_reference(action.get("target"), f"{cast_path}.target"),
+                            skillId=skill_id["value"],
+                            skipApplyCost=skip_apply_cost,
+                            inheritSourceSkillCastId=inherit_cast_id,
+                        )
+                    )
+                for_each_actions.append(
+                    BuffEventForEachSource(
+                        actionIndex=require_server_action_index(item, item_path),
+                        target=target,
+                        spawnedObjectType=spawned_object_type,
+                        tagQueries=tag_queries,
+                        orderedActionTypes=body_types,
+                        buffApplications=nested_buff_applications,
+                        skillCasts=tuple(skill_casts),
+                    )
+                )
+            parsed_sequences: list[SkillEventActionSequenceSource] = []
+            for sequence_index, raw_sequence in enumerate(
+                require_list(actions, f"{event_path}.actions")
+            ):
+                sequence_path = f"{event_path}.actions[{sequence_index}]"
+                sequence = require_dict(raw_sequence, sequence_path)
+                # 既有最小夹具可能把动作直接放进 actions；来源文件的 SequenceAction
+                # 一定携带 actionData 与两个执行身份字段。此类扁平夹具继续由旧审计字段覆盖。
+                if "$type" in sequence or not {
+                    "actionData",
+                    "onlyExecuteWhenSourceIsMainChar",
+                    "onlyExecuteWhenSourceIsGuard",
+                } <= set(sequence):
+                    continue
+                sequence_actions = [
+                    item
+                    for item in walk_unconditional_actions(sequence.get("actionData"))
+                    if item.get("isEnable") is not False
+                ]
+                # AbilityActionUtils.CreateSequenceAction 对没有启用动作的数据返回 null，
+                # ActionContainer 因而不会注册一个可执行响应。
+                if not sequence_actions:
+                    continue
+                sequence_types = tuple(
+                    action_name(item["$type"]) for item in sequence_actions
+                )
+                parsed_sequences.append(
+                    SkillEventActionSequenceSource(
+                        onlyMainOperator=require_bool(
+                            sequence.get("onlyExecuteWhenSourceIsMainChar"),
+                            f"{sequence_path}.onlyExecuteWhenSourceIsMainChar",
+                        ),
+                        onlyGuard=require_bool(
+                            sequence.get("onlyExecuteWhenSourceIsGuard"),
+                            f"{sequence_path}.onlyExecuteWhenSourceIsGuard",
+                        ),
+                        orderedActionTypes=sequence_types,
+                        combatActions=tuple(
+                            name
+                            for name in sequence_types
+                            if name in AUDITED_COMBAT_ACTION_NAMES
+                        ),
+                        buffApplications=tuple(
+                            EventBuffApplicationSource(
+                                actionIndex=require_server_action_index(item, sequence_path),
+                                payload=parse_buff_application_payload(
+                                    item, sequence_path, blackboard
+                                ),
+                            )
+                            for item in sequence_actions
+                            if action_name(item["$type"]) == "CreateBuffAction"
+                        ),
+                        # ForEach 循环体由独立 typed facts 保存；不能再让通用条件解析器
+                        # 把循环 Target 近似成技能输入敌人。
+                        actions=(
+                            ()
+                            if "ForEachAction" in sequence_types
+                            else parse_ordered_action_sequence(
+                                sequence.get("actionData"),
+                                sequence_path,
+                                blackboard,
+                                include_target_group_provenance=True,
+                            )
+                        ),
+                        priority=parse_sequence_action_priority(
+                            sequence_actions, sequence_path
+                        ),
+                    )
+                )
             buff_applications = tuple(
                 EventBuffApplicationSource(
                     actionIndex=require_server_action_index(item, event_path),
@@ -1916,11 +2178,19 @@ def parse_buff_event_actions(
                             }
                         )
                     ),
-                    damageUnits=parse_damage_units(
-                        action_root, f"{source_name}.{event_name}", blackboard
+                    damageUnits=(
+                        parse_damage_units(action_root, f"{source_name}.{event_name}", blackboard)
+                        if any(
+                            action_name(action["$type"]) == "DamageAction"
+                            for action in walk_actions(actions)
+                        )
+                        else ()
                     ),
                     buffApplications=buff_applications,
                     createdBuffIds=collect_created_buff_ids(actions, source_name),
+                    forEachActions=tuple(for_each_actions),
+                    targetGroupWrites=tuple(event_target_group_writes),
+                    sequences=tuple(parsed_sequences),
                 )
             )
     return tuple(result)
@@ -2010,6 +2280,8 @@ def parse_skill_event_listeners(
                         for item in walk_unconditional_actions(sequence.get("actionData"))
                         if item.get("isEnable") is not False
                     ]
+                    if not actions:
+                        continue
                     ordered_action_types = tuple(action_name(item["$type"]) for item in actions)
                     buff_applications = tuple(
                         EventBuffApplicationSource(
@@ -2042,6 +2314,9 @@ def parse_skill_event_listeners(
                                 sequence.get("actionData"),
                                 sequence_path,
                                 blackboard,
+                            ),
+                            priority=parse_sequence_action_priority(
+                                actions, sequence_path
                             ),
                         )
                     )
@@ -2253,6 +2528,20 @@ def resolve_operator_buff_definitions(
         if definition.buffId in owner_ids and definition.sourceDeathFinish is not None:
             definitions[definition.buffId] = definition
     return tuple(definitions[buff_id] for buff_id in sorted(definitions))
+
+
+def resolve_operator_buff_definitions_for_stage(
+    skills: Iterable[SkillSource],
+    buff_source_dir: Path,
+    output_stage: Literal["audit", "complete"],
+) -> tuple[tuple[BuffDefinitionSource, ...], tuple[str, ...]]:
+    """审计产物记录 Buff 缺口；正式产物继续对同一缺口失败关闭。"""
+    try:
+        return resolve_operator_buff_definitions(skills, buff_source_dir), ()
+    except ValueError as error:
+        if output_stage != "audit":
+            raise
+        return (), (f"{type(error).__name__}: {error}",)
 
 
 def resolve_passive_buff_definitions(
@@ -4984,6 +5273,21 @@ def parse_target_group_writes(
                     f"{source_name}.{'.'.join(path)}.selectorData",
                 )
             )
+            finder_data = require_dict(
+                require_dict(
+                    value.get("selectorData"),
+                    f"{source_name}.{'.'.join(path)}.selectorData",
+                ).get("finderData"),
+                f"{source_name}.{'.'.join(path)}.selectorData.finderData",
+            )
+            fixed_point_snap_to_navmesh = (
+                require_bool(
+                    finder_data.get("snapToNavmesh"),
+                    f"{source_name}.{'.'.join(path)}.selectorData.finderData.snapToNavmesh",
+                )
+                if finder == "FixedPointFinder"
+                else None
+            )
             interval: float | None = None
             if producer_type == "ContinuousFindTargetAction":
                 raw_interval = value.get("findInterval")
@@ -5016,6 +5320,13 @@ def parse_target_group_writes(
                     intervalSeconds=interval,
                     finderSpawnedObjectType=spawned_object_type,
                     validatorTagQueries=validator_tag_queries,
+                    finderFixedPointSnapToNavmesh=fixed_point_snap_to_navmesh,
+                    center=str(value.get("center", "")),
+                    centerContextKey=str(value.get("centerContextKey", "")),
+                    selectorOwner=str(value.get("selectorOwner", "")),
+                    selectorOwnerContextKey=str(
+                        value.get("selectorOwnerContextKey", "")
+                    ),
                 )
             )
         elif producer_type == "MergeTargetAction":
@@ -5416,11 +5727,72 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
 
 
+def resolve_ability_entity_ids_from_tag_queries(
+    tag_queries: tuple[tuple[str, tuple[int, ...]], ...],
+    templates: dict[str, dict[str, Any]],
+    path: str,
+) -> tuple[str, ...]:
+    """把原生实体标签查询严格求值为当前版本的稳定模板 ID。"""
+    if len(tag_queries) != 1:
+        raise ValueError(f"{path}: expected exactly one ability-entity tag query")
+    query_type, tag_ids = tag_queries[0]
+    required_tags = set(tag_ids)
+    matching_ids: list[str] = []
+    for template_id, evidence in templates.items():
+        born_tags = set(
+            require_list(
+                evidence.get("bornTagIds"),
+                f"abilityEntityTemplates.{template_id}.bornTagIds",
+            )
+        )
+        matches = {
+            "HasAny": bool(born_tags & required_tags),
+            "HasAll": required_tags <= born_tags,
+            "ExceptAny": not bool(born_tags & required_tags),
+            "ExceptAll": not required_tags <= born_tags,
+        }.get(query_type)
+        if matches is None:
+            raise ValueError(f"{path}: unsupported tag query {query_type!r}")
+        if matches:
+            matching_ids.append(template_id)
+    if not matching_ids:
+        raise ValueError(f"{path}: ability-entity tag query matches no template evidence")
+    return tuple(sorted(matching_ids))
+
+
+def compile_buff_event_target_group_write(
+    write: BuffEventTargetGroupWriteSource,
+    templates: dict[str, dict[str, Any]],
+    path: str,
+) -> str:
+    """编译 Buff 事件中带同次施法约束的 owner-spawned 实体集合。"""
+    if (
+        write.finderType != "OwnerSpawnedEntityFinder"
+        or write.spawnedObjectType != "AbilityEntity"
+        or set(write.validatorTypes) != {"TagValidator", "SkillCastIdValidator"}
+        or len(write.validatorTypes) != 2
+        or write.postProcessorTypes
+        or write.center != "ActionSource"
+        or write.selectorOwner != "ActionSource"
+    ):
+        raise ValueError(f"{path}: unsupported Buff event target-group producer")
+    ability_entity_ids = resolve_ability_entity_ids_from_tag_queries(
+        write.tagQueries, templates, f"{path}.tagQueries"
+    )
+    return (
+        "step('findOwnerSpawnedAbilityEntities', { "
+        f"saveToContextKey: {ts_inline_literal(write.targetGroupKey)}, "
+        f"abilityEntityIds: {ts_inline_literal(ability_entity_ids)}, "
+        "sameSourceSkillCast: true })"
+    )
+
+
 def compile_ability_entity_time_dilation_query(
     target: AbilityEntityTimeDilationTargetSource,
     path: str,
+    templates: dict[str, dict[str, Any]] | None = None,
 ) -> str:
-    """只把完整的 owner-spawned 即时查询转换为运行时查询；Context 仍需施法上下文。"""
+    """把原生 born-tag 查询在生成期解析为实体身份；Context 仍需施法上下文。"""
     reference = target.reference
     if reference.targetSource == "Context":
         if (
@@ -5457,19 +5829,29 @@ def compile_ability_entity_time_dilation_query(
         raise ValueError(f"{path}: multiple ability-entity tag validators are not supported")
     fields = ["kind: 'ownerSpawned'"]
     if target.tagQueries:
-        query_type, tag_ids = target.tagQueries[0]
-        query_types = {
-            "HasAny": "hasAny",
-            "HasAll": "hasAll",
-            "ExceptAny": "exceptAny",
-            "ExceptAll": "exceptAll",
-        }
+        if templates is None:
+            raise ValueError(f"{path}: ability-entity tag query requires template evidence")
+        matching_ids = resolve_ability_entity_ids_from_tag_queries(
+            target.tagQueries, templates, path
+        )
         fields.append(
-            "tagQuery: { type: "
-            f"{ts_inline_literal(query_types[query_type])}, "
-            f"tagIds: {ts_inline_literal(tag_ids)} }}"
+            "abilityEntityIds: " + ts_inline_literal(matching_ids)
         )
     return "{ " + ", ".join(fields) + " }"
+
+
+TIME_DILATION_PRIORITY_BY_TAG_ID = {
+    -1742631616: 100,
+    -2059842104: 10,
+    -361293424: 50,
+    1718594970: 10,
+    1798502681: 20,
+    -593023102: 30,
+    451969779: 10,
+    1349735769: 21,
+    -693798243: 15,
+    513129183: 50,
+}
 
 
 def compile_time_dilation(
@@ -5477,8 +5859,14 @@ def compile_time_dilation(
     path: str,
     *,
     effect_ability_entity_targets_proven: bool = False,
+    ability_entity_templates: dict[str, dict[str, Any]] | None = None,
 ) -> str:
     """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
+    priority = TIME_DILATION_PRIORITY_BY_TAG_ID.get(action.priority)
+    if priority is None:
+        raise ValueError(
+            f"{path}.timeDilationPriority: unknown tag id {action.priority}"
+        )
     if action.effectAbilityEntityTargets and not effect_ability_entity_targets_proven:
         raise ValueError(
             f"{path}: ability-entity time-dilation targets require runtime support"
@@ -5487,14 +5875,16 @@ def compile_time_dilation(
         if action.targetScale is None:
             raise ValueError(f"{path}: ultimate time dilation has no target scale")
         fields = [
-            f"priority: {action.priority}",
+            f"priority: {priority}",
             "targetScale: { kind: 'constant', value: "
             f"{ts_inline_literal(action.targetScale)} }}",
             f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}",
         ]
         if action.ignoredAbilityEntityTargets:
             queries = ", ".join(
-                compile_ability_entity_time_dilation_query(target, f"{path}.ignoreTargets[{index}]")
+                compile_ability_entity_time_dilation_query(
+                    target, f"{path}.ignoreTargets[{index}]", ability_entity_templates
+                )
                 for index, target in enumerate(action.ignoredAbilityEntityTargets)
             )
             fields.append(f"ignoredAbilityEntityTargets: [{queries}]")
@@ -5522,7 +5912,7 @@ def compile_time_dilation(
         f"scope: {ts_inline_literal(action.scope)}",
         f"durationSeconds: {compile_condition_operand(action.duration, f'{path}.duration')}",
         f"slot: {action.slot}",
-        f"priority: {action.priority}",
+        f"priority: {priority}",
         f"curve: {curve}",
         f"finishByAction: {ts_inline_literal(action.finishByAction)}",
     ]
@@ -5530,7 +5920,9 @@ def compile_time_dilation(
         fields.append(f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}")
         if action.ignoredAbilityEntityTargets:
             queries = ", ".join(
-                compile_ability_entity_time_dilation_query(target, f"{path}.ignoreTargets[{index}]")
+                compile_ability_entity_time_dilation_query(
+                    target, f"{path}.ignoreTargets[{index}]", ability_entity_templates
+                )
                 for index, target in enumerate(action.ignoredAbilityEntityTargets)
             )
             fields.append(f"ignoredAbilityEntityTargets: [{queries}]")
@@ -5544,7 +5936,7 @@ def compile_time_dilation(
         if action.effectAbilityEntityTargets:
             queries = ", ".join(
                 compile_ability_entity_time_dilation_query(
-                    target, f"{path}.effectTargets[{index}]"
+                    target, f"{path}.effectTargets[{index}]", ability_entity_templates
                 )
                 for index, target in enumerate(action.effectAbilityEntityTargets)
             )
@@ -5680,8 +6072,22 @@ def compile_combat_condition(
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
     ability_entity_current_target: bool = False,
+    buff_ability_damage_event: bool = False,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
+    if source.sourceType == "CheckTargetsEqual" and buff_ability_damage_event:
+        identity = source.targetIdentity
+        if identity is None:
+            raise ValueError(f"{path}: missing target identity payload")
+        first, second = identity.first, identity.second
+        if not target_reference_has_plain_selector(first) or not target_reference_has_plain_selector(
+            second
+        ):
+            raise ValueError(f"{path}: event target identity uses a selector")
+        pair = {(first.targetSource, first.targetGroupKey), (second.targetSource, second.targetGroupKey)}
+        if pair == {("Target", ""), ("Source", "")}:
+            return "{ kind: 'eventSourceMatchesBuffSource' }"
+        raise ValueError(f"{path}: unsupported Buff ability-event target identity")
     if is_guaranteed_single_enemy_condition(
         source, action=action, target_group_writes=target_group_writes
     ):
@@ -5987,6 +6393,7 @@ def compile_combat_condition_group(
     input_target: Literal["enemy"] | None = None,
     skill_has_output_damage: bool = False,
     ability_entity_current_target: bool = False,
+    buff_ability_damage_event: bool = False,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
     if not conditions:
@@ -6001,6 +6408,7 @@ def compile_combat_condition_group(
             input_target,
             skill_has_output_damage,
             ability_entity_current_target,
+            buff_ability_damage_event,
         )
         for index, condition in enumerate(conditions)
     ]
@@ -6850,6 +7258,12 @@ def compile_conditional_branch_action(
                 step_key,
             )
         )
+    interrupt = getattr(action, "interrupt", None)
+    if interrupt is not None:
+        # 当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线。
+        # 原生 InterruptAction 自身恒返回成功，因此在这里是可安全归约的零效果动作；
+        # 完整目标、霸体上限与定身参数仍保留在 audit source model 中。
+        return "sequence()"
     if getattr(action, "keywordAction", None) is not None:
         return compile_keyword_action(
             action.keywordAction,
@@ -7162,6 +7576,30 @@ def compile_conditional_action(
             ability_entity_current_target=ability_entity_current_target,
             singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
         )
+    if len(action.conditions) == 1 and is_guaranteed_non_empty_target_group_condition(
+        action.conditions[0],
+        action=action,
+        target_group_writes=target_group_writes,
+    ):
+        # 目标组可能装的是位置而不是敌人；证明恒非空后直接保留成功分支，
+        # 不生成语义错误的 singleEnemyPresent 条件。
+        return compile_conditional_branch(
+            action.succeedActions,
+            f"{path}.succeedActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
+            projected_projectile_launches=action.projectedProjectileLaunches,
+            context_action=action,
+            step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+        )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
     projected_ability_entity_spawns = getattr(
@@ -7424,6 +7862,152 @@ def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) ->
     )
 
 
+def target_group_write_guarantees_main_character(
+    write: TargetGroupWriteSource,
+) -> bool:
+    """只识别固定模型中必然存在的主控角色查找。"""
+    return (
+        write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
+        and write.finderType == "CharacterTeamFinder"
+        and write.validatorTypes == ("MainCharacterValidator",)
+        and not write.postProcessorTypes
+    )
+
+
+def target_group_write_guarantees_non_empty(
+    write: TargetGroupWriteSource,
+    writes: tuple[TargetGroupWriteSource, ...],
+) -> bool:
+    """证明一次写入至少产生一个逻辑目标，不把位置目标归类为敌人。"""
+    if target_group_write_guarantees_single_enemy(write):
+        return True
+    if not (
+        write.producerType == "FindTargetAction"
+        and write.finderType == "FixedPointFinder"
+        and write.finderFixedPointSnapToNavmesh is False
+        and not write.validatorTypes
+        and not write.postProcessorTypes
+        and write.center == "ContextTarget"
+        and write.centerContextKey
+        and write.selectorOwner == "ContextTarget"
+        and write.selectorOwnerContextKey == write.centerContextKey
+    ):
+        return False
+    center_write = resolve_latest_target_group_write_at(
+        read_frame=write.startFrame,
+        read_action_index=write.actionIndex,
+        read_action_path=write.actionPath,
+        target_group_key=write.centerContextKey,
+        writes=writes,
+    )
+    return center_write is not None and target_group_write_guarantees_main_character(
+        center_write
+    )
+
+
+def target_group_is_guaranteed_non_empty_at(
+    *,
+    read_frame: int,
+    read_action_index: int,
+    read_action_path: tuple[str, ...],
+    target_group_key: str,
+    writes: tuple[TargetGroupWriteSource, ...],
+) -> bool:
+    """穷尽读取点之前的二元控制流路径，并检查每条路径的最后写入非空。"""
+    candidates = tuple(
+        write
+        for write in writes
+        if write.targetGroupKey == target_group_key
+        and (
+            write.startFrame < read_frame
+            or (
+                write.startFrame == read_frame
+                and write.actionIndex < read_action_index
+            )
+        )
+    )
+    if not candidates:
+        return False
+
+    read_requirements = target_group_branch_scopes(read_action_path)
+    variables = tuple(
+        sorted(
+            {
+                scope[:-1]
+                for scopes in (
+                    *(target_group_branch_scopes(write.actionPath) for write in candidates),
+                    read_requirements,
+                )
+                for scope in scopes
+            }
+        )
+    )
+    # 这是一个小型静态证明器；异常复杂的控制流继续严格阻塞。
+    if len(variables) > 12:
+        return False
+    variable_indexes = {variable: index for index, variable in enumerate(variables)}
+
+    for bits in range(1 << len(variables)):
+        if any(
+            bool(bits & (1 << variable_indexes[scope[:-1]]))
+            != (scope[-1] == "succeedActions")
+            for scope in read_requirements
+        ):
+            continue
+        executed: list[TargetGroupWriteSource] = []
+        for write in candidates:
+            requirements = target_group_branch_scopes(write.actionPath)
+            if all(
+                bool(bits & (1 << variable_indexes[scope[:-1]]))
+                == (scope[-1] == "succeedActions")
+                for scope in requirements
+            ):
+                executed.append(write)
+        if not executed:
+            return False
+        latest_order = max(
+            (write.startFrame, write.actionIndex) for write in executed
+        )
+        latest = [
+            write
+            for write in executed
+            if (write.startFrame, write.actionIndex) == latest_order
+        ]
+        if len(latest) != 1 or not target_group_write_guarantees_non_empty(
+            latest[0], writes
+        ):
+            return False
+    return True
+
+
+def is_guaranteed_non_empty_target_group_condition(
+    condition: ConditionSource,
+    *,
+    action: ConditionalActionSource | None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...],
+) -> bool:
+    """识别由穷尽生产者保证恒真的 `Context/<group> >= 1`。"""
+    entity = getattr(condition, "entityCount", None)
+    return (
+        condition.sourceType == "CheckEntityNum"
+        and entity is not None
+        and entity.targetSource == "Context"
+        and bool(entity.targetGroupKey)
+        and entity.minimumCount == 1
+        and entity.comparison == "GE"
+        and not entity.containsHittableTarget
+        and not entity.storeKey
+        and action is not None
+        and target_group_is_guaranteed_non_empty_at(
+            read_frame=action.startFrame,
+            read_action_index=action.actionIndex,
+            read_action_path=action.actionPath,
+            target_group_key=entity.targetGroupKey,
+            writes=target_group_writes,
+        )
+    )
+
+
 def target_group_write_ability_entity_collection_identity(
     write: TargetGroupWriteSource,
 ) -> tuple[tuple[str, tuple[int, ...]], ...] | None:
@@ -7604,17 +8188,31 @@ def logical_ability_entity_spawn_payload_for_compile(
 def compile_logical_ability_entity_spawn(
     payload: AbilityEntitySpawnPayload,
     path: str,
+    templates: dict[str, dict[str, Any]],
     child_skill: str | None = None,
 ) -> str:
     """把有完整来源证据的 SpawnAbilityEntity 转为逻辑实例生成步骤。"""
     if not logical_ability_entity_spawn_can_compile(payload):
         raise ValueError(f"{path}: AbilityEntity spawn is outside the zero-space root subset")
+    template = templates.get(payload.abilityEntityId)
+    if template is None:
+        raise ValueError(f"{path}: missing AbilityEntity template evidence {payload.abilityEntityId!r}")
+    lifetime_kind = template.get("_endaxisLifetimeKind")
+    if lifetime_kind == "limited":
+        duration = template.get("durationSeconds")
+        if not isinstance(duration, (int, float)) or isinstance(duration, bool) or duration < 0:
+            raise ValueError(f"{path}.definition.durationSeconds: expected non-negative number")
+        lifetime = (
+            "{ kind: 'limited', durationSeconds: " + ts_inline_literal(duration) + " }"
+        )
+    elif lifetime_kind == "infinite":
+        lifetime = "{ kind: 'infinite' }"
+    else:
+        raise ValueError(f"{path}.definition.lifetime: unresolved native lifetime")
+    definition_prefix = "{ lifetime: " + lifetime
     fields = [
-        f"templateId: {ts_inline_literal(payload.abilityEntityId)}",
         f"dieWhenSourceDies: {ts_inline_literal(payload.dieWhenSourceDies)}",
     ]
-    if payload.skillId is not None:
-        fields.append(f"childSkillId: {ts_inline_literal(payload.skillId)}")
     if payload.assignBlackboard:
         fields.append("inheritActionBlackboard: true")
     if payload.target is not None:
@@ -7640,18 +8238,28 @@ def compile_logical_ability_entity_spawn(
         assignments.append(f"{ts_inline_literal(assignment.targetKey)}: {operand}")
     if assignments:
         fields.append("blackboardAssignments: { " + ", ".join(assignments) + " }")
-    if child_skill is not None:
-        child_lines = indent_source(f"childSkill: {child_skill}", 2)
-        child_lines[-1] += ","
-        return "\n".join(
-            [
-                "step('spawnAbilityEntity', {",
-                *(f"  {field}," for field in fields),
-                *child_lines,
-                "})",
-            ]
+    identity = f"abilityEntityId: {ts_inline_literal(payload.abilityEntityId)}"
+    if child_skill is None:
+        definition = definition_prefix + " }"
+        return (
+            "step('spawnAbilityEntity', { "
+            + ", ".join([identity, "definition: " + definition, *fields])
+            + " })"
         )
-    return "step('spawnAbilityEntity', { " + ", ".join(fields) + " })"
+    definition_lines = indent_source(
+        "definition: " + definition_prefix + ", childSkill: " + child_skill,
+        2,
+    )
+    definition_lines[-1] += " },"
+    return "\n".join(
+        [
+            "step('spawnAbilityEntity', {",
+            f"  {identity},",
+            *definition_lines,
+            *(f"  {field}," for field in fields),
+            "})",
+        ]
+    )
 
 
 def ability_entity_child_buff_can_compile(
@@ -7894,10 +8502,28 @@ def load_ability_entity_template_evidence() -> dict[str, dict[str, Any]]:
     templates = require_dict(
         raw.get("templates"), f"{DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE}.templates"
     )
-    return {
-        template_id: require_dict(value, f"abilityEntityTemplates.{template_id}")
-        for template_id, value in templates.items()
-    }
+    native_values = require_dict(
+        raw.get("lifeTypeNativeValues"),
+        f"{DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE}.lifeTypeNativeValues",
+    )
+    limited = native_values.get("limited")
+    infinite = native_values.get("infinite")
+    if not isinstance(limited, int) or not isinstance(infinite, int) or limited == infinite:
+        raise ValueError("AbilityEntity lifetime native values are invalid")
+    result: dict[str, dict[str, Any]] = {}
+    for template_id, raw_value in templates.items():
+        value = dict(require_dict(raw_value, f"abilityEntityTemplates.{template_id}"))
+        native_value = value.get("lifeTypeNativeValue")
+        if native_value == limited:
+            value["_endaxisLifetimeKind"] = "limited"
+        elif native_value == infinite:
+            value["_endaxisLifetimeKind"] = "infinite"
+        else:
+            raise ValueError(
+                f"abilityEntityTemplates.{template_id}.lifeTypeNativeValue is unsupported"
+            )
+        result[template_id] = value
+    return result
 
 
 def ability_entity_time_dilation_targets_are_closed(
@@ -7915,7 +8541,7 @@ def ability_entity_time_dilation_targets_are_closed(
     }
     for query in action.effectAbilityEntityTargets:
         try:
-            compile_ability_entity_time_dilation_query(query, "effectTargets")
+            compile_ability_entity_time_dilation_query(query, "effectTargets", templates)
         except ValueError:
             return False
         if (
@@ -9380,14 +10006,7 @@ def compile_resolved_sequence(
             buff_definitions=buff_definitions,
         )
     )
-    ability_entity_templates = (
-        load_ability_entity_template_evidence()
-        if any(
-            action.effectAbilityEntityTargets
-            for action in getattr(skill, "timeDilations", ())
-        )
-        else {}
-    )
+    ability_entity_templates = load_ability_entity_template_evidence()
     scheduled_entity_ids = {
         id(item.payload)
         for item in resolved_schedule
@@ -9500,6 +10119,7 @@ def compile_resolved_sequence(
             step_lines = compile_logical_ability_entity_spawn(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn",
+                ability_entity_templates,
                 child_skill,
             ).splitlines()
             if (
@@ -9656,6 +10276,7 @@ def compile_resolved_sequence(
                         ability_entity_templates,
                     )
                 ),
+                ability_entity_templates=ability_entity_templates,
             ).splitlines()
         elif item.itemType == "keywordAction":
             payload = cast(TimedKeywordActionSource, item.payload)
@@ -10357,6 +10978,7 @@ def render_report(
     buff_definitions: tuple[BuffDefinitionSource, ...],
     passive_skills: dict[str, PassiveSkillSource] | None = None,
     passive_generation_issues: dict[str, tuple[str, ...]] | None = None,
+    buff_definition_resolution_issues: tuple[str, ...] = (),
 ) -> str:
     passive_skills = passive_skills or {}
     passive_generation_issues = passive_generation_issues or {}
@@ -10368,7 +10990,13 @@ def render_report(
             and not skill.conditionalActions
             for skill in skills
         )
-        and not passive_generation_issues,
+        and not passive_generation_issues
+        and not buff_definition_resolution_issues,
+        **(
+            {"buffDefinitionResolutionIssues": list(buff_definition_resolution_issues)}
+            if buff_definition_resolution_issues
+            else {}
+        ),
         "buffDefinitions": [
             serialize_audit_value(definition) for definition in buff_definitions
         ],
@@ -10493,6 +11121,9 @@ def main() -> None:
             for entry in require_list(operator["skills"], f"{slug}.skills")
         ]
         char_id = str(operator["charId"])
+        output_stage = operator.get("outputStage", "complete")
+        if output_stage not in {"audit", "complete"}:
+            raise ValueError(f"{slug}.outputStage: expected 'audit' or 'complete'")
         growth = table_row(loaded_tables["CharGrowthTable.json"], char_id, "CharGrowthTable")
         passive_skills = collect_operator_passive_skills(
             char_id,
@@ -10502,9 +11133,12 @@ def main() -> None:
             args.source,
         )
         buff_source_dir = args.source.parent / "BuffData"
-        skill_buff_definitions = resolve_operator_buff_definitions(
-            skills,
-            buff_source_dir,
+        skill_buff_definitions, buff_definition_resolution_issues = (
+            resolve_operator_buff_definitions_for_stage(
+                skills,
+                buff_source_dir,
+                output_stage,
+            )
         )
         passive_buff_definitions, passive_buff_resolution_issues = (
             resolve_passive_buff_definitions(passive_skills, buff_source_dir)
@@ -10558,10 +11192,10 @@ def main() -> None:
                 buff_definitions,
                 passive_skills,
                 passive_generation_issues,
+                buff_definition_resolution_issues,
             ),
             args.check,
         )
-        output_stage = operator.get("outputStage", "complete")
         if output_stage == "audit":
             write_or_check(
                 args.output / f"{slug}.skills.audit.generated.ts",
@@ -10572,8 +11206,6 @@ def main() -> None:
             generated += 1
             print(f"[{slug}] audited {len(skills)} skills -> {args.output}")
             continue
-        if output_stage != "complete":
-            raise ValueError(f"{slug}.outputStage: expected 'audit' or 'complete'")
         remove_obsolete_generated_file(args.output / f"{slug}.skills.generated.ts", args.check)
         write_or_check(
             args.output / f"{slug}.operator.generated.ts",

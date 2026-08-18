@@ -6,8 +6,12 @@ import branchEditorSource from './BranchStepEditor.vue?raw';
 import eventListenerStepEditorSource from './EventListenerStepEditor.vue?raw';
 import scheduledSequenceEditorSource from './ScheduledSequenceEditor.vue?raw';
 import actionSequenceEditorSource from './ActionSequenceEditor.vue?raw';
+import stepTypePickerSource from './StepTypePicker.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
+import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import { COMBAT_STEP_KINDS } from '../../../core/game-data/operatorDefinition';
+import { EDITABLE_COMBAT_STEP_KINDS } from '../skillDefinitionEditorViewModel';
+import { STEP_TYPE_GROUPS } from '../stepTypePickerCatalog';
 import zhCN from '../../../../i18n/locales/zh-CN.json';
 import en from '../../../../i18n/locales/en.json';
 import ru from '../../../../i18n/locales/ru.json';
@@ -35,6 +39,31 @@ describe('SkillDefinitionEditor structure', () => {
     expect(eventListenerStepEditorSource).toContain('CombatEventTriggerEditor');
   });
 
+  it('添加步骤由加号打开统一类型选单，顶层与嵌套序列使用相同交互', () => {
+    expect(actionSequenceEditorSource).toContain('StepTypePicker');
+    expect(branchEditorSource).toContain('StepTypePicker');
+    expect(actionSequenceEditorSource).not.toContain('newStepKind');
+    expect(branchEditorSource).not.toContain('newStepKind');
+    expect(stepTypePickerSource).toContain('aria-haspopup="menu"');
+    expect(stepTypePickerSource).toContain("emit('select', kind)");
+
+    const listedKinds = STEP_TYPE_GROUPS.flatMap(group => group.kinds);
+    expect(new Set(listedKinds).size).toBe(listedKinds.length);
+    expect([...listedKinds].sort()).toEqual([...EDITABLE_COMBAT_STEP_KINDS].sort());
+  });
+
+  it('顶层与递归步骤参数都提供统一折叠入口', () => {
+    expect(actionSequenceEditorSource).toContain('detailCollapsed');
+    expect(actionSequenceEditorSource).toContain(':aria-expanded="!detailCollapsed"');
+    expect(stepEditorSource).toContain('class="step-editor__collapse"');
+    expect(stepEditorSource).toContain(':aria-expanded="!collapsed"');
+    for (const locale of [zhCN, en, ru]) {
+      const messages = locale.nextTimeline.skillEditing as Record<string, unknown>;
+      expect(messages).toHaveProperty('collapseStep');
+      expect(messages).toHaveProperty('expandStep');
+    }
+  });
+
   it('Buff 生命周期复用通用动作序列编辑器', () => {
     expect(buffStepEditorSource).toContain('ActionSequenceEditor');
     for (const key of [
@@ -55,6 +84,17 @@ describe('SkillDefinitionEditor structure', () => {
       expect(messages).toHaveProperty('enableBuffLifecycle');
       expect(messages).toHaveProperty('buffLifecycleKinds');
     }
+  });
+
+  it('能力实体使用内联定义表单并递归复用子技能时间轴编辑器', () => {
+    expect(stepEditorSource).toContain('AbilityEntityStepEditor');
+    expect(abilityEntityStepEditorSource).toContain('RecursiveScheduledSequenceEditor');
+    expect(abilityEntityStepEditorSource).toContain('SkillBlackboardEditor');
+    expect(abilityEntityStepEditorSource).toContain('ActionValueOperandEditor');
+    expect(abilityEntityStepEditorSource).toContain('definition.childSkill');
+    expect(abilityEntityStepEditorSource).not.toContain('templateId');
+    expect(abilityEntityStepEditorSource).not.toContain('setBornTag');
+    expect(abilityEntityStepEditorSource).not.toContain('appendBornTag');
   });
 
   it('Next 属性面板只使用自身完整的翻译命名空间', () => {
@@ -97,6 +137,9 @@ describe('SkillDefinitionEditor structure', () => {
       'factor',
       'contextFlag',
       'contextValueType',
+      'abilityEntityId',
+      'abilityEntityDefinition',
+      'abilityEntityChildTimeline',
       'valueTypes',
       'booleanValues',
     ];

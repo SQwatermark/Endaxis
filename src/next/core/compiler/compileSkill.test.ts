@@ -25,29 +25,31 @@ describe('compileSkill', () => {
               {
                 kind: 'spawnAbilityEntity',
                 parameters: {
-                  templateId: 'entity',
-                  childSkillId: 'entity-child',
+                  abilityEntityId: 'entity',
                   dieWhenSourceDies: false,
-                  childSkill: {
-                    skillId: 'entity-child',
-                    blackboard: { coefficient: [1, 2] },
-                    scheduledSequences: [
-                      {
-                        startFrame: 3,
-                        sequence: {
-                          steps: [
-                            {
-                              kind: 'dealDamage',
-                              parameters: {
-                                damageType: 'physical',
-                                attackScale: [4, 5],
-                                tags: ['comboSkill'],
+                  definition: {
+                    lifetime: { kind: 'infinite' },
+                    childSkill: {
+                      skillId: 'entity-child',
+                      blackboard: { coefficient: [1, 2] },
+                      scheduledSequences: [
+                        {
+                          startFrame: 3,
+                          sequence: {
+                            steps: [
+                              {
+                                kind: 'dealDamage',
+                                parameters: {
+                                  damageType: 'physical',
+                                  attackScale: [4, 5],
+                                  tags: ['comboSkill'],
+                                },
                               },
-                            },
-                          ],
+                            ],
+                          },
                         },
-                      },
-                    ],
+                      ],
+                    },
                   },
                 },
               },
@@ -67,12 +69,14 @@ describe('compileSkill', () => {
 
     expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
       parameters: {
-        childSkill: {
-          skillId: 'entity-child',
-          initialBlackboard: { coefficient: 2 },
-          timelineActions: [
-            { startFrame: 3, sequence: { steps: [{ parameters: { attackScale: 5 } }] } },
-          ],
+        definition: {
+          childSkill: {
+            skillId: 'entity-child',
+            initialBlackboard: { coefficient: 2 },
+            timelineActions: [
+              { startFrame: 3, sequence: { steps: [{ parameters: { attackScale: 5 } }] } },
+            ],
+          },
         },
       },
     });
@@ -133,6 +137,24 @@ describe('compileSkill', () => {
                         ],
                       },
                     },
+                    abilityEventResponses: [
+                      {
+                        event: 'beforeTakeDamage',
+                        priority: 5,
+                        sequence: {
+                          steps: [
+                            {
+                              kind: 'dealDamage',
+                              parameters: {
+                                damageType: 'nature',
+                                attackScale: [3, 4],
+                                tags: ['normalSkill'],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                   },
                 },
               },
@@ -156,6 +178,13 @@ describe('compileSkill', () => {
           lifecycleSequences: {
             start: { steps: [{ parameters: { attackScale: 2 } }] },
           },
+          abilityEventResponses: [
+            {
+              event: 'beforeTakeDamage',
+              priority: 5,
+              sequence: { steps: [{ parameters: { attackScale: 4 } }] },
+            },
+          ],
         },
       },
     });

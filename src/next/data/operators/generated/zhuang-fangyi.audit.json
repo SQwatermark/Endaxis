@@ -67,7 +67,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishOwnerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -136,7 +151,33 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ShowHideActorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -147,7 +188,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -285,7 +341,191 @@
           ],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 1,
+              "targetGroupKey": "swordTar",
+              "finderType": "SmartTargetFinder",
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionSource",
+              "selectorOwner": "ActionOwner"
+            },
+            {
+              "actionIndex": 5,
+              "targetGroupKey": "sword",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [
+                "PriorityFilter"
+              ],
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -13979809
+                  ]
+                ]
+              ],
+              "center": "ActionSource",
+              "selectorOwner": "ActionSource"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SimpleCalcBBAction",
+                "FindTargetAction",
+                "IfElseAction",
+                "FindTargetAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "SimpleCalcBBAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "blackboardCalculation": {
+                    "key": "atk_scale",
+                    "operation": "Add",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "atk_scale",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": "atk_up_final",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckEntityNum",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "entityCount": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "swordTar",
+                          "minimumCount": 0,
+                          "comparison": "Equals",
+                          "containsHittableTarget": false,
+                          "excludeDeadEntity": false,
+                          "storeKey": ""
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "FindTargetAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 4
+                      }
+                    ],
+                    "failActions": []
+                  }
+                },
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 5
+                }
+              ],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -374,6 +614,255 @@
           ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_sword_triggerd"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CompareFloat",
+                "PickTargetAction",
+                "CreateBuffAction",
+                "ModifyDynamicBlackboard"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 9,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "swordIndex": {
+                            "value": 0.0,
+                            "blackboardKey": "swordIndex",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "swordCnt": {
+                            "value": 0.0,
+                            "blackboardKey": "EntityBB_SwordNum",
+                            "levelValues": null
+                          },
+                          "atk_scale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "poise": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "usp_extra": {
+                            "value": 0.0,
+                            "blackboardKey": "usp_extra",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "remain_sword_limit": {
+                            "value": 0.0,
+                            "blackboardKey": "remain_sword_limit",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "final_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "final_rate",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "swordInst",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 7,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 7,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "LT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "swordIndex",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": "EntityBB_SwordNum",
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 3,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[3]"
+                        ],
+                        "serverActionIndex": 9,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "swordIndex": {
+                                  "value": 0.0,
+                                  "blackboardKey": "swordIndex",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "swordCnt": {
+                                  "value": 0.0,
+                                  "blackboardKey": "EntityBB_SwordNum",
+                                  "levelValues": null
+                                },
+                                "atk_scale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "poise": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "usp_extra": {
+                                  "value": 0.0,
+                                  "blackboardKey": "usp_extra",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "remain_sword_limit": {
+                                  "value": 0.0,
+                                  "blackboardKey": "remain_sword_limit",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "final_rate": {
+                                  "value": 0.0,
+                                  "blackboardKey": "final_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Context",
+                          "targetGroupKey": "swordInst",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      },
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 4,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[4]"
+                        ],
+                        "serverActionIndex": 10,
+                        "blackboardMutation": {
+                          "key": "swordIndex",
+                          "operation": "Add",
+                          "value": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         },
         {
@@ -386,7 +875,78 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 11,
+              "targetGroupKey": "thunderTar",
+              "finderType": "SmartTargetFinder",
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionSource",
+              "selectorOwner": "ActionOwner"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FindTargetAction",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 11
+                },
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 12,
+                  "buffFinish": {
+                    "targetSource": "Context",
+                    "targetGroupKey": "thunderTar",
+                    "buffCheckType": "Tag",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [
+                      1670936726
+                    ],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -456,7 +1016,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ForceTargetInFightAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -470,7 +1045,79 @@
           ],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 1,
+              "targetGroupKey": "fakePos",
+              "finderType": "FixedPointFinder",
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionOwner",
+              "selectorOwner": "ActionOwner"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FindTargetAction",
+                "SpawnAbilityEntity"
+              ],
+              "combatActions": [
+                "SpawnAbilityEntity"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 1
+                },
+                {
+                  "actionType": "SpawnAbilityEntity",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 2,
+                  "abilityEntitySpawn": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+                    "skillId": null,
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "ability",
@@ -486,6 +1133,192 @@
           "buffApplications": [],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 3,
+              "targetGroupKey": "nextTar",
+              "finderType": "SmartTargetFinder",
+              "validatorTypes": [
+                "DistanceValidator"
+              ],
+              "postProcessorTypes": [
+                "ExcludeTarget",
+                "PriorityFilter"
+              ],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionOwner",
+              "selectorOwner": "ActionSource"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FindTargetAction",
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 3
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 4,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckEntityNum",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "entityCount": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "nextTar",
+                          "minimumCount": 1,
+                          "comparison": "GE",
+                          "containsHittableTarget": false,
+                          "excludeDeadEntity": true,
+                          "storeKey": ""
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 6,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Context",
+                          "targetGroupKey": "nextTar",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "FindTargetAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 7
+                      },
+                      {
+                        "actionType": "SpawnAbilityEntity",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]",
+                          "failActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 8,
+                        "abilityEntitySpawn": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+                          "skillId": null,
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": null,
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -554,7 +1387,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "TogglableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -1379,7 +2227,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "TagQueryListenerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -1423,6 +2286,86 @@
           ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_hide_model_holder"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SwitchModeAction",
+                "CreateBuffAction",
+                "CharWeaponVisibleAction",
+                "TogglableAction",
+                "SetSuperArmorAction",
+                "OverrideMultiDashLimit",
+                "RefrainObtainUsp"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 3,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 3,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         },
         {
@@ -1435,7 +2378,23 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ChangeSkillAction",
+                "ChangeSkillAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -1479,6 +2438,90 @@
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_body_vfx",
             "buff_chr_0030_zhuangfy_ult_env_vfx"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 15,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      },
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 15,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      },
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         },
         {
@@ -1494,7 +2537,26 @@
           ],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "BombClearAction",
+                "IfElseAction",
+                "SetSkillCdAtOnce"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -1532,6 +2594,80 @@
           ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_skill_free"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 24,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 24,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -1601,7 +2737,23 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "TogglableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "ability",
@@ -1643,6 +2795,180 @@
           ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_dash_hide"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "NotNextCheckAction",
+                "CheckMainCharacterCondition",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CheckMainCharacterCondition",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 9,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_dash_hide",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 6,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 6,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Id",
+                          "buffIds": [
+                            "buff_common_dash_immune_teammate"
+                          ],
+                          "queryType": "HasAny"
+                        }
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckMainCharacterCondition",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 8,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 8,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckMainCharacterCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "mainOperator": {
+                                "targetSource": "Source",
+                                "targetGroupKey": ""
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 9,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_chr_0030_zhuangfy_dash_hide",
+                                    "classification": null,
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            }
+                          ],
+                          "failActions": []
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -1712,7 +3038,23 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -1780,7 +3122,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ShowHideActorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -1875,6 +3232,80 @@
           ],
           "createdBuffIds": [
             "buff_chr_0030_zhuangfy_ult_hide_model"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": false
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": false
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -2090,7 +3521,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetSuperArmorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -2174,7 +3620,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -2400,6 +3861,235 @@
           ],
           "createdBuffIds": [
             "buff_common_pulse_pulse_conduct_triggered_do"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "IfElseAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 4,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "real_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "extra_scaling": {
+                            "value": 0.0,
+                            "blackboardKey": "extra_scaling",
+                            "levelValues": [
+                              1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "GT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "duration",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 2,
+                        "blackboardMutation": {
+                          "key": "real_duration",
+                          "operation": "Assign",
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "real_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "extra_scaling": {
+                            "value": 0.0,
+                            "blackboardKey": "extra_scaling",
+                            "levelValues": [
+                              1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         }
       ],
@@ -2501,7 +4191,35 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "PlaySoundAction",
+                "EffectAction",
+                "CheckSuperArmor"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -2539,6 +4257,80 @@
           ],
           "createdBuffIds": [
             "buff_common_pulse_triggered_start"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 8,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         },
         {
@@ -2580,6 +4372,108 @@
           ],
           "createdBuffIds": [
             "buff_common_pulse_triggered_fx"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ReadSkillSettingData",
+                "StoreAttributeValue",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 12,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 11,
+                  "blackboardMutation": {
+                    "key": "final_spell_resistance_decrease",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "extra_scaling",
+                      "levelValues": [
+                        1.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 12,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
           ]
         },
         {
@@ -2591,7 +4485,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -2602,7 +4511,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -2679,7 +4603,26 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnemyHurtAnimAction",
+                "EffectAction",
+                "CameraImpulseAction",
+                "HitStopAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -2747,7 +4690,22 @@
           "combatActions": [],
           "damageUnits": [],
           "buffApplications": [],
-          "createdBuffIds": []
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteBuffTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ]
         }
       ],
       "sourceDeathFinish": null,
@@ -22233,6 +24191,59 @@
                     "buffSource": "ActionSource",
                     "buffSourceContextKey": "",
                     "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "InterruptAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "actionOnTick",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 14,
+                  "interrupt": {
+                    "attacker": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "defender": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "tar",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideSuperArmorLimit": -1.0,
+                    "immobilizedTime": 1.0
                   }
                 },
                 {

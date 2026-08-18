@@ -116,30 +116,24 @@ function resolveStep(
         body: compileActionSequence(step.body, skillLevel, `${path}.body`),
       };
     case 'spawnAbilityEntity': {
-      const { childSkill, ...parameters } = step.parameters;
-      if (
-        childSkill !== undefined &&
-        step.parameters.childSkillId !== undefined &&
-        childSkill.skillId !== step.parameters.childSkillId
-      ) {
-        throw new Error(
-          `${path}.parameters child skill '${childSkill.skillId}' does not match childSkillId '${step.parameters.childSkillId}'`,
-        );
-      }
+      const { childSkill, ...definition } = step.parameters.definition;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
-          ...parameters,
-          ...(childSkill === undefined
-            ? {}
-            : {
-                childSkill: compileAbilityEntityChildSkill(
-                  childSkill,
-                  skillLevel,
-                  `${path}.parameters.childSkill`,
-                ),
-              }),
+          ...step.parameters,
+          definition: {
+            ...definition,
+            ...(childSkill === undefined
+              ? {}
+              : {
+                  childSkill: compileAbilityEntityChildSkill(
+                    childSkill,
+                    skillLevel,
+                    `${path}.parameters.definition.childSkill`,
+                  ),
+                }),
+          },
         },
       };
     }
@@ -457,16 +451,32 @@ function resolveSkillBuffDefinition(
   skillLevel: number,
   path: string,
 ): ResolvedSkillBuffDefinition {
-  const { lifecycleSequences, ...fields } = definition;
-  if (lifecycleSequences === undefined) return fields;
+  const { lifecycleSequences, abilityEventResponses, ...fields } = definition;
   return {
     ...fields,
-    lifecycleSequences: Object.fromEntries(
-      Object.entries(lifecycleSequences).map(([key, sequence]) => [
-        key,
-        compileActionSequence(sequence, skillLevel, `${path}.lifecycleSequences.${key}`),
-      ]),
-    ),
+    ...(lifecycleSequences === undefined
+      ? {}
+      : {
+          lifecycleSequences: Object.fromEntries(
+            Object.entries(lifecycleSequences).map(([key, sequence]) => [
+              key,
+              compileActionSequence(sequence, skillLevel, `${path}.lifecycleSequences.${key}`),
+            ]),
+          ),
+        }),
+    ...(abilityEventResponses === undefined
+      ? {}
+      : {
+          abilityEventResponses: abilityEventResponses.map((response, index) => ({
+            event: response.event,
+            priority: response.priority,
+            sequence: compileActionSequence(
+              response.sequence,
+              skillLevel,
+              `${path}.abilityEventResponses[${index}].sequence`,
+            ),
+          })),
+        }),
   };
 }
 

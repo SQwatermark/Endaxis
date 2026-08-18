@@ -66,6 +66,26 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "eventActions"):
             compile_inline_buff_definition(source, "fixture")
 
+    def test_ignores_strictly_presentation_only_buff_events(self) -> None:
+        source = definition(
+            eventActions=(
+                SimpleNamespace(
+                    event="DuringBuffEnable",
+                    orderedActionTypes=("EffectAction",),
+                    combatActions=(),
+                    damageUnits=(),
+                    buffApplications=(),
+                    createdBuffIds=(),
+                    forEachActions=(),
+                ),
+            )
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("stackingType: 'refresh'", result)
+        self.assertNotIn("lifecycleSequences", result)
+
     def test_compiles_the_strict_source_death_owner_finish_monitor(self) -> None:
         source = definition(
             eventActions=(SimpleNamespace(event="OnBuffTrigger"),),

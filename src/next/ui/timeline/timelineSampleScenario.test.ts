@@ -1,0 +1,29 @@
+import { describe, expect, it } from 'vitest';
+import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
+import { validateSkillDefinition } from '../../core/game-data/validateSkillDefinition';
+import { arclight } from '../../data/operators';
+import {
+  ABILITY_ENTITY_SAMPLE_CAST_ID,
+  ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
+  createTimelineSampleScenario,
+} from './timelineSampleScenario';
+
+describe('timelineSampleScenario', () => {
+  it('提供可直接编辑的真实生成能力实体子时间线', () => {
+    const scenario = createTimelineSampleScenario();
+    const track = scenario.tracks[ABILITY_ENTITY_SAMPLE_TRACK_INDEX]!;
+    const cast = track.skillCasts.find(item => item.id === ABILITY_ENTITY_SAMPLE_CAST_ID)!;
+    const { definition } = resolveSkillTemplateDefinition(cast, arclight);
+    const spawn = definition.scheduledSequences
+      .flatMap(sequence => sequence.sequence.steps)
+      .find(step => step.kind === 'spawnAbilityEntity');
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+    expect(cast.customDefinition).toBeUndefined();
+    expect(cast.presentation?.disabled).toBe(true);
+    expect(spawn?.kind).toBe('spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('missing AbilityEntity sample');
+    expect(spawn.parameters.abilityEntityId).toBe('abilityentity_chr_0007_ikut_ultimate_skill');
+    expect(spawn.parameters.definition.childSkill?.scheduledSequences).toHaveLength(2);
+  });
+});

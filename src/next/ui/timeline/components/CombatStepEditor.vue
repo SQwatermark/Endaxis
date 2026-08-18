@@ -5,8 +5,9 @@
  * 本组件只负责按 kind 路由到对应专用子编辑器，并绘制统一的外框与标题；
  * 具体字段编辑逻辑落在按领域拆分的子编辑器中，避免这里堆叠参数处理函数。
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CaretBottom, CaretRight } from '@element-plus/icons-vue';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 import ActionValueStepEditor from './ActionValueStepEditor.vue';
 import DamageStepEditor from './DamageStepEditor.vue';
@@ -20,6 +21,7 @@ import BranchStepEditor from './BranchStepEditor.vue';
 import EditorHelpHint from './EditorHelpHint.vue';
 import EventListenerStepEditor from './EventListenerStepEditor.vue';
 import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
+import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
 import {
   EDITABLE_COMBAT_STEP_KINDS,
   type EditableCombatStepKind,
@@ -28,11 +30,13 @@ import {
 const props = defineProps<{
   step: CombatStepDefinition;
   skillLevel: number;
+  showHeader?: boolean;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
+const collapsed = ref(false);
 
 const stepHelp = computed(() => t(`nextTimeline.skillEditing.stepHelp.${props.step.kind}`));
 
@@ -45,96 +49,128 @@ function forward(step: CombatStepDefinition): void {
 
 <template>
   <section class="step-editor">
-    <header>
+    <header v-if="showHeader !== false">
       <div>
         <span>{{ t('nextTimeline.skillEditing.stepParameters') }}</span>
         <strong>{{ t(`nextTimeline.skillEditing.stepKinds.${step.kind}`) }}</strong>
         <EditorHelpHint :text="stepHelp" />
       </div>
+      <button
+        type="button"
+        class="step-editor__collapse"
+        :aria-expanded="!collapsed"
+        :title="
+          t(
+            collapsed
+              ? 'nextTimeline.skillEditing.expandStep'
+              : 'nextTimeline.skillEditing.collapseStep',
+          )
+        "
+        @click="collapsed = !collapsed"
+      >
+        <el-icon><CaretRight v-if="collapsed" /><CaretBottom v-else /></el-icon>
+      </button>
     </header>
 
-    <template v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'">
-      <TimeDilationStepEditor :step="step" @update="forward" />
-    </template>
-    <template
-      v-else-if="
-        step.kind === 'dealDamage' ||
-        step.kind === 'dealFixedDamage' ||
-        step.kind === 'dealStagger' ||
-        step.kind === 'applyElementalInfliction'
-      "
-    >
-      <DamageStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
-    </template>
-    <template v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'">
-      <ActionValueStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
-    </template>
-    <template
-      v-else-if="step.kind === 'changeResource' || step.kind === 'changeResourceByActionValue'"
-    >
-      <ResourceStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
-    </template>
-    <template v-else-if="step.kind === 'applyStatus' || step.kind === 'consumeStatus'">
-      <StatusStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
-    </template>
-    <template
-      v-else-if="step.kind === 'applyElementalReaction' || step.kind === 'consumeElementalReaction'"
-    >
-      <ElementalReactionStepEditor :step="step" @update="forward" />
-    </template>
-    <template v-else-if="step.kind === 'applyBuff'">
-      <BuffStepEditor
-        :step="step"
-        :skill-level="skillLevel"
-        :create-step="createStep"
-        :duplicate-step="duplicateStep"
-        @update="forward"
-      />
-    </template>
-    <template
-      v-else-if="
-        step.kind === 'readBuffBlackboard' ||
-        step.kind === 'readBuffStackCount' ||
-        step.kind === 'finishBuffsByTag' ||
-        step.kind === 'finishBuffsById' ||
-        step.kind === 'holdBuffsById'
-      "
-    >
-      <BuffManagementStepEditor :step="step" @update="forward" />
-    </template>
-    <template
-      v-else-if="
-        step.kind === 'createTimedMarker' ||
-        step.kind === 'gainSquadUltimateEnergyFromSkillCost' ||
-        step.kind === 'gainFinisherSp' ||
-        step.kind === 'setContextFlag' ||
-        step.kind === 'openComboWindow'
-      "
-    >
-      <MechanicStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
-    </template>
-    <template v-else-if="step.kind === 'conditional' || step.kind === 'once'">
-      <BranchStepEditor
-        :step="step"
-        :skill-level="skillLevel"
-        :create-step="createStep"
-        :duplicate-step="duplicateStep"
-        @update="forward"
-      />
-    </template>
-    <template v-else-if="step.kind === 'listenForCombatEvents'">
-      <EventListenerStepEditor
-        :step="step"
-        :skill-level="skillLevel"
-        :create-step="createStep"
-        :duplicate-step="duplicateStep"
-        @update="forward"
-      />
-    </template>
+    <div v-show="!collapsed" class="step-editor__body">
+      <template
+        v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'"
+      >
+        <TimeDilationStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'dealDamage' ||
+          step.kind === 'dealFixedDamage' ||
+          step.kind === 'dealStagger' ||
+          step.kind === 'applyElementalInfliction'
+        "
+      >
+        <DamageStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template
+        v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'"
+      >
+        <ActionValueStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template
+        v-else-if="step.kind === 'changeResource' || step.kind === 'changeResourceByActionValue'"
+      >
+        <ResourceStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'applyStatus' || step.kind === 'consumeStatus'">
+        <StatusStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'applyElementalReaction' || step.kind === 'consumeElementalReaction'
+        "
+      >
+        <ElementalReactionStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'applyBuff'">
+        <BuffStepEditor
+          :step="step"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="forward"
+        />
+      </template>
+      <template v-else-if="step.kind === 'spawnAbilityEntity'">
+        <AbilityEntityStepEditor
+          :step="step"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="forward"
+        />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'readBuffBlackboard' ||
+          step.kind === 'readBuffStackCount' ||
+          step.kind === 'finishBuffsByTag' ||
+          step.kind === 'finishBuffsById' ||
+          step.kind === 'holdBuffsById'
+        "
+      >
+        <BuffManagementStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'createTimedMarker' ||
+          step.kind === 'gainSquadUltimateEnergyFromSkillCost' ||
+          step.kind === 'gainFinisherSp' ||
+          step.kind === 'setContextFlag' ||
+          step.kind === 'openComboWindow'
+        "
+      >
+        <MechanicStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'conditional' || step.kind === 'once'">
+        <BranchStepEditor
+          :step="step"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="forward"
+        />
+      </template>
+      <template v-else-if="step.kind === 'listenForCombatEvents'">
+        <EventListenerStepEditor
+          :step="step"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="forward"
+        />
+      </template>
 
-    <p v-else-if="!editable" class="step-editor__unsupported">
-      {{ t('nextTimeline.skillEditing.unsupportedStepEditor') }}
-    </p>
+      <p v-else-if="!editable" class="step-editor__unsupported">
+        {{ t('nextTimeline.skillEditing.unsupportedStepEditor') }}
+      </p>
+    </div>
   </section>
 </template>
 
@@ -160,6 +196,22 @@ function forward(step: CombatStepDefinition): void {
   display: flex;
   align-items: baseline;
   gap: 8px;
+}
+
+.step-editor__collapse {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ea-fg-muted);
+  cursor: pointer;
+}
+
+.step-editor__collapse:hover {
+  border-color: var(--ea-gold);
+  color: var(--ea-gold);
 }
 
 .step-editor > header span,

@@ -1,6 +1,6 @@
 import evidence from './ability-entity-templates-1.4.4.json';
 import { gameplayTagId } from '../../core/combat/tags/gameplayTags';
-import type { LogicalAbilityEntityTemplate } from '../../core/game-data/logicalAbilityEntity';
+import type { AbilityEntityDefinition } from '../../core/game-data/operatorDefinition';
 
 type EvidenceTemplate = {
   readonly gameId: string;
@@ -15,7 +15,16 @@ function finiteNonNegative(value: number, path: string): number {
   return value;
 }
 
-function adaptTemplate(value: EvidenceTemplate, key: string): LogicalAbilityEntityTemplate {
+export interface LogicalAbilityEntityTemplateEvidenceProjection extends AbilityEntityDefinition {
+  readonly id: string;
+  /** 仅保留来源事实；达到上限时如何处理尚无规则证据。 */
+  readonly maxStackingCount: number;
+}
+
+function adaptTemplate(
+  value: EvidenceTemplate,
+  key: string,
+): LogicalAbilityEntityTemplateEvidenceProjection {
   if (value.gameId !== key)
     throw new Error(`AbilityEntity evidence identity mismatch for '${key}'`);
   const nativeValues = evidence.lifeTypeNativeValues;
@@ -48,11 +57,12 @@ if (evidence.spatialModel !== 'zero-distance-all-instances-single-enemy') {
 }
 
 /** 当前 1.4.4 VFS 证据中可供模拟器直接使用的全部逻辑能力实体模板。 */
-export const logicalAbilityEntityTemplates: readonly LogicalAbilityEntityTemplate[] = Object.freeze(
-  Object.entries(evidence.templates)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => adaptTemplate(value, key)),
-);
+export const logicalAbilityEntityTemplates: readonly LogicalAbilityEntityTemplateEvidenceProjection[] =
+  Object.freeze(
+    Object.entries(evidence.templates)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => adaptTemplate(value, key)),
+  );
 
 /** AKEDB 有引用但当前 VFS manifest 无模板的显式审计边界。 */
 export const unresolvedAbilityEntityTemplateReferences = Object.freeze(

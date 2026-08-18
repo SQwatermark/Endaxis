@@ -11,12 +11,10 @@ import type {
   CombatCondition,
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
-import {
-  EDITABLE_COMBAT_STEP_KINDS,
-  type EditableCombatStepKind,
-} from '../skillDefinitionEditorViewModel';
+import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
+import StepTypePicker from './StepTypePicker.vue';
 
 const RecursiveStepEditor = defineAsyncComponent(() => import('./CombatStepEditor.vue'));
 type BranchStep = Extract<CombatStepDefinition, { kind: 'conditional' | 'once' }>;
@@ -32,7 +30,6 @@ const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
 const selectedBranch = ref<BranchName>(props.step.kind === 'once' ? 'body' : 'whenTrue');
 const selectedIndex = ref(0);
-const newStepKind = ref<EditableCombatStepKind>('dealDamage');
 
 const steps = computed(() => {
   if (props.step.kind === 'once') return props.step.body.steps;
@@ -65,9 +62,9 @@ function replaceBranchSteps(nextSteps: readonly CombatStepDefinition[]): void {
   }
 }
 
-function appendStep(): void {
+function appendStep(kind: EditableCombatStepKind): void {
   if (!props.createStep) return;
-  replaceBranchSteps([...steps.value, props.createStep(newStepKind.value)]);
+  replaceBranchSteps([...steps.value, props.createStep(kind)]);
   selectedIndex.value = steps.value.length;
 }
 
@@ -133,14 +130,7 @@ function removeStep(index: number): void {
           {{ index + 1 }}. {{ t(`nextTimeline.skillEditing.stepKinds.${item.kind}`) }}
           <span @click.stop="removeStep(index)">×</span>
         </button>
-        <div class="branch-editor__add">
-          <select v-model="newStepKind">
-            <option v-for="kind in EDITABLE_COMBAT_STEP_KINDS" :key="kind" :value="kind">
-              {{ t(`nextTimeline.skillEditing.stepKinds.${kind}`) }}
-            </option>
-          </select>
-          <button type="button" :disabled="!createStep" @click="appendStep">+</button>
-        </div>
+        <StepTypePicker :disabled="!createStep" @select="appendStep" />
       </div>
       <RecursiveStepEditor
         v-if="selectedStep"
@@ -196,14 +186,8 @@ function removeStep(index: number): void {
   align-items: center;
   text-align: left;
 }
-.branch-editor__add {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 32px;
-  gap: 5px;
-}
 .branch-editor input,
-.branch-editor select,
-.branch-editor__add button {
+.branch-editor select {
   min-width: 0;
   height: 30px;
   box-sizing: border-box;

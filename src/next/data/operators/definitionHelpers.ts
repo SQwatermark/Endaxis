@@ -31,8 +31,12 @@ export function step<K extends ImmediateStepKind>(
   >;
 }
 
-export function sequence(...steps: CombatStepDefinition[]): ActionSequenceDefinition {
-  return { steps };
+export function sequence(
+  ...items: readonly (CombatStepDefinition | ActionSequenceDefinition)[]
+): ActionSequenceDefinition {
+  return {
+    steps: items.flatMap(item => ('steps' in item ? item.steps : [item])),
+  };
 }
 
 export function not(condition: CombatCondition): CombatCondition {

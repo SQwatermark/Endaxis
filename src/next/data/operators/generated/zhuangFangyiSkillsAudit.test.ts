@@ -16,10 +16,10 @@ describe('zhuangFangyi generated skill audit', () => {
       .find(step => step.kind === 'spawnAbilityEntity');
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
 
-    expect(spawn.parameters.childSkill?.scheduledSequences.map(item => item.startFrame)).toEqual([
+    expect(spawn.parameters.definition.childSkill?.scheduledSequences.map(item => item.startFrame)).toEqual([
       0, 9, 11, 14, 897,
     ]);
-    expect(spawn.parameters.childSkill?.scheduledSequences.at(-1)?.sequence.steps).toEqual([
+    expect(spawn.parameters.definition.childSkill?.scheduledSequences.at(-1)?.sequence.steps).toEqual([
       { kind: 'finishCurrentAbilityEntity', parameters: {} },
     ]);
     expect(zhuangFangyiBasicAttack2.scheduledSequences.map(item => item.startFrame)).not.toEqual(
@@ -33,7 +33,7 @@ describe('zhuangFangyi generated skill audit', () => {
       .find(step => step.kind === 'spawnAbilityEntity');
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
 
-    const child = spawn.parameters.childSkill;
+    const child = spawn.parameters.definition.childSkill;
     expect(child?.scheduledSequences.map(item => item.startFrame)).toEqual([0, 0, 4, 8, 897]);
     expect(zhuangFangyiBasicAttack5.scheduledSequences.map(item => item.startFrame)).toEqual([20]);
     expect(child?.scheduledSequences[1]?.sequence.steps.map(step => step.kind)).toEqual([

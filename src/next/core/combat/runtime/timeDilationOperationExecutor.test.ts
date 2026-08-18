@@ -15,7 +15,6 @@ const delegate: CombatOperationExecutor = {
 
 function runtime() {
   return new TimeDilationRuntime({
-    priorities: new Map([[PRIORITY, 10]]),
     curves: new Map([['constant-half', () => 0.5]]),
   });
 }

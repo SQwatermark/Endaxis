@@ -65,7 +65,7 @@ describe('validateSkillDefinition', () => {
             {
               kind: 'startUltimateTimeDilation',
               parameters: {
-                priority: -1742631616,
+                priority: 100,
                 targetScale: { kind: 'constant', value: 0 },
                 ignoredTargets: [],
               },
@@ -284,6 +284,70 @@ describe('validateSkillDefinition', () => {
           issue.message.includes('require inherited skill-cast info'),
       ),
     ).toBe(true);
+  });
+
+  it('validates inline Buff ability event responses and their sequences', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff.damage-listener',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                definition: {
+                  stackingType: 'unique',
+                  abilityEventResponses: [
+                    {
+                      event: 'beforeTakeDamage',
+                      priority: 3,
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'conditional',
+                            parameters: {
+                              condition: {
+                                kind: 'eventDamageTagsMatch',
+                                match: 'hasAll',
+                                tags: ['normalSkill'],
+                              },
+                            },
+                            whenTrue: { steps: [] },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    const response = (
+      (
+        skill.scheduledSequences as Array<{
+          sequence: { steps: Array<{ parameters: { definition: unknown } }> };
+        }>
+      )[0]!.sequence.steps[0]!.parameters.definition as {
+        abilityEventResponses: Array<Record<string, unknown>>;
+      }
+    ).abilityEventResponses[0]!;
+    response.event = 'takeDamage';
+    response.priority = 0.5;
+    response.unknown = true;
+    const issues = validateSkillDefinition(skill);
+    expect(issues.some(issue => issue.path.endsWith('.event'))).toBe(true);
+    expect(issues.some(issue => issue.path.endsWith('.priority'))).toBe(true);
+    expect(issues.some(issue => issue.path.endsWith('.unknown'))).toBe(true);
   });
 
   it('rejects old low-level actions and unknown inline Buff lifecycle names', () => {
@@ -719,5 +783,48 @@ describe('validateSkillDefinition', () => {
           issue.path === '$.scheduledSequences[0].sequence.steps[0].parameters.coefficient.key',
       ),
     ).toBe(true);
+  });
+
+  it('validates the inline AbilityEntity definition at its spawn site', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'spawnAbilityEntity',
+              parameters: {
+                abilityEntityId: 'fixture',
+                definition: {
+                  lifetime: { kind: 'limited', durationSeconds: 5 },
+                  childSkill: { skillId: 'child', scheduledSequences: [] },
+                },
+                dieWhenSourceDies: false,
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    const parameters = (
+      skill.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters;
+    parameters.definition = {
+      lifetime: { kind: 'limited', durationSeconds: -1 },
+    };
+
+    expect(validateSkillDefinition(skill)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[0].parameters.definition.lifetime.durationSeconds',
+        }),
+      ]),
+    );
   });
 });

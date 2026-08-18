@@ -37,7 +37,6 @@ export function uniformAbilityTickDeltas(deltaSeconds: number): AbilityTickDelta
 }
 
 export interface TimeDilationRuntimeConfig {
-  readonly priorities: ReadonlyMap<number, number>;
   /** 仅列出寿命使用全局时间的实体槽位；未列出的槽位使用原始帧时间。 */
   readonly entityLifetimeUsesGlobalScaleBySlot?: ReadonlyMap<number, boolean>;
   readonly curves?: ReadonlyMap<string, TimeScaleCurve>;
@@ -115,9 +114,8 @@ interface EntityTimeDilationInstance extends MutableTimeDilationInstance {
   readonly lifetimeUsesGlobalScale: boolean;
 }
 
-/** 原生时间膨胀管理器的行为等价边界；版本相关标签和曲线必须由装配层传入。 */
+/** 原生时间膨胀管理器的行为等价边界；生成定义已保存可直接比较的优先级数值。 */
 export class TimeDilationRuntime implements FrameRuntime {
-  readonly #priorities: ReadonlyMap<number, number>;
   readonly #entityLifetimeUsesGlobalScaleBySlot: ReadonlyMap<number, boolean>;
   readonly #curves: ReadonlyMap<string, TimeScaleCurve>;
   readonly #globalInstances: GlobalTimeDilationInstance[] = [];
@@ -126,7 +124,6 @@ export class TimeDilationRuntime implements FrameRuntime {
   #nextInstanceId = 0;
 
   constructor(config: TimeDilationRuntimeConfig, observer: TimeDilationRuntimeObserver = {}) {
-    this.#priorities = config.priorities;
     this.#entityLifetimeUsesGlobalScaleBySlot =
       config.entityLifetimeUsesGlobalScaleBySlot ?? new Map();
     this.#curves = config.curves ?? new Map();
@@ -169,7 +166,7 @@ export class TimeDilationRuntime implements FrameRuntime {
       throw new Error('global time dilation requires a curve or constant scale');
     }
     if (options.constantScale !== undefined) validateScale(options.constantScale);
-    this.#priorityOf(options.priority);
+    validatePriority(options.priority);
 
     const instance: GlobalTimeDilationInstance = {
       id: ++this.#nextInstanceId,
@@ -215,7 +212,7 @@ export class TimeDilationRuntime implements FrameRuntime {
   startEntity(options: StartEntityTimeDilationOptions): number {
     if (options.entityId.length === 0) throw new Error('entity id must not be empty');
     validateDuration(options.durationSeconds);
-    this.#priorityOf(options.priority);
+    validatePriority(options.priority);
     const instance: EntityTimeDilationInstance = {
       id: ++this.#nextInstanceId,
       entityId: options.entityId,
@@ -318,7 +315,7 @@ export class TimeDilationRuntime implements FrameRuntime {
     for (let index = this.#globalInstances.length - 1; index >= 0; index -= 1) {
       const current = this.#globalInstances[index]!;
       if (current.slot !== candidate.slot) continue;
-      if (this.#priorityOf(current.priority) > this.#priorityOf(candidate.priority)) return false;
+      if (current.priority > candidate.priority) return false;
       const [removed] = this.#globalInstances.splice(index, 1);
       this.#observer.ended?.('global', snapshotInstance(removed!), 'replaced');
     }
@@ -336,18 +333,12 @@ export class TimeDilationRuntime implements FrameRuntime {
       ) {
         continue;
       }
-      if (this.#priorityOf(current.priority) > this.#priorityOf(candidate.priority)) return false;
+      if (current.priority > candidate.priority) return false;
       const [removed] = this.#entityInstances.splice(index, 1);
       this.#observer.ended?.('entity', snapshotInstance(removed!), 'replaced', removed!.entityId);
     }
     this.#entityInstances.push(candidate);
     return true;
-  }
-
-  #priorityOf(tag: number): number {
-    const priority = this.#priorities.get(tag);
-    if (priority === undefined) throw new Error(`unknown time-dilation priority '${tag}'`);
-    return priority;
   }
 
   #selectActiveGlobal(): GlobalTimeDilationInstance | undefined {
@@ -410,6 +401,12 @@ function snapshotInstance(instance: MutableTimeDilationInstance): TimeDilationIn
 function validateDuration(value: number): void {
   if (!Number.isFinite(value) || value === 0) {
     throw new RangeError('time-dilation duration must be finite and non-zero');
+  }
+}
+
+function validatePriority(value: number): void {
+  if (!Number.isFinite(value)) {
+    throw new RangeError('time-dilation priority must be finite');
   }
 }
 

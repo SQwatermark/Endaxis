@@ -18,7 +18,10 @@ import type {
 import type { GameplayTagId, GameplayTagQueryType } from '../tags/gameplayTags';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
-import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
+import {
+  attachBuffLifecycleSequences,
+  type RegisterBuffAbilityEventAction,
+} from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
@@ -41,6 +44,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
     readonly currentTarget?: RuntimeTargetRef,
+    readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
   ) {}
 
   get ownerId(): string {
@@ -86,13 +90,25 @@ export class BuffDefinitionOperationTarget<Key extends string>
     const cached = this.#inlineDefinitions.get(source);
     if (cached !== undefined) return cached;
     // 显示信息随技能定义保存，但不进入战斗运行时。
-    const { presentation: _presentation, lifecycleSequences, ...runtimeDefinition } = source;
-    if (lifecycleSequences !== undefined && this.#resolveLifecycleOperations === null) {
+    const {
+      presentation: _presentation,
+      lifecycleSequences,
+      abilityEventResponses,
+      ...runtimeDefinition
+    } = source;
+    if (
+      (lifecycleSequences !== undefined || abilityEventResponses !== undefined) &&
+      this.#resolveLifecycleOperations === null
+    ) {
       throw new Error(
-        `combat buff '${id}' has lifecycle sequences, but no Buff sequence runtime is configured`,
+        `combat buff '${id}' has runtime sequences, but no Buff sequence runtime is configured`,
       );
     }
-    if (lifecycleSequences === undefined && this.definitions.compile === undefined) {
+    if (
+      lifecycleSequences === undefined &&
+      abilityEventResponses === undefined &&
+      this.definitions.compile === undefined
+    ) {
       throw new Error(
         `combat buff '${id}' uses an inline definition, but no compiler is configured`,
       );
@@ -105,13 +121,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
     const entry: CombatBuffDefinitionEntry = { id, ...runtimeDefinition };
     const baseDefinition = this.definitions.compile(entry);
     const definition =
-      lifecycleSequences === undefined
+      lifecycleSequences === undefined && abilityEventResponses === undefined
         ? baseDefinition
         : attachBuffLifecycleSequences(
             baseDefinition,
-            lifecycleSequences,
+            lifecycleSequences ?? {},
             buff => this.#resolveLifecycleOperations!(buff),
             this.currentTarget,
+            abilityEventResponses,
+            this.registerAbilityEventAction,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

@@ -1,5 +1,3 @@
-import type { GameplayTagId, GameplayTagQueryType } from '../combat/tags/gameplayTags';
-
 /** 零空间模型中仍需保持身份的三类运行时目标。 */
 export type RuntimeTargetRef =
   | { readonly kind: 'operator'; readonly operatorId: string }
@@ -17,25 +15,10 @@ export function logicalAbilityEntityRuntimeId(instanceId: number): string {
   return `ability-entity:${instanceId}`;
 }
 
-/** 能力实体模板的生命周期；原生枚举值必须先在数据适配层得到明确映射。 */
-export type LogicalAbilityEntityLifetime =
-  { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
-
-/** 从 VFS 模板证据投影出的最小运行时蓝图。 */
-export interface LogicalAbilityEntityTemplate {
-  readonly id: string;
-  readonly bornTagIds: readonly GameplayTagId[];
-  readonly lifetime: LogicalAbilityEntityLifetime;
-  /** 仅保留来源事实；达到上限时如何替换旧实例尚未得到规则证据。 */
-  readonly maxStackingCount: number;
-}
-
-/** OwnerSpawnedEntityFinder 在零空间模型下仍需保留的非空间筛选。 */
+/** OwnerSpawnedEntityFinder 经生成期解析后仍需保留的非空间筛选。 */
 export interface OwnerSpawnedAbilityEntityQuery {
   readonly ownerId: string;
-  readonly tagQuery?: {
-    readonly type: GameplayTagQueryType;
-    readonly tagIds: readonly GameplayTagId[];
-    readonly exact?: boolean;
-  };
+  readonly abilityEntityIds?: readonly string[];
+  /** 原生 SkillCastIdValidator：只保留同一来源施法生成的实例。 */
+  readonly sourceSkillCastId?: number;
 }

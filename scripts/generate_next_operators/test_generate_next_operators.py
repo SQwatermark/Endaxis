@@ -25,6 +25,8 @@ from generate_next_operators import (
     root_target_group_writes_for_condition,
     resolve_latest_target_group_write_at,
     target_group_write_guarantees_single_enemy,
+    target_group_write_guarantees_non_empty,
+    target_group_is_guaranteed_non_empty_at,
     target_group_write_ability_entity_collection_identity,
     collect_timed_marker_damage_gates,
     collect_consumed_root_timed_marker_action_ids,
@@ -34,6 +36,8 @@ from generate_next_operators import (
     compile_skill_entries,
     compile_buff_application_values,
     parse_skill_event_listeners,
+    parse_buff_event_actions,
+    parse_ordered_action_sequence,
     compile_buff_stack_read,
     compile_resolved_damage_sequence,
     compile_resolved_sequence,
@@ -44,6 +48,7 @@ from generate_next_operators import (
     compile_combat_condition,
     compile_combat_condition_group,
     compile_conditional_action,
+    compile_conditional_branch_action,
     compile_immediate_projectile_children,
     compile_logical_ability_entity_spawn,
     logical_ability_entity_spawn_payload_for_compile,
@@ -142,9 +147,12 @@ from generate_next_operators import (
     collect_projected_conditional_projectile_skills,
     is_single_enemy_ability_entity_projection,
     is_guaranteed_single_enemy_condition,
+    is_guaranteed_non_empty_target_group_condition,
     is_projectile_trigger_excluded_for_single_enemy,
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
+    resolve_operator_buff_definitions_for_stage,
+    compile_buff_event_target_group_write,
     parse_skill_patch,
     parse_physical_inflictions,
     compile_buff_blackboard_read,
@@ -458,7 +466,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                     "serverActionIndex": 3,
                                     "layer": "Entity",
                                     "slot": {"tagId": 11},
-                                    "timeDilationPriority": {"tagId": 22},
+                                    "timeDilationPriority": {"tagId": -2059842104},
                                     "duration": {
                                         "useBlackboardKey": False,
                                         "value": 1,
@@ -511,7 +519,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "serverActionIndex": 77,
             "layer": "Entity",
             "slot": {"tagId": 11},
-            "timeDilationPriority": {"tagId": 22},
+            "timeDilationPriority": {"tagId": -2059842104},
             "duration": {
                 "useBlackboardKey": False,
                 "value": 0.25,
@@ -551,10 +559,15 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             parsed,
             "fixture.timeDilation",
             effect_ability_entity_targets_proven=True,
+            ability_entity_templates={
+                "abilityentity_fixture": {"bornTagIds": [-1480463572]}
+            },
         )
         self.assertIn("abilityEntityTargets", compiled)
+        self.assertIn("priority: 10", compiled)
         self.assertIn("kind: 'ownerSpawned'", compiled)
-        self.assertIn("tagIds: [-1480463572]", compiled)
+        self.assertIn("abilityEntityIds: ['abilityentity_fixture']", compiled)
+        self.assertNotIn("tagIds", compiled)
 
     def test_global_time_dilation_preserves_owner_spawned_entity_exclusions(self) -> None:
         entity_target = target_settings_fixture(
@@ -572,7 +585,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "serverActionIndex": 1,
             "layer": "Global",
             "slot": {"tagId": 0},
-            "timeDilationPriority": {"tagId": 22},
+            "timeDilationPriority": {"tagId": -2059842104},
             "duration": {
                 "useBlackboardKey": False,
                 "value": 1,
@@ -604,6 +617,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(parsed.ignoredAbilityEntityTargets), 1)
         self.assertIn("ignoredAbilityEntityTargets", compiled)
         self.assertIn("kind: 'ownerSpawned'", compiled)
+        self.assertIn("priority: 10", compiled)
+        with self.assertRaisesRegex(ValueError, "unknown tag id 22"):
+            compile_time_dilation(
+                replace(parsed, priority=22),
+                "fixture.timeDilation",
+            )
 
     def test_nested_time_dilation_stays_inside_conditional_branch(self) -> None:
         target = target_settings_fixture("Target")
@@ -636,7 +655,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                             "serverActionIndex": 2,
                                             "layer": "Entity",
                                             "slot": {"tagId": 11},
-                                            "timeDilationPriority": {"tagId": 22},
+                                            "timeDilationPriority": {"tagId": -2059842104},
                                             "duration": {
                                                 "useBlackboardKey": False,
                                                 "value": 0.3,
@@ -1032,6 +1051,169 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             write,
         )
         self.assertTrue(target_group_write_guarantees_single_enemy(write))
+
+    def test_target_group_non_empty_proof_covers_exhaustive_enemy_or_point_paths(
+        self,
+    ) -> None:
+        root = (
+            "timelineActions[4]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+        )
+        nested = (*root, "failActions", "actionData", "[0]")
+
+        def merge_write(
+            index: int,
+            path: tuple[str, ...],
+            source: str,
+            key: str,
+        ) -> TargetGroupWriteSource:
+            return TargetGroupWriteSource(
+                startFrame=0,
+                endFrame=0,
+                actionIndex=index,
+                actionPath=path,
+                targetGroupKey="trigger",
+                producerType="MergeTargetAction",
+                finderType=None,
+                finderFactionTarget=None,
+                finderTargetObjectType=None,
+                finderCheckAlive=None,
+                validatorTypes=(),
+                postProcessorTypes=(),
+                inputTargets=(
+                    TargetGroupInputSource(
+                        targetSource=source,
+                        targetGroupKey=key,
+                        finderType=None,
+                        finderFactionTarget=None,
+                        finderTargetObjectType=None,
+                        finderCheckAlive=None,
+                        validatorTypes=(),
+                        postProcessorTypes=(),
+                    ),
+                ),
+                intervalSeconds=None,
+            )
+
+        smart_target = merge_write(
+            37,
+            (*root, "succeedActions", "actionData", "[0]"),
+            "Context",
+            "smart_target",
+        )
+        main_target = merge_write(
+            41,
+            (*nested, "succeedActions", "actionData", "[0]"),
+            "MainTarget",
+            "smart_target",
+        )
+        main_character = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=42,
+            actionPath=(*nested, "failActions", "actionData", "[0]"),
+            targetGroupKey="main_char",
+            producerType="FindTargetAction",
+            finderType="CharacterTeamFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=("MainCharacterValidator",),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+        fixed_point = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=43,
+            actionPath=(*nested, "failActions", "actionData", "[1]"),
+            targetGroupKey="trigger",
+            producerType="FindTargetAction",
+            finderType="FixedPointFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+            finderFixedPointSnapToNavmesh=False,
+            center="ContextTarget",
+            centerContextKey="main_char",
+            selectorOwner="ContextTarget",
+            selectorOwnerContextKey="main_char",
+        )
+        writes = (smart_target, main_target, main_character, fixed_point)
+
+        self.assertFalse(target_group_write_guarantees_single_enemy(fixed_point))
+        self.assertTrue(target_group_write_guarantees_non_empty(fixed_point, writes))
+        self.assertFalse(
+            target_group_write_guarantees_non_empty(
+                replace(fixed_point, finderFixedPointSnapToNavmesh=True),
+                writes,
+            )
+        )
+        self.assertTrue(
+            target_group_is_guaranteed_non_empty_at(
+                read_frame=9,
+                read_action_index=45,
+                read_action_path=(
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                ),
+                target_group_key="trigger",
+                writes=writes,
+            )
+        )
+
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="trigger",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=True,
+                storeKey="",
+            ),
+        )
+        self.assertTrue(
+            is_guaranteed_non_empty_target_group_condition(
+                condition,
+                action=SimpleNamespace(
+                    startFrame=9,
+                    actionIndex=45,
+                    actionPath=(
+                        "timelineActions[5]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                    ),
+                ),
+                target_group_writes=writes,
+            )
+        )
+
+        self.assertFalse(
+            target_group_is_guaranteed_non_empty_at(
+                read_frame=9,
+                read_action_index=45,
+                read_action_path=(),
+                target_group_key="trigger",
+                writes=(smart_target, main_character, fixed_point),
+            )
+        )
 
     def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
         find_action = {
@@ -8040,11 +8222,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         compiled = compile_logical_ability_entity_spawn(
             payload,
             "fixture",
+            {
+                "ability_entity": {
+                    "bornTagIds": [1, -2],
+                    "_endaxisLifetimeKind": "limited",
+                    "durationSeconds": 5,
+                }
+            },
             "{ skillId: 'child_skill', scheduledSequences: [] }",
         )
 
         self.assertIn("step('spawnAbilityEntity'", compiled)
-        self.assertIn("childSkillId: 'child_skill'", compiled)
+        self.assertIn("abilityEntityId: 'ability_entity'", compiled)
+        self.assertNotIn("bornTagIds", compiled)
+        self.assertIn("lifetime: { kind: 'limited', durationSeconds: 5 }", compiled)
         self.assertIn("inheritActionBlackboard: true", compiled)
         self.assertIn("childSkill: { skillId: 'child_skill', scheduledSequences: [] }", compiled)
         self.assertIn("overrideDurationSeconds: { kind: 'constant', value: 40 }", compiled)
@@ -9648,6 +9839,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                         {
                                                             "$type": "Example.CheckDamageDecorateMask+Data, Example",
                                                             "isEnable": True,
+                                                            "priorityLevel": "High",
+                                                            "priorityOffset": -7,
                                                             "serverActionIndex": 8,
                                                         },
                                                         {
@@ -9676,6 +9869,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(listener.actionIndex, 7)
         self.assertEqual((listener.priorityLevel, listener.priorityOffset), ("Default", 0))
         self.assertEqual(listener.event, "OnAfterKillEntity")
+        self.assertEqual(listener.sequences[0].priority, 93)
         self.assertEqual(
             listener.sequences[0].orderedActionTypes,
             ("CheckDamageDecorateMask", "CompareFloat"),
@@ -9763,6 +9957,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                         {
                                                             "$type": "Example.CompareFloat+Data, Example",
                                                             "isEnable": True,
+                                                            "priorityLevel": "Default",
+                                                            "priorityOffset": 0,
                                                             "serverActionIndex": 8,
                                                             "valueA": {
                                                                 "useBlackboardKey": True,
@@ -9858,6 +10054,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                         {
                                                             "$type": "Example.CheckBuffIdInContext+Data, Example",
                                                             "isEnable": True,
+                                                            "priorityLevel": "Default",
+                                                            "priorityOffset": 0,
                                                             "serverActionIndex": 2,
                                                             "checkType": "Id",
                                                             "buffIdList": [{"buffId": "buff_a"}],
@@ -10022,6 +10220,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("match: 'exceptAny'", compiled)
         self.assertIn("features: ['dot', 'remainArea']", compiled)
 
+    def test_buff_damage_event_target_source_identity_compiles_exactly(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckTargetsEqual",
+            targetIdentity=SimpleNamespace(
+                first=parse_target_reference(target_settings_fixture("Target"), "first"),
+                second=parse_target_reference(target_settings_fixture("Source"), "second"),
+            ),
+        )
+
+        self.assertEqual(
+            compile_combat_condition(
+                condition,
+                "fixture.identity",
+                buff_ability_damage_event=True,
+            ),
+            "{ kind: 'eventSourceMatchesBuffSource' }",
+        )
+        with self.assertRaisesRegex(ValueError, "unsupported condition type"):
+            compile_combat_condition(condition, "fixture.identity")
+
     def test_context_ability_entity_duration_guard_and_assignment_compile(self) -> None:
         target = target_settings_fixture("Context", target_group_key="swordsForExtend")
         input_target = target_settings_fixture("Target")
@@ -10161,6 +10379,191 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "requires singleton provenance"):
             compile_conditional_action(without_spawn, "fixture.namedDuration")
+
+    def test_audit_stage_records_buff_resolution_failure_but_complete_stage_rethrows(self) -> None:
+        with patch(
+            "generate_next_operators.resolve_operator_buff_definitions",
+            side_effect=ValueError("unsupported target collection"),
+        ):
+            definitions, issues = resolve_operator_buff_definitions_for_stage(
+                (), Path("BuffData"), "audit"
+            )
+            self.assertEqual(definitions, ())
+            self.assertEqual(
+                issues,
+                ("ValueError: unsupported target collection",),
+            )
+
+            with self.assertRaisesRegex(ValueError, "unsupported target collection"):
+                resolve_operator_buff_definitions_for_stage(
+                    (), Path("BuffData"), "complete"
+                )
+
+    def test_buff_event_for_each_preserves_ability_entity_collection_and_skill_cast(self) -> None:
+        collection = target_settings_fixture(
+            "InstantSearch", finder_type="OwnerSpawnedEntityFinder"
+        )
+        collection["selectorData"]["finderData"]["spawnedObjectType"] = "AbilityEntity"
+        collection["selectorData"]["validatorData"] = [
+            {
+                "$type": "Example.Selector+TagValidator+Data, Example",
+                "query": {"queryType": "HasAny", "tags": [{"tagId": -1480463572}]},
+            },
+            {"$type": "Example.Selector+SkillCastIdValidator+Data, Example"},
+        ]
+        cast = {
+            "$type": "Example.CastSkill+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 14,
+            "caster": target_settings_fixture("Target"),
+            "target": target_settings_fixture("Owner"),
+            "skillId": {
+                "useBlackboardKey": False,
+                "value": "fixture_abilityentity_end",
+                "blackboardKey": "",
+            },
+            "skipApplyCost": False,
+            "inheritSourceSkillCastId": True,
+        }
+        event = {
+            "buffEventAction": [
+                {
+                    "buffEvent": "OnBuffTrigger",
+                    "actions": [
+                        {
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                            "actionData": [
+                                {
+                                    "$type": "Example.ForEachAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 13,
+                                    "target": collection,
+                                    "action": {"actionData": [cast]},
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ]
+        }
+
+        parsed = parse_buff_event_actions(event, "fixture.json", {})
+
+        loop = parsed[0].forEachActions[0]
+        self.assertEqual(loop.spawnedObjectType, "AbilityEntity")
+        self.assertEqual(loop.tagQueries, (("HasAny", (-1480463572,)),))
+        self.assertEqual(
+            loop.target.validatorTypes,
+            ("TagValidator", "SkillCastIdValidator"),
+        )
+        self.assertEqual(loop.orderedActionTypes, ("CastSkill",))
+        self.assertEqual(loop.skillCasts[0].skillId, "fixture_abilityentity_end")
+        self.assertEqual(loop.skillCasts[0].caster.targetSource, "Target")
+        self.assertEqual(loop.skillCasts[0].target.targetSource, "Owner")
+        self.assertTrue(loop.skillCasts[0].inheritSourceSkillCastId)
+        self.assertEqual(parsed[0].sequences[0].orderedActionTypes, ("ForEachAction",))
+        self.assertEqual(parsed[0].sequences[0].actions, ())
+
+    def test_buff_event_owner_spawned_query_compiles_to_ids_and_same_cast_filter(self) -> None:
+        write = SimpleNamespace(
+            finderType="OwnerSpawnedEntityFinder",
+            spawnedObjectType="AbilityEntity",
+            validatorTypes=("SkillCastIdValidator", "TagValidator"),
+            postProcessorTypes=(),
+            center="ActionSource",
+            selectorOwner="ActionSource",
+            tagQueries=(("HasAny", (-1480463572,)),),
+            targetGroupKey="bunshin",
+        )
+
+        result = compile_buff_event_target_group_write(
+            write,
+            {
+                "abilityentity_arcane_seal": {"bornTagIds": [-1480463572]},
+                "abilityentity_other": {"bornTagIds": [123]},
+            },
+            "fixture",
+        )
+
+        self.assertIn("abilityEntityIds: ['abilityentity_arcane_seal']", result)
+        self.assertIn("sameSourceSkillCast: true", result)
+        self.assertIn("saveToContextKey: 'bunshin'", result)
+
+    def test_buff_event_ordered_tree_keeps_target_write_and_requires_interrupt_provenance(self) -> None:
+        target_write = {
+            "$type": "Example.FindTargetAction+Data, Example",
+            "serverActionIndex": 3,
+        }
+        interrupt = {
+            "$type": "Example.InterruptAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 4,
+            "attacker": target_settings_fixture("Source"),
+            "defender": target_settings_fixture("Context", target_group_key="tar"),
+            "overrideSuperArmorLimit": -1,
+            "immobilizedTime": 1.0,
+        }
+        damage_mask_branch = {
+            "$type": "Example.IfElseAction+Data, Example",
+            "serverActionIndex": 2,
+            "conditionAction": {
+                "actionData": [
+                    {
+                        "$type": "Example.CheckDamageDecorateMask+Data, Example",
+                        "checkType": "HasAll",
+                        "mask": 256,
+                    }
+                ]
+            },
+            "succeedActions": {"actionData": [target_write, interrupt]},
+            "failActions": {"actionData": []},
+        }
+        target_identity_branch = {
+            "$type": "Example.IfElseAction+Data, Example",
+            "serverActionIndex": 1,
+            "conditionAction": {
+                "actionData": [
+                    {
+                        "$type": "Example.CheckTargetsEqual+Data, Example",
+                        "firstTargetSettings": target_settings_fixture("Target"),
+                        "secondTargetSettings": target_settings_fixture("Source"),
+                    }
+                ]
+            },
+            "succeedActions": {"actionData": [damage_mask_branch]},
+            "failActions": {"actionData": []},
+        }
+
+        parsed = parse_ordered_action_sequence(
+            [target_identity_branch],
+            "buff-listener.json",
+            {},
+            include_target_group_provenance=True,
+        )
+
+        outer = parsed[0].nestedCondition
+        self.assertIsNotNone(outer)
+        inner = outer.succeedActions[0].nestedCondition
+        self.assertIsNotNone(inner)
+        self.assertEqual(
+            tuple(action.actionType for action in inner.succeedActions),
+            ("FindTargetAction", "InterruptAction"),
+        )
+        self.assertEqual(inner.succeedActions[1].interrupt.attacker.targetSource, "Source")
+        self.assertEqual(inner.succeedActions[1].interrupt.defender.targetGroupKey, "tar")
+        self.assertEqual(inner.succeedActions[1].interrupt.overrideSuperArmorLimit, -1)
+        self.assertEqual(inner.succeedActions[1].interrupt.immobilizedTime, 1.0)
+        self.assertEqual(
+            compile_conditional_branch_action(inner.succeedActions[1], "buff-listener"),
+            "sequence()",
+        )
 
 
 if __name__ == "__main__":

@@ -300,6 +300,89 @@
       ]
     },
     {
+      "slug": "arcane",
+      "exportName": "arcaneGeneratedSource",
+      "charId": "chr_0032_lizhiyan",
+      "outputStage": "audit",
+      "skills": [
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0032_lizhiyan_combo_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+        },
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0032_lizhiyan_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0032_lizhiyan_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0032_lizhiyan_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0032_lizhiyan_attack4.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack5",
+          "skillType": "basicAttack",
+          "source": "chr_0032_lizhiyan_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0032_lizhiyan_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0032_lizhiyan_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0032_lizhiyan_normal_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0032_lizhiyan_ultimate_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+        },
+        {
+          "key": "arcana",
+          "skillType": "ultimate",
+          "source": "chr_0032_lizhiyan_ultimate_skill2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+        }
+      ]
+    },
+    {
       "slug": "arclight",
       "exportName": "arclightGeneratedSource",
       "charId": "chr_0007_ikut",

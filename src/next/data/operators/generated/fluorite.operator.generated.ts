@@ -233,17 +233,14 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
             tags: ['normalAttack', 'plungingAttack'],
           }, '14:plungingAttack6:direct35:chr_0022_bounda_plunging_attack_end11:actionOrder1:5'),
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'default',
-              }),
-            ),
+          sequence(
+            step('changeResourceByActionValue', {
+              resource: 'sp',
+              amount: { kind: 'blackboard', key: 'atb' },
+              recipient: 'team',
+              spGainKind: 'gain',
+              spGainSource: 'default',
+            }),
           ),
         ),
       ),
@@ -286,12 +283,8 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         10,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0022_bounda_normal_skill',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0022_bounda_normal_skill_abilityrange',
-            inheritActionBlackboard: true,
-            target: 'enemy',
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
               skillId: 'chr_0022_bounda_normal_skill_abilityrange',
               scheduledSequences: [
                 scheduled(
@@ -364,15 +357,12 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                         }),
                       ),
                     ),
-                    branch(
-                      { kind: 'singleEnemyPresent' },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_common_obtain_ultimate_sp',
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                        }),
-                      ),
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_common_obtain_ultimate_sp',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                      }),
                     ),
                   ),
                 ),
@@ -420,15 +410,12 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                         }),
                       ),
                     ),
-                    branch(
-                      { kind: 'singleEnemyPresent' },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_common_obtain_ultimate_sp',
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                        }),
-                      ),
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_common_obtain_ultimate_sp',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                      }),
                     ),
                   ),
                 ),
@@ -439,7 +426,10 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
+            target: 'enemy',
           }),
         ),
       ),
@@ -533,7 +523,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.533 },
             slot: 0,
-            priority: -593023102,
+            priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
@@ -617,7 +607,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
             slot: 1464849466,
-            priority: -2059842104,
+            priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
             targets: ['caster'],
@@ -629,7 +619,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('startUltimateTimeDilation', {
-            priority: -1742631616,
+            priority: 100,
             targetScale: { kind: 'constant', value: 0 },
             ignoredTargets: [],
           }),

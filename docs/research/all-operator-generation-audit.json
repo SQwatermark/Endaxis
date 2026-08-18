@@ -7,11 +7,11 @@
   },
   "summary": {
     "parsedCount": 318,
-    "compiledCount": 280,
-    "completeOperatorCount": 10,
+    "compiledCount": 281,
+    "completeOperatorCount": 11,
     "blockerKinds": {
       "projectile-child-actions": 2,
-      "other": 8,
+      "other": 7,
       "root-action-coverage": 5,
       "projectile-data": 5,
       "condition-entity-count": 2,
@@ -1199,11 +1199,9 @@
       "operatorName": "Arcane",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 10,
-      "complete": false,
-      "blockerKinds": {
-        "other": 1
-      }
+      "compiledCount": 11,
+      "complete": true,
+      "blockerKinds": {}
     }
   ],
   "skills": [
@@ -4428,7 +4426,7 @@
       "skillType": "ultimate",
       "stage": "dsl-blocked",
       "blockerKind": "other",
-      "blocker": "ultimate_skill.schedule[16].eventListener: unsupported native skill event 'OnAddedBuff'",
+      "blocker": "ultimate_skill.schedule[6].abilityEntitySpawn: missing AbilityEntity template evidence 'abilityentity_chr_0035_liino_ult_skill_projhit'",
       "unresolvedActions": [
         "CreateBuffAction",
         "IfElseAction",
@@ -7246,9 +7244,9 @@
       "operatorName": "Arcane",
       "skillId": "chr_0032_lizhiyan_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "combo_skill.schedule[2].timeDilation: ability-entity time-dilation targets require runtime support",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "IfElseAction",

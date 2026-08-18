@@ -26,7 +26,6 @@ import {
   STANDARD_TIME_MANAGER_DELTA_MODE,
   timeDilationRuntimeConfig,
 } from '../data/combat/timeDilationConfig';
-import { logicalAbilityEntityTemplates } from '../data/ability-entities/abilityEntityTemplateEvidence';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -99,7 +98,6 @@ export function runStandardPlayerDamageScenarioSimulation(
     ...input.options,
     environment: {
       ...environment.runtimeOptions,
-      abilityEntityTemplates: logicalAbilityEntityTemplates,
       timeDilation: {
         config: timeDilationRuntimeConfig,
         timeManagerDeltaMode: input.timeManagerDeltaMode ?? STANDARD_TIME_MANAGER_DELTA_MODE,

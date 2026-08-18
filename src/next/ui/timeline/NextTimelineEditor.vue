@@ -31,7 +31,6 @@ import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vu
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
-import { createEmptyScenario } from '../../core/project/createProject';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
@@ -40,7 +39,6 @@ import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import { PROJECT_FPS, type ScenarioDocument, type TrackIndex } from '../../core/project/schema';
 import { nextGameDataRepository } from '../../data/gameDataRepository';
-import { perlica } from '../../data/operators';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
@@ -106,6 +104,11 @@ import {
 import { type TimelineHitMarkerView } from './timelineHitProjection';
 import { projectHitEffectsByCast, type TimelineHitEffectLabel } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
+import {
+  ABILITY_ENTITY_SAMPLE_CAST_ID,
+  ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
+  createTimelineSampleScenario,
+} from './timelineSampleScenario';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
@@ -114,8 +117,8 @@ const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(true);
 const connectionToolEnabled = ref(false);
-const selectedTrack = ref<TrackIndex>(0);
-const selectedCastId = ref<string | null>(null);
+const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
+const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
 const showSkillDefinitionEditor = ref(false);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
@@ -153,29 +156,7 @@ let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
   allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
 };
-function createSampleScenario(): ScenarioDocument {
-  const scenario = createEmptyScenario('next-sample:scenario:1', 'Next');
-  scenario.battle.durationFrames = 900;
-  scenario.tracks[0] = {
-    id: ids.allocate('track'),
-    operator: {
-      operatorSlug: perlica.slug,
-      level: 90,
-      promoted: true,
-      potential: 0,
-      trustLevel: 4,
-      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-      talentStates: {},
-    },
-    weapon: null,
-    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-    initialState: { ultimateEnergy: 0 },
-    skillCasts: [],
-  };
-  return scenario;
-}
-
-const scenarioSession = new ScenarioEditorSession(createSampleScenario());
+const scenarioSession = new ScenarioEditorSession(createTimelineSampleScenario());
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
@@ -947,7 +928,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
 }
 
 function resetScenario(): void {
-  commitScenario('resetScenario', () => createSampleScenario());
+  commitScenario('resetScenario', () => createTimelineSampleScenario());
   selectedTrack.value = 0;
   clearTimelineSelection();
   cursorFrame.value = 30;

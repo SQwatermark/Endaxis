@@ -329,13 +329,8 @@ function validateAbilityEntityTargetQueries(
       requireString(query, 'contextKey', queryPath, out);
       return;
     }
-    if (query.tagQuery === undefined) return;
-    const tagQuery = asRecord(query.tagQuery, `${queryPath}.tagQuery`, out);
-    if (tagQuery === null) return;
-    requireEnum(tagQuery, 'type', TAG_QUERY_TYPES_SET, `${queryPath}.tagQuery`, out);
-    validateNonEmptyIntegerArray(tagQuery.tagIds, `${queryPath}.tagQuery.tagIds`, out);
-    if (tagQuery.exact !== undefined) {
-      requireBoolean(tagQuery, 'exact', `${queryPath}.tagQuery`, out);
+    if (query.abilityEntityIds !== undefined) {
+      validateNonEmptyStringArray(query.abilityEntityIds, `${queryPath}.abilityEntityIds`, out);
     }
   });
   return true;
@@ -439,6 +434,7 @@ function validateCombatCondition(
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'casterControlled':
+    case 'eventSourceMatchesBuffSource':
       break;
     case 'enemyRankIn':
       if (!Array.isArray(record.ranks)) {
@@ -692,15 +688,15 @@ function validateCombatStep(
       if (parameters.saveCountToBlackboardKey !== undefined) {
         requireString(parameters, 'saveCountToBlackboardKey', `${path}.parameters`, out);
       }
-      if (parameters.tagQuery !== undefined) {
-        const query = asRecord(parameters.tagQuery, `${path}.parameters.tagQuery`, out);
-        if (query !== null) {
-          requireEnum(query, 'type', TAG_QUERY_TYPES_SET, `${path}.parameters.tagQuery`, out);
-          validateNonEmptyIntegerArray(query.tagIds, `${path}.parameters.tagQuery.tagIds`, out);
-          if (query.exact !== undefined) {
-            requireBoolean(query, 'exact', `${path}.parameters.tagQuery`, out);
-          }
-        }
+      if (parameters.abilityEntityIds !== undefined) {
+        validateNonEmptyStringArray(
+          parameters.abilityEntityIds,
+          `${path}.parameters.abilityEntityIds`,
+          out,
+        );
+      }
+      if (parameters.sameSourceSkillCast !== undefined) {
+        requireBoolean(parameters, 'sameSourceSkillCast', `${path}.parameters`, out);
       }
       break;
     }
@@ -720,22 +716,28 @@ function validateCombatStep(
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'spawnAbilityEntity': {
-      requireString(parameters, 'templateId', `${path}.parameters`, out);
-      if (parameters.childSkillId !== undefined) {
-        requireString(parameters, 'childSkillId', `${path}.parameters`, out);
-      }
-      if (parameters.childSkill !== undefined) {
-        const childPath = `${path}.parameters.childSkill`;
-        const child = asRecord(parameters.childSkill, childPath, out);
-        if (child !== null) {
-          const childSkillId = requireString(child, 'skillId', childPath, out);
-          if (
-            childSkillId !== null &&
-            typeof parameters.childSkillId === 'string' &&
-            childSkillId !== parameters.childSkillId
-          ) {
-            push(out, `${childPath}.skillId`, 'must match parameters.childSkillId');
+      requireString(parameters, 'abilityEntityId', `${path}.parameters`, out);
+      const definitionPath = `${path}.parameters.definition`;
+      const definition = asRecord(parameters.definition, definitionPath, out);
+      if (definition !== null) {
+        const lifetimePath = `${definitionPath}.lifetime`;
+        const lifetime = asRecord(definition.lifetime, lifetimePath, out);
+        if (lifetime !== null) {
+          if (lifetime.kind !== 'limited' && lifetime.kind !== 'infinite') {
+            push(out, `${lifetimePath}.kind`, "expected 'limited' or 'infinite'");
+          } else if (lifetime.kind === 'limited') {
+            const duration = requireFiniteNumber(lifetime, 'durationSeconds', lifetimePath, out);
+            if (duration !== null && duration < 0) {
+              push(out, `${lifetimePath}.durationSeconds`, 'expected a non-negative number');
+            }
           }
+        }
+      }
+      if (definition?.childSkill !== undefined) {
+        const childPath = `${definitionPath}.childSkill`;
+        const child = asRecord(definition.childSkill, childPath, out);
+        if (child !== null) {
+          requireString(child, 'skillId', childPath, out);
           if (child.blackboard !== undefined) {
             const blackboard = asRecord(child.blackboard, `${childPath}.blackboard`, out);
             if (blackboard !== null) {
@@ -890,7 +892,13 @@ function validateCombatStep(
         const definition = asRecord(parameters.definition, `${path}.parameters.definition`, out);
         if (definition !== null) {
           try {
-            const { presentation, lifecycleSequences, actions, ...runtimeDefinition } = definition;
+            const {
+              presentation,
+              lifecycleSequences,
+              abilityEventResponses,
+              actions,
+              ...runtimeDefinition
+            } = definition;
             parseCombatBuffDefinitionEntry(
               { id: buffId, ...runtimeDefinition },
               `${path}.parameters.definition`,
@@ -923,17 +931,43 @@ function validateCombatStep(
                   }
                   validateActionSequence(sequence, `${lifecyclePath}.${key}`, out);
                 }
-                if (
-                  Object.keys(lifecycle).length > 0 &&
-                  parameters.inheritSourceSkillCastInfo !== true
-                ) {
-                  push(
-                    out,
-                    `${path}.parameters.inheritSourceSkillCastInfo`,
-                    'Buff lifecycle sequences require inherited skill-cast info',
-                  );
+              }
+            }
+            if (abilityEventResponses !== undefined) {
+              const responsesPath = `${path}.parameters.definition.abilityEventResponses`;
+              if (!Array.isArray(abilityEventResponses)) {
+                push(out, responsesPath, 'expected an array');
+              } else {
+                for (const [index, value] of abilityEventResponses.entries()) {
+                  const responsePath = `${responsesPath}[${index}]`;
+                  const response = asRecord(value, responsePath, out);
+                  if (response === null) continue;
+                  for (const key of Object.keys(response)) {
+                    if (!['event', 'priority', 'sequence'].includes(key)) {
+                      push(out, `${responsePath}.${key}`, 'unknown Buff ability event field');
+                    }
+                  }
+                  if (response.event !== 'beforeTakeDamage') {
+                    push(out, `${responsePath}.event`, 'unsupported Buff ability event');
+                  }
+                  requireInteger(response, 'priority', responsePath, out);
+                  validateActionSequence(response.sequence, `${responsePath}.sequence`, out);
                 }
               }
+            }
+            if (
+              ((lifecycleSequences !== undefined &&
+                typeof lifecycleSequences === 'object' &&
+                lifecycleSequences !== null &&
+                Object.keys(lifecycleSequences).length > 0) ||
+                (Array.isArray(abilityEventResponses) && abilityEventResponses.length > 0)) &&
+              parameters.inheritSourceSkillCastInfo !== true
+            ) {
+              push(
+                out,
+                `${path}.parameters.inheritSourceSkillCastInfo`,
+                'Buff runtime sequences require inherited skill-cast info',
+              );
             }
             if (presentation !== undefined) {
               const presentationRecord = asRecord(

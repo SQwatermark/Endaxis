@@ -138,6 +138,14 @@ export interface GeneratedPhysicalInflictionPayload {
   readonly immobilizedTime: number;
 }
 
+/** 原生 InterruptAction 载荷；当前审计层保留字段，运行时语义尚未映射。 */
+export interface GeneratedInterruptPayload {
+  readonly attacker: GeneratedTargetReferenceSource;
+  readonly defender: GeneratedTargetReferenceSource;
+  readonly overrideSuperArmorLimit: number;
+  readonly immobilizedTime: number;
+}
+
 export interface GeneratedTimedPhysicalInflictionSource {
   readonly startFrame: number;
   readonly endFrame: number;
@@ -799,6 +807,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly resourceGain?: GeneratedResourceGainPayload;
   readonly infliction?: GeneratedInflictionPayload;
   readonly physicalInfliction?: GeneratedPhysicalInflictionPayload;
+  readonly interrupt?: GeneratedInterruptPayload;
   readonly projectileLaunch?: GeneratedProjectileLaunchPayload;
   readonly projectileTriggeredSkills?: readonly GeneratedProjectileTriggeredSkillSource[];
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
@@ -921,6 +930,42 @@ export interface GeneratedBuffEventActionSource {
   /** 事件顶层按顺序直接创建的 Buff；条件分支内的创建动作由条件树保存。 */
   readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
   readonly createdBuffIds: readonly string[];
+  /** 事件内同步遍历的原生目标集合与循环体；尚不是运行时目标查询。 */
+  readonly forEachActions?: readonly GeneratedBuffEventForEachSource[];
+  readonly targetGroupWrites?: readonly GeneratedBuffEventTargetGroupWriteSource[];
+  /** Buff/宿主事件中的有序同步动作树。 */
+  readonly sequences?: readonly GeneratedSkillEventActionSequenceSource[];
+}
+
+export interface GeneratedBuffEventTargetGroupWriteSource {
+  readonly actionIndex: number;
+  readonly targetGroupKey: string;
+  readonly finderType: string;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+  readonly spawnedObjectType: string | null;
+  readonly tagQueries: readonly (readonly [string, readonly number[]])[];
+  readonly center: string;
+  readonly selectorOwner: string;
+}
+
+export interface GeneratedBuffEventForEachSource {
+  readonly actionIndex: number;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly spawnedObjectType: string | null;
+  readonly tagQueries: readonly (readonly [string, readonly number[]])[];
+  readonly orderedActionTypes: readonly string[];
+  readonly buffApplications: readonly GeneratedEventBuffApplicationSource[];
+  readonly skillCasts: readonly GeneratedBuffEventSkillCastSource[];
+}
+
+export interface GeneratedBuffEventSkillCastSource {
+  readonly actionIndex: number;
+  readonly caster: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly skillId: string;
+  readonly skipApplyCost: boolean;
+  readonly inheritSourceSkillCastId: boolean;
 }
 
 export interface GeneratedEventBuffApplicationSource {
@@ -929,6 +974,8 @@ export interface GeneratedEventBuffApplicationSource {
 }
 
 export interface GeneratedSkillEventActionSequenceSource {
+  /** 首个启用动作的原生 priorityLevel + priorityOffset；事件队列按此值排序。 */
+  readonly priority?: number;
   readonly onlyMainOperator: boolean;
   readonly onlyGuard: boolean;
   readonly orderedActionTypes: readonly string[];

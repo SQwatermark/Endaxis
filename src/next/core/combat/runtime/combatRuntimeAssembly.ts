@@ -61,13 +61,9 @@ import { CombatTimelineClock } from './combatTimelineClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
-import {
-  logicalAbilityEntityRuntimeId,
-  type LogicalAbilityEntityTemplate,
-} from '../../game-data/logicalAbilityEntity';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
-import { gameplayTagId } from '../tags/gameplayTags';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
@@ -156,8 +152,6 @@ export interface CombatRuntimeAssemblyOptions {
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
-  /** 当前版本证据适配出的逻辑能力实体模板；空数组表示本场技能不会生成实体。 */
-  readonly abilityEntityTemplates?: readonly LogicalAbilityEntityTemplate[];
   /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
   readonly timeDilation?: {
     readonly config: TimeDilationRuntimeConfig;
@@ -288,7 +282,6 @@ export class CombatRuntimeAssembly {
               this.#recordTimeDilation('TimeDilationEnded', kind, instance, entityId, reason),
           });
     this.abilityEntities = new LogicalAbilityEntityRuntime({
-      templates: options.abilityEntityTemplates ?? [],
       resolveDeltaSeconds: entity =>
         COMBAT_FRAME_INTERVAL *
         (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
@@ -301,7 +294,7 @@ export class CombatRuntimeAssembly {
             sourceId: entity.ownerId,
             targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
             data: {
-              templateId: entity.templateId,
+              abilityEntityId: entity.abilityEntityId,
               childSkillId: entity.childSkillId ?? null,
               remainingDurationSeconds: entity.remainingDurationSeconds,
             },
@@ -313,7 +306,7 @@ export class CombatRuntimeAssembly {
             event: 'AbilityEntityChildSkillRequested',
             sourceId: entity.ownerId,
             targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
-            data: { templateId: entity.templateId, childSkillId },
+            data: { abilityEntityId: entity.abilityEntityId, childSkillId },
           }),
         finished: (entity, reason) => {
           const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
@@ -327,7 +320,7 @@ export class CombatRuntimeAssembly {
             event: 'AbilityEntityFinished',
             sourceId: entity.ownerId,
             targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
-            data: { templateId: entity.templateId, reason },
+            data: { abilityEntityId: entity.abilityEntityId, reason },
           });
         },
       },
@@ -1012,15 +1005,9 @@ export class CombatRuntimeAssembly {
         return this.abilityEntities
           .findOwnerSpawned({
             ownerId: operatorId,
-            ...(query.tagQuery === undefined
+            ...(query.abilityEntityIds === undefined
               ? {}
-              : {
-                  tagQuery: {
-                    type: query.tagQuery.type,
-                    tagIds: query.tagQuery.tagIds.map(gameplayTagId),
-                    ...(query.tagQuery.exact === undefined ? {} : { exact: query.tagQuery.exact }),
-                  },
-                }),
+              : { abilityEntityIds: query.abilityEntityIds }),
           })
           .map(target => {
             if (target.kind !== 'abilityEntity') {

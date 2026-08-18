@@ -113,6 +113,7 @@ const strictTerminal: CombatOperationExecutor = {
 /** 一场模拟独占的标准生命/失衡伤害环境；敌人生命账本由场景装配层注入并共享。 */
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
+  readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
   readonly #enemyBuffs = new CombatBuffContainer(
     'enemy',
     new CombatAttributeSet<string>(),
@@ -121,12 +122,16 @@ export class StandardPlayerDamageEnvironment {
     undefined,
     (buff, reason) => this.#recordBuffFinished(buff, reason),
   );
-  readonly #enemyBuffRuntime = new BuffDefinitionOperationTarget(this.#enemyBuffs, {
-    get: () => undefined,
-    compile: entry => this.#compileInlineBuffDefinition(entry),
-  });
+  readonly #enemyBuffRuntime = new BuffDefinitionOperationTarget(
+    this.#enemyBuffs,
+    {
+      get: () => undefined,
+      compile: entry => this.#compileInlineBuffDefinition(entry),
+    },
+    undefined,
+    this.#buffAbilityEventRegistrar('enemy'),
+  );
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
-  readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
@@ -165,6 +170,7 @@ export class StandardPlayerDamageEnvironment {
             compile: entry => this.#compileInlineBuffDefinition(entry),
           },
           target,
+          this.#buffAbilityEventRegistrar(entityId),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
@@ -353,10 +359,17 @@ export class StandardPlayerDamageEnvironment {
           get: () => undefined,
           compile: entry => this.#compileInlineBuffDefinition(entry),
         },
+        undefined,
+        this.#buffAbilityEventRegistrar(operatorId),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
     return runtime;
+  }
+
+  #buffAbilityEventRegistrar(entityId: string) {
+    return (event: 'beforeTakeDamage', priority: number, handle: (payload: unknown) => void) =>
+      this.eventsFor(entityId).registerAction(event, priority, context => handle(context.payload));
   }
 
   #compileInlineBuffDefinition(

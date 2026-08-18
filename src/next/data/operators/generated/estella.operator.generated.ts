@@ -362,7 +362,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 0,
-            priority: -593023102,
+            priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
@@ -483,7 +483,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
             slot: 1464849466,
-            priority: -2059842104,
+            priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
             targets: ['caster'],
@@ -495,7 +495,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('startUltimateTimeDilation', {
-            priority: -1742631616,
+            priority: 100,
             targetScale: { kind: 'constant', value: 0 },
             ignoredTargets: [],
           }),

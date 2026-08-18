@@ -2,30 +2,36 @@
  * 零空间、单敌人模型中的逻辑能力实体目录。
  *
  * 它不保存坐标、碰撞体或朝向；所有空间查找均从同一活动实例集合开始，
- * 然后只应用 owner、标签和存活等仍有战斗意义的筛选。
+ * 然后只应用 owner、生成期已解析的实体身份和存活等仍有战斗意义的筛选。
  */
 import type {
-  LogicalAbilityEntityTemplate,
   OwnerSpawnedAbilityEntityQuery,
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard, type ActionBlackboardValue } from './actionBlackboard';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
-import { GameplayTagRegistry } from '../tags/gameplayTags';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied';
 
+/** 编译后生成步骤携带的自包含蓝图；运行时只依赖子技能身份。 */
+export interface LogicalAbilityEntityDefinition {
+  readonly lifetime:
+    { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  readonly childSkill?: { readonly skillId: string };
+}
+
 export interface LogicalAbilityEntitySpawnRequest {
-  readonly templateId: string;
+  readonly abilityEntityId: string;
+  readonly definition: LogicalAbilityEntityDefinition;
   readonly ownerId: string;
   readonly source: RuntimeTargetRef;
   readonly target?: RuntimeTargetRef;
-  readonly childSkillId?: string;
   readonly overrideDurationSeconds?: number;
   readonly dieWhenSourceDies?: boolean;
   readonly blackboardAssignments?: Readonly<Record<string, ActionBlackboardValue>>;
+  readonly sourceSkillCastId?: number;
   /** 由操作解释链创建；目录只负责用实体局部时间推进和对称结束。 */
   readonly createChildRuntime?: (
     entity: RuntimeTargetRef,
@@ -41,12 +47,12 @@ export interface LogicalAbilityEntityChildRuntime {
 
 export interface LogicalAbilityEntitySnapshot {
   readonly instanceId: number;
-  readonly templateId: string;
+  readonly abilityEntityId: string;
   readonly ownerId: string;
   readonly source: RuntimeTargetRef;
+  readonly sourceSkillCastId?: number;
   readonly target?: RuntimeTargetRef;
   readonly childSkillId?: string;
-  readonly bornTagIds: LogicalAbilityEntityTemplate['bornTagIds'];
   readonly remainingDurationSeconds: number | null;
   readonly elapsedDurationSeconds: number;
   readonly dieWhenSourceDies: boolean;
@@ -61,11 +67,12 @@ export interface LogicalAbilityEntityRuntimeHooks {
 
 interface LogicalAbilityEntityInstance {
   readonly instanceId: number;
-  readonly template: LogicalAbilityEntityTemplate;
+  readonly abilityEntityId: string;
+  readonly definition: LogicalAbilityEntityDefinition;
   readonly ownerId: string;
   readonly source: RuntimeTargetRef;
+  readonly sourceSkillCastId?: number;
   target?: RuntimeTargetRef;
-  readonly childSkillId?: string;
   readonly dieWhenSourceDies: boolean;
   readonly blackboard: ActionBlackboard;
   remainingDurationSeconds: number | null;
@@ -82,34 +89,19 @@ function requireDuration(value: number, name: string): number {
 
 /** 一场战斗唯一的能力实体实例目录。 */
 export class LogicalAbilityEntityRuntime implements FrameRuntime {
-  readonly #templates = new Map<string, LogicalAbilityEntityTemplate>();
   readonly #instances = new Map<number, LogicalAbilityEntityInstance>();
   readonly #deadSources: RuntimeTargetRef[] = [];
-  readonly #tagRegistry: GameplayTagRegistry;
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
   readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
   #nextInstanceId = 1;
 
   constructor(options: {
-    readonly templates: readonly LogicalAbilityEntityTemplate[];
-    readonly tagRegistry?: GameplayTagRegistry;
     readonly hooks?: LogicalAbilityEntityRuntimeHooks;
     /** 后续时间膨胀接线点；省略时使用一帧的普通实体时间。 */
     readonly resolveDeltaSeconds?: (snapshot: LogicalAbilityEntitySnapshot) => number;
   }) {
-    this.#tagRegistry = options.tagRegistry ?? new GameplayTagRegistry([]);
     this.#hooks = options.hooks ?? {};
     this.#resolveDeltaSeconds = options.resolveDeltaSeconds ?? (() => COMBAT_FRAME_INTERVAL);
-    for (const template of options.templates) {
-      if (template.id.length === 0) throw new Error('AbilityEntity template id must not be empty');
-      if (this.#templates.has(template.id)) {
-        throw new Error(`duplicate AbilityEntity template '${template.id}'`);
-      }
-      if (template.lifetime.kind === 'limited') {
-        requireDuration(template.lifetime.durationSeconds, 'template duration');
-      }
-      this.#templates.set(template.id, Object.freeze({ ...template }));
-    }
   }
 
   get activeCount(): number {
@@ -121,24 +113,33 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   spawn(request: LogicalAbilityEntitySpawnRequest): RuntimeTargetRef {
-    const template = this.#templates.get(request.templateId);
-    if (template === undefined) {
-      throw new Error(`unknown AbilityEntity template '${request.templateId}'`);
+    if (request.abilityEntityId.length === 0) throw new Error('AbilityEntity id must not be empty');
+    if (
+      request.sourceSkillCastId !== undefined &&
+      (!Number.isInteger(request.sourceSkillCastId) || request.sourceSkillCastId <= 0)
+    ) {
+      throw new RangeError('AbilityEntity source skill-cast id must be a positive integer');
+    }
+    if (request.definition.lifetime.kind === 'limited') {
+      requireDuration(request.definition.lifetime.durationSeconds, 'AbilityEntity duration');
     }
     if (request.ownerId.length === 0) throw new Error('AbilityEntity owner id must not be empty');
     const remainingDurationSeconds =
       request.overrideDurationSeconds === undefined
-        ? template.lifetime.kind === 'limited'
-          ? template.lifetime.durationSeconds
+        ? request.definition.lifetime.kind === 'limited'
+          ? request.definition.lifetime.durationSeconds
           : null
         : requireDuration(request.overrideDurationSeconds, 'override duration');
     const instance: LogicalAbilityEntityInstance = {
       instanceId: this.#nextInstanceId++,
-      template,
+      abilityEntityId: request.abilityEntityId,
+      definition: request.definition,
       ownerId: request.ownerId,
       source: request.source,
+      ...(request.sourceSkillCastId === undefined
+        ? {}
+        : { sourceSkillCastId: request.sourceSkillCastId }),
       ...(request.target === undefined ? {} : { target: request.target }),
-      ...(request.childSkillId === undefined ? {} : { childSkillId: request.childSkillId }),
       dieWhenSourceDies: request.dieWhenSourceDies ?? false,
       blackboard: new ActionBlackboard(request.blackboardAssignments),
       remainingDurationSeconds,
@@ -147,8 +148,8 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     this.#instances.set(instance.instanceId, instance);
     const snapshot = this.#snapshot(instance);
     this.#hooks.spawned?.(snapshot);
-    if (instance.childSkillId !== undefined) {
-      this.#hooks.childSkillRequested?.(snapshot, instance.childSkillId);
+    if (instance.definition.childSkill !== undefined) {
+      this.#hooks.childSkillRequested?.(snapshot, instance.definition.childSkill.skillId);
     }
     const target = { kind: 'abilityEntity' as const, instanceId: instance.instanceId };
     if (request.createChildRuntime !== undefined) {
@@ -164,18 +165,24 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   findOwnerSpawned(query: OwnerSpawnedAbilityEntityQuery): readonly RuntimeTargetRef[] {
+    if (
+      query.sourceSkillCastId !== undefined &&
+      (!Number.isInteger(query.sourceSkillCastId) || query.sourceSkillCastId <= 0)
+    ) {
+      throw new RangeError('AbilityEntity query skill-cast id must be a positive integer');
+    }
     const result: RuntimeTargetRef[] = [];
     for (const instance of this.#instances.values()) {
       if (instance.ownerId !== query.ownerId) continue;
-      const tags = query.tagQuery;
       if (
-        tags !== undefined &&
-        !this.#tagRegistry.query(
-          instance.template.bornTagIds,
-          tags.tagIds,
-          tags.type,
-          tags.exact ?? false,
-        )
+        query.abilityEntityIds !== undefined &&
+        !query.abilityEntityIds.includes(instance.abilityEntityId)
+      ) {
+        continue;
+      }
+      if (
+        query.sourceSkillCastId !== undefined &&
+        instance.sourceSkillCastId !== query.sourceSkillCastId
       ) {
         continue;
       }
@@ -269,12 +276,16 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   #snapshot(instance: LogicalAbilityEntityInstance): LogicalAbilityEntitySnapshot {
     return Object.freeze({
       instanceId: instance.instanceId,
-      templateId: instance.template.id,
+      abilityEntityId: instance.abilityEntityId,
       ownerId: instance.ownerId,
       source: instance.source,
+      ...(instance.sourceSkillCastId === undefined
+        ? {}
+        : { sourceSkillCastId: instance.sourceSkillCastId }),
       ...(instance.target === undefined ? {} : { target: instance.target }),
-      ...(instance.childSkillId === undefined ? {} : { childSkillId: instance.childSkillId }),
-      bornTagIds: instance.template.bornTagIds,
+      ...(instance.definition.childSkill === undefined
+        ? {}
+        : { childSkillId: instance.definition.childSkill.skillId }),
       remainingDurationSeconds: instance.remainingDurationSeconds,
       elapsedDurationSeconds: instance.elapsedDurationSeconds,
       dieWhenSourceDies: instance.dieWhenSourceDies,

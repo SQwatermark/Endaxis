@@ -19,6 +19,7 @@ import type {
   ResourceRecipient,
   SkillBuffDefinition,
   SkillBuffLifecycleSequences,
+  SkillBuffAbilityEventResponse,
   SpGainKind,
   SpGainSource,
   SkillType,
@@ -46,9 +47,20 @@ export type ResolvedSkillBuffLifecycleSequences = {
   readonly [K in keyof SkillBuffLifecycleSequences]?: ResolvedActionSequence;
 };
 
+export type ResolvedSkillBuffAbilityEventResponse = Omit<
+  SkillBuffAbilityEventResponse,
+  'sequence'
+> & {
+  readonly sequence: ResolvedActionSequence;
+};
+
 /** 技能等级已经展开、可用于创建 Buff 实例的内联定义。 */
-export type ResolvedSkillBuffDefinition = Omit<SkillBuffDefinition, 'lifecycleSequences'> & {
+export type ResolvedSkillBuffDefinition = Omit<
+  SkillBuffDefinition,
+  'lifecycleSequences' | 'abilityEventResponses'
+> & {
   readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
+  readonly abilityEventResponses?: readonly ResolvedSkillBuffAbilityEventResponse[];
 };
 
 /** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
@@ -65,8 +77,13 @@ export interface ResolvedCombatStepParameters {
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
   finishCurrentAbilityEntity: CombatStepParameters['finishCurrentAbilityEntity'];
   finishCurrentAbilityEntityWhenSourceDies: CombatStepParameters['finishCurrentAbilityEntityWhenSourceDies'];
-  spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'childSkill'> & {
-    readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
+  spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'definition'> & {
+    readonly definition: Omit<
+      CombatStepParameters['spawnAbilityEntity']['definition'],
+      'childSkill'
+    > & {
+      readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
+    };
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];

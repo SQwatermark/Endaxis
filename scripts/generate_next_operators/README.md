@@ -10,7 +10,7 @@
 
 `operators.json` 不保存可从数据源取得的倍率、冷却、持续时间、属性成长或潜能数值。它只声明稳定 DSL key、原生技能到 Endaxis 技能的映射，以及单敌人模型取舍等无法由原始字段唯一推导的语义。首段连携入口写在干员级 `comboSkillRegistrations`，不能放进单个技能的 `compile` 配置；多段连携的后续窗口由对应技能序列生成 `openComboWindow` 步骤。
 
-时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。
+时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧；原生优先级 GameplayTag 在生成正式 DSL 时通过当前版本 `TimeDilationConfig.priorityMap` 降为可直接比较的数值，未知标签立即报错。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。
 
 ## 输出
 
@@ -19,6 +19,12 @@
 - `<slug>.generated.ts`：完整、可审计的技能中间表示。
 - `<slug>.audit.json`：便于人工检查的来源、动作和未解析依赖报告。
 - `<slug>.operator.generated.ts`：编译后的技能、面板基线、技能组、天赋和潜能组成的完整 `OperatorDefinition`；正式数据不拆成多个文件。
+
+清单可显式设置 `outputStage: audit`，用于已经能编译技能主体、但 Buff 或干员级语义尚未闭环的
+对照样本。该阶段第三份文件改为 `<slug>.skills.audit.generated.ts`，不会生成
+`<slug>.operator.generated.ts`。技能 Buff 解析若抛出严格 `ValueError`，审计报告会把错误写入
+`buffDefinitionResolutionIssues`、保持 `complete: false` 并继续保存其余来源事实；
+`outputStage: complete` 遇到同一错误必须原样失败，不能借用审计降级路径。
 
 完整定义包含基础信息、六个里程碑等级的面板基线、技能组、天赋和潜能。生成器会反向核对 `CharGrowthTable.skillGroupMap`，并验证天赋、潜能修改的技能 ID、黑板键和数据形状。
 
@@ -133,9 +139,11 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 
 ## 当前边界
 
+能力实体生成点输出自包含的 `abilityEntityId + definition`，将默认生命周期和已证明的子技能直接内联。born tags 只保留在 VFS 模板证据中；原生 owner-spawned 标签查询在生成期严格求值并输出明确的 `abilityEntityIds`，编译器和运行时不携带标签或共享模板注册表。尚无替换规则证据的 `maxStackingCount` 不进入可执行定义。
+
 - Endaxis 假定干员与唯一敌人的距离为零且攻击必然命中，不计算投射物轨迹、范围和碰撞；投射物暂按 `0` 帧命中，并在中间层以 `assumedTravelFrames: 0` 明示。若同一子技能同时绑定 `hit` 与 `block`，后者是碰撞结果的兜底路径，必命中投影只执行 `hit`，但审计层仍保留完整触发配置。若后续发现原生事件队列在零距离下仍会延后一帧，再统一修正该假设。
-- 能力实体也使用同一空间约束：不建立坐标、碰撞、旋转或导航对象，所有距离为零，范围查询覆盖场景中全部存活逻辑实例。模板证据由 `scripts/extract_next_ability_entities` 从 VFS 原始 Unity 资产提取；当前 manifest 451359 可解析 54 个模板，Liino 的一个引用明确缺失。正式 DSL 只转换来源为 `ActionSource/ActionOwner`、目标可归约为施法者/唯一敌人、生命周期字段已表达且黑板赋值为数值的 `SpawnAbilityEntity`。运行时保留实体身份、owner/source/target、born tags、时长和黑板，并发出生成、子技能请求及结束回执；统一 owner/tag 查询会把完整实体组写入施法 Context，并可把数量写入动作黑板复用既有比较条件。DSL 与运行时允许生成步骤携带实体独占的子时间轴并消费实体局部时钟。生成器只对“继承来源动作黑板、无递归/Aura 等未迁移动作、剩余伤害/已投影固定周期伤害/附着/动作黑板修改/资源获得/严格可编译 Buff/条件均可由共享编译器完整消费”的子图执行原子迁移，并同步删除父时间轴投影。子 `Source` Buff 归约为施法者；子 `Owner` 只能归约为 `currentAbilityEntity`，且引用的 BuffData 必须完整通过内联定义编译。原生根级 `JumpToAction` 只有在它是所在 Sequence 的唯一动作、精确位于根 `actionData[0]`、前向跳转、全部直接条件可由共享条件编译器表达，且每个目的区段都在下一区段前显式结束时才会生成 `jumpTimeline`。Fluorite 的两条 0–89 帧直接条件跳转已命中该子集，能力实体伤害/结束保留在局部 89/90 与 149/150 帧。外层 `IfElseAction.succeedActions` 只在根容器与成功分支均各有唯一动作、跳转没有直接条件、外层条件可编译且精确路径关联时，转换成同帧一次性的 `conditional -> jumpTimeline`；跳转先求值，失败时原失败分支才继续执行，不能错误扩展成逐 Tick 重试。Lifeng 的 `isCombo == 0 -> jump 150` 已命中该形状，局部保留 6/66/121 帧伤害与失败分支黑板写入，父时间轴 64/124/179 帧固定投影已删除。审计同时保留结构化直接条件、解析支持状态、根/分支唯一动作证明和精确 `actionPath`；其他外层控制流及空直接条件仍不会被猜成无条件跳转。当前正式产物命中 Arclight、Gilberta、Lifeng 与 Fluorite，庄方宜审计产物另覆盖普攻二、四、五，其余形状仍保留原边界。
-- 当前 SkillData 另有 10 个 `SetAbilityEntityDuration`、2 个 `CheckAbilityEntityCurDuration` 和 1 个 `SetAbilityEntityTarget`。Next 运行时已经支持 Context 稳定句柄迭代、有限剩余时长读取/比较，以及所有已观察设置样本共有的 `Assign` 操作。1.4.4 原生实现已证明 `setMultipleTarget=false` 只调用一次单目标解析，而 `true` 才枚举整组；生成器会严格转换庄方宜的 `Context ForEach -> Target/LT -> InputTarget/Assign` 形状，也允许由此前确定逻辑生成证明为单例的命名 `ContextTarget` 复用 0/1 Context 迭代。来源不明、被普通目标组复用或可能为多实例的键仍拒绝。Li Zhiyan 连携技的 `bunshin1…4` 由四个无战斗子动作的封印实体生成；其 `BL/BR/FL/FR` 均为同帧、无筛选的 `FixedPointFinder` 位置结果，因此零空间投影会丢弃位置目标但保留实体身份，八个时长赋值随之进入正式编译链。该技能目前继续停在后续 `Context/trigger` 数量条件，不会因前置阻塞消失而误报完整。跨实例短路、目标变更和其他未出现的时长运算不得从名称推断。
+- 能力实体也使用同一空间约束：不建立坐标、碰撞、旋转或导航对象，所有距离为零，范围查询覆盖场景中全部存活逻辑实例。模板证据由 `scripts/extract_next_ability_entities` 从 VFS 原始 Unity 资产提取；当前 manifest 451359 可解析 54 个模板，Liino 的一个引用明确缺失。正式 DSL 只转换来源为 `ActionSource/ActionOwner`、目标可归约为施法者/唯一敌人、生命周期字段已表达且黑板赋值为数值的 `SpawnAbilityEntity`。运行时保留实体身份、owner/source/target、时长和黑板，并发出生成、子技能请求及结束回执；统一 owner/实体 ID 查询会把完整实体组写入施法 Context，并可把数量写入动作黑板复用既有比较条件。DSL 与运行时允许生成步骤携带实体独占的子时间轴并消费实体局部时钟。生成器只对“继承来源动作黑板、无递归/Aura 等未迁移动作、剩余伤害/已投影固定周期伤害/附着/动作黑板修改/资源获得/严格可编译 Buff/条件均可由共享编译器完整消费”的子图执行原子迁移，并同步删除父时间轴投影。子 `Source` Buff 归约为施法者；子 `Owner` 只能归约为 `currentAbilityEntity`，且引用的 BuffData 必须完整通过内联定义编译。原生根级 `JumpToAction` 只有在它是所在 Sequence 的唯一动作、精确位于根 `actionData[0]`、前向跳转、全部直接条件可由共享条件编译器表达，且每个目的区段都在下一区段前显式结束时才会生成 `jumpTimeline`。Fluorite 的两条 0–89 帧直接条件跳转已命中该子集，能力实体伤害/结束保留在局部 89/90 与 149/150 帧。外层 `IfElseAction.succeedActions` 只在根容器与成功分支均各有唯一动作、跳转没有直接条件、外层条件可编译且精确路径关联时，转换成同帧一次性的 `conditional -> jumpTimeline`；跳转先求值，失败时原失败分支才继续执行，不能错误扩展成逐 Tick 重试。Lifeng 的 `isCombo == 0 -> jump 150` 已命中该形状，局部保留 6/66/121 帧伤害与失败分支黑板写入，父时间轴 64/124/179 帧固定投影已删除。审计同时保留结构化直接条件、解析支持状态、根/分支唯一动作证明和精确 `actionPath`；其他外层控制流及空直接条件仍不会被猜成无条件跳转。当前正式产物命中 Arclight、Gilberta、Lifeng 与 Fluorite，庄方宜审计产物另覆盖普攻二、四、五，其余形状仍保留原边界。
+- 当前 SkillData 另有 10 个 `SetAbilityEntityDuration`、2 个 `CheckAbilityEntityCurDuration` 和 1 个 `SetAbilityEntityTarget`。Next 运行时已经支持 Context 稳定句柄迭代、有限剩余时长读取/比较，以及所有已观察设置样本共有的 `Assign` 操作。1.4.4 原生实现已证明 `setMultipleTarget=false` 只调用一次单目标解析，而 `true` 才枚举整组；生成器会严格转换庄方宜的 `Context ForEach -> Target/LT -> InputTarget/Assign` 形状，也允许由此前确定逻辑生成证明为单例的命名 `ContextTarget` 复用 0/1 Context 迭代。来源不明、被普通目标组复用或可能为多实例的键仍拒绝。Li Zhiyan 连携技的 `bunshin1…4` 由四个无战斗子动作的封印实体生成；其 `BL/BR/FL/FR` 均为同帧、无筛选的 `FixedPointFinder` 位置结果，因此零空间投影会丢弃位置目标但保留实体身份，八个时长赋值随之进入正式编译链。该技能的 `trigger` 另由第 0 帧完整三路条件链写入；生成器只有在两路敌人合并与一条严格固定点回退覆盖全部分支、且固定点所依赖的主控查找已证明存在时，才折叠后续 `Context/trigger >= 1`。固定点只取得“非空位置”证明，不会被归约为敌人。跨实例短路、目标变更和其他未出现的时长运算不得从名称推断。
 - `TimeDilationAction` 中的能力实体查询会严格保留 owner-spawned 身份、可选 GameplayTag 查询或命名 Context 身份。全局/终结技 `ignoreTargets` 已生成正式 DSL，并在执行时把查询到的稳定实体加入排除集合；这在能力实体寿命开始消费时间倍率后是必要语义。Entity `effectTargets` 的 DSL/运行时查询、寿命效果和内嵌子时间轴倍率都已存在，生成器只在模板证据证明单一 `HasAny` 标签的全部匹配模板均由当前可达图生成、每个生成点都有逻辑实体且所有战斗子图均已动态迁移时输出。Li Zhiyan 连携的 `-1480463572` 只匹配自身封印模板，四个生成点都是无战斗子动作的逻辑实体，已命中该闭包；Tangtang、Yvonne、Liino 及其他未闭合查询仍失败关闭，不能把该字段误认成纯表现 `EffectAction` 后忽略。
 - Buff 施加单独支持 `party` 集合目标：只有未附带筛选器或后处理器的 `CharacterTeamFinder` 目标组才能归约为当前全部存活干员。Buff 查询、结束和条件仍要求 `caster/enemy` 单一实体；主控筛选、召唤物和父级上下文目标不得借用 `party` 近似。
 - `InstantSearch` Buff 目标会在中间层保留 finder、validator 与 post-processor 类型；目前也只有无过滤、无后处理的 `CharacterTeamFinder` 能直接归约为 `party`，其他即时搜索继续显式阻塞。
@@ -145,6 +153,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - `AuraAction` 是战斗动作，不是表现占位。当前公共 SkillData 中有 117 个原始光环动作；从 320 个干员入口静态可达 20 个。生成器会把根技能及已解析能力实体/投射物调用图中的光环结构化为 `auraActions`，保留来源文件、时间区间、范围、目标过滤、Buff 输入和内部动作清单；条件分支专属的能力实体仍保留分支身份，只在子调用确实包含光环时挂入审计树，不提升为必然执行的根调度。BuffData 光环会记录为帧位为空、带激活来源和事件名的 Buff 定义动作，不能伪装成技能第 0 帧动作。在目标筛选、持续时间和子动作生命周期完整闭环前，所有光环都只参与覆盖审计并阻止对应技能被误报为完整，不生成近似 DSL。精确分布以当前递归审计为准。
 - `FractureAction` 会被解析为明确的 `fracture` 物理异常载荷。根时间轴和条件分支都保留目标、原生顺序、`isExtra`、中断时长以及全部击退参数；空间参数只作为证据保存，不在固定单敌人模型中执行。原生行为还包含破防层创建/消费、物理异常前后事件、碎甲 Buff 链和伤害，因此在这条运行时链完整接入前，解析成功不等于 DSL 完整，相关技能继续严格阻塞。
 - 技能时间轴中的 `EventListenerAction` 会作为独立的事件订阅事实保存，包含注册区间、事件名、原生动作顺序、主控/守卫限制及可解析的 Buff 创建载荷。监听器内部动作不会被提升为技能第 0 帧或注册帧上的无条件动作；在对应战斗事件及条件链接入运行时前，相关技能继续严格阻塞。
+- BuffData 的事件序列同样保留同步条件树。目标组生产者可选择进入有序树用于同帧溯源；每条非空序列按原生规则把首个启用动作的 `priorityLevel + priorityOffset` 降为数值（`Low=-100 / Default=0 / High=100`），空启用序列按原生 `CreateSequenceAction` 的 null 结果省略。`OnBeforeTakeDamage` 中 plain `Target == Source` 只有在 Buff 承伤事件上下文内才可编译为“伤害来源等于 Buff 来源”；其他同名目标不得借用。`InterruptAction` 的完整目标、霸体上限和定身参数保留在审计层；当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，而原生动作自身恒返回成功，因此正式编译将它归约为不阻断后续序列的零效果动作，不建立伪造的敌方控制状态。其他未知状态动作仍必须显式拒绝。
 - 根时间轴与条件分支中的 `TimeDilationAction` 共用同一套严格解析。根动作按原生帧进入调度；分支动作保留在成功或失败序列的原始位置，只有分支实际成立时才创建时间膨胀实例，不能提升成无条件时间动作。`CharacterTeamFinder + MainCharacterValidator` 的即时搜索会保留为独立的 `controlled` 排除目标，并在动作执行帧通过场景控制时间线解析，不能静态近似为 caster；Avywenna 投射物子技能中的该目标结构已可解析，但其父技能仍先被能力实体距离守卫阻塞。当前洛茜第三段连携与卡缪重击中的嵌套样本已经闭环。
 - `FinishBuffAdvanced(checkType=Id)` 的空 `buffIdList` 按原生 Id 遍历语义不会调用 Buff 容器。只有事件监听器的全部响应都完全由这种无条件空操作组成时，生成器才省略整个监听器；非空 Id、Tag 查询、条件、`once` 或其他动作不会借用这条规则。当前洛茜终结技的 `OnSkillEnd` 监听是唯一命中该规则的入口样本。
 - 没有战斗效果的表现投射物、教程标记和全等级为零的资源动作会保留在审计层，但不生成无效果 DSL 步骤。非零根资源获得会按原生帧和动作顺序进入统一调度；`costValue` 在原生数据中引用动作黑板时生成 `changeResourceByActionValue`，不得冻结成生成时等级常量。固定 `coefficient` 会作为独立字段进入 DSL；动态黑板系数也保留为动作黑板操作数，在步骤执行时与动态数量相乘。`Atb` 映射为全队共享技力，`UltimateSp` 映射为施法者终结技能量，生成器不得把两者统一写成同一资源所有者。SP 的普通/返还类别与来源倍率会进入共享技力步骤；终结技能量严格按“目标回能效率、可选最大能量百分比、固定系数、回复许可标签”顺序结算，`ignoreUspGainScalar` 只跳过第一段，`useUspRecoverTag` 只携带许可身份，两者不能互相替代。仅主控限制仍保留在中间层并阻止未闭环动作进入正式 DSL。
@@ -155,7 +164,8 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 - `CheckSkillHasHit` 读取当前技能实例的 `hasOutputDamageBattle`，不是静态检查 SkillData 是否包含伤害。生成器只会在统一调度中证明同一根技能已有严格早于条件的必然命中伤害时，将它按固定单敌人模型折叠；同帧使用 `serverActionIndex` 区分先后，晚于条件或来自子技能的伤害都不能作为证明。
 - `CheckSkillCameraMotionFree` 不会被编译成战斗条件。只有条件分支在过滤镜头、特效等表现动作后为空，或仅把字面量 `1` 写入已逐消费者审计的 `isWall` / `camera_blocked` 时，生成器才会省略整棵纯表现条件树；出现新的黑板键、运算、动态值或战斗叶子时仍会 fail-closed。
 - `CheckEnemyRank` 按原生 `EnemyRankSet` 位掩码编译为 `enemyRankIn`：`Mob=1`、`Elite=2`、`Boss=4`。AKEDB 可能把非零 flags 投影成枚举名称字符串；整数和名称都会归一到同一位集。原生 `0` 保留为空 rank 集合并永不匹配，未知名称或位仍会失败。目标必须能严格归约为当前唯一敌人；筛选器或未证明的上下文目标不会放行。敌人实例的 rank 来自 1.4.4 模板资产证据，不能用五档展示 `tier` 代替；证据链见 [Enemy rank evidence](../../docs/research/enemy-rank-evidence.md)。
-- 命名目标组不会按 `tar`、`smart_target` 等字符串猜测语义。生成中间层会严格记录 `FindTargetAction`、`ContinuousFindTargetAction` 和 `MergeTargetAction` 的帧区间、原生动作顺序、分支路径、选择器类型及合并输入；新增查找器、校验器、后处理器或字段形状会立即报错。只有能够证明写入动作在读取前发生、控制流支配读取点且选择器在固定单敌人模型下必然得到敌人时，才允许把 `Context` 实体数量条件或根级 Buff 目标归约为唯一敌人；分支内写入不会泄漏给根动作。
+- 命名目标组不会按 `tar`、`smart_target` 等字符串猜测语义。生成中间层会严格记录 `FindTargetAction`、`ContinuousFindTargetAction` 和 `MergeTargetAction` 的帧区间、原生动作顺序、分支路径、选择器类型及合并输入；新增查找器、校验器、后处理器或字段形状会立即报错。只有能够证明写入动作在读取前发生、控制流支配读取点且选择器在固定单敌人模型下必然得到敌人时，才允许把目标归约为唯一敌人。另一条更窄的“恒非空”证明会穷尽读取前的 `succeedActions/failActions` 组合，并检查每条路径最后一次写入；它仅用于直接消去恒真的 `Context/<group> >= 1` 成功守卫，不会生成 `singleEnemyPresent`，缺失任一分支、导航采样固定点、未知中心或后续空写入都会继续阻塞。
+- Buff 事件中的 `FindTargetAction -> Context ForEachAction` 会分别保存目标组生产者和循环消费者。owner-spawned AbilityEntity 的单标签查询只在当前版本模板证据中求值并输出明确 `abilityEntityIds`；`SkillCastIdValidator` 生成 `sameSourceSkillCast`，逻辑实体在生成时记录来源施法序号，Buff 生命周期使用自身继承的施法身份查询，不能只按 owner/实体 ID 近似。只有 `EffectAction` 且没有战斗动作、创建依赖、循环或目标组写入的 Buff 事件可作为纯表现省略。
 - 带 `TagValidator` 的敌方 `HitBoxFinder` 查找即使在零距离模型下空间上覆盖唯一敌人，其标签查询仍可能过滤掉当前敌人，不能归约为唯一敌人；技能自身在搜索为空时的回退合并分支证明空结果是设计内可达状态，相关实体数量条件继续严格阻塞。分析与后续方案见 [标签过滤目标搜索审计](../../docs/research/tag-filtered-target-search-audit.md)。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。

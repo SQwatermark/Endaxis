@@ -579,7 +579,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.5 },
             slot: 0,
-            priority: -593023102,
+            priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
@@ -672,7 +672,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
             slot: 1464849466,
-            priority: -2059842104,
+            priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
             targets: ['caster'],
@@ -684,7 +684,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('startUltimateTimeDilation', {
-            priority: -1742631616,
+            priority: 100,
             targetScale: { kind: 'constant', value: 0 },
             ignoredTargets: [],
           }),
@@ -695,11 +695,8 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         54,
         sequence(
           step('spawnAbilityEntity', {
-            templateId: 'abilityentity_chr_0007_ikut_ultimate_skill',
-            dieWhenSourceDies: false,
-            childSkillId: 'chr_0007_ikut_ultimate_skill_abentity',
-            inheritActionBlackboard: true,
-            childSkill: {
+            abilityEntityId: 'abilityentity_chr_0007_ikut_ultimate_skill',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
               skillId: 'chr_0007_ikut_ultimate_skill_abentity',
               scheduledSequences: [
                 scheduled(
@@ -728,7 +725,9 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
                   ),
                 ),
               ],
-            },
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
           }),
         ),
       ),
