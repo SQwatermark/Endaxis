@@ -18,6 +18,16 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     step: Parameters<CombatOperationExecutor['execute']>[0],
     context?: CombatOperationContext,
   ): boolean {
+    if (step.kind === 'storeCurrentTimelineFrame') {
+      if (context?.getCurrentTimelineFrame === undefined) {
+        throw new Error('storeCurrentTimelineFrame requires a timeline host');
+      }
+      context.blackboard.assignDynamic(
+        step.parameters.outputKey,
+        context.getCurrentTimelineFrame(),
+      );
+      return true;
+    }
     if (step.kind === 'modifyActionValue') {
       if (context === undefined) {
         throw new Error('modifyActionValue requires a combat operation context');

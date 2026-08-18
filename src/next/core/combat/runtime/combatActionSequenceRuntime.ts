@@ -67,6 +67,44 @@ class OnceStep extends CombatStep {
   }
 }
 
+class RepeatEachTickStep extends CombatStep {
+  #skipInitialTick = false;
+
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'repeatEachTick' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(context: CombatExecutionContext): void {
+    this.#skipInitialTick = true;
+    this.#executeBody(context);
+  }
+
+  override tick(_deltaTime: number, context: CombatExecutionContext): void {
+    if (this.#skipInitialTick) {
+      this.#skipInitialTick = false;
+      return;
+    }
+    this.#executeBody(context);
+  }
+
+  override reset(): void {
+    this.#skipInitialTick = false;
+  }
+
+  #executeBody(context: CombatExecutionContext): void {
+    const result = this.runtime
+      .createSequence(this.step.body, this.operationContext)
+      .executeInstant(context);
+    if (!result) {
+      throw new Error('repeatEachTick body returned false; repeated short-circuit is not modeled');
+    }
+  }
+}
+
 class ForEachContextTargetStep extends CombatStep {
   constructor(
     readonly step: Extract<ResolvedCombatStep, { kind: 'forEachContextTarget' }>,
@@ -249,6 +287,9 @@ export class CombatActionSequenceRuntime {
           return new TimelineJumpStep(step, this, operationContext);
         }
         if (step.kind === 'once') return new OnceStep(step, this, operationContext);
+        if (step.kind === 'repeatEachTick') {
+          return new RepeatEachTickStep(step, this, operationContext);
+        }
         if (step.kind === 'forEachContextTarget') {
           return new ForEachContextTargetStep(step, this, operationContext);
         }

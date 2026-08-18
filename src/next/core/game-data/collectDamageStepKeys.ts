@@ -14,7 +14,7 @@ export interface DamageStepKeyEntry {
 
 /**
  * 递归收集全部伤害步骤的路径与 key。
- * 条件分支（whenTrue/whenFalse）与 once 体均被遍历。
+ * 条件分支（whenTrue/whenFalse）与所有序列容器体均被遍历。
  */
 export function collectDamageStepKeys(definition: unknown): readonly DamageStepKeyEntry[] {
   const entries: DamageStepKeyEntry[] = [];
@@ -58,6 +58,10 @@ function collectSequenceKeys(
     }
     if (step.kind === 'once' && isRecord(step.body) && Array.isArray(step.body.steps)) {
       collectSequenceKeys(step.body.steps, `${stepPath}.once`, entries);
+      continue;
+    }
+    if (step.kind === 'repeatEachTick' && isRecord(step.body) && Array.isArray(step.body.steps)) {
+      collectSequenceKeys(step.body.steps, `${stepPath}.body`, entries);
       continue;
     }
     if (

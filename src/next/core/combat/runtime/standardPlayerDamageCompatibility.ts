@@ -216,6 +216,7 @@ function inspectSequence(
         return;
       case 'dealStagger':
       case 'spawnAbilityEntity':
+      case 'storeCurrentTimelineFrame':
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':
@@ -255,6 +256,7 @@ function inspectSequence(
         }
         return;
       case 'once':
+      case 'repeatEachTick':
         inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
         return;
       case 'forEachContextTarget':

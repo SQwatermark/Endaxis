@@ -54,6 +54,7 @@ from source_models import (
     EntityCountConditionSource,
     EnemyRankConditionSource,
     EntityTagConditionSource,
+    EveryFrameActionSource,
     ForEachContextActionSource,
     GlobalCooldownConditionSource,
     HealthConditionSource,
@@ -62,6 +63,8 @@ from source_models import (
     SequenceGuardActionSource,
     ScalarSource,
     SkillHasHitConditionSource,
+    StoreCurrentTimelineFramePayload,
+    StoreCurrentTimelineFrameActionSource,
     SwitchActionSource,
     TargetIdentityConditionSource,
     TimedMarkerConditionSource,
@@ -1099,6 +1102,7 @@ def parse_conditional_actions(
                 projectile_launch = None
                 ability_entity_spawn = None
                 ability_entity_duration_assignment = None
+                store_current_timeline_frame = None
                 damage_units = None
                 keyword_action = None
                 time_dilation = None
@@ -1246,6 +1250,28 @@ def parse_conditional_actions(
                         )
                 elif action_type == "HealAction":
                     heal = parse_heal_payload(action, source_path, inherited_blackboard)
+                elif action_type == "StoreCurSkillExecuteFrame":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "target", "blackboardKey",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected StoreCurSkillExecuteFrame fields "
+                            f"{sorted(action)}"
+                        )
+                    target = parse_target_reference(action.get("target"), f"{source_path}.target")
+                    output_key = action.get("blackboardKey")
+                    if (
+                        target.targetSource != "Owner"
+                        or target.targetGroupKey
+                        or target.validatorTypes
+                        or target.postProcessorTypes
+                    ):
+                        raise ValueError(f"{source_path}.target: unsupported timeline frame owner")
+                    if not isinstance(output_key, str) or not output_key:
+                        raise ValueError(f"{source_path}.blackboardKey: expected non-empty string")
+                    store_current_timeline_frame = StoreCurrentTimelineFramePayload(output_key)
                 elif action_type == "SlowAction":
                     keyword_action = parse_keyword_action(
                         action,
@@ -1265,6 +1291,8 @@ def parse_conditional_actions(
                 branch_type = (
                     ConditionalTimeDilationActionSource
                     if time_dilation is not None
+                    else StoreCurrentTimelineFrameActionSource
+                    if store_current_timeline_frame is not None
                     else ConditionalBranchActionSource
                 )
                 branch_arguments = {
@@ -1298,6 +1326,8 @@ def parse_conditional_actions(
                 }
                 if time_dilation is not None:
                     branch_arguments["timeDilation"] = time_dilation
+                if store_current_timeline_frame is not None:
+                    branch_arguments["storeCurrentTimelineFrame"] = store_current_timeline_frame
                 actions.append(branch_type(**branch_arguments))
         return tuple(actions)
 
@@ -1317,6 +1347,60 @@ def parse_conditional_actions(
         action_type = action_name(str(value.get("$type", "")))
         if action_type == "TickIntervalAction":
             action_path = f"{source_name}.{'.'.join(path)}"
+            if value.get("executeEachFrame") is True:
+                expected_fields = {
+                    "$type", "isEnable", "priorityLevel", "priorityOffset",
+                    "serverActionIndex", "executeEachFrame", "tickInterval",
+                    "tickIntervalBlackboardKey", "useTickIntervalBlackboardKey",
+                    "actionOnTick",
+                }
+                if set(value) != expected_fields:
+                    raise ValueError(
+                        f"{action_path}: unexpected executeEachFrame fields {sorted(value)}"
+                    )
+                if (
+                    value.get("useTickIntervalBlackboardKey") is not False
+                    or value.get("tickIntervalBlackboardKey") != ""
+                ):
+                    raise ValueError(
+                        f"{action_path}: executeEachFrame cannot use an interval blackboard key"
+                    )
+                action_on_tick = require_dict(
+                    value.get("actionOnTick"), f"{action_path}.actionOnTick"
+                )
+                if set(action_on_tick) != {
+                    "actionData",
+                    "onlyExecuteWhenSourceIsMainChar",
+                    "onlyExecuteWhenSourceIsGuard",
+                }:
+                    raise ValueError(
+                        f"{action_path}.actionOnTick: unexpected fields {sorted(action_on_tick)}"
+                    )
+                if (
+                    action_on_tick.get("onlyExecuteWhenSourceIsMainChar") is not False
+                    or action_on_tick.get("onlyExecuteWhenSourceIsGuard") is not False
+                ):
+                    raise ValueError(f"{action_path}.actionOnTick: unsupported source restriction")
+                actions = parse_branch(
+                    action_on_tick,
+                    start_frame,
+                    end_frame,
+                    (*path, "actionOnTick"),
+                    (),
+                )
+                if actions:
+                    result.append(
+                        EveryFrameActionSource(
+                            startFrame=start_frame,
+                            endFrame=end_frame,
+                            actionIndex=require_server_action_index(value, action_path),
+                            actionPath=path,
+                            conditions=(),
+                            succeedActions=actions,
+                            failActions=(),
+                        )
+                    )
+                return
             if (
                 value.get("executeEachFrame") is not False
                 or value.get("useTickIntervalBlackboardKey") is not False

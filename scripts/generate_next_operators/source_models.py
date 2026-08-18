@@ -74,12 +74,15 @@ __all__ = [
     "ConditionalProjectileProjection",
     "AbilityEntitySpawnPayload",
     "ConditionalBranchActionSource",
+    "StoreCurrentTimelineFrameActionSource",
+    "StoreCurrentTimelineFramePayload",
     "ConditionalTimeDilationActionSource",
     "ConditionalActionSource",
     "SequenceGuardActionSource",
     "SwitchActionSource",
     "DoOnceActionSource",
     "UnconditionalActionSource",
+    "EveryFrameActionSource",
     "BlackboardCalculationSource",
     "BlackboardMutationSource",
     "BuffBlackboardReadSource",
@@ -1191,6 +1194,13 @@ class AbilityEntityDurationAssignmentPayload:
 
 
 @dataclass(frozen=True)
+class StoreCurrentTimelineFramePayload:
+    """把当前宿主技能的局部整数执行帧写入动作黑板。"""
+
+    outputKey: str
+
+
+@dataclass(frozen=True)
 class ConditionalBranchActionSource:
     actionType: str
     # 分支 actionData 中的位置，只用于保持原始顺序。
@@ -1234,6 +1244,13 @@ class ConditionalTimeDilationActionSource(ConditionalBranchActionSource):
 
 
 @dataclass(frozen=True)
+class StoreCurrentTimelineFrameActionSource(ConditionalBranchActionSource):
+    """保存宿主局部执行帧的分支叶子。"""
+
+    storeCurrentTimelineFrame: StoreCurrentTimelineFramePayload | None = None
+
+
+@dataclass(frozen=True)
 class ConditionalActionSource:
     startFrame: int
     endFrame: int
@@ -1267,6 +1284,11 @@ class DoOnceActionSource(ConditionalActionSource):
 @dataclass(frozen=True)
 class UnconditionalActionSource(ConditionalActionSource):
     """借用统一动作树保存根时间轴中的直接战斗动作。"""
+
+
+@dataclass(frozen=True)
+class EveryFrameActionSource(ConditionalActionSource):
+    """在原调度区间开始以及之后每个宿主 Tick 执行一次的动作树。"""
 
 
 @dataclass(frozen=True)

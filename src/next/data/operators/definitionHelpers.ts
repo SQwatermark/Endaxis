@@ -17,7 +17,10 @@ import type {
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 
-type ImmediateStepKind = Exclude<CombatStepKind, 'conditional' | 'once' | 'forEachContextTarget'>;
+type ImmediateStepKind = Exclude<
+  CombatStepKind,
+  'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget'
+>;
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
 export function step<K extends ImmediateStepKind>(
@@ -101,6 +104,13 @@ export function once(
   body: ActionSequenceDefinition,
 ): Extract<CombatStepDefinition, { kind: 'once' }> {
   return { kind: 'once', parameters: { scopeKey }, body };
+}
+
+/** 在调度区间内按宿主技能的每次 Tick 重复执行同一个同步序列。 */
+export function repeatEachTick(
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'repeatEachTick' }> {
+  return { kind: 'repeatEachTick', parameters: {}, body };
 }
 
 /** 对施法上下文中的稳定目标句柄逐一同步执行。 */

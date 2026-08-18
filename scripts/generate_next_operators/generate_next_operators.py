@@ -92,6 +92,7 @@ from source_models import (
     DoOnceActionSource,
     ForEachContextActionSource,
     UnconditionalActionSource,
+    EveryFrameActionSource,
     BlackboardCalculationSource,
     BlackboardMutationSource,
     BuffBlackboardReadSource,
@@ -8557,6 +8558,11 @@ def compile_conditional_branch_action(
             path,
             root_skill_context=root_skill_context,
         )
+    if getattr(action, "storeCurrentTimelineFrame", None) is not None:
+        return (
+            "step('storeCurrentTimelineFrame', { outputKey: "
+            f"{ts_inline_literal(action.storeCurrentTimelineFrame.outputKey)} }})"
+        )
     if getattr(action, "blackboardMutation", None) is not None:
         return compile_blackboard_mutation(action.blackboardMutation, path)
     if getattr(action, "blackboardCalculation", None) is not None:
@@ -8791,6 +8797,34 @@ def compile_conditional_action(
                 ")",
             ]
         )
+    if isinstance(action, EveryFrameActionSource):
+        body = compile_conditional_branch(
+            action.succeedActions,
+            f"{path}.succeedActions",
+            ignored_buff_ids,
+            damage_tags,
+            runtime_blackboard_keys,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            projected_ability_entity_spawns=action.projectedAbilityEntitySpawns,
+            projected_projectile_launches=action.projectedProjectileLaunches,
+            context_action=action,
+            step_key_prefix=step_key_prefix,
+            buff_definitions=buff_definitions,
+            ability_entity_current_target=ability_entity_current_target,
+            singleton_ability_entity_context_keys=singleton_ability_entity_context_keys,
+            buff_ability_damage_event=buff_ability_damage_event,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
+        )
+        if body == "sequence()":
+            return body
+        body_lines = indent_source(body, 2)
+        body_lines[-1] += ","
+        return "\n".join(["repeatEachTick(", *body_lines, ")"])
     if isinstance(action, UnconditionalActionSource):
         return compile_conditional_branch(
             action.succeedActions,
@@ -10971,6 +11005,8 @@ def collect_compilable_conditional_action_types(
                 result.add("ModifyDynamicBlackboard")
             if getattr(branch_action, "blackboardCalculation", None) is not None:
                 result.add("SimpleCalcBBAction")
+            if getattr(branch_action, "storeCurrentTimelineFrame", None) is not None:
+                result.add("StoreCurSkillExecuteFrame")
             if getattr(branch_action, "resourceGain", None) is not None:
                 result.add("ObtainCostAction")
             if getattr(branch_action, "infliction", None) is not None:
@@ -11004,7 +11040,12 @@ def collect_compilable_conditional_action_types(
             result.add("DoOnceAction")
         elif isinstance(
             action,
-            (UnconditionalActionSource, SequenceGuardActionSource, ForEachContextActionSource),
+            (
+                UnconditionalActionSource,
+                EveryFrameActionSource,
+                SequenceGuardActionSource,
+                ForEachContextActionSource,
+            ),
         ):
             pass
         else:
@@ -11038,6 +11079,7 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
                 mutation = getattr(action, "blackboardMutation", None)
                 buff_read = getattr(action, "buffBlackboardRead", None)
                 stack_read = getattr(action, "buffStackRead", None)
+                timeline_frame = getattr(action, "storeCurrentTimelineFrame", None)
                 nested = getattr(action, "nestedCondition", None)
                 if calculation is not None:
                     result.add(calculation.key)
@@ -11047,6 +11089,8 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
                     result.add(buff_read.outputKey)
                 if stack_read is not None:
                     result.add(stack_read.outputKey)
+                if timeline_frame is not None:
+                    result.add(timeline_frame.outputKey)
                 if nested is not None:
                     visit_conditions((nested,))
                 if getattr(action, "onceActions", None) is not None:
@@ -11060,6 +11104,7 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
             mutation = action.blackboardMutation
             buff_read = action.buffBlackboardRead
             stack_read = action.buffStackRead
+            timeline_frame = getattr(action, "storeCurrentTimelineFrame", None)
             if calculation is not None:
                 result.add(calculation.key)
             if mutation is not None:
@@ -11068,6 +11113,8 @@ def collect_runtime_blackboard_output_keys(skill: SkillSource) -> frozenset[str]
                 result.add(buff_read.outputKey)
             if stack_read is not None:
                 result.add(stack_read.outputKey)
+            if timeline_frame is not None:
+                result.add(timeline_frame.outputKey)
             if action.nestedCondition is not None:
                 visit_conditions((action.nestedCondition,))
             if getattr(action, "onceActions", None) is not None:
@@ -12493,9 +12540,16 @@ def compile_resolved_sequence(
             )
         entry_lines.append("        ),")
         end_frames = {
-            cast(BuffHoldSource | SkillEventListenerSource | TimedTimeDilationSource, item.payload).endFrame
+            cast(
+                BuffHoldSource
+                | SkillEventListenerSource
+                | TimedTimeDilationSource
+                | EveryFrameActionSource,
+                item.payload,
+            ).endFrame
             for item, _ in entries
             if item.itemType in {"buffHold", "eventListener", "timeDilation"}
+            or (item.itemType == "condition" and isinstance(item.payload, EveryFrameActionSource))
         }
         if len(end_frames) > 1:
             raise ValueError(
@@ -12749,6 +12803,9 @@ def collect_conditional_blackboard_keys(
             if branch_action.blackboardMutation is not None:
                 result.add(branch_action.blackboardMutation.key)
                 add_scalar(branch_action.blackboardMutation.value)
+            timeline_frame = getattr(branch_action, "storeCurrentTimelineFrame", None)
+            if timeline_frame is not None:
+                result.add(timeline_frame.outputKey)
             if branch_action.buffBlackboardRead is not None:
                 result.add(branch_action.buffBlackboardRead.outputKey)
 
@@ -12763,6 +12820,9 @@ def collect_conditional_blackboard_keys(
             if branch_action.blackboardMutation is not None:
                 result.add(branch_action.blackboardMutation.key)
                 add_scalar(branch_action.blackboardMutation.value)
+            timeline_frame = getattr(branch_action, "storeCurrentTimelineFrame", None)
+            if timeline_frame is not None:
+                result.add(timeline_frame.outputKey)
             if branch_action.buffBlackboardRead is not None:
                 result.add(branch_action.buffBlackboardRead.outputKey)
 
@@ -12793,6 +12853,8 @@ def collect_definition_helpers(
         helpers.add("once")
     if any("forEachContextTarget(" in source for _, source in compiled):
         helpers.add("forEachContextTarget")
+    if any("repeatEachTick(" in source for _, source in compiled):
+        helpers.add("repeatEachTick")
     return ", ".join(sorted(helpers))
 
 

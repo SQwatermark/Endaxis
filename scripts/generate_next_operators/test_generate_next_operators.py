@@ -10718,6 +10718,117 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(len(conditions), 1)
         self.assertEqual(conditions[0].executionFrames, (12, 17, 23, 29))
 
+    def test_execute_each_frame_preserves_runtime_container_and_local_frame_read(self) -> None:
+        owner_target = {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": False,
+            "selectorData": {"validatorData": [], "postProcessorData": []},
+            "enableAdvancedDirection": False,
+            "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": False,
+                "clampToXZ": True,
+                "invertDirection": False,
+            },
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+            "targetContextKey": "",
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 45,
+                        "_endFrame": 1691,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.TickIntervalAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 35,
+                                    "executeEachFrame": True,
+                                    "tickInterval": 0.1,
+                                    "tickIntervalBlackboardKey": "",
+                                    "useTickIntervalBlackboardKey": False,
+                                    "actionOnTick": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.StoreCurSkillExecuteFrame+Data, Example",
+                                                "isEnable": True,
+                                                "priorityLevel": "Default",
+                                                "priorityOffset": 0,
+                                                "serverActionIndex": 36,
+                                                "target": owner_target,
+                                                "blackboardKey": "music_loop",
+                                            },
+                                            {
+                                                "$type": "Example.SimpleCalcBBAction+Data, Example",
+                                                "isEnable": True,
+                                                "priorityLevel": "Default",
+                                                "priorityOffset": 0,
+                                                "serverActionIndex": 37,
+                                                "key": "normalskill_frame",
+                                                "value1": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "music_loop",
+                                                },
+                                                "operation": "Divide",
+                                                "value2": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "frame_radio",
+                                                },
+                                            },
+                                        ],
+                                        "onlyExecuteWhenSourceIsMainChar": False,
+                                        "onlyExecuteWhenSourceIsGuard": False,
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        actions = parse_conditional_actions(root, "skill.json", {"frame_radio": (30,)})
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(type(actions[0]).__name__, "EveryFrameActionSource")
+        self.assertEqual((actions[0].startFrame, actions[0].endFrame), (45, 1691))
+        self.assertEqual(
+            compile_conditional_action(
+                actions[0],
+                "fixture.eachFrame",
+                runtime_blackboard_keys=frozenset({"music_loop", "normalskill_frame"}),
+            ),
+            "\n".join(
+                [
+                    "repeatEachTick(",
+                    "  sequence(",
+                    "    step('storeCurrentTimelineFrame', { outputKey: 'music_loop' }),",
+                    "    step('calculateActionValue', {",
+                    "      key: 'normalskill_frame',",
+                    "      operation: 'divide',",
+                    "      left: { kind: 'blackboard', key: 'music_loop' },",
+                    "      right: { kind: 'blackboard', key: 'frame_radio' },",
+                    "    }),",
+                    "  ),",
+                    ")",
+                ]
+            ),
+        )
+
     def test_direct_damage_does_not_project_conditional_branch_hits(self) -> None:
         damage = {
             "$type": "Example.DamageAction+Data, Example",

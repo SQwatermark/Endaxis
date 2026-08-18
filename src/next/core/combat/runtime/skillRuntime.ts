@@ -66,6 +66,8 @@ export interface CombatOperationContext {
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
   readonly requestTimelineJump?: (destinationFrame: number) => void;
+  /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
+  readonly getCurrentTimelineFrame?: () => number;
 }
 
 export interface CombatOperationExecutor {
@@ -124,6 +126,7 @@ export class SkillRuntime {
       blackboard: this.#blackboard,
       targetContext: this.#targetContext,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
+      getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
       get skillCastInfo() {
         return runtime.skillCastInfo;
       },
@@ -395,4 +398,12 @@ export class SkillRuntime {
     this.#passedFrames = destinationFrame;
     this.record('SkillTimelineJumped', { destinationFrame });
   }
+}
+
+function roundToEven(value: number): number {
+  const lower = Math.floor(value);
+  const fraction = value - lower;
+  if (fraction < 0.5) return lower;
+  if (fraction > 0.5) return lower + 1;
+  return lower % 2 === 0 ? lower : lower + 1;
 }

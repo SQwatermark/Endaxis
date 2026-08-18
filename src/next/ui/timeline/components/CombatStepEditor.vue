@@ -156,7 +156,11 @@ function forward(step: CombatStepDefinition): void {
       >
         <MechanicStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
       </template>
-      <template v-else-if="step.kind === 'conditional' || step.kind === 'once'">
+      <template
+        v-else-if="
+          step.kind === 'conditional' || step.kind === 'once' || step.kind === 'repeatEachTick'
+        "
+      >
         <BranchStepEditor
           :step="step"
           :skill-level="skillLevel"

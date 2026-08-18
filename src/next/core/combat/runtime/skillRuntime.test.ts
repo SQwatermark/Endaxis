@@ -78,6 +78,28 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('exposes the native rounded local execute frame to timeline actions', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'local-frame-fixture',
+      timelineBlockFrames: 10,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          endFrame: 10,
+          sequence: { steps: [{ kind: 'repeatEachTick', parameters: {}, body: { steps: [] } }] },
+        },
+      ],
+    });
+
+    fixture.runtime.tryStart();
+    fixture.runtime.advance(1 / 60, 0);
+    expect(fixture.runtime.operationContext.getCurrentTimelineFrame?.()).toBe(0);
+
+    fixture.runtime.advance(1 / 30, 0);
+    expect(fixture.runtime.passedFrames).toBe(1.5);
+    expect(fixture.runtime.operationContext.getCurrentTimelineFrame?.()).toBe(2);
+  });
+
   it('时间轴跳转改写本次释放的局部帧并跳过中间调度项', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'timeline-jump-fixture',

@@ -155,6 +155,7 @@ export interface ResolvedCombatStepParameters {
   createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
+  storeCurrentTimelineFrame: CombatStepParameters['storeCurrentTimelineFrame'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
   calculateActionValue: CombatStepParameters['calculateActionValue'];
   changeResource: {
@@ -189,6 +190,7 @@ export interface ResolvedCombatStepParameters {
   jumpTimeline: CombatStepParameters['jumpTimeline'];
   conditional: { condition: CombatCondition };
   once: CombatStepParameters['once'];
+  repeatEachTick: CombatStepParameters['repeatEachTick'];
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
@@ -215,9 +217,11 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
     }
   : K extends 'once'
     ? { readonly body: ResolvedActionSequence }
-    : K extends 'forEachContextTarget'
+    : K extends 'repeatEachTick'
       ? { readonly body: ResolvedActionSequence }
-      : {});
+      : K extends 'forEachContextTarget'
+        ? { readonly body: ResolvedActionSequence }
+        : {});
 
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
@@ -227,7 +231,7 @@ export type ResolvedCombatStep = {
 /** 条件、once 与 Context 迭代由序列运行时解释，其余步骤交给操作链。 */
 export type ResolvedCombatOperationStep = Exclude<
   ResolvedCombatStep,
-  { kind: 'conditional' | 'once' | 'forEachContextTarget' | 'jumpTimeline' }
+  { kind: 'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget' | 'jumpTimeline' }
 >;
 
 /** 已解析且严格保持声明顺序的同步操作序列。 */

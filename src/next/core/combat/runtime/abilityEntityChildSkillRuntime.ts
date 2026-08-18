@@ -40,11 +40,13 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       program.initialBlackboard,
       dependencies.entityBlackboard,
     );
+    const runtime = this;
     this.#operationContext = {
       blackboard,
       targetContext: new RuntimeTargetContext(),
       currentTarget: dependencies.entity,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
+      getCurrentTimelineFrame: () => roundToEven(runtime.#passedFrames),
       ...(dependencies.inheritedSkillCastInfo === undefined
         ? {}
         : { skillCastInfo: dependencies.inheritedSkillCastInfo }),
@@ -96,4 +98,12 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     this.#timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
     this.#passedFrames = destinationFrame;
   }
+}
+
+function roundToEven(value: number): number {
+  const lower = Math.floor(value);
+  const fraction = value - lower;
+  if (fraction < 0.5) return lower;
+  if (fraction > 0.5) return lower + 1;
+  return lower % 2 === 0 ? lower : lower + 1;
 }

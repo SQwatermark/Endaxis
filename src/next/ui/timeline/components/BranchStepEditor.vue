@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 条件分支与单次作用域步骤的递归容器。
+ * 条件分支、单次作用域与逐 Tick 步骤的递归容器。
  *
  * 嵌套序列继续使用统一 CombatStepEditor，避免顶层和分支内步骤形成两套编辑语义。
  * 为解除组件循环依赖，递归编辑器按需异步加载；步骤默认值由顶层草稿工厂提供。
@@ -17,7 +17,10 @@ import CombatConditionEditor from './CombatConditionEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
 
 const RecursiveStepEditor = defineAsyncComponent(() => import('./CombatStepEditor.vue'));
-type BranchStep = Extract<CombatStepDefinition, { kind: 'conditional' | 'once' }>;
+type BranchStep = Extract<
+  CombatStepDefinition,
+  { kind: 'conditional' | 'once' | 'repeatEachTick' }
+>;
 type BranchName = 'whenTrue' | 'whenFalse' | 'body';
 
 const props = defineProps<{
@@ -28,11 +31,11 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
-const selectedBranch = ref<BranchName>(props.step.kind === 'once' ? 'body' : 'whenTrue');
+const selectedBranch = ref<BranchName>(props.step.kind === 'conditional' ? 'whenTrue' : 'body');
 const selectedIndex = ref(0);
 
 const steps = computed(() => {
-  if (props.step.kind === 'once') return props.step.body.steps;
+  if (props.step.kind !== 'conditional') return props.step.body.steps;
   return selectedBranch.value === 'whenFalse'
     ? (props.step.whenFalse?.steps ?? [])
     : props.step.whenTrue.steps;
@@ -53,7 +56,7 @@ function setScopeKey(event: Event): void {
 }
 
 function replaceBranchSteps(nextSteps: readonly CombatStepDefinition[]): void {
-  if (props.step.kind === 'once') {
+  if (props.step.kind !== 'conditional') {
     emit('update', { ...props.step, body: { steps: nextSteps } });
   } else if (selectedBranch.value === 'whenFalse') {
     emit('update', { ...props.step, whenFalse: { steps: nextSteps } });
@@ -87,7 +90,7 @@ function removeStep(index: number): void {
       :condition="step.parameters.condition"
       @update="setCondition"
     />
-    <label v-else class="branch-editor__field">
+    <label v-else-if="step.kind === 'once'" class="branch-editor__field">
       <EditorFieldLabel
         :label="t('nextTimeline.skillEditing.scopeKey')"
         :help="t('nextTimeline.skillEditing.fieldHelp.scopeKey')"

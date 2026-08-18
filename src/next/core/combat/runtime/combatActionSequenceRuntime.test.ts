@@ -77,6 +77,24 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['once', 'once']);
   });
 
+  it('在区间开始和之后每个 Tick 执行 repeatEachTick body，跳过调度器的起始同帧 Tick', () => {
+    const fixture = createFixture();
+    const action = fixture.runtime.createSequence(
+      sequence({
+        kind: 'repeatEachTick',
+        parameters: {},
+        body: sequence(operation('frame')),
+      }),
+    );
+
+    action.execute({});
+    action.tick(0, {});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+
+    expect(fixture.executed).toEqual(['frame', 'frame', 'frame']);
+  });
+
   it('对 Context 快照中的每个稳定目标同步执行 body', () => {
     const targetContext = new RuntimeTargetContext();
     targetContext.set('lances', [

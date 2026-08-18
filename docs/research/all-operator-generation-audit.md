@@ -10,11 +10,11 @@
 
 - 干员：30 名。
 - 技能入口：320 个。
-- 进入严格中间层：318 个。
+- 进入严格中间层：320 个。
 - 无角色专用声明即可进入通用 DSL：289 个。
 - 当前整名干员完整直转：13 名。
-- 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
-- 当前技能入口中已结构化的事件监听器：11 个。
+- 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
+- 当前技能入口中已结构化的事件监听器：17 个。
 
 这里的“完整直转”采用保守口径：不添加逐技能忽略项、固定单敌人折叠声明或角色专用配置。
 佩丽卡等已有正式样本能够在显式声明后完整生成，不与该统计矛盾。
@@ -39,7 +39,7 @@
 | Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |     10 |      5 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |     12 |      5 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     14 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
@@ -61,10 +61,10 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `other`                    |      6 |
+| `root-action-coverage`     |      6 |
 | `conditional-leaf`         |      5 |
+| `other`                    |      5 |
 | `projectile-data`          |      5 |
-| `root-action-coverage`     |      5 |
 | `condition-other`          |      4 |
 | `buff-source-or-target`    |      3 |
 | `projectile-child-actions` |      2 |
@@ -77,31 +77,33 @@
 
 | 事件                     | 监听器数 |
 | ------------------------ | -------: |
-| `OnAddedBuff`            |        3 |
+| `OnAddedBuff`            |        7 |
 | `OnAfterKillEntity`      |        3 |
 | `OnBeforeTakeDamage`     |        3 |
+| `OnTrulyExitFight`       |        2 |
 | `OnBeforeOutputAirborne` |        1 |
 | `OnSkillEnd`             |        1 |
 
 监听器动作类型：
 
+- `CreateBuffAction`：12 次。
+- `JumpToAction`：11 次。
+- `FinishBuffAdvanced`：8 次。
 - `CheckDamageDecorateMask`：5 次。
-- `JumpToAction`：5 次。
+- `CheckBuffIdInContextAdvanced`：4 次。
 - `ConvertToTargetContext`：4 次。
-- `CreateBuffAction`：4 次。
+- `SetSkillCdAtOnce`：3 次。
 - `CheckBuffIdInContext`：2 次。
 - `CheckDistanceCondition`：2 次。
 - `CompareFloat`：2 次。
-- `FinishBuffAdvanced`：2 次。
 - `CheckBuffStackNumAdvanced`：1 次。
 - `ModifyDynamicBlackboard`：1 次。
-- `SetSkillCdAtOnce`：1 次。
 
 ## Aura 原始库存与入口可达性
 
 - SkillData 原始 Aura 动作：117 个。
 - 从当前干员技能入口静态可达：20 个。
-- 当前入口调用图中的结构化引用：20 个。
+- 当前入口调用图中的结构化引用：21 个。
 
 可达性只沿 SkillData 中指向另一份 SkillData 的字符串引用计算。
 静态不可达文件可能是旧变体或孤立数据，不计为 parser 缺口，也不能据此注入回退。
@@ -258,23 +260,24 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | 动作                            | 涉及技能数 |
 | ------------------------------- | ---------: |
 | `DamageAction`                  |        236 |
-| `IfElseAction`                  |        185 |
-| `ObtainCostAction`              |        166 |
-| `CreateBuffAction`              |        135 |
-| `LaunchProjectile`              |         78 |
+| `IfElseAction`                  |        187 |
+| `ObtainCostAction`              |        167 |
+| `CreateBuffAction`              |        137 |
+| `LaunchProjectile`              |         79 |
 | `SpawnAbilityEntity`            |         29 |
 | `FinishBuffAction`              |         23 |
 | `SpellInfliction`               |         12 |
 | `CreateTimedMarker`             |          7 |
 | `HealAction`                    |          6 |
 | `SwitchAction`                  |          5 |
+| `AuraAction`                    |          4 |
 | `SetSkillCdAtOnce`              |          4 |
-| `AuraAction`                    |          3 |
 | `SetAbilityEntityDuration`      |          3 |
 | `CheckAbilityEntityCurDuration` |          2 |
 | `CheckDistanceCondition`        |          2 |
 | `FractureAction`                |          2 |
 | `IgniteAction`                  |          2 |
+| `StoreCurSkillExecuteFrame`     |          2 |
 | `AddGlobalCDTimer`              |          1 |
 | `CheckMainCharacterCondition`   |          1 |
 

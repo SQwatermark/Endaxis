@@ -8,6 +8,29 @@ const delegate = {
 };
 
 describe('ActionBlackboardOperationExecutor', () => {
+  it('stores the integer frame exposed by the current timeline host', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+
+    expect(
+      executor.execute(
+        { kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'music_loop' } },
+        { blackboard, getCurrentTimelineFrame: () => 46 },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('music_loop')).toBe(46);
+  });
+
+  it('rejects timeline frame reads outside a skill timeline host', () => {
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+    expect(() =>
+      executor.execute(
+        { kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'frame' } },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('storeCurrentTimelineFrame requires a timeline host');
+  });
+
   it.each(['combatActive', 'singleEnemyPresent'] as const)(
     'treats the fixed Endaxis %s invariant as satisfied',
     kind => {

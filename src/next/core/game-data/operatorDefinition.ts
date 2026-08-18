@@ -664,6 +664,10 @@ export interface CombatStepParameters {
     ignoredAbilityEntityTargets?: readonly AbilityEntityTargetQuery[];
   };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
+  storeCurrentTimelineFrame: {
+    /** 把宿主技能或能力实体子技能的局部整数执行帧写入动作黑板。 */
+    outputKey: string;
+  };
   modifyActionValue: {
     key: string;
     operation: ActionValueOperation;
@@ -728,6 +732,8 @@ export interface CombatStepParameters {
   conditional: { condition: CombatCondition };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
+  /** 在承载调度区间开始时以及之后每次宿主 Tick 中同步执行一次 body。 */
+  repeatEachTick: Record<string, never>;
   setContextFlag: {
     flag: string;
     value: boolean | number | string;
@@ -780,6 +786,7 @@ export const COMBAT_STEP_KINDS = [
   'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',
+  'storeCurrentTimelineFrame',
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',
@@ -791,6 +798,7 @@ export const COMBAT_STEP_KINDS = [
   'jumpTimeline',
   'conditional',
   'once',
+  'repeatEachTick',
   'setContextFlag',
   'openComboWindow',
   'changeSkillSlot',
@@ -808,9 +816,11 @@ type CombatStepForKind<K extends CombatStepKind> = {
   ? { whenTrue: ActionSequenceDefinition; whenFalse?: ActionSequenceDefinition }
   : K extends 'once'
     ? { body: ActionSequenceDefinition }
-    : K extends 'forEachContextTarget'
+    : K extends 'repeatEachTick'
       ? { body: ActionSequenceDefinition }
-      : {});
+      : K extends 'forEachContextTarget'
+        ? { body: ActionSequenceDefinition }
+        : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = {

@@ -127,6 +127,13 @@ function resolveStep(
         parameters: step.parameters,
         body: compileActionSequence(step.body, skillLevel, `${path}.body`),
       };
+    case 'repeatEachTick':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
+      };
     case 'spawnAbilityEntity': {
       const { childSkill, ...definition } = step.parameters.definition;
       return {
@@ -409,6 +416,8 @@ function resolveStep(
     case 'startTimeDilation':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startUltimateTimeDilation':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'storeCurrentTimelineFrame':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'modifyActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };

@@ -52,6 +52,7 @@ STATEFUL_COMBAT_ACTION_NAMES = {
     "SetSkillCdAtOnce",
     "FinishBuffAction",
     "IgniteAction",
+    "StoreCurSkillExecuteFrame",
 }
 AUDITED_COMBAT_ACTION_NAMES = COMBAT_ACTION_NAMES | STATEFUL_COMBAT_ACTION_NAMES
 
@@ -89,6 +90,7 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "SetAbilityEntityDuration",
     "SetSkillCdAtOnce",
     "IgniteAction",
+    "StoreCurSkillExecuteFrame",
     # 中断载荷必须留在有序事件树供审计；当前模拟器没有敌方主动技能、红圈状态或
     # 行动时间线，因此正式编译会把它归约为恒成功的零效果动作，不创建伪控制状态。
     "InterruptAction",

@@ -1357,6 +1357,9 @@ function validateCombatStep(
       }
       break;
     }
+    case 'storeCurrentTimelineFrame':
+      requireString(parameters, 'outputKey', `${path}.parameters`, out);
+      break;
     case 'modifyActionValue':
       requireString(parameters, 'key', `${path}.parameters`, out);
       requireEnum(parameters, 'operation', ACTION_VALUE_OPERATIONS_SET, `${path}.parameters`, out);
@@ -1452,6 +1455,8 @@ function validateCombatStep(
     case 'once':
       requireString(parameters, 'scopeKey', `${path}.parameters`, out);
       break;
+    case 'repeatEachTick':
+      break;
     case 'setContextFlag':
       requireString(parameters, 'flag', `${path}.parameters`, out);
       validateScalar(parameters.value, `${path}.parameters.value`, out);
@@ -1537,7 +1542,7 @@ function validateActionSequence(
           currentTargetAvailable,
         );
       }
-    } else if (stepKind === 'once') {
+    } else if (stepKind === 'once' || stepKind === 'repeatEachTick') {
       validateActionSequence(
         recordStep.body,
         `${path}.steps[${index}].body`,
@@ -1559,7 +1564,11 @@ function containsCombatEventListener(value: unknown): boolean {
       containsCombatEventListener(record.whenTrue) || containsCombatEventListener(record.whenFalse)
     );
   }
-  if (record.kind === 'once' || record.kind === 'forEachContextTarget') {
+  if (
+    record.kind === 'once' ||
+    record.kind === 'repeatEachTick' ||
+    record.kind === 'forEachContextTarget'
+  ) {
     return containsCombatEventListener(record.body);
   }
   if (Array.isArray(record.steps)) return record.steps.some(containsCombatEventListener);
