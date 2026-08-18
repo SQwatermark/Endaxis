@@ -355,6 +355,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'finishBuffsByTag',
   'finishBuffsById',
   'holdBuffsById',
+  'adjustSkillCooldown',
   'modifyActionValue',
   'calculateActionValue',
   'changeResource',
@@ -578,6 +579,17 @@ export function createSkillEditorStep(
       };
     case 'holdBuffsById':
       return { kind, parameters: { target: 'caster', buffIds: ['custom-buff'] } };
+    case 'adjustSkillCooldown':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          skill: { kind: 'type', skillType: 'comboSkill' },
+          operation: 'reduce',
+          basis: 'baseDurationRatio',
+          value: { kind: 'constant', value: 0 },
+        },
+      };
     case 'modifyActionValue':
       return {
         kind,

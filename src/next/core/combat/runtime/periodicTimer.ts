@@ -36,6 +36,16 @@ export class PeriodicTimer {
     this.#passed = 0;
   }
 
+  /** 保持周期不变并直接设置本周期剩余量。 */
+  setRemaining(remaining: number): void {
+    if (!this.isValid) throw new Error('cannot set remaining time on an invalid timer');
+    if (!Number.isFinite(remaining) || remaining < 0) {
+      throw new RangeError('timer remaining time must be a non-negative finite number');
+    }
+    this.#remaining = remaining;
+    this.#passed = Math.max(0, this.#period - this.#remaining);
+  }
+
   markInvalid(): void {
     this.#period = -1;
     this.#remaining = -1;

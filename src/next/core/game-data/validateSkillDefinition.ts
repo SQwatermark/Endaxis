@@ -1222,11 +1222,14 @@ function validateCombatStep(
           }
         }
       }
-      if (parameters.operation !== 'reduce') {
-        push(out, `${path}.parameters.operation`, "expected 'reduce'");
+      if (parameters.operation !== 'reduce' && parameters.operation !== 'set') {
+        push(out, `${path}.parameters.operation`, "expected 'reduce' or 'set'");
       }
-      if (parameters.basis !== 'baseDurationRatio') {
-        push(out, `${path}.parameters.basis`, "expected 'baseDurationRatio'");
+      if (parameters.basis !== 'baseDurationRatio' && parameters.basis !== 'absoluteSeconds') {
+        push(out, `${path}.parameters.basis`, "expected 'baseDurationRatio' or 'absoluteSeconds'");
+      }
+      if (parameters.operation === 'reduce' && parameters.basis === 'absoluteSeconds') {
+        push(out, `${path}.parameters.basis`, "absoluteSeconds is unsupported for 'reduce'");
       }
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;

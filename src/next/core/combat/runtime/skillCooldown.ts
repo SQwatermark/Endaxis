@@ -89,6 +89,28 @@ export class SkillCooldown {
     return true;
   }
 
+  /** 把剩余冷却直接设置为基础周期的给定比例。 */
+  setByBaseDurationRatio(ratio: number): boolean {
+    if (!Number.isFinite(ratio) || ratio < 0) {
+      throw new RangeError('skill cooldown ratio must be a non-negative finite number');
+    }
+    const timer = this.#timer;
+    if (timer === undefined) return false;
+    timer.setRemaining(this.#periodFrames * ratio);
+    return true;
+  }
+
+  /** 把剩余冷却直接设置为配置帧数。 */
+  setRemainingFrames(frames: number): boolean {
+    if (!Number.isFinite(frames) || frames < 0) {
+      throw new RangeError('skill cooldown frames must be a non-negative finite number');
+    }
+    const timer = this.#timer;
+    if (timer === undefined) return false;
+    timer.setRemaining(frames);
+    return true;
+  }
+
   /**
    * 结束当前施放；确认帧存在且冷却尚未越过该帧时，返还本次预占。
    * 返回值只表示本次结束是否实际发生了返还。

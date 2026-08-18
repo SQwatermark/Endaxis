@@ -789,6 +789,36 @@ export class CombatRuntimeAssembly {
     return changed;
   }
 
+  #setSkillCooldowns(
+    operatorId: string,
+    skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
+    value: number,
+    basis: 'baseDurationRatio' | 'absoluteFrames',
+  ): number {
+    const matchedKeys = new Set<string>();
+    let changed = 0;
+    for (const program of this.#skillPrograms.values()) {
+      if (
+        program.operatorId !== operatorId ||
+        (skill.kind === 'type'
+          ? program.skillType !== skill.skillType
+          : program.skillId !== skill.skillId)
+      ) {
+        continue;
+      }
+      const key = `${operatorId}\u0000${program.skillId}`;
+      if (matchedKeys.has(key)) continue;
+      matchedKeys.add(key);
+      const cooldown = this.#skillCooldowns.get(key)?.cooldown;
+      const didChange =
+        basis === 'baseDurationRatio'
+          ? cooldown?.setByBaseDurationRatio(value)
+          : cooldown?.setRemainingFrames(value);
+      if (didChange) changed += 1;
+    }
+    return changed;
+  }
+
   #createBuffLifecycleOperationChain(
     source: BuffLifecycleOperationSource,
     options: CombatRuntimeAssemblyOptions,
@@ -874,6 +904,10 @@ export class CombatRuntimeAssembly {
     const cooldownDelegate = new SkillCooldownOperationExecutor({
       reduceByBaseDurationRatio: (skill, ratio) =>
         this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
+      setByBaseDurationRatio: (skill, ratio) =>
+        this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
+      setByAbsoluteFrames: (skill, frames) =>
+        this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
       delegate: terminalDelegate,
     });
     const baseDelegate = new SkillSlotOperationExecutor({

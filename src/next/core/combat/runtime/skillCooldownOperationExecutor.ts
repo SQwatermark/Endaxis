@@ -1,12 +1,21 @@
 import type { CombatStepParameters } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { resolveActionValueOperand } from './actionBlackboard';
+import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
 export interface SkillCooldownOperationExecutorOptions {
   readonly reduceByBaseDurationRatio: (
     skill: CombatStepParameters['adjustSkillCooldown']['skill'],
     ratio: number,
+  ) => number;
+  readonly setByBaseDurationRatio: (
+    skill: CombatStepParameters['adjustSkillCooldown']['skill'],
+    ratio: number,
+  ) => number;
+  readonly setByAbsoluteFrames: (
+    skill: CombatStepParameters['adjustSkillCooldown']['skill'],
+    frames: number,
   ) => number;
   readonly delegate: CombatOperationExecutor;
 }
@@ -24,8 +33,17 @@ export class SkillCooldownOperationExecutor implements CombatOperationExecutor {
     if (context === undefined) {
       throw new Error('adjustSkillCooldown requires a combat operation context');
     }
-    const ratio = resolveActionValueOperand(step.parameters.value, context.blackboard);
-    this.options.reduceByBaseDurationRatio(step.parameters.skill, ratio);
+    const value = resolveActionValueOperand(step.parameters.value, context.blackboard);
+    const { operation, basis, skill } = step.parameters;
+    if (operation === 'reduce' && basis === 'baseDurationRatio') {
+      this.options.reduceByBaseDurationRatio(skill, value);
+    } else if (operation === 'set' && basis === 'baseDurationRatio') {
+      this.options.setByBaseDurationRatio(skill, value);
+    } else if (operation === 'set' && basis === 'absoluteSeconds') {
+      this.options.setByAbsoluteFrames(skill, value * COMBAT_FRAMES_PER_SECOND);
+    } else {
+      throw new Error(`unsupported skill cooldown adjustment '${operation}/${basis}'`);
+    }
     return true;
   }
 

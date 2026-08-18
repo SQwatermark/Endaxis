@@ -32,6 +32,7 @@ from action_payload_parser import (
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
     parse_scalar,
+    parse_skill_cooldown_adjustment_payload,
     parse_tag_query,
     parse_timed_marker_application_payload,
     walk_single_enemy_actions,
@@ -59,7 +60,6 @@ from source_models import (
     LegacyBuffFinishPayload,
     MainOperatorConditionSource,
     SequenceGuardActionSource,
-    SkillCooldownAdjustmentPayload,
     ScalarSource,
     SkillHasHitConditionSource,
     SwitchActionSource,
@@ -1104,34 +1104,8 @@ def parse_conditional_actions(
                         action, source_path, inherited_blackboard
                     )
                 elif action_type == "SetSkillCdAtOnce":
-                    expected_fields = {
-                        "$type", "isEnable", "priorityLevel", "priorityOffset",
-                        "serverActionIndex", "target", "useSkillType", "skillTypeMask",
-                        "skillId", "functionType", "isPercentage", "value",
-                    }
-                    if set(action) != expected_fields:
-                        raise ValueError(
-                            f"{source_path}: unexpected SetSkillCdAtOnce fields {sorted(action)}"
-                        )
-                    skill_id = action.get("skillId")
-                    if not isinstance(skill_id, str):
-                        raise ValueError(f"{source_path}.skillId: expected string")
-                    skill_type_mask = action.get("skillTypeMask")
-                    function_type = action.get("functionType")
-                    if not isinstance(skill_type_mask, str) or not isinstance(function_type, str):
-                        raise ValueError(f"{source_path}: expected cooldown enum names")
-                    skill_cooldown_adjustment = SkillCooldownAdjustmentPayload(
-                        target=parse_target_reference(action.get("target"), f"{source_path}.target"),
-                        useSkillType=require_bool(
-                            action.get("useSkillType"), f"{source_path}.useSkillType"
-                        ),
-                        skillTypeMask=skill_type_mask,
-                        skillId=skill_id,
-                        functionType=function_type,
-                        isPercentage=require_bool(
-                            action.get("isPercentage"), f"{source_path}.isPercentage"
-                        ),
-                        value=parse_scalar(action.get("value"), f"{source_path}.value", inherited_blackboard),
+                    skill_cooldown_adjustment = parse_skill_cooldown_adjustment_payload(
+                        action, source_path, inherited_blackboard
                     )
                 elif action_type == "IgniteAction":
                     expected_fields = {
@@ -1505,6 +1479,32 @@ def parse_conditional_actions(
                             actionPath=path,
                             serverActionIndex=action_index,
                             heal=parse_heal_payload(value, action_path, inherited_blackboard),
+                        ),
+                    ),
+                    failActions=(),
+                    executionFrames=execution_frames,
+                )
+            )
+            return
+        if action_type == "SetSkillCdAtOnce":
+            action_path = f"{source_name}.{'.'.join(path)}"
+            action_index = require_server_action_index(value, action_path)
+            result.append(
+                UnconditionalActionSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=action_index,
+                    actionPath=path,
+                    conditions=(),
+                    succeedActions=(
+                        ConditionalBranchActionSource(
+                            actionType=action_type,
+                            actionIndex=action_index,
+                            actionPath=path,
+                            serverActionIndex=action_index,
+                            skillCooldownAdjustment=parse_skill_cooldown_adjustment_payload(
+                                value, action_path, inherited_blackboard
+                            ),
                         ),
                     ),
                     failActions=(),

@@ -186,6 +186,8 @@ step('spawnAbilityEntity', {
 
 Arclight 战技的 `OnBuffEnhanceChanged` 已闭环：静态面板四维进入共享实体黑板，严格的 `StoreAttributeValue(FinalNonConverted)` 生成黑板计算，叠层达到阈值后按智识计算 `pulse_up`，给全队施加限时 `electricDamageIncrease`。原生 `isConvertedAttribute=true` 不再作为未知载荷丢失，而是保留 `converted` 修正来源；运行时伤害快照会叠加 Buff 产生的动态伤害属性。`buff_common_vfx_char_atk_up` 仍保留在 audit；生成器现保存 stack effect 动作类别，并且只有定义完整证明“唯一行为是非空 `EffectAction` stack effect”时才自动从战斗序列剔除，不能按 ID 或命名泛化。条件分支中的 `buff_common_obtain_ultimate_sp` 复用现有“按技能消耗为全队回终结技能量”步骤，不内联成空 Buff。
 
+`SetSkillCdAtOnce` 已从仅支持条件分支中的比例减少，扩展为根时间轴与条件树共用的严格动作：`Reduce + percentage` 继续按基础周期比例扣减，`Set + percentage` 直接设置为基础周期比例，`Set + absolute` 按秒设置；没有证据的绝对值减少仍拒绝。运行时可把目标技能冷却设为 0 或完整基础周期，技能编辑器也能创建和编辑技能类型/技能 ID、操作、基准和动态值。Rossi 连携技 2 的条件清零与连携技 3 对二段连携的完整周期重置因此均进入通用 DSL，使 Rossi 从 9/11 提升为 11/11，并成为第 12 名零专用声明完整直转干员。最新严格全量审计为 317/320 可解析、283/320 可编译。`FractureAction` 仍按既有证据边界阻塞，没有用空间简化替代破防层、事件、碎甲 Buff 和伤害链。本批验证为生成器 307/307、manifest 全量 `--check`、Next 类型检查，以及 Next Vitest 178 文件 1061/1061 全部通过。
+
 达坂第一天赋的剩余阻塞已经关闭：原生反编译证明百分比冷却减少使用技能配置的基础周期；旧式 `FinishBuffAction` 按已证明的 Id、目标和来源限制进入统一 Buff 结束操作。`OnOutputDamage -> 减少连携技冷却 -> 消耗准备层 -> 结束自身` 已完整参与模拟，达坂 9/9 生成。Endministrator 的三类 `igniteEventAction` 已形成内联 Buff 响应，`IgniteAction` 从技能生成 `igniteBuffs` 并携带实际点燃来源；生产场景已验证连携创建冻结、终结技直接/条件/点燃伤害和冻结结束处于同一次运行。Last Rite 普通战技也已关闭原子阻塞：`main_start -> self -> party main Buff` 完整内联，队伍实例以实际宿主执行主控/标签/黑板条件，同事件同优先级响应在一个注册回调内保持独立短路，敌方分身 Buff 以当前创建来源干员执行伤害并保留原始施法快照。manifest 已移除 `main_start/self` 的 `unmodeledBuffIds`，双轨生产回归验证队友末段普攻触发的分身伤害和元素附着均归因到队友。当前 manifest 全量生成通过：佩丽卡及另外九名干员生成正式定义，庄方宜与诀保持审计阶段；`tmp/` 未纳入修改或提交。
 
 选择原则：优先能够从数据到生成 DSL、编译、运行时和测试形成闭环的机制，而不是单纯增加解析计数。

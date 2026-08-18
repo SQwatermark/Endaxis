@@ -2058,6 +2058,72 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", compile_target("Owner"))
         self.assertIn("target: 'enemy'", compile_target("Target"))
 
+    def test_root_skill_cooldown_set_compiles_absolute_and_ratio_bases(self) -> None:
+        def parse_and_compile(is_percentage: bool, value: float) -> str:
+            action = {
+                "$type": "Example.SetSkillCdAtOnce+Data, Example",
+                "isEnable": True,
+                "priorityLevel": "Default",
+                "priorityOffset": 0,
+                "serverActionIndex": 7,
+                "target": target_settings_fixture("Owner"),
+                "useSkillType": False,
+                "skillTypeMask": "None",
+                "skillId": "skill.target",
+                "functionType": "Set",
+                "isPercentage": is_percentage,
+                "value": {
+                    "useBlackboardKey": False,
+                    "value": value,
+                    "blackboardKey": "",
+                },
+            }
+            root = {
+                "actionGroupData": {
+                    "timelineActions": [
+                        {
+                            "_startFrame": 12,
+                            "_endFrame": 12,
+                            "_sequenceActionData": {"actionData": [action]},
+                        }
+                    ]
+                }
+            }
+            parsed = parse_conditional_actions(root, "cooldown.json", {})
+            self.assertEqual((parsed[0].startFrame, parsed[0].actionIndex), (12, 7))
+            return compile_conditional_action(
+                parsed[0], "cooldown.action", root_skill_context=True
+            )
+
+        absolute = parse_and_compile(False, 0)
+        self.assertIn("operation: 'set'", absolute)
+        self.assertIn("basis: 'absoluteSeconds'", absolute)
+        ratio = parse_and_compile(True, 1)
+        self.assertIn("operation: 'set'", ratio)
+        self.assertIn("basis: 'baseDurationRatio'", ratio)
+
+    def test_conditional_skill_cooldown_reduce_keeps_existing_ratio_semantics(self) -> None:
+        target = parse_target_reference(target_settings_fixture("Owner"), "fixture.target")
+        payload = SimpleNamespace(
+            target=target,
+            useSkillType=True,
+            skillTypeMask="ComboSkill",
+            skillId="",
+            functionType="Reduce",
+            isPercentage=True,
+            value=ScalarSource(0.5, None, None),
+        )
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "SetSkillCdAtOnce", 0, skillCooldownAdjustment=payload
+            ),
+            "fixture.cooldown",
+        )
+
+        self.assertIn("skillType: 'comboSkill'", compiled)
+        self.assertIn("operation: 'reduce'", compiled)
+        self.assertIn("basis: 'baseDurationRatio'", compiled)
+
     def test_store_max_health_reads_runtime_panel_blackboard(self) -> None:
         scalar = lambda value: {
             "useBlackboardKey": False,

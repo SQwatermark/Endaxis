@@ -11,8 +11,8 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：317 个。
-- 无角色专用声明即可进入通用 DSL：281 个。
-- 当前整名干员完整直转：11 名。
+- 无角色专用声明即可进入通用 DSL：283 个。
+- 当前整名干员完整直转：12 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：11 个。
 
@@ -49,7 +49,7 @@
 | Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      7 | 否       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
-| Rossi          | `chr_0028_wulfa`    |   11 |     11 |      9 | 否       |
+| Rossi          | `chr_0028_wulfa`    |   11 |     11 |     11 | 是       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
@@ -62,9 +62,9 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `buff-source-or-target`    |     10 |
-| `other`                    |      7 |
-| `root-action-coverage`     |      6 |
+| `other`                    |      6 |
 | `projectile-data`          |      5 |
+| `root-action-coverage`     |      5 |
 | `condition-other`          |      4 |
 | `conditional-leaf`         |      3 |
 | `projectile-child-actions` |      2 |

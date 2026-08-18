@@ -8241,10 +8241,20 @@ def compile_conditional_branch_action(
             or cooldown_adjustment.target.targetGroupKey
             or cooldown_adjustment.target.validatorTypes
             or cooldown_adjustment.target.postProcessorTypes
-            or cooldown_adjustment.functionType != "Reduce"
-            or not cooldown_adjustment.isPercentage
         ):
             raise ValueError(f"{path}: unsupported skill cooldown adjustment shape")
+        operation = {"Reduce": "reduce", "Set": "set"}.get(
+            cooldown_adjustment.functionType
+        )
+        if operation is None:
+            raise ValueError(f"{path}: unsupported skill cooldown operation")
+        if operation == "reduce" and not cooldown_adjustment.isPercentage:
+            raise ValueError(f"{path}: absolute cooldown reduction is unsupported")
+        basis = (
+            "baseDurationRatio"
+            if cooldown_adjustment.isPercentage
+            else "absoluteSeconds"
+        )
         if (
             cooldown_adjustment.useSkillType
             and cooldown_adjustment.skillTypeMask == "ComboSkill"
@@ -8267,8 +8277,8 @@ def compile_conditional_branch_action(
                 "step('adjustSkillCooldown', {",
                 "  target: 'caster',",
                 f"  skill: {skill_selector},",
-                "  operation: 'reduce',",
-                "  basis: 'baseDurationRatio',",
+                f"  operation: '{operation}',",
+                f"  basis: '{basis}',",
                 f"  value: {compile_condition_operand(cooldown_adjustment.value, f'{path}.value')},",
                 "})",
             ]

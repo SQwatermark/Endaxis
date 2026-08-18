@@ -407,6 +407,7 @@ describe('skillDefinitionEditorViewModel', () => {
       'finishBuffsByTag',
       'finishBuffsById',
       'holdBuffsById',
+      'adjustSkillCooldown',
       'conditional',
       'once',
       'modifyActionValue',
@@ -425,7 +426,7 @@ describe('skillDefinitionEditorViewModel', () => {
     }
 
     expect(validateSkillDefinition(draft)).toEqual([]);
-    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-28).map(step => step.kind)).toEqual([
+    expect(draft.scheduledSequences[0]!.sequence.steps.slice(-29).map(step => step.kind)).toEqual([
       'startTimeDilation',
       'startUltimateTimeDilation',
       'dealDamage',
@@ -441,6 +442,7 @@ describe('skillDefinitionEditorViewModel', () => {
       'finishBuffsByTag',
       'finishBuffsById',
       'holdBuffsById',
+      'adjustSkillCooldown',
       'conditional',
       'once',
       'modifyActionValue',

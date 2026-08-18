@@ -18,4 +18,19 @@ describe('PeriodicTimer', () => {
     expect(timer.isValid).toBe(false);
     expect(timer.progress).toBe(0);
   });
+
+  it('sets remaining time while preserving the configured period', () => {
+    const timer = new PeriodicTimer();
+    timer.reset(10, true);
+
+    timer.setRemaining(4);
+    expect(timer.remaining).toBe(4);
+    expect(timer.passed).toBe(6);
+    expect(timer.progress).toBeCloseTo(0.6);
+
+    timer.setRemaining(20);
+    expect(timer.remaining).toBe(20);
+    expect(timer.passed).toBe(0);
+    expect(timer.progress).toBe(0);
+  });
 });

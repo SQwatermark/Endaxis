@@ -38,6 +38,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'finishBuffsByTag',
       'finishBuffsById',
       'holdBuffsById',
+      'adjustSkillCooldown',
       'applyStatus',
       'consumeStatus',
     ],

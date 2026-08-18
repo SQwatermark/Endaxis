@@ -588,14 +588,14 @@ export interface CombatStepParameters {
     source: CombatTarget | 'currentBuffSource';
     igniteType: string;
   };
-  /** 按原生技能筛选立即修改当前冷却；百分比基数明确指配置的基础冷却时长。 */
+  /** 按原生技能筛选立即修改当前冷却；比例基数是配置的基础冷却时长，绝对值单位为秒。 */
   adjustSkillCooldown: {
     target: 'caster';
     skill:
       | { readonly kind: 'type'; readonly skillType: SkillType }
       | { readonly kind: 'id'; readonly skillId: string };
-    operation: 'reduce';
-    basis: 'baseDurationRatio';
+    operation: 'reduce' | 'set';
+    basis: 'baseDurationRatio' | 'absoluteSeconds';
     value: ActionValueOperand;
   };
   /** 在当前调度区间存续期间禁止施法者身上已匹配的 Buff 结束。 */

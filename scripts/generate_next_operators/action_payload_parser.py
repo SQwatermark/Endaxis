@@ -30,6 +30,7 @@ from source_models import (
     ProjectileSkillTriggerSource,
     ResourceGainPayload,
     ScalarSource,
+    SkillCooldownAdjustmentPayload,
     TimedMarkerApplicationPayload,
 )
 from source_utils import (
@@ -65,6 +66,7 @@ __all__ = [
     "parse_projectile_launch_payload",
     "parse_resource_gain_payload",
     "parse_scalar",
+    "parse_skill_cooldown_adjustment_payload",
     "parse_tag_query",
     "parse_timed_marker_application_payload",
     "to_float32",
@@ -82,6 +84,46 @@ TAG_QUERY_TYPE_MAP = {
 def to_float32(value: float) -> float:
     """按原生单精度指令的舍入方式保存中间结果。"""
     return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def parse_skill_cooldown_adjustment_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> SkillCooldownAdjustmentPayload:
+    """严格读取原生 SetSkillCdAtOnce；具体可执行形状由编译器判定。"""
+    expected_fields = {
+        "$type",
+        "isEnable",
+        "priorityLevel",
+        "priorityOffset",
+        "serverActionIndex",
+        "target",
+        "useSkillType",
+        "skillTypeMask",
+        "skillId",
+        "functionType",
+        "isPercentage",
+        "value",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected SetSkillCdAtOnce fields {sorted(action)}")
+    skill_id = action.get("skillId")
+    if not isinstance(skill_id, str):
+        raise ValueError(f"{path}.skillId: expected string")
+    skill_type_mask = action.get("skillTypeMask")
+    function_type = action.get("functionType")
+    if not isinstance(skill_type_mask, str) or not isinstance(function_type, str):
+        raise ValueError(f"{path}: expected cooldown enum names")
+    return SkillCooldownAdjustmentPayload(
+        target=parse_target_reference(action.get("target"), f"{path}.target"),
+        useSkillType=require_bool(action.get("useSkillType"), f"{path}.useSkillType"),
+        skillTypeMask=skill_type_mask,
+        skillId=skill_id,
+        functionType=function_type,
+        isPercentage=require_bool(action.get("isPercentage"), f"{path}.isPercentage"),
+        value=parse_scalar(action.get("value"), f"{path}.value", inherited_blackboard),
+    )
 
 
 def walk_single_enemy_actions(value: Any, path: str) -> Iterable[dict[str, Any]]:

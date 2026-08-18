@@ -23,6 +23,7 @@ import EditorHelpHint from './EditorHelpHint.vue';
 import EventListenerStepEditor from './EventListenerStepEditor.vue';
 import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
+import SkillCooldownStepEditor from './SkillCooldownStepEditor.vue';
 import {
   EDITABLE_COMBAT_STEP_KINDS,
   type EditableCombatStepKind,
@@ -78,6 +79,9 @@ function forward(step: CombatStepDefinition): void {
         v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'"
       >
         <TimeDilationStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'adjustSkillCooldown'">
+        <SkillCooldownStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="
