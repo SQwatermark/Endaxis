@@ -921,7 +921,7 @@ export interface GeneratedConditionalBranchActionSource {
     readonly healType: string;
     readonly healer: string;
     readonly target: GeneratedTargetReferenceSource;
-    readonly attribute: string;
+    readonly attribute: string | null;
     readonly multiplier: GeneratedScalarSource;
     readonly addition: GeneratedScalarSource;
     readonly tagIds: readonly number[];

@@ -1408,6 +1408,7 @@
       "attribute": "四维属性",
       "healMultiplier": "属性倍率",
       "healAddition": "固定加值",
+      "healAmount": "直接治疗量",
       "healTagIds": "治疗标签 ID",
       "healTargets": {
         "caster": "施法者",
@@ -1716,6 +1717,7 @@
         "healAttribute": "治疗公式读取施法者当前面板中的这一项四维属性。",
         "healMultiplier": "治疗量先以四维属性乘此值；可按技能等级配置或从本次释放的动作黑板读取。",
         "healAddition": "属性乘算后追加的固定治疗量；可按技能等级配置或从动作黑板读取。",
+        "healAmount": "不读取施法者属性，直接按技能等级或本次释放的动作黑板取得治疗量。",
         "healTagIds": "原生治疗标签的有符号整数身份。可用逗号、空格或换行分隔。"
       },
       "stepHelp": {

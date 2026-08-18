@@ -919,17 +919,30 @@ function validateCombatStep(
       break;
     case 'heal':
       requireEnum(parameters, 'target', HEAL_TARGETS_SET, `${path}.parameters`, out);
-      requireEnum(parameters, 'attribute', OPERATOR_ATTRIBUTES_SET, `${path}.parameters`, out);
-      validateLevelValuesOrActionValueOperand(
-        parameters.multiplier,
-        `${path}.parameters.multiplier`,
-        out,
-      );
-      validateLevelValuesOrActionValueOperand(
-        parameters.addition,
-        `${path}.parameters.addition`,
-        out,
-      );
+      if (parameters.amount === undefined) {
+        requireEnum(parameters, 'attribute', OPERATOR_ATTRIBUTES_SET, `${path}.parameters`, out);
+        validateLevelValuesOrActionValueOperand(
+          parameters.multiplier,
+          `${path}.parameters.multiplier`,
+          out,
+        );
+        validateLevelValuesOrActionValueOperand(
+          parameters.addition,
+          `${path}.parameters.addition`,
+          out,
+        );
+      } else {
+        validateLevelValuesOrActionValueOperand(
+          parameters.amount,
+          `${path}.parameters.amount`,
+          out,
+        );
+        for (const key of ['attribute', 'multiplier', 'addition'] as const) {
+          if (parameters[key] !== undefined) {
+            push(out, `${path}.parameters.${key}`, 'cannot be combined with definite amount');
+          }
+        }
+      }
       if (!Array.isArray(parameters.tagIds)) {
         push(out, `${path}.parameters.tagIds`, 'expected an array');
       } else {

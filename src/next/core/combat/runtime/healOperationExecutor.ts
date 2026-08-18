@@ -29,9 +29,18 @@ export class HealOperationExecutor implements CombatOperationExecutor {
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
     const target = this.dependencies.resolveTarget(step.parameters.target);
-    const multiplier = this.#resolveValue(step.parameters.multiplier, context, step);
-    const addition = this.#resolveValue(step.parameters.addition, context, step);
-    const attributeValue = this.dependencies.resolveSourceAttribute(step.parameters.attribute);
+    const definiteAmount = step.parameters.amount;
+    const attribute = definiteAmount === undefined ? step.parameters.attribute : undefined;
+    const multiplier =
+      definiteAmount === undefined
+        ? this.#resolveValue(step.parameters.multiplier, context, step)
+        : 0;
+    const addition =
+      definiteAmount === undefined
+        ? this.#resolveValue(step.parameters.addition, context, step)
+        : this.#resolveValue(definiteAmount, context, step);
+    const attributeValue =
+      attribute === undefined ? 0 : this.dependencies.resolveSourceAttribute(attribute);
     const requested = Math.max(0, Math.fround(Math.fround(attributeValue * multiplier) + addition));
     const result = target.vitals.heal(requested);
     this.dependencies.receipt.record({
@@ -41,7 +50,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       sourceId: this.dependencies.sourceOperatorId,
       targetId: target.operatorId,
       data: {
-        attribute: step.parameters.attribute,
+        attribute: attribute ?? 'definite',
         attributeValue,
         multiplier,
         addition,
@@ -68,7 +77,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveValue(
-    value: HealStep['parameters']['multiplier'],
+    value: NonNullable<HealStep['parameters']['multiplier']>,
     context: CombatOperationContext | undefined,
     step: HealStep,
   ): number {

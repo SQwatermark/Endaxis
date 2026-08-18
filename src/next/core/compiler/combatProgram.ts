@@ -125,11 +125,21 @@ export interface ResolvedCombatStepParameters {
   dealStagger: { value: number | ActionValueOperand };
   heal: {
     target: CombatStepParameters['heal']['target'];
-    attribute: OperatorAttribute;
-    multiplier: number | ActionValueOperand;
-    addition: number | ActionValueOperand;
     tagIds: readonly number[];
-  };
+  } & (
+    | {
+        attribute: OperatorAttribute;
+        multiplier: number | ActionValueOperand;
+        addition: number | ActionValueOperand;
+        amount?: never;
+      }
+    | {
+        amount: number | ActionValueOperand;
+        attribute?: never;
+        multiplier?: never;
+        addition?: never;
+      }
+  );
   applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition'> & {
     readonly definition?: ResolvedSkillBuffDefinition;
   };

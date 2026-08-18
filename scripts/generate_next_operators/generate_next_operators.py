@@ -7480,6 +7480,7 @@ def compile_buff_application_values(
     target_group_key: str,
     count: ScalarSource,
     buff_source: str,
+    buff_source_context_key: str | None = None,
     inherit_source_skill_cast_info: bool,
     root_skill_context: bool,
     path: str,
@@ -7506,6 +7507,8 @@ def compile_buff_application_values(
     supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
     source = None
     if buff_source == "InputTarget" and (root_skill_context or input_target == "enemy"):
+        source = "enemy"
+    elif buff_source == "ContextTarget" and buff_source_context_key == "smart_target":
         source = "enemy"
     elif buff_source == "ActionOwner" and current_ability_entity_owner:
         source = "currentAbilityEntity"
@@ -7679,6 +7682,7 @@ def compile_buff_application(
         target_group_key=action.targetGroupKey,
         count=action.count,
         buff_source=action.buffSource,
+        buff_source_context_key=action.buffSourceContextKey,
         inherit_source_skill_cast_info=action.inheritSourceSkillCastInfo,
         root_skill_context=root_skill_context,
         context_application_target=context_application_target,
@@ -7889,6 +7893,7 @@ def compile_conditional_buff_application(
             target_group_key=payload.targetGroupKey,
             count=payload.count,
             buff_source=payload.buffSource,
+            buff_source_context_key=getattr(payload, "buffSourceContextKey", None),
             inherit_source_skill_cast_info=payload.inheritSourceSkillCastInfo,
             root_skill_context=root_skill_context,
             context_application_target=context_application_target,
@@ -8353,6 +8358,14 @@ def compile_conditional_branch_action(
     if heal is not None:
         target_role: str | None = None
         if (
+            heal.target.targetSource == "MainCharacter"
+            and not heal.target.targetGroupKey
+            and heal.target.finderType is None
+            and not heal.target.validatorTypes
+            and not heal.target.postProcessorTypes
+        ):
+            target_role = "controlledOperator"
+        elif (
             heal.target.targetSource in {"InstantSearch", "Source"}
             and heal.target.finderType == "CharacterTeamFinder"
             and heal.target.validatorTypes == ("MainCharacterValidator",)
@@ -8377,19 +8390,27 @@ def compile_conditional_branch_action(
             target_role = None if write is None else write.characterTeamSelectionRole
         if target_role is None:
             raise ValueError(f"{path}: HealAction target identity is unresolved")
-        attribute = {
-            "Str": "strength",
-            "Agi": "agility",
-            "Wisd": "intellect",
-            "Will": "will",
-        }[heal.attribute]
+        if heal.attribute is None:
+            calculation_lines = [
+                f"  amount: {compile_condition_operand(heal.addition, f'{path}.amount')},"
+            ]
+        else:
+            attribute = {
+                "Str": "strength",
+                "Agi": "agility",
+                "Wisd": "intellect",
+                "Will": "will",
+            }[heal.attribute]
+            calculation_lines = [
+                f"  attribute: {ts_inline_literal(attribute)},",
+                f"  multiplier: {compile_condition_operand(heal.multiplier, f'{path}.multiplier')},",
+                f"  addition: {compile_condition_operand(heal.addition, f'{path}.addition')},",
+            ]
         return "\n".join(
             [
                 "step('heal', {",
                 f"  target: {ts_inline_literal(target_role)},",
-                f"  attribute: {ts_inline_literal(attribute)},",
-                f"  multiplier: {compile_condition_operand(heal.multiplier, f'{path}.multiplier')},",
-                f"  addition: {compile_condition_operand(heal.addition, f'{path}.addition')},",
+                *calculation_lines,
                 f"  tagIds: {ts_inline_literal(heal.tagIds)},",
                 "})",
             ]

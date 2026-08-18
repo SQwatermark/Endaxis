@@ -235,21 +235,32 @@ function resolveStep(
       return {
         ...keyed,
         kind: step.kind,
-        parameters: {
-          target: step.parameters.target,
-          attribute: step.parameters.attribute,
-          multiplier: resolveLevelValueOrActionOperand(
-            step.parameters.multiplier,
-            skillLevel,
-            `${path}.parameters.multiplier`,
-          ),
-          addition: resolveLevelValueOrActionOperand(
-            step.parameters.addition,
-            skillLevel,
-            `${path}.parameters.addition`,
-          ),
-          tagIds: step.parameters.tagIds,
-        },
+        parameters:
+          step.parameters.amount === undefined
+            ? {
+                target: step.parameters.target,
+                attribute: step.parameters.attribute,
+                multiplier: resolveLevelValueOrActionOperand(
+                  step.parameters.multiplier,
+                  skillLevel,
+                  `${path}.parameters.multiplier`,
+                ),
+                addition: resolveLevelValueOrActionOperand(
+                  step.parameters.addition,
+                  skillLevel,
+                  `${path}.parameters.addition`,
+                ),
+                tagIds: step.parameters.tagIds,
+              }
+            : {
+                target: step.parameters.target,
+                amount: resolveLevelValueOrActionOperand(
+                  step.parameters.amount,
+                  skillLevel,
+                  `${path}.parameters.amount`,
+                ),
+                tagIds: step.parameters.tagIds,
+              },
       };
     case 'changeResource':
       return {

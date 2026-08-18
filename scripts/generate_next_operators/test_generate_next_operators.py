@@ -2053,6 +2053,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'controlledOperator'", source_selector_compiled)
 
+    def test_heal_payload_compiles_definite_blackboard_value(self) -> None:
+        action = {
+            "$type": "Example.HealAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 7,
+            "alwaysNext": True,
+            "healType": "Normal",
+            "healer": "ActionSource",
+            "contextKey": "",
+            "target": target_settings_fixture("MainCharacter"),
+            "healCalculation": {
+                "$type": "Example.DefiniteValueCalculation, Example",
+                "value": {
+                    "useBlackboardKey": True,
+                    "value": 0,
+                    "blackboardKey": "final_heal_value",
+                },
+                "applyScale": False,
+                "valueScale": {
+                    "useBlackboardKey": False,
+                    "value": 0,
+                    "blackboardKey": "",
+                },
+            },
+            "showHealText": True,
+            "playHealEffect": True,
+            "effectData": {},
+            "onlyPlayEffectOnActualHeal": True,
+            "useHealTags": True,
+            "healTags": {"predefinedTag": [{"tagId": -1517158118}]},
+        }
+
+        payload = parse_heal_payload(action, "fixture.heal", {})
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource("HealAction", 0, heal=payload),
+            "fixture.heal",
+        )
+
+        self.assertIsNone(payload.attribute)
+        self.assertIn("target: 'controlledOperator'", compiled)
+        self.assertIn("amount: { kind: 'blackboard', key: 'final_heal_value' }", compiled)
+        self.assertNotIn("attribute:", compiled)
+
     def test_legacy_buff_finish_compiles_in_root_skill_context(self) -> None:
         source = parse_target_reference(target_settings_fixture("Source"), "fixture.source")
 
@@ -3214,6 +3259,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             targetGroupKey="",
             count=ScalarSource(1, None, None),
             buffSource="InputTarget",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+
+        source = compile_buff_application(action, "fixture")
+
+        self.assertIn("target: 'caster'", source)
+        self.assertIn("source: 'enemy'", source)
+
+    def test_buff_application_resolves_smart_context_source_as_enemy(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ContextTarget",
+            buffSourceContextKey="smart_target",
             inheritSourceSkillCastInfo=False,
             blackboardAssignments={},
             nestedCombatActions=(),

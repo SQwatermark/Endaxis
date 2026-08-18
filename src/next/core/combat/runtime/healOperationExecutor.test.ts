@@ -93,4 +93,38 @@ describe('HealOperationExecutor', () => {
       overhealing: 100,
     });
   });
+
+  it('applies a definite blackboard amount without reading an attribute', () => {
+    const target = vitals(700);
+    const receipt = new CombatReceiptCollector();
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:healer',
+      clock: new CombatClock(),
+      receipt,
+      resolveSourceAttribute: () => {
+        throw new Error('definite healing must not read an attribute');
+      },
+      resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
+      delegate: terminal,
+    });
+
+    executor.execute(
+      {
+        kind: 'heal',
+        parameters: {
+          target: 'controlledOperator',
+          amount: { kind: 'blackboard', key: 'final_heal_value' },
+          tagIds: [-1517158118],
+        },
+      },
+      { blackboard: new ActionBlackboard({ final_heal_value: 240 }) },
+    );
+
+    expect(target.health).toBe(940);
+    expect(receipt.entries[0]?.data).toMatchObject({
+      attribute: 'definite',
+      requestedHealing: 240,
+      actualHealing: 240,
+    });
+  });
 });

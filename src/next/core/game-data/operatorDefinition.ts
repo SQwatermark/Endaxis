@@ -518,12 +518,24 @@ export interface CombatStepParameters {
   /** 按施法者四维属性计算，并写入干员生命账本的普通治疗。 */
   heal: {
     target: HealTarget;
-    attribute: OperatorAttribute;
-    multiplier: LevelValues | ActionValueOperand;
-    addition: LevelValues | ActionValueOperand;
     /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
     tagIds: readonly number[];
-  };
+  } & (
+    | {
+        /** 按施法者属性乘区与固定加区计算。 */
+        attribute: OperatorAttribute;
+        multiplier: LevelValues | ActionValueOperand;
+        addition: LevelValues | ActionValueOperand;
+        amount?: never;
+      }
+    | {
+        /** 原生 DefiniteValueCalculation：直接使用动作值，不读取施法者属性。 */
+        amount: LevelValues | ActionValueOperand;
+        attribute?: never;
+        multiplier?: never;
+        addition?: never;
+      }
+  );
   applyBuff: {
     buffId: string;
     /** 本步骤施加的完整 Buff 蓝图；运行时实例创建后不再被后续同 key 步骤改写。 */

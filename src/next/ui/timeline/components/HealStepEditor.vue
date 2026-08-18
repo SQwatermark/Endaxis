@@ -18,6 +18,7 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 
 type HealStep = Extract<CombatStepDefinition, { kind: 'heal' }>;
 type FormulaField = 'multiplier' | 'addition';
+type HealParameters = HealStep['parameters'];
 
 const props = defineProps<{ step: HealStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
@@ -25,6 +26,12 @@ const { t } = useI18n({ useScope: 'global' });
 
 function isOperand(value: unknown): value is ActionValueOperand {
   return typeof value === 'object' && value !== null && 'kind' in value;
+}
+
+function isDefinite(
+  parameters: HealParameters,
+): parameters is Extract<HealParameters, { amount: unknown }> {
+  return parameters.amount !== undefined;
 }
 
 function update(parameters: HealStep['parameters']): void {
@@ -37,11 +44,13 @@ function setTarget(event: Event): void {
 }
 
 function setAttribute(event: Event): void {
+  if (isDefinite(props.step.parameters)) return;
   const attribute = (event.target as HTMLSelectElement).value as OperatorAttribute;
   if (OPERATOR_ATTRIBUTES.includes(attribute)) update({ ...props.step.parameters, attribute });
 }
 
 function setFormulaValue(field: FormulaField, event: Event): void {
+  if (isDefinite(props.step.parameters)) return;
   const current = props.step.parameters[field];
   if (isOperand(current)) return;
   const value = Number((event.target as HTMLInputElement).value);
@@ -53,10 +62,12 @@ function setFormulaValue(field: FormulaField, event: Event): void {
 }
 
 function setFormulaOperand(field: FormulaField, value: ActionValueOperand): void {
+  if (isDefinite(props.step.parameters)) return;
   update({ ...props.step.parameters, [field]: value });
 }
 
 function setFormulaKind(field: FormulaField, event: Event): void {
+  if (isDefinite(props.step.parameters)) return;
   const kind = (event.target as HTMLSelectElement).value;
   const current = props.step.parameters[field];
   if (kind === 'blackboard') {
@@ -81,8 +92,50 @@ function setFormulaKind(field: FormulaField, event: Event): void {
 }
 
 function formulaValue(field: FormulaField): number | undefined {
+  if (isDefinite(props.step.parameters)) return undefined;
   const value = props.step.parameters[field];
   return isOperand(value) ? undefined : resolveLevelValueForEditor(value, props.skillLevel);
+}
+
+function setAmountValue(event: Event): void {
+  if (!isDefinite(props.step.parameters) || isOperand(props.step.parameters.amount)) return;
+  const value = Number((event.target as HTMLInputElement).value);
+  if (!Number.isFinite(value)) return;
+  update({
+    ...props.step.parameters,
+    amount: replaceLevelValueForEditor(props.step.parameters.amount, props.skillLevel, value),
+  });
+}
+
+function setAmountOperand(value: ActionValueOperand): void {
+  if (!isDefinite(props.step.parameters)) return;
+  update({ ...props.step.parameters, amount: value });
+}
+
+function setAmountKind(event: Event): void {
+  if (!isDefinite(props.step.parameters)) return;
+  const kind = (event.target as HTMLSelectElement).value;
+  const current = props.step.parameters.amount;
+  if (kind === 'blackboard') {
+    update({
+      ...props.step.parameters,
+      amount:
+        isOperand(current) && current.kind === 'blackboard'
+          ? current
+          : { kind: 'blackboard', key: '' },
+    });
+  } else if (kind === 'constant') {
+    update({
+      ...props.step.parameters,
+      amount: isOperand(current) ? (current.kind === 'constant' ? current.value : 0) : current,
+    });
+  }
+}
+
+function amountValue(): number | undefined {
+  if (!isDefinite(props.step.parameters) || isOperand(props.step.parameters.amount))
+    return undefined;
+  return resolveLevelValueForEditor(props.step.parameters.amount, props.skillLevel);
 }
 
 function setTagIds(event: Event): void {
@@ -118,7 +171,7 @@ const operandLabels = () => ({
         </option>
       </select>
     </label>
-    <label>
+    <label v-if="!isDefinite(step.parameters)">
       <EditorFieldLabel
         :label="t('nextTimeline.skillEditing.attribute')"
         :help="t('nextTimeline.skillEditing.fieldHelp.healAttribute')"
@@ -130,46 +183,73 @@ const operandLabels = () => ({
       </select>
     </label>
 
-    <label
-      v-for="field in ['multiplier', 'addition'] as const"
-      :key="field"
-      class="step-editor__operand"
-    >
+    <template v-if="!isDefinite(step.parameters)">
+      <label
+        v-for="field in ['multiplier', 'addition'] as const"
+        :key="field"
+        class="step-editor__operand"
+      >
+        <EditorFieldLabel
+          :label="
+            t(`nextTimeline.skillEditing.heal${field === 'multiplier' ? 'Multiplier' : 'Addition'}`)
+          "
+          :help="
+            t(
+              `nextTimeline.skillEditing.fieldHelp.heal${field === 'multiplier' ? 'Multiplier' : 'Addition'}`,
+            )
+          "
+        />
+        <div class="heal-formula-editor">
+          <select
+            :value="
+              isOperand(step.parameters[field]) && step.parameters[field].kind === 'blackboard'
+                ? 'blackboard'
+                : 'constant'
+            "
+            @change="setFormulaKind(field, $event)"
+          >
+            <option value="constant">{{ t('nextTimeline.skillEditing.operandConstant') }}</option>
+            <option value="blackboard">
+              {{ t('nextTimeline.skillEditing.operandBlackboard') }}
+            </option>
+          </select>
+          <ActionValueOperandEditor
+            v-if="isOperand(step.parameters[field])"
+            :value="step.parameters[field] as ActionValueOperand"
+            :labels="operandLabels()"
+            @update="setFormulaOperand(field, $event)"
+          />
+          <input
+            v-else
+            type="number"
+            step="0.01"
+            :value="formulaValue(field)"
+            @input="setFormulaValue(field, $event)"
+          />
+        </div>
+      </label>
+    </template>
+
+    <label v-if="isDefinite(step.parameters)" class="step-editor__operand">
       <EditorFieldLabel
-        :label="
-          t(`nextTimeline.skillEditing.heal${field === 'multiplier' ? 'Multiplier' : 'Addition'}`)
-        "
-        :help="
-          t(
-            `nextTimeline.skillEditing.fieldHelp.heal${field === 'multiplier' ? 'Multiplier' : 'Addition'}`,
-          )
-        "
+        :label="t('nextTimeline.skillEditing.healAmount')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.healAmount')"
       />
       <div class="heal-formula-editor">
         <select
-          :value="
-            isOperand(step.parameters[field]) && step.parameters[field].kind === 'blackboard'
-              ? 'blackboard'
-              : 'constant'
-          "
-          @change="setFormulaKind(field, $event)"
+          :value="isOperand(step.parameters.amount) ? step.parameters.amount.kind : 'constant'"
+          @change="setAmountKind"
         >
           <option value="constant">{{ t('nextTimeline.skillEditing.operandConstant') }}</option>
           <option value="blackboard">{{ t('nextTimeline.skillEditing.operandBlackboard') }}</option>
         </select>
         <ActionValueOperandEditor
-          v-if="isOperand(step.parameters[field])"
-          :value="step.parameters[field] as ActionValueOperand"
+          v-if="isOperand(step.parameters.amount)"
+          :value="step.parameters.amount"
           :labels="operandLabels()"
-          @update="setFormulaOperand(field, $event)"
+          @update="setAmountOperand"
         />
-        <input
-          v-else
-          type="number"
-          step="0.01"
-          :value="formulaValue(field)"
-          @input="setFormulaValue(field, $event)"
-        />
+        <input v-else type="number" step="0.01" :value="amountValue()" @input="setAmountValue" />
       </div>
     </label>
 

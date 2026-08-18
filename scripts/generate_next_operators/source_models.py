@@ -972,7 +972,8 @@ class HealPayload:
     healType: str
     healer: str
     target: "TargetReferenceSource"
-    attribute: str
+    # `None` 表示 DefiniteValueCalculation，治疗量直接取 addition。
+    attribute: str | None
     multiplier: ScalarSource
     addition: ScalarSource
     tagIds: tuple[int, ...]

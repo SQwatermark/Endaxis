@@ -57,6 +57,41 @@ describe('validateSkillDefinition', () => {
     );
   });
 
+  it('validates definite healing and rejects mixing it with an attribute formula', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'heal',
+              parameters: {
+                target: 'controlledOperator',
+                amount: { kind: 'blackboard', key: 'final_heal_value' },
+                tagIds: [-1517158118],
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(definition)).toEqual([]);
+    const parameters = (
+      definition.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters;
+    parameters.attribute = 'will';
+    expect(validateSkillDefinition(definition)).toContainEqual(
+      expect.objectContaining({
+        path: expect.stringContaining('.parameters.attribute'),
+        message: 'cannot be combined with definite amount',
+      }),
+    );
+  });
+
   it('只接受已知的敌人原生 rank，并允许原生空集合表达永不匹配', () => {
     const definition = baseSkill();
     definition.scheduledSequences = [

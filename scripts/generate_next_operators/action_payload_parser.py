@@ -428,17 +428,51 @@ def parse_heal_payload(
     if action.get("contextKey") != "":
         raise ValueError(f"{path}.contextKey: expected empty string")
     calculation = require_dict(action.get("healCalculation"), f"{path}.healCalculation")
-    if set(calculation) != {"$type", "valueSource", "attributeType", "multiplier", "addition"}:
-        raise ValueError(
-            f"{path}.healCalculation: unexpected fields {sorted(calculation)}"
+    calculation_type = action_name(str(calculation.get("$type", "")))
+    if calculation_type == "MultiplyAttributeCalculation":
+        if set(calculation) != {"$type", "valueSource", "attributeType", "multiplier", "addition"}:
+            raise ValueError(
+                f"{path}.healCalculation: unexpected fields {sorted(calculation)}"
+            )
+        if calculation.get("valueSource") != "AttackerOrHealer":
+            raise ValueError(f"{path}.healCalculation.valueSource: unsupported value")
+        attribute = calculation.get("attributeType")
+        if attribute not in {"Str", "Agi", "Wisd", "Will"}:
+            raise ValueError(
+                f"{path}.healCalculation.attributeType: unsupported value {attribute!r}"
+            )
+        multiplier = parse_scalar(
+            calculation.get("multiplier"),
+            f"{path}.healCalculation.multiplier",
+            inherited_blackboard,
         )
-    if action_name(str(calculation.get("$type", ""))) != "MultiplyAttributeCalculation":
+        addition = parse_scalar(
+            calculation.get("addition"),
+            f"{path}.healCalculation.addition",
+            inherited_blackboard,
+        )
+    elif calculation_type == "DefiniteValueCalculation":
+        if set(calculation) != {"$type", "value", "applyScale", "valueScale"}:
+            raise ValueError(
+                f"{path}.healCalculation: unexpected fields {sorted(calculation)}"
+            )
+        if calculation.get("applyScale") is not False:
+            raise ValueError(f"{path}.healCalculation.applyScale: only false is supported")
+        # 即使 scale 在该形状中禁用，也严格验证序列化标量结构，防止数据版本漂移。
+        parse_scalar(
+            calculation.get("valueScale"),
+            f"{path}.healCalculation.valueScale",
+            inherited_blackboard,
+        )
+        attribute = None
+        multiplier = ScalarSource(0, None, None)
+        addition = parse_scalar(
+            calculation.get("value"),
+            f"{path}.healCalculation.value",
+            inherited_blackboard,
+        )
+    else:
         raise ValueError(f"{path}.healCalculation: unsupported calculation type")
-    if calculation.get("valueSource") != "AttackerOrHealer":
-        raise ValueError(f"{path}.healCalculation.valueSource: unsupported value")
-    attribute = calculation.get("attributeType")
-    if attribute not in {"Str", "Agi", "Wisd", "Will"}:
-        raise ValueError(f"{path}.healCalculation.attributeType: unsupported value {attribute!r}")
     use_tags = require_bool(action.get("useHealTags"), f"{path}.useHealTags")
     tags = require_dict(action.get("healTags"), f"{path}.healTags")
     if set(tags) != {"predefinedTag"}:
@@ -461,13 +495,9 @@ def parse_heal_payload(
         healType="Normal",
         healer="ActionSource",
         target=parse_target_reference(action.get("target"), f"{path}.target"),
-        attribute=str(attribute),
-        multiplier=parse_scalar(
-            calculation.get("multiplier"), f"{path}.healCalculation.multiplier", inherited_blackboard
-        ),
-        addition=parse_scalar(
-            calculation.get("addition"), f"{path}.healCalculation.addition", inherited_blackboard
-        ),
+        attribute=None if attribute is None else str(attribute),
+        multiplier=multiplier,
+        addition=addition,
         tagIds=tuple(tag_ids) if use_tags else (),
     )
 

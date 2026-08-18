@@ -10,8 +10,8 @@
 
 - 干员：30 名。
 - 技能入口：320 个。
-- 进入严格中间层：317 个。
-- 无角色专用声明即可进入通用 DSL：288 个。
+- 进入严格中间层：318 个。
+- 无角色专用声明即可进入通用 DSL：289 个。
 - 当前整名干员完整直转：13 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：11 个。
@@ -39,9 +39,9 @@
 | Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |      9 |      5 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |     10 |      5 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
-| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     13 | 否       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     14 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
@@ -65,8 +65,8 @@
 | `conditional-leaf`         |      5 |
 | `projectile-data`          |      5 |
 | `root-action-coverage`     |      5 |
-| `buff-source-or-target`    |      4 |
 | `condition-other`          |      4 |
+| `buff-source-or-target`    |      3 |
 | `projectile-child-actions` |      2 |
 | `condition-entity-count`   |      1 |
 
@@ -257,16 +257,16 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 
 | 动作                            | 涉及技能数 |
 | ------------------------------- | ---------: |
-| `DamageAction`                  |        235 |
-| `IfElseAction`                  |        184 |
-| `ObtainCostAction`              |        165 |
-| `CreateBuffAction`              |        134 |
+| `DamageAction`                  |        236 |
+| `IfElseAction`                  |        185 |
+| `ObtainCostAction`              |        166 |
+| `CreateBuffAction`              |        135 |
 | `LaunchProjectile`              |         78 |
 | `SpawnAbilityEntity`            |         29 |
 | `FinishBuffAction`              |         23 |
 | `SpellInfliction`               |         12 |
 | `CreateTimedMarker`             |          7 |
-| `HealAction`                    |          5 |
+| `HealAction`                    |          6 |
 | `SwitchAction`                  |          5 |
 | `SetSkillCdAtOnce`              |          4 |
 | `AuraAction`                    |          3 |
