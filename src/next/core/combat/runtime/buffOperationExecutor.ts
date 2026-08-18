@@ -139,7 +139,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         sourceId:
           step.parameters.source === undefined
             ? this.dependencies.sourceId
-            : this.dependencies.resolveTarget(step.parameters.source).ownerId,
+            : this.#resolveApplicationSource(step.parameters.source, context).ownerId,
         ...(this.dependencies.sourceActionId === undefined
           ? {}
           : { sourceActionId: this.dependencies.sourceActionId }),
@@ -284,6 +284,21 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       throw new Error('party Buff application requires a collection target resolver');
     }
     return [this.dependencies.resolveTarget(target)];
+  }
+
+  #resolveApplicationSource(
+    source: NonNullable<Extract<RuntimeOperation, { kind: 'applyBuff' }>['parameters']['source']>,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): BuffOperationTarget {
+    if (source !== 'currentAbilityEntity') return this.dependencies.resolveTarget(source);
+    if (context?.currentTarget === undefined) {
+      throw new Error('currentAbilityEntity Buff source requires a current target');
+    }
+    const resolve = this.dependencies.resolveCurrentAbilityEntityTarget;
+    if (resolve === undefined) {
+      throw new Error('currentAbilityEntity Buff source is not configured');
+    }
+    return resolve(context.currentTarget);
   }
 
   end(

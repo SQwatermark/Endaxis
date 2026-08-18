@@ -782,6 +782,7 @@ describe('validateSkillDefinition', () => {
       parameters: {
         buffId: 'entity-monitor',
         target: 'currentAbilityEntity' as const,
+        source: 'currentAbilityEntity' as const,
         definition: { stackingType: 'unique' as const },
       },
     };
@@ -790,6 +791,10 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(skill)).toContainEqual({
       path: '$.scheduledSequences[0].sequence.steps[0]',
       message: 'currentAbilityEntity target requires a forEachContextTarget body',
+    });
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].sequence.steps[0]',
+      message: 'currentAbilityEntity source requires a forEachContextTarget body',
     });
 
     skill.scheduledSequences = [

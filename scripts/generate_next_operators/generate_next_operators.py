@@ -7507,6 +7507,8 @@ def compile_buff_application_values(
     source = None
     if buff_source == "InputTarget" and (root_skill_context or input_target == "enemy"):
         source = "enemy"
+    elif buff_source == "ActionOwner" and current_ability_entity_owner:
+        source = "currentAbilityEntity"
     elif buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
     target: Literal[
@@ -10185,7 +10187,7 @@ def ability_entity_child_buff_can_compile(
     if not (
         action.actionType == "CreateBuffAction"
         and action.targetSource in {"Source", "Owner", "Target"}
-        and action.buffSource == "ActionSource"
+        and action.buffSource in {"ActionSource", "ActionOwner"}
         and action.inheritSourceSkillCastInfo is not None
         and action.count is not None
         and action.count.blackboardKey is None
@@ -10196,8 +10198,7 @@ def ability_entity_child_buff_can_compile(
         return True
     if action.targetSource == "Target":
         return input_target is not None
-    definition = None if buff_definitions is None else buff_definitions.get(action.sourceId)
-    return definition is not None and definition.sourceDeathFinish is not None
+    return True
 
 
 def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> bool:
@@ -12311,18 +12312,21 @@ def compile_resolved_sequence(
             context_application_target = None
             ability_entity_collection_key = None
             if (
-                item.sourcePath == (skill.skillId,)
-                and payload.targetSource == "Context"
+                payload.targetSource == "Context"
                 and payload.targetGroupKey != "smart_target"
             ):
-                write = resolve_latest_target_group_write_at(
-                    read_frame=payload.startFrame,
-                    read_action_index=payload.actionIndex,
-                    read_action_path=(),
-                    target_group_key=payload.targetGroupKey,
-                    writes=skill.targetGroupWrites,
-                    control_flow_actions=skill.targetGroupControlFlowActions,
-                    root_skill_context=True,
+                write = (
+                    resolve_latest_target_group_write_at(
+                        read_frame=payload.startFrame,
+                        read_action_index=payload.actionIndex,
+                        read_action_path=(),
+                        target_group_key=payload.targetGroupKey,
+                        writes=skill.targetGroupWrites,
+                        control_flow_actions=skill.targetGroupControlFlowActions,
+                        root_skill_context=True,
+                    )
+                    if item.sourcePath == (skill.skillId,)
+                    else None
                 )
                 context_application_target = target_group_write_buff_application_target(write)
                 if (

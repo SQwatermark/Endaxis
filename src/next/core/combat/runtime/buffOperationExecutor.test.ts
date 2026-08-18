@@ -298,6 +298,49 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('uses the current ability entity handle as the Buff source', () => {
+    const applied: unknown[] = [];
+    const target = {
+      ownerId: 'enemy-1',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      resolveCurrentAbilityEntityTarget: () => ({ ...target, ownerId: 'abilityEntity:7' }),
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'entity-sourced-mark',
+            target: 'enemy',
+            source: 'currentAbilityEntity',
+          },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          currentTarget: { kind: 'abilityEntity', instanceId: 7 },
+        },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([expect.objectContaining({ sourceId: 'abilityEntity:7' })]);
+  });
+
   it('repeats a Buff using the runtime action-blackboard count', () => {
     const applied: unknown[] = [];
     const target = {

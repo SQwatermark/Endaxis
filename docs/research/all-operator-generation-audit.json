@@ -7,8 +7,8 @@
   },
   "summary": {
     "parsedCount": 317,
-    "compiledCount": 287,
-    "completeOperatorCount": 12,
+    "compiledCount": 288,
+    "completeOperatorCount": 13,
     "blockerKinds": {
       "projectile-child-actions": 2,
       "root-action-coverage": 5,
@@ -16,8 +16,8 @@
       "other": 6,
       "conditional-leaf": 5,
       "condition-other": 4,
-      "buff-source-or-target": 5,
-      "condition-entity-count": 1
+      "condition-entity-count": 1,
+      "buff-source-or-target": 4
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 78,
@@ -1030,11 +1030,9 @@
       "operatorName": "Camille",
       "skillCount": 12,
       "parsedCount": 12,
-      "compiledCount": 11,
-      "complete": false,
-      "blockerKinds": {
-        "buff-source-or-target": 1
-      }
+      "compiledCount": 12,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0014_aurora",
@@ -3879,9 +3877,9 @@
       "operatorName": "Camille",
       "skillId": "chr_0033_camille_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "normal_skill.schedule[0].buffApplication: unsupported Buff target 'Context'/'Camille_Bat'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,

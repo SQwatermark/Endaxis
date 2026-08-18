@@ -330,13 +330,17 @@ compiler now also accepts a named Context only when its dominating producer is
 an owner-spawned AbilityEntity query with explicit tag evidence. It then keeps
 the `ForEach` scope, folds proven positive distance upper bounds under the
 zero-distance model, and applies Context-targeted Buffs through the stable
-`currentAbilityEntity` handle. This closes Yvonne's ultimate-attack-end Buff,
-Ardelia's plunge Buff, and Camille's two combo skills. Avywenna's three lance
+`currentAbilityEntity` handle. Ability-entity-local `ActionOwner` is also
+preserved as an independent Buff source and resolved from the same runtime
+handle. This closes Yvonne's ultimate-attack-end Buff, Ardelia's plunge Buff,
+and all three previously blocked Camille skills; the battle skill now migrates
+its projectile-hit bat spawn, entity Buffs, damage and infliction as one local
+timeline, bringing Camille to 12/12 strict entries. Avywenna's three lance
 guards now pass the same proof but expose a later hit/reach projectile child
 graph; Tangtang similarly advances to a later conditional entity spawn.
-Camille's remaining battle-skill target mutation, replacement/stacking policy,
-and non-numeric entity blackboard values remain blocked until direct native
-evidence and consumers are closed.
+Replacement/stacking policy and non-numeric entity blackboard values outside
+that closed graph remain blocked until direct native evidence and consumers
+are closed.
 `maxStackingCount` is evidence only and must not be treated as a guessed
 replacement rule.
 

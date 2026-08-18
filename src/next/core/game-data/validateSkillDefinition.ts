@@ -11,6 +11,7 @@ import {
   ACTION_VALUE_CALCULATION_OPERATIONS,
   ACTION_VALUE_OPERATIONS,
   BUFF_APPLICATION_TARGETS,
+  BUFF_APPLICATION_SOURCES,
   COMBAT_CONDITION_KINDS,
   COMBAT_RESOURCES,
   COMBAT_STEP_KINDS,
@@ -56,6 +57,7 @@ const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
 const HEALTH_TARGETS_SET = new Set<string>([...COMBAT_TARGETS, ...HEAL_TARGETS]);
 const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
+const BUFF_APPLICATION_SOURCES_SET = new Set<string>(BUFF_APPLICATION_SOURCES);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
 const OPERATOR_ATTRIBUTES_SET = new Set<string>(OPERATOR_ATTRIBUTES);
@@ -1117,7 +1119,10 @@ function validateCombatStep(
         validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       }
       if (parameters.source !== undefined) {
-        requireEnum(parameters, 'source', COMBAT_TARGETS_SET, `${path}.parameters`, out);
+        requireEnum(parameters, 'source', BUFF_APPLICATION_SOURCES_SET, `${path}.parameters`, out);
+        if (parameters.source === 'currentAbilityEntity' && !currentTargetAvailable) {
+          push(out, path, 'currentAbilityEntity source requires a forEachContextTarget body');
+        }
       }
       if (parameters.blackboardAssignments !== undefined) {
         const assignments = asRecord(

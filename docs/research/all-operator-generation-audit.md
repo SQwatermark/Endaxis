@@ -11,8 +11,8 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：317 个。
-- 无角色专用声明即可进入通用 DSL：287 个。
-- 当前整名干员完整直转：12 名。
+- 无角色专用声明即可进入通用 DSL：288 个。
+- 当前整名干员完整直转：13 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：20 个。
 - 当前技能入口中已结构化的事件监听器：11 个。
 
@@ -36,7 +36,7 @@
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      9 | 否       |
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      9 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
-| Camille        | `chr_0033_camille`  |   12 |     12 |     11 | 否       |
+| Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
 | Liino          | `chr_0035_liino`    |   12 |      9 |      5 | 否       |
@@ -62,10 +62,10 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `other`                    |      6 |
-| `buff-source-or-target`    |      5 |
 | `conditional-leaf`         |      5 |
 | `projectile-data`          |      5 |
 | `root-action-coverage`     |      5 |
+| `buff-source-or-target`    |      4 |
 | `condition-other`          |      4 |
 | `projectile-child-actions` |      2 |
 | `condition-entity-count`   |      1 |

@@ -145,6 +145,10 @@ export const BUFF_APPLICATION_TARGETS = [
 /** Buff 施加允许面向单体、能力实体、全队或显式排除动作来源的队友集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
 
+export const BUFF_APPLICATION_SOURCES = [...COMBAT_TARGETS, 'currentAbilityEntity'] as const;
+/** Buff 来源允许保留能力实体 ActionOwner 的稳定身份。 */
+export type BuffApplicationSource = (typeof BUFF_APPLICATION_SOURCES)[number];
+
 export const COMPARISON_OPERATORS = [
   'equal',
   'notEqual',
@@ -531,7 +535,7 @@ export interface CombatStepParameters {
      * Buff 的来源实体；省略时沿用当前动作来源。
      * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
      */
-    source?: CombatTarget;
+    source?: BuffApplicationSource;
     /** 在施加时从当前技能动作黑板求值，并覆盖 Buff 定义黑板的同名默认值。 */
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */

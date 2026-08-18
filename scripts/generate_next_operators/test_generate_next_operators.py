@@ -8826,17 +8826,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             nestedCombatActions=(),
         )
 
-        self.assertFalse(ability_entity_child_buff_can_compile(application))
-        self.assertTrue(
-            ability_entity_child_buff_can_compile(
-                application,
-                buff_definitions={
-                    "buff.fixture": SimpleNamespace(
-                        sourceDeathFinish=SimpleNamespace(skipDieDisplay=False)
-                    )
-                },
-            )
-        )
+        self.assertTrue(ability_entity_child_buff_can_compile(application))
         source = compile_buff_application(
             application,
             "fixture",
@@ -8844,6 +8834,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_ability_entity_owner=True,
         )
         self.assertIn("target: 'currentAbilityEntity'", source)
+
+        entity_sourced = compile_buff_application(
+            replace(application, buffSource="ActionOwner"),
+            "fixture",
+            root_skill_context=False,
+            current_ability_entity_owner=True,
+        )
+        self.assertIn("source: 'currentAbilityEntity'", entity_sourced)
 
     def test_context_ability_entity_collection_buff_uses_current_entity_target(self) -> None:
         application = AuxiliaryActionSource(
