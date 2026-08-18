@@ -29,6 +29,7 @@ import { isOperatorControlledAt } from '../combat/runtime/operatorControlTimelin
 import { compareCombatNumbers } from '../combat/runtime/numericComparison';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
+import type { ScheduledExternalCombatEventInput } from '../combat/runtime/externalCombatEventRuntime';
 
 type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'>;
 
@@ -43,7 +44,7 @@ export type CombatOperatorRuntimeBindings = Pick<
 
 type EnvironmentOptionKey = Exclude<
   keyof CombatRuntimeAssemblyOptions,
-  'resources' | 'enemy' | 'operators' | 'inputs' | 'isOperatorControlled'
+  'resources' | 'enemy' | 'operators' | 'inputs' | 'externalEvents' | 'isOperatorControlled'
 >;
 
 /** 场景无法持久化、必须由应用装配层提供的战斗环境。 */
@@ -99,6 +100,43 @@ export function compileOperatorEntityBlackboardInitialValues(
     values[initializer.key] = Math.fround(value);
   }
   return values;
+}
+
+/** 把轨道引用解析为本场稳定干员实例；不为缺席轨道制造虚拟受击者。 */
+export function compileScenarioExternalEventInputs(
+  scenario: ScenarioDocument,
+): readonly ScheduledExternalCombatEventInput[] {
+  const activeOperatorIds = scenario.tracks.flatMap(track => (track === null ? [] : [track.id]));
+  return (scenario.battle.externalEventMarkers ?? [])
+    .map((marker, order) => {
+      let targetOperatorIds: readonly string[];
+      if (marker.target.scope === 'team') {
+        targetOperatorIds = activeOperatorIds;
+      } else {
+        const track = scenario.tracks[marker.target.trackIndex];
+        if (track == null) {
+          throw new Error(
+            `external event marker '${marker.id}' references empty track ${marker.target.trackIndex}`,
+          );
+        }
+        targetOperatorIds = [track.id];
+      }
+      if (targetOperatorIds.length === 0) {
+        throw new Error(`external event marker '${marker.id}' has no active operator target`);
+      }
+      return {
+        frame: marker.frame,
+        targetOperatorIds,
+        event: {
+          kind: marker.event.kind,
+          tags: [...marker.event.tags],
+          features: [...marker.event.features],
+        },
+        order,
+      };
+    })
+    .sort((left, right) => left.frame - right.frame || left.order - right.order)
+    .map(({ order: _order, ...input }) => input);
 }
 
 function bindOperatorRuntimes(
@@ -187,6 +225,7 @@ export function compileScenarioRuntimeAssembly(
     enemy: compileScenarioEnemy(scenario.enemy),
     operators,
     inputs: timeline.inputs,
+    externalEvents: compileScenarioExternalEventInputs(scenario),
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
   };

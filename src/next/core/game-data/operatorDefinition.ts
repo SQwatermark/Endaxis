@@ -816,6 +816,7 @@ export type SkillTriggerScope = 'operator' | 'team';
  * 事件身份不包含复杂筛选逻辑，额外限制应由条件树表达。
  */
 export type CombatEventTrigger =
+  | { kind: 'operatorHit' }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
       kind: 'elementalInflictionApplied';

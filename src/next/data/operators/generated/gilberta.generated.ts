@@ -5726,6 +5726,19 @@ export const gilbertaGeneratedSource = {
             "EnemyHurtAnimAction",
             "CameraImpulseAction",
             "PlaySoundAction",
+            "IfElseAction",
+            "IfElseAction",
+            "HealAction",
+            "Selector",
+            "Selector",
+            "MultiplyAttributeCalculation",
+            "FindTargetAction",
+            "Selector",
+            "Selector",
+            "IfElseAction",
+            "HealAction",
+            "Selector",
+            "MultiplyAttributeCalculation",
             "HealAction",
             "Selector",
             "Selector",
@@ -6197,6 +6210,264 @@ export const gilbertaGeneratedSource = {
               "buffIgnite": null
             }
           ]
+        },
+        {
+          "startFrame": 108,
+          "endFrame": 109,
+          "actionIndex": 48,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[7]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "GT",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "heal_const",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            },
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "explo",
+                "minimumCount": 2,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[12]",
+                "_sequenceActionData",
+                "actionData",
+                "[7]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 51,
+              "nestedCondition": {
+                "startFrame": 108,
+                "endFrame": 109,
+                "actionIndex": 51,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[7]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckHp",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "health": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "comparison": "LT",
+                      "isRatio": true,
+                      "value": {
+                        "value": 0.99,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "HealAction",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 53,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 55,
+                    "nestedCondition": {
+                      "startFrame": 108,
+                      "endFrame": 109,
+                      "actionIndex": 55,
+                      "actionPath": [
+                        "timelineActions[12]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[7]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                        "failActions",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckHp",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "health": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "CureTarget",
+                            "comparison": "LT",
+                            "isRatio": true,
+                            "value": {
+                              "value": 0.99,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[12]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 57,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[12]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 58,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ]
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "failActions": []
         }
       ],
       "inflictions": [
@@ -6697,6 +6968,8 @@ export const gilbertaGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
+        "HealAction",
+        "IfElseAction",
         "SpawnAbilityEntity",
         "SpellInfliction"
       ],
@@ -7426,7 +7699,28 @@ export const gilbertaGeneratedSource = {
                     "deckAttributeCompare": null
                   }
                 ],
-                "succeedActions": [],
+                "succeedActions": [
+                  {
+                    "actionType": "HealAction",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 53,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ],
                 "failActions": [
                   {
                     "actionType": "FindTargetAction",
@@ -7444,6 +7738,117 @@ export const gilbertaGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 54,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  },
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 55,
+                    "nestedCondition": {
+                      "startFrame": 108,
+                      "endFrame": 109,
+                      "actionIndex": 55,
+                      "actionPath": [
+                        "timelineActions[12]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[7]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                        "failActions",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckHp",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "health": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "CureTarget",
+                            "comparison": "LT",
+                            "isRatio": true,
+                            "value": {
+                              "value": 0.99,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[12]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 57,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[12]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 58,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
@@ -7571,6 +7976,19 @@ export const gilbertaGeneratedSource = {
             "DefiniteValueCalculation",
             "CameraImpulseAction",
             "PlaySoundAction",
+            "IfElseAction",
+            "IfElseAction",
+            "HealAction",
+            "Selector",
+            "Selector",
+            "MultiplyAttributeCalculation",
+            "FindTargetAction",
+            "Selector",
+            "Selector",
+            "IfElseAction",
+            "HealAction",
+            "Selector",
+            "MultiplyAttributeCalculation",
             "HealAction",
             "Selector",
             "Selector",
@@ -7779,7 +8197,266 @@ export const gilbertaGeneratedSource = {
           "sequenceIndex": 5
         }
       ],
-      "conditionalActions": [],
+      "conditionalActions": [
+        {
+          "startFrame": 48,
+          "endFrame": 50,
+          "actionIndex": 26,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[7]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "GT",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "heal_const",
+                "levelValues": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            },
+            {
+              "sourceType": "CheckEntityNum",
+              "supported": false,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "entityCount": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "minimumCount": 2,
+                "comparison": "GE",
+                "containsHittableTarget": false,
+                "excludeDeadEntity": false,
+                "storeKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "IfElseAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[7]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 29,
+              "nestedCondition": {
+                "startFrame": 48,
+                "endFrame": 50,
+                "actionIndex": 29,
+                "actionPath": [
+                  "timelineActions[5]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[7]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckHp",
+                    "supported": false,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "health": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "comparison": "LT",
+                      "isRatio": true,
+                      "value": {
+                        "value": 0.99,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "HealAction",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ],
+                "failActions": [
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 33,
+                    "nestedCondition": {
+                      "startFrame": 48,
+                      "endFrame": 50,
+                      "actionIndex": 33,
+                      "actionPath": [
+                        "timelineActions[5]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[7]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                        "failActions",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckHp",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "health": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "CureTarget",
+                            "comparison": "LT",
+                            "isRatio": true,
+                            "value": {
+                              "value": 0.99,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[5]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 35,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[5]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 36,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    },
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ]
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "failActions": []
+        }
+      ],
       "inflictions": [],
       "auxiliaryActions": [
         {
@@ -8165,6 +8842,8 @@ export const gilbertaGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
+        "HealAction",
+        "IfElseAction",
         "ObtainCostAction"
       ],
       "buffHolds": [],
@@ -8609,7 +9288,28 @@ export const gilbertaGeneratedSource = {
                     "deckAttributeCompare": null
                   }
                 ],
-                "succeedActions": [],
+                "succeedActions": [
+                  {
+                    "actionType": "HealAction",
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "serverActionIndex": 31,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  }
+                ],
                 "failActions": [
                   {
                     "actionType": "FindTargetAction",
@@ -8627,6 +9327,117 @@ export const gilbertaGeneratedSource = {
                       "[0]"
                     ],
                     "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null
+                  },
+                  {
+                    "actionType": "IfElseAction",
+                    "actionIndex": 1,
+                    "actionPath": [
+                      "timelineActions[5]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[7]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "serverActionIndex": 33,
+                    "nestedCondition": {
+                      "startFrame": 48,
+                      "endFrame": 50,
+                      "actionIndex": 33,
+                      "actionPath": [
+                        "timelineActions[5]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[7]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]",
+                        "failActions",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CheckHp",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "health": {
+                            "targetSource": "Context",
+                            "targetGroupKey": "CureTarget",
+                            "comparison": "LT",
+                            "isRatio": true,
+                            "value": {
+                              "value": 0.99,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[5]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 35,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "HealAction",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[5]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[7]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 36,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null

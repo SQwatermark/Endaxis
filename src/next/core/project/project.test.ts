@@ -183,6 +183,16 @@ describe('V2 project document', () => {
       frame: 30,
       trackIndex: 4,
     });
+    malformed.scenarios[0].battle.externalEventMarkers.push({
+      id: 'hit:invalid',
+      frame: 30,
+      target: { scope: 'operator', trackIndex: 4 },
+      event: {
+        kind: 'operatorHit',
+        tags: ['healing'],
+        features: ['airborne', 'airborne'],
+      },
+    });
     malformed.scenarios[0].editor.trackHeightWeights = [1, 1, 1];
     malformed.scenarios[0].globalConfig.modifiers.push({
       id: 'modifier:1',
@@ -212,6 +222,18 @@ describe('V2 project document', () => {
           {
             path: '$.scenarios[0].battle.controlSwitches[0].trackIndex',
             message: 'expected a track index from 0 to 3',
+          },
+          {
+            path: '$.scenarios[0].battle.externalEventMarkers[0].target.trackIndex',
+            message: 'expected a track index from 0 to 3',
+          },
+          {
+            path: '$.scenarios[0].battle.externalEventMarkers[0].event.tags[0]',
+            message: 'unknown value',
+          },
+          {
+            path: '$.scenarios[0].battle.externalEventMarkers[0].event.features[1]',
+            message: 'duplicate value',
           },
           {
             path: '$.scenarios[0].editor.trackHeightWeights',

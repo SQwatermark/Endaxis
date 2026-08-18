@@ -69,6 +69,8 @@ function eventDamageProperties(
   event: NonNullable<CombatOperationContext['event']>,
 ): { readonly tags: readonly DamageTag[]; readonly features: readonly DamageFeature[] } | null {
   switch (event.kind) {
+    case 'operatorHit':
+      return { tags: event.tags, features: event.features };
     case 'abilityDamage':
       return { tags: event.tags, features: event.features };
     case 'damageTagHit':

@@ -3,6 +3,28 @@ import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 describe('CombatSemanticEventRuntime', () => {
+  it('routes external hit facts only to the targeted operator', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    for (const ownerOperatorId of ['operator:a', 'operator:b']) {
+      runtime.register({
+        ownerOperatorId,
+        trigger: { kind: 'operatorHit' },
+        phase: 'skill',
+        handle: () => received.push(ownerOperatorId),
+      });
+    }
+
+    runtime.emit({
+      kind: 'operatorHit',
+      targetOperatorId: 'operator:b',
+      tags: ['normalAttack'],
+      features: ['crush'],
+    });
+
+    expect(received).toEqual(['operator:b']);
+  });
+
   it('distinguishes operator and team scopes while preserving registration order', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

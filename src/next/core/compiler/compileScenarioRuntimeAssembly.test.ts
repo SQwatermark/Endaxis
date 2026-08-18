@@ -208,6 +208,53 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.isOperatorControlled?.('track:1', 30)).toBe(true);
   });
 
+  it('compiles external hit markers to stable operator instances in timeline order', () => {
+    const scenario = createScenario();
+    scenario.battle.externalEventMarkers = [
+      {
+        id: 'hit:late',
+        frame: 60,
+        target: { scope: 'team' },
+        event: { kind: 'operatorHit', tags: ['ultimateSkill'], features: ['airborne'] },
+      },
+      {
+        id: 'hit:early',
+        frame: 30,
+        target: { scope: 'operator', trackIndex: 0 },
+        event: { kind: 'operatorHit', tags: [], features: [] },
+      },
+    ];
+
+    expect(compileScenarioRuntimeAssembly(scenario, options()).externalEvents).toEqual([
+      {
+        frame: 30,
+        targetOperatorIds: ['track:0'],
+        event: { kind: 'operatorHit', tags: [], features: [] },
+      },
+      {
+        frame: 60,
+        targetOperatorIds: ['track:0'],
+        event: { kind: 'operatorHit', tags: ['ultimateSkill'], features: ['airborne'] },
+      },
+    ]);
+  });
+
+  it('rejects external hit markers on empty tracks', () => {
+    const scenario = createScenario();
+    scenario.battle.externalEventMarkers = [
+      {
+        id: 'hit:empty',
+        frame: 0,
+        target: { scope: 'operator', trackIndex: 1 },
+        event: { kind: 'operatorHit', tags: [], features: [] },
+      },
+    ];
+
+    expect(() => compileScenarioRuntimeAssembly(scenario, options())).toThrow(
+      "external event marker 'hit:empty' references empty track 1",
+    );
+  });
+
   it('delivers compiled equipment contributions to the runtime operation executor', () => {
     const scenario = createScenario();
     const weapon: WeaponDefinition = {

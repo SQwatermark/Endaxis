@@ -54,6 +54,7 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
       },
       cycleBoundaries: [],
       controlSwitches: [],
+      externalEventMarkers: [],
     },
     mechanics: { selections: [] },
     globalConfig: { modifiers: [] },

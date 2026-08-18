@@ -69,6 +69,10 @@ import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import {
+  ExternalCombatEventRuntime,
+  type ScheduledExternalCombatEventInput,
+} from './externalCombatEventRuntime';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -187,6 +191,8 @@ export interface CombatRuntimeAssemblyOptions {
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
+  /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
+  readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
   /**
    * 按模拟帧查询干员是否为当前主控。仅在技能实际包含主控条件时才会调用；
    * 项目编译层必须依据控制切换时间线提供实现，装配层不会猜测初始主控。
@@ -612,7 +618,17 @@ export class CombatRuntimeAssembly {
     for (const operator of options.operators) {
       this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
     }
+    const externalEvents = new ExternalCombatEventRuntime({
+      clock: this.clock,
+      events: options.externalEvents ?? [],
+      semanticEvents: this.semanticEvents,
+      receipt: this.receipt,
+      resolveTimelineFrame: () => this.timelineClock.frame,
+    });
+    // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
+    this.simulation.add(externalEvents);
     inputRuntime.applyCurrentFrame();
+    externalEvents.applyCurrentFrame();
   }
 
   tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {

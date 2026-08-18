@@ -3,7 +3,7 @@
  * 这里只检查持久化结构和引用关系，不应调用游戏数据或执行战斗规则。
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
-import { SKILL_TYPES } from '../game-data/operatorDefinition';
+import { DAMAGE_FEATURES, DAMAGE_TAGS, SKILL_TYPES } from '../game-data/operatorDefinition';
 import { ENEMY_RANKS } from '../game-data/enemyRank';
 import {
   isObject,
@@ -20,6 +20,8 @@ import {
 const enemyEditableFields = new Set<string>(ENEMY_EDITABLE_FIELDS);
 const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIERS);
 const skillTypes = new Set<string>(SKILL_TYPES);
+const damageTags = new Set<string>(DAMAGE_TAGS);
+const damageFeatures = new Set<string>(DAMAGE_FEATURES);
 const enemyRanks = new Set<string>(ENEMY_RANKS);
 
 export function validateOperatorInstance(
@@ -231,6 +233,59 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
       });
     }
   });
+  if (value.externalEventMarkers !== undefined) {
+    validateTimedEntries(
+      value.externalEventMarkers,
+      `${path}.externalEventMarkers`,
+      (entry, entryPath) => {
+        if (!isObject(entry.target)) {
+          issues.push({ path: `${entryPath}.target`, message: 'expected an object' });
+        } else if (entry.target.scope === 'operator') {
+          if (![0, 1, 2, 3].includes(entry.target.trackIndex as number)) {
+            issues.push({
+              path: `${entryPath}.target.trackIndex`,
+              message: 'expected a track index from 0 to 3',
+            });
+          }
+        } else if (entry.target.scope !== 'team') {
+          issues.push({ path: `${entryPath}.target.scope`, message: 'unknown event target scope' });
+        }
+        if (!isObject(entry.event)) {
+          issues.push({ path: `${entryPath}.event`, message: 'expected an object' });
+          return;
+        }
+        if (entry.event.kind !== 'operatorHit') {
+          issues.push({ path: `${entryPath}.event.kind`, message: 'unknown external event kind' });
+          return;
+        }
+        for (const [field, allowed] of [
+          ['tags', damageTags],
+          ['features', damageFeatures],
+        ] as const) {
+          const values = entry.event[field];
+          if (!Array.isArray(values)) {
+            issues.push({ path: `${entryPath}.event.${field}`, message: 'expected an array' });
+            continue;
+          }
+          const seen = new Set<string>();
+          values.forEach((value, index) => {
+            if (typeof value !== 'string' || !allowed.has(value)) {
+              issues.push({
+                path: `${entryPath}.event.${field}[${index}]`,
+                message: 'unknown value',
+              });
+            } else if (seen.has(value)) {
+              issues.push({
+                path: `${entryPath}.event.${field}[${index}]`,
+                message: 'duplicate value',
+              });
+            }
+            if (typeof value === 'string') seen.add(value);
+          });
+        }
+      },
+    );
+  }
 }
 
 export function validateGlobalConfig(

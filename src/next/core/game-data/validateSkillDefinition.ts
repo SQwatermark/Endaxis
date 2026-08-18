@@ -1554,6 +1554,8 @@ function validateEventTrigger(
   const kind = requireString(record, 'kind', path, out);
   if (kind === null) return;
   switch (kind) {
+    case 'operatorHit':
+      break;
     case 'damageTagHit':
       requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);
       requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);

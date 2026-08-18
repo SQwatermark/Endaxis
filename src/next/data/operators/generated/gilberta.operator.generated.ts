@@ -564,6 +564,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
   },
   {
+    'heal_const': 0,
     'potential': 0,
     'radius': 5.2,
     'atk_scale_explosion': [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
@@ -626,6 +627,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
     ],
   },
   {
+    'heal_const': 0,
     'atk_scale': [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
     'poise': 5,
     'usp': 10,

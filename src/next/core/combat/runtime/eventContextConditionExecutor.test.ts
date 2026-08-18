@@ -62,8 +62,8 @@ describe('EventContextConditionExecutor', () => {
         {
           blackboard: new ActionBlackboard(),
           event: {
-            kind: 'damageTagHit',
-            sourceOperatorId: 'operator',
+            kind: 'operatorHit',
+            targetOperatorId: 'operator',
             tags: ['ultimateSkill'],
             features: ['airborne', 'canBreakWeakness'],
           },

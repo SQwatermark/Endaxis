@@ -7957,8 +7957,13 @@ def compile_conditional_branch_action(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    unmodeled_action_types: frozenset[str] = frozenset(),
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
+    if action.actionType in unmodeled_action_types:
+        # 只允许 manifest 逐技能显式声明、且已由 unresolvedCombatActions
+        # 反向验证存在的缺口。它仍会保留在 audit 中，不能被误报为已建模。
+        return "sequence()"
     if action.actionType in {
         "ContinuousFindTargetAction",
         "FindTargetAction",
@@ -7984,6 +7989,7 @@ def compile_conditional_branch_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
     once_actions = getattr(action, "onceActions", None)
     if once_actions is not None:
@@ -8010,6 +8016,7 @@ def compile_conditional_branch_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -8392,6 +8399,7 @@ def compile_conditional_branch(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    unmodeled_action_types: frozenset[str] = frozenset(),
 ) -> str:
     """按原始数组顺序生成一个同步 action sequence。"""
     if not actions:
@@ -8422,6 +8430,7 @@ def compile_conditional_branch(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
         ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
         if (
@@ -8499,6 +8508,7 @@ def compile_conditional_action(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    unmodeled_action_types: frozenset[str] = frozenset(),
 ) -> str:
     """把递归审计树编译为正式 `branch(condition, sequence...)` DSL。"""
     if isinstance(action, DoOnceActionSource):
@@ -8522,6 +8532,7 @@ def compile_conditional_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
         if body == "sequence()":
             return body
@@ -8556,6 +8567,7 @@ def compile_conditional_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
         body_lines = indent_source(body, 2)
         body_lines[-1] += ","
@@ -8588,6 +8600,7 @@ def compile_conditional_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
     if len(action.conditions) == 1 and is_guaranteed_non_empty_target_group_condition(
         action.conditions[0],
@@ -8616,6 +8629,7 @@ def compile_conditional_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
     if is_presentation_only_camera_condition(action):
         return "sequence()"
@@ -8623,18 +8637,6 @@ def compile_conditional_action(
         action, "projectedAbilityEntitySpawns", ()
     )
     projected_projectile_launches = getattr(action, "projectedProjectileLaunches", ())
-    condition = compile_combat_condition_group(
-        action.conditions,
-        f"{path}.conditions",
-        action,
-        target_group_writes,
-        root_skill_context,
-        input_target,
-        skill_has_output_damage,
-        ability_entity_current_target,
-        buff_ability_damage_event,
-        buff_owner_target,
-    )
     succeed = compile_conditional_branch(
         action.succeedActions,
         f"{path}.succeedActions",
@@ -8655,6 +8657,7 @@ def compile_conditional_action(
         buff_owner_target=buff_owner_target,
         current_buff_environment=current_buff_environment,
         invoked_child_context=invoked_child_context,
+        unmodeled_action_types=unmodeled_action_types,
     )
     fail = (
         compile_conditional_branch(
@@ -8677,12 +8680,25 @@ def compile_conditional_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
+            unmodeled_action_types=unmodeled_action_types,
         )
         if action.failActions
         else None
     )
     if succeed == "sequence()" and (fail is None or fail == "sequence()"):
         return "sequence()"
+    condition = compile_combat_condition_group(
+        action.conditions,
+        f"{path}.conditions",
+        action,
+        target_group_writes,
+        root_skill_context,
+        input_target,
+        skill_has_output_damage,
+        ability_entity_current_target,
+        buff_ability_damage_event,
+        buff_owner_target,
+    )
     lines = ["branch("]
     condition_lines = indent_source(condition, 2)
     condition_lines[-1] += ","
@@ -11562,6 +11578,7 @@ def compile_skill_event_listener(
     if event_listener_is_proven_noop(listener):
         return None
     event = {
+        "OnBeforeTakeDamage": {"kind": "operatorHit"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
     }.get(listener.event)
     if event is None:
@@ -11643,6 +11660,21 @@ def compile_resolved_sequence(
             f"{skill.key}.compile.unmodeledBuffIds",
         )
     )
+    unmodeled_action_types = frozenset(
+        str(value)
+        for value in require_list(
+            config.get("unmodeledActionTypes", []),
+            f"{skill.key}.compile.unmodeledActionTypes",
+        )
+    )
+    unknown_unmodeled_actions = sorted(
+        unmodeled_action_types.difference(skill.unresolvedCombatActions)
+    )
+    if unknown_unmodeled_actions:
+        raise ValueError(
+            f"{skill.key}.compile.unmodeledActionTypes: actions are not present in the "
+            f"skill audit: {unknown_unmodeled_actions}"
+        )
     damage_tags = tuple(require_list(config.get("tags", []), f"{skill.key}.compile.tags"))
     runtime_blackboard_keys = collect_runtime_blackboard_output_keys(skill)
     collapse_single_enemy_entity_branches = config.get(
@@ -11722,6 +11754,7 @@ def compile_resolved_sequence(
         allowed_actions.add("ObtainCostAction")
     if getattr(skill, "keywordActions", ()):
         allowed_actions.add("SlowAction")
+    allowed_actions.update(unmodeled_action_types)
     uncovered_actions = sorted(set(skill.unresolvedCombatActions) - allowed_actions)
     if uncovered_actions:
         raise ValueError(
@@ -11990,6 +12023,7 @@ def compile_resolved_sequence(
                 singleton_ability_entity_context_keys=frozenset(
                     singleton_ability_entity_context_keys
                 ),
+                unmodeled_action_types=unmodeled_action_types,
             )
             if compiled_condition == "sequence()":
                 continue
@@ -13212,7 +13246,7 @@ def render_operator_definition(
         ]
     )
 def render_report(
-    slug: str,
+    operator: dict[str, Any],
     skills: list[SkillSource],
     buff_definitions: tuple[BuffDefinitionSource, ...],
     passive_skills: dict[str, PassiveSkillSource] | None = None,
@@ -13220,6 +13254,11 @@ def render_report(
     buff_definition_resolution_issues: tuple[str, ...] = (),
     entity_blackboard_initializers: list[dict[str, Any]] | None = None,
 ) -> str:
+    slug = str(operator["slug"])
+    skill_configs = {
+        str(entry["key"]): require_dict(entry.get("compile", {}), f"{slug}.skills[].compile")
+        for entry in require_list(operator["skills"], f"{slug}.skills")
+    }
     passive_skills = passive_skills or {}
     passive_generation_issues = passive_generation_issues or {}
     report = {
@@ -13322,6 +13361,19 @@ def render_report(
                     serialize_audit_value(action) for action in skill.skillReplacements
                 ],
                 "unresolvedCombatActions": skill.unresolvedCombatActions,
+                **(
+                    {
+                        "unmodeledCombatActions": sorted(
+                            str(value)
+                            for value in require_list(
+                                skill_configs[skill.key]["unmodeledActionTypes"],
+                                f"{slug}.{skill.key}.compile.unmodeledActionTypes",
+                            )
+                        )
+                    }
+                    if "unmodeledActionTypes" in skill_configs[skill.key]
+                    else {}
+                ),
             }
             for skill in skills
         ],
@@ -13449,7 +13501,7 @@ def main() -> None:
         write_or_check(
             args.output / f"{slug}.audit.json",
             render_report(
-                slug,
+                operator,
                 skills,
                 buff_definitions,
                 passive_skills,

@@ -211,6 +211,27 @@ export interface ControlSwitchDocument {
   trackIndex: TrackIndex;
 }
 
+/** 外部事件的作用域同时决定时间轴表现：单干员为轨道标记，全队为全局竖线。 */
+export type ExternalEventTargetDocument =
+  { scope: 'operator'; trackIndex: TrackIndex } | { scope: 'team' };
+
+/** 当前第一种外部事实；联合类型会随取得证据的事件消费者继续扩展。 */
+export type ExternalCombatEventDocument = {
+  kind: 'operatorHit';
+  tags: import('../game-data/operatorDefinition').DamageTag[];
+  features: import('../game-data/operatorDefinition').DamageFeature[];
+};
+
+/**
+ * 用户显式声明的外部事件标记。它不代表敌方技能，也不会自行扣减生命。
+ */
+export interface ExternalEventMarkerDocument {
+  id: string;
+  frame: number;
+  target: ExternalEventTargetDocument;
+  event: ExternalCombatEventDocument;
+}
+
 /** 一次模拟的时间范围、共享资源规则与控制事件。敌人失衡规则归敌人实例所有。 */
 export interface BattleDocument {
   prepFrames: number;
@@ -228,6 +249,8 @@ export interface BattleDocument {
   };
   cycleBoundaries: CycleBoundaryDocument[];
   controlSwitches: ControlSwitchDocument[];
+  /** 旧 schema-1 文档可以省略；省略与空数组语义相同。 */
+  externalEventMarkers?: ExternalEventMarkerDocument[];
 }
 
 /**

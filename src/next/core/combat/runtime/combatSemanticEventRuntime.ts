@@ -17,6 +17,12 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 
 export type CombatSemanticEvent =
   | {
+      readonly kind: 'operatorHit';
+      readonly targetOperatorId: string;
+      readonly tags: readonly DamageTag[];
+      readonly features: readonly DamageFeature[];
+    }
+  | {
       readonly kind: 'damageTagHit';
       readonly sourceOperatorId: string;
       readonly tags: readonly DamageTag[];
@@ -106,6 +112,8 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
   const { ownerOperatorId, trigger } = registration;
   if (trigger.kind !== event.kind) return false;
   switch (trigger.kind) {
+    case 'operatorHit':
+      return event.kind === 'operatorHit' && event.targetOperatorId === ownerOperatorId;
     case 'damageTagHit':
       return (
         event.kind === 'damageTagHit' &&

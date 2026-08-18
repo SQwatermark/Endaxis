@@ -1945,6 +1945,40 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             {},
         )
 
+    def test_explicit_unmodeled_action_can_remove_an_otherwise_blocked_condition(self) -> None:
+        action = ConditionalActionSource(
+            0,
+            1,
+            0,
+            ("condition",),
+            (
+                ConditionSource(
+                    "CheckEntityNum",
+                    False,
+                    None,
+                    None,
+                    None,
+                    (),
+                    entityCount=EntityCountConditionSource(
+                        "Context", "allies", 2, "GE", False, False, ""
+                    ),
+                ),
+            ),
+            (ConditionalBranchActionSource("HealAction", 0),),
+            (),
+        )
+
+        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'HealAction'"):
+            compile_conditional_action(action, "fixture.condition")
+        self.assertEqual(
+            compile_conditional_action(
+                action,
+                "fixture.condition",
+                unmodeled_action_types=frozenset({"HealAction"}),
+            ),
+            "sequence()",
+        )
+
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
         branch = ConditionalBranchActionSource(
@@ -10736,6 +10770,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("sequence: sequence(", compiled)
         self.assertIn("key: 'kill_num'", compiled)
         self.assertIn("operation: 'add'", compiled)
+
+        hit_compiled = compile_skill_event_listener(
+            replace(
+                parse_skill_event_listeners(root, "fixture.json", {"enabled": (1,)})[0],
+                event="OnBeforeTakeDamage",
+            ),
+            "fixture.hitEventListener",
+            runtime_blackboard_keys=frozenset({"enabled", "kill_num"}),
+            step_key_prefix="fixture",
+        )
+        self.assertIn("kind: 'operatorHit'", hit_compiled)
 
     def test_skill_event_listener_preserves_event_context_condition_payloads(self) -> None:
         root = {

@@ -153,6 +153,81 @@
       ]
     },
     {
+      "slug": "ember",
+      "exportName": "emberGeneratedSource",
+      "charId": "chr_0009_azrila",
+      "outputStage": "audit",
+      "skills": [
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0009_azrila_combo_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"],
+            "unmodeledActionTypes": ["HealAction"]
+          }
+        },
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0009_azrila_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0009_azrila_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0009_azrila_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0009_azrila_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0009_azrila_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0009_azrila_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0009_azrila_normal_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0009_azrila_ultimate_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+        }
+      ]
+    },
+    {
       "slug": "zhuang-fangyi",
       "exportName": "zhuangFangyiGeneratedSource",
       "charId": "chr_0030_zhuangfy",
@@ -673,7 +748,12 @@
           "key": "battleSkill",
           "skillType": "battleSkill",
           "source": "chr_0013_aglina_normal_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"], "costResource": "sp" }
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"],
+            "costResource": "sp",
+            "unmodeledActionTypes": ["HealAction"]
+          }
         },
         {
           "key": "comboSkill",
@@ -682,7 +762,8 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["comboSkill"],
-            "usePatchCooldown": true
+            "usePatchCooldown": true,
+            "unmodeledActionTypes": ["HealAction"]
           }
         },
         {
