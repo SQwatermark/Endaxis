@@ -123,7 +123,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
@@ -229,7 +231,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line",
@@ -321,7 +325,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_precheck",
@@ -1223,7 +1229,9 @@ export const arcaneGeneratedSource = {
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -2625,7 +2633,9 @@ export const arcaneGeneratedSource = {
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal2",
@@ -3274,7 +3284,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
@@ -3839,7 +3851,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect",
@@ -3952,7 +3966,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect_again",
@@ -4119,7 +4135,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_listener",
@@ -5477,7 +5495,9 @@ export const arcaneGeneratedSource = {
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_total",
@@ -7690,7 +7710,9 @@ export const arcaneGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": true,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre",
@@ -7804,7 +7826,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_enhance",
@@ -7902,7 +7926,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_vulnerable",
@@ -8011,7 +8037,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self",
@@ -8103,7 +8131,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener",
@@ -8762,7 +8792,9 @@ export const arcaneGeneratedSource = {
           "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
@@ -9712,7 +9744,9 @@ export const arcaneGeneratedSource = {
           "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener",
@@ -9775,7 +9809,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -9850,7 +9886,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -9954,7 +9992,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_do",
@@ -10627,7 +10667,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_triggered",
@@ -11238,7 +11280,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -11307,7 +11351,9 @@ export const arcaneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     }
   ],
   "skills": [

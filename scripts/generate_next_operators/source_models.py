@@ -551,6 +551,9 @@ class BuffDefinitionSource:
     targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
     skillReplacements: tuple["BuffSkillReplacementSource", ...] = ()
     attributeModifiersConverted: bool = False
+    # Buff.OnTick(deltaTime, allScaledDeltaTime, selfScaledDeltaTime) 的原始判别字段。
+    useTimeDilationDt: bool = False
+    onlyUseSelfTimeDilation: bool = False
 
 
 @dataclass(frozen=True)

@@ -328,6 +328,10 @@ export interface GeneratedBuffDefinitionSource {
   readonly buffId: string;
   readonly sourceFile: string;
   readonly sourceAvailable: boolean;
+  /** 原生 Buff.OnTick 是否改用时间膨胀增量。 */
+  readonly useTimeDilationDt: boolean;
+  /** useTimeDilationDt 为真时，选择宿主自身而非全局时间膨胀增量。 */
+  readonly onlyUseSelfTimeDilation: boolean;
   readonly lifecycle: GeneratedBuffLifecycleSource | null;
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */

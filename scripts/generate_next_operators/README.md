@@ -136,7 +136,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
 和 Buff 闭包审计。当前基线为 13 名正式生成干员：天赋 9/26 已转换、9/26 可进入模拟编译；潜能
-54/65 已转换、54/65 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+55/65 已转换、55/65 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
@@ -147,6 +147,11 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `skillCooldownAndBlackboardPatch` 用于同一潜能同时包含原生 `ChangeSkillParam/CoolDown/Add`
 与技能黑板补丁的严格组合。冷却秒数必须能精确换算为 30fps 整数帧；多形态技能组同时生成
 稳定 `skillGroupKey` 与具体 `skillKey`，避免把只属于一个原生技能的冷却或黑板值传播到兄弟形态。
+
+`skillBlackboardPatchAndAttachedBuff` 用于同一潜能同时包含技能黑板补丁和一个无条件 AddBuff 的
+完整槽位；它要求至少一条纯 `skillBbModifier`、恰好一条纯 `attachBuff`，其他载荷立即拒绝。弧光
+潜能 5 是首个样本：战技 `count` 覆盖为 `2`，附着 Buff 的 `OnBuffStart` 通过统一内联生命周期
+编译结束施法者已有的额外次数计数 Buff。黑板补丁和初始化序列必须同时生成，不能只转换其中一半。
 
 原生 `PotentialModifyType.AddBuff` 只有在无启用条件、单一 Buff 目标、黑板赋值完整且整个 Buff
 定义可由统一运行时表达时，才允许使用 `compile: "attachedBuff"`。生成结果进入独立
@@ -231,6 +236,7 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - 技能时间轴中的 `EventListenerAction` 会作为独立的事件订阅事实保存，包含注册区间、事件名、原生动作顺序、主控/守卫限制及可解析的 Buff 创建载荷。监听器内部动作不会被提升为技能第 0 帧或注册帧上的无条件动作。`OnAddedBuff` 现由 Buff 目标在实例创建成功后向全场语义总线发布目标、Buff ID 和来源身份；技能监听器只接收自身宿主事件，`CheckBuffIdInContext(Id + HasAny)` 编译为事件 Buff ID 条件并复用同一响应动作树。固定时间轴没有“脱离战斗”状态，因此 `OnTrulyExitFight` 保留在 audit 但不注册，清理响应也不会被无条件执行。其他尚未闭环的事件继续严格阻塞。
 - BuffData 的事件序列同样保留同步条件树。目标组生产者可选择进入有序树用于同帧溯源；每条非空序列按原生规则把首个启用动作的 `priorityLevel + priorityOffset` 降为数值（`Low=-100 / Default=0 / High=100`），空启用序列按原生 `CreateSequenceAction` 的 null 结果省略。`OnBeforeTakeDamage` 中 plain `Target == Source` 只有在 Buff 承伤事件上下文内才可编译为“伤害来源等于 Buff 来源”；其他同名目标不得借用。`InterruptAction` 的完整目标、霸体上限和定身参数保留在审计层；当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，而原生动作自身恒返回成功，因此正式编译将它归约为不阻断后续序列的零效果动作，不建立伪造的敌方控制状态。其他未知状态动作仍必须显式拒绝。
 - BuffData 自身的 `timelineActions` 编译为 Buff 实例级 `scheduledSequences`，每个实例独占本地帧游标，并随 Buff 启用、停用和重启。嵌套创建的 Buff 递归内联完整定义；命名 `Context` 目标只有在创建调用明确传入目标身份，或本地此前目标组写入能够证明身份时才归约。Li Zhiyan 连携中 `seal_total` 的 owner 是诀，但其 `Context/trigger` 是连携输入敌人；第 2 帧创建的 `seal` 因而由敌人持有，随后隐藏结束子技能的输入 `Target` 也保持为该敌人。能力实体模板不参与这条所有权链。
+- BuffData 时间域按原生 `Buff.OnTick(deltaTime, allScaledDeltaTime, selfScaledDeltaTime)` 分支转换：`useTimeDilationDt=false` 使用 `default`，`true/false` 使用 `global`，`true/true` 使用 `self`；第二个字段在第一个为假时被忽略。内联定义只显式输出非默认 `timeClock`，但持续时间、周期触发和 Buff 本地事件序列共用该时钟。敌方 Buff 容器已在标准装配中取得敌人自身倍率；反编译地址、模块哈希和样本分布见 [原生 Buff 时间域](../../docs/research/native-buff-time-domain.md)。
 - 根时间轴与条件分支中的 `TimeDilationAction` 共用同一套严格解析。根动作按原生帧进入调度；分支动作保留在成功或失败序列的原始位置，只有分支实际成立时才创建时间膨胀实例，不能提升成无条件时间动作。`CharacterTeamFinder + MainCharacterValidator` 的即时搜索会保留为独立的 `controlled` 排除目标，并在动作执行帧通过场景控制时间线解析，不能静态近似为 caster；同一选择器即使序列化在 `Source` 引用上，也仍由 finder/validator 决定为主控干员，Camille 两段连携的治疗已命中该形状。Avywenna 投射物子技能中的该目标结构也已可解析。当前洛茜第三段连携与卡缪重击中的嵌套样本已经闭环。
 - `FinishBuffAdvanced(checkType=Id)` 的空 `buffIdList` 按原生 Id 遍历语义不会调用 Buff 容器。只有事件监听器的全部响应都完全由这种无条件空操作组成时，生成器才省略整个监听器；非空 Id、Tag 查询、条件、`once` 或其他动作不会借用这条规则。当前洛茜终结技的 `OnSkillEnd` 监听是唯一命中该规则的入口样本。
 - Buff 内联事件响应中的 `FinishBuffAdvanced(Owner + Id)` 以该 Buff 的实际接收者为 Owner；`Owner + Environment` 不按 ID 或 Tag 重新查询容器，而是结束正在执行响应的当前 Buff 实例。后者使用专用的 `finishCurrentBuff` 步骤，并由 Buff 实例生命周期提供回调；事件执行中自结束会同步注销订阅。其他 Environment/Context 形状不得借用这条规则。

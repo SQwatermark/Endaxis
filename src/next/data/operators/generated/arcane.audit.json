@@ -146,7 +146,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
@@ -252,7 +254,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line",
@@ -344,7 +348,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_precheck",
@@ -1246,7 +1252,9 @@
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -2648,7 +2656,9 @@
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal2",
@@ -3297,7 +3307,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
@@ -3862,7 +3874,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect",
@@ -3975,7 +3989,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect_again",
@@ -4142,7 +4158,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_listener",
@@ -5500,7 +5518,9 @@
       ],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_total",
@@ -7713,7 +7733,9 @@
           "intervalSeconds": null
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": true,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre",
@@ -7827,7 +7849,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_enhance",
@@ -7925,7 +7949,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_vulnerable",
@@ -8034,7 +8060,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self",
@@ -8126,7 +8154,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener",
@@ -8785,7 +8815,9 @@
           "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
@@ -9735,7 +9767,9 @@
           "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener",
@@ -9798,7 +9832,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -9873,7 +9909,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -9977,7 +10015,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_do",
@@ -10650,7 +10690,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_triggered",
@@ -11261,7 +11303,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -11330,7 +11374,9 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     }
   ],
   "passiveSkills": [

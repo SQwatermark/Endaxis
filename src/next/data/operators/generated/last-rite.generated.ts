@@ -159,7 +159,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_combo_skill_sound",
@@ -334,7 +336,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": true,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill",
@@ -1159,7 +1163,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_main_start",
@@ -1407,7 +1413,9 @@ export const lastRiteGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom",
@@ -1584,7 +1592,9 @@ export const lastRiteGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom_main",
@@ -1743,7 +1753,9 @@ export const lastRiteGeneratedSource = {
           "intervalSeconds": null
         }
       ],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_self",
@@ -2132,7 +2144,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
@@ -2444,7 +2458,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -2519,7 +2535,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -2623,7 +2641,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -2731,7 +2751,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -2800,7 +2822,9 @@ export const lastRiteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     }
   ],
   "skills": [

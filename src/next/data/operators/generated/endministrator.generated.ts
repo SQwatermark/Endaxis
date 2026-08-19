@@ -95,7 +95,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0003_endminf_combo_skill_tutorial_marker",
@@ -158,7 +160,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0003_endminf_potential1",
@@ -227,7 +231,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0003_endminf_potential2",
@@ -296,7 +302,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0003_endminf_potential5_trigger",
@@ -359,7 +367,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
@@ -448,7 +458,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -523,7 +535,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -627,7 +641,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -735,7 +751,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_originum_frozen",
@@ -2765,7 +2783,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -2834,7 +2854,9 @@ export const endministratorGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     }
   ],
   "skills": [

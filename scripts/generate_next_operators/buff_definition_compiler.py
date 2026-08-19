@@ -209,6 +209,11 @@ def compile_inline_buff_definition(
         raise ValueError(f"{path}: Buff {source.buffId!r} uses unsupported stack effects")
 
     fields = [f"stackingType: {ts_inline_literal(STACKING_TYPES[lifecycle.stackingType])},"]
+    if getattr(source, "useTimeDilationDt", False):
+        fields.append(
+            "timeClock: "
+            f"{ts_inline_literal('self' if getattr(source, 'onlyUseSelfTimeDilation', False) else 'global')},"
+        )
     if lifecycle.stackingIdentifierType == "StackingKey":
         fields.append(f"stackingKey: {ts_inline_literal(lifecycle.stackingKey)},")
     fields.extend(

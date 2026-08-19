@@ -3528,6 +3528,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 }
             ],
         }
+        buff["useTimeDilationDt"] = True
+        buff["onlyUseSelfTimeDilation"] = False
         buff["buffEventAction"][0]["actions"][0]["actionData"][0]["buffInput"][0][
             "buffId"
         ] = "buff.missing"
@@ -3551,6 +3553,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(definitions[1].attributeModifiers[0].value.value, 0.5)
         self.assertEqual(definitions[1].combatActions, ())
         self.assertEqual(definitions[1].unparsedPayloads, ())
+        self.assertTrue(definitions[1].useTimeDilationDt)
+        self.assertFalse(definitions[1].onlyUseSelfTimeDilation)
         self.assertEqual(len(definitions[1].auraActions), 1)
         aura = definitions[1].auraActions[0]
         self.assertEqual(aura.sourceFile, "buff.test.json")

@@ -68,7 +68,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_4",
@@ -157,7 +159,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_1",
@@ -256,7 +260,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -360,7 +366,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -471,7 +479,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -540,7 +550,9 @@ export const fluoriteGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
-      "attributeModifiersConverted": false
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
     }
   ],
   "skills": [

@@ -677,6 +677,14 @@ def resolve_buff_definitions(
                 buff.get("attributeModifier"), f"{source_file}.attributeModifier"
             ).get("isConvertedAttribute")
             is True,
+            useTimeDilationDt=require_bool(
+                buff.get("useTimeDilationDt", False),
+                f"{source_file}.useTimeDilationDt",
+            ),
+            onlyUseSelfTimeDilation=require_bool(
+                buff.get("onlyUseSelfTimeDilation", False),
+                f"{source_file}.onlyUseSelfTimeDilation",
+            ),
         )
         pending.extend(
             child_id

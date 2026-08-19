@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 from buff_definition_compiler import compile_inline_buff_definition
 from passive_skill_parser import PassiveSkillSource
@@ -155,6 +155,14 @@ class UltimateCostMultiplierResult:
 
     multiplier: int | float
     target_skill_ids: tuple[str, ...]
+
+
+def _compile_plain_buff_definition(
+    source: BuffDefinitionSource,
+    path: str,
+    _definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    return compile_inline_buff_definition(source, path)
 
 
 def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
@@ -419,10 +427,60 @@ def _render_skill_cooldown_and_blackboard_patch_modifiers(
     return "\n".join(lines)
 
 
+def _render_skill_blackboard_patch_and_attached_buff(
+    entries: list[dict[str, Any]],
+    path: str,
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ],
+) -> str:
+    """严格组合同一潜能中的技能黑板补丁与一次性附着 Buff。"""
+    blackboard_entries: list[dict[str, Any]] = []
+    attached_entries: list[tuple[int, dict[str, Any]]] = []
+    for index, entry in enumerate(entries):
+        payload_kinds = _effect_payload_kinds(entry, f"{path}[{index}]")
+        if payload_kinds == ("skillBbModifier",):
+            blackboard_entries.append(entry)
+        elif payload_kinds == ("attachBuff",):
+            attached_entries.append((index, entry))
+        else:
+            raise ValueError(
+                f"{path}[{index}]: unsupported mixed progression payload {list(payload_kinds)!r}"
+            )
+    if not blackboard_entries or len(attached_entries) != 1:
+        raise ValueError(
+            f"{path}: expected at least one blackboard patch and exactly one attached Buff"
+        )
+    attached_index, attached_entry = attached_entries[0]
+    return "\n".join(
+        [
+            _render_skill_blackboard_patch_modifiers(
+                blackboard_entries,
+                path,
+                operator,
+                skills,
+                multi_level=False,
+            ),
+            _render_attached_buff_initialization(
+                attached_entry,
+                f"{path}[{attached_index}]",
+                buff_definitions,
+                compile_buff_definition,
+            ),
+        ]
+    )
+
+
 def _render_attached_buff_initialization(
     entry: dict[str, Any],
     path: str,
     buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ] = _compile_plain_buff_definition,
 ) -> str:
     """将原生 PotentialModifyType.AddBuff 渲染为独立养成初始化序列。"""
     if _effect_payload_kinds(entry, path) != ("attachBuff",):
@@ -460,7 +518,7 @@ def _render_attached_buff_initialization(
         "      definition: {",
         *(
             "        " + line
-            for line in compile_inline_buff_definition(definition, path).splitlines()
+            for line in compile_buff_definition(definition, path, buff_definitions).splitlines()
         ),
         "      },",
         "      target: 'caster',",
@@ -1088,6 +1146,9 @@ def render_potentials(
     effects: dict[str, Any],
     passive_skills: dict[str, PassiveSkillSource] | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ] = _compile_plain_buff_definition,
 ) -> list[str]:
     passive_skills = passive_skills or {}
     buff_definitions = buff_definitions or {}
@@ -1152,6 +1213,7 @@ def render_potentials(
         if kind not in {
             "staticAttributes",
             "skillBlackboardPatch",
+            "skillBlackboardPatchAndAttachedBuff",
             "skillCooldownAndBlackboardPatch",
             "multiplyUltimateCost",
         }:
@@ -1174,6 +1236,18 @@ def render_potentials(
                 skills,
                 multi_level=False,
             )
+        elif kind == "skillBlackboardPatchAndAttachedBuff":
+            body = _render_skill_blackboard_patch_and_attached_buff(
+                [
+                    require_dict(entry, f"{effect_id}.dataList[{index}]")
+                    for index, entry in enumerate(data_list)
+                ],
+                f"PotentialTalentEffectTable.{effect_id}.dataList",
+                operator,
+                skills,
+                buff_definitions,
+                compile_buff_definition,
+            )
         elif kind == "skillCooldownAndBlackboardPatch":
             body = _render_skill_cooldown_and_blackboard_patch_modifiers(
                 [require_dict(entry, f"{effect_id}.dataList[{index}]") for index, entry in enumerate(data_list)],
@@ -1187,6 +1261,7 @@ def render_potentials(
                 data,
                 f"PotentialTalentEffectTable.{effect_id}.dataList[0]",
                 buff_definitions,
+                compile_buff_definition,
             )
         elif kind == "skillSpGainAttackStack":
             assert data is not None

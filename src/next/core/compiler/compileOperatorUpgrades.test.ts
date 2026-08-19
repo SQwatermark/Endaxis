@@ -107,13 +107,14 @@ describe('operator upgrade compilation', () => {
   });
 
   it('compiles generated talent and potential effects into operator skills', () => {
+    const arclightBuild = build({
+      operatorSlug: arclightGeneratedOperator.slug,
+      potential: 5,
+      talentStates: { 0: 2 },
+    });
     const skills = compileOperatorDefinitionSkills(
       'track:0',
-      build({
-        operatorSlug: arclightGeneratedOperator.slug,
-        potential: 4,
-        talentStates: { 0: 2 },
-      }),
+      arclightBuild,
       arclightGeneratedOperator,
     );
     const battleSkill = skills.find(skill => skill.skillGroupKey === 'battleSkill');
@@ -123,10 +124,43 @@ describe('operator upgrade compilation', () => {
       talent_1: 1,
       duration: 15,
       pulse_up: Math.fround(0.0008 * 1.3),
-      count: 3,
+      count: 2,
       atb: 50,
     });
     expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 76.5 }]);
+
+    const initialization = compileOperatorInitializationPrograms(
+      resolveActiveOperatorUpgrades(arclightBuild, arclightGeneratedOperator),
+    );
+    expect(initialization).toHaveLength(1);
+    expect(initialization[0]).toMatchObject({
+      key: 'potential:potential5',
+      sequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'buff_chr_0007_ikut_finish_count_p5',
+              definition: {
+                lifecycleSequences: {
+                  start: {
+                    steps: [
+                      {
+                        kind: 'finishBuffsById',
+                        parameters: {
+                          target: 'caster',
+                          buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    });
   });
 
   it('selects talents and potentials in stable declaration order', () => {

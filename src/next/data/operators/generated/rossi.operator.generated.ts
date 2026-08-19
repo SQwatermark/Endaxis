@@ -772,6 +772,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0028_wulfa_normal_smarttarget',
             definition: {
               stackingType: 'refresh',
+              timeClock: 'global',
               priority: 0,
               maxStackCount: 3,
               durationSeconds: { blackboardKey: 'duration' },

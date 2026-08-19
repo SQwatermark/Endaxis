@@ -912,8 +912,37 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'count',
+          operation: 'assign',
+          value: 2,
+        },
+      ],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0007_ikut_finish_count_p5',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            lifecycleSequences: {
+              start: sequence(
+                step('finishBuffsById', {
+                  target: 'caster',
+                  buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+                  reason: 'other',
+                }),
+              ),
+            },
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+        }),
+      ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

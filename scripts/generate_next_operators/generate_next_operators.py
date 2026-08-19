@@ -1412,10 +1412,38 @@ def _make_operator_definition_renderer_services() -> OperatorDefinitionRendererS
         collect_definition_helpers=collect_definition_helpers,
         parse_conversion_support=parse_conversion_support,
         render_named_skills=render_named_skills,
+        compile_progression_buff_definition=compile_progression_buff_definition,
         weapon_type_map=WEAPON_TYPE_MAP,
         element_type_map=ELEMENT_TYPE_MAP,
         profession_map=PROFESSION_MAP,
         attribute_type_map=ATTRIBUTE_TYPE_MAP,
+    )
+
+
+def compile_progression_buff_definition(
+    source: BuffDefinitionSource,
+    path: str,
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    """编译施法者养成 Buff，并复用统一的内联生命周期动作链。"""
+    has_event_sequences = any(
+        sequence.actions
+        for event in source.eventActions
+        for sequence in event.sequences
+    )
+    return compile_inline_buff_definition(
+        source,
+        path,
+        (
+            lambda event_source, event_path: compile_inline_buff_behaviors(
+                event_source,
+                event_path,
+                buff_owner_target="caster",
+                buff_definitions=buff_definitions,
+            )
+            if has_event_sequences
+            else None
+        ),
     )
 
 
@@ -2105,19 +2133,39 @@ def resolve_progression_buff_definitions(
     buff_ids: set[str] = set()
     for index, (raw_unlock, raw_config) in enumerate(zip(unlocks, configs, strict=True)):
         config = require_dict(raw_config, f"{operator['slug']}.potentials[{index}]")
-        if config.get("compile") not in {"attachedBuff", "skillSpGainAttackStack"}:
+        if config.get("compile") not in {
+            "attachedBuff",
+            "skillBlackboardPatchAndAttachedBuff",
+            "skillSpGainAttackStack",
+        }:
             continue
         unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[{index}]")
         effect_id = str(unlock["potentialEffectId"])
         effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
         entries = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-        if len(entries) != 1:
-            raise ValueError(f"{effect_id}: progression Buff compiler expects one effect entry")
-        entry = require_dict(entries[0], f"{effect_id}.dataList[0]")
-        attach = require_dict(entry.get("attachBuff"), f"{effect_id}.dataList[0].attachBuff")
+        attached_entries: list[tuple[int, dict[str, Any]]] = []
+        for entry_index, raw_entry in enumerate(entries):
+            entry = require_dict(raw_entry, f"{effect_id}.dataList[{entry_index}]")
+            attach = require_dict(
+                entry.get("attachBuff"),
+                f"{effect_id}.dataList[{entry_index}].attachBuff",
+            )
+            if attach.get("buffId"):
+                attached_entries.append((entry_index, entry))
+        if len(attached_entries) != 1:
+            raise ValueError(
+                f"{effect_id}: progression Buff compiler expects exactly one attached Buff entry"
+            )
+        entry_index, entry = attached_entries[0]
+        attach = require_dict(
+            entry.get("attachBuff"),
+            f"{effect_id}.dataList[{entry_index}].attachBuff",
+        )
         buff_id = attach.get("buffId")
         if not isinstance(buff_id, str) or not buff_id:
-            raise ValueError(f"{effect_id}.dataList[0].attachBuff.buffId: expected non-empty id")
+            raise ValueError(
+                f"{effect_id}.dataList[{entry_index}].attachBuff.buffId: expected non-empty id"
+            )
         buff_ids.add(buff_id)
     if not buff_ids:
         return ()

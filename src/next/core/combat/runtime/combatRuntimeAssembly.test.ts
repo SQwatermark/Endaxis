@@ -882,6 +882,75 @@ describe('CombatRuntimeAssembly', () => {
     ).toMatchObject({ frame: 2, data: { timelineFrame: 1 } });
   });
 
+  it('advances enemy Buff lifetime and periodic triggers with each native clock domain', () => {
+    const triggerCounts = new Map([
+      ['default', 0],
+      ['global', 0],
+      ['self', 0],
+    ]);
+    const definitions = (['default', 'global', 'self'] as const).map(timeClock => ({
+      id: `${timeClock}-clock`,
+      stackingType: 'unique' as const,
+      timeClock,
+      durationSeconds: 1 / 30,
+      triggerIntervalSeconds: 1 / 60,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      actions: {
+        trigger: () => triggerCounts.set(timeClock, triggerCounts.get(timeClock)! + 1),
+      },
+    }));
+    const enemyBuffs = new CombatBuffContainer<string>('enemy', new CombatAttributeSet<string>());
+    const enemyBuffRuntime = new BuffDefinitionOperationTarget(enemyBuffs, {
+      get: id => definitions.find(definition => definition.id === id),
+    });
+    for (const definition of definitions) {
+      enemyBuffRuntime.apply({
+        buffId: definition.id,
+        sourceId: 'operator',
+        blackboardValues: {},
+      });
+    }
+    const assembly = createAssembly(
+      [],
+      undefined,
+      undefined,
+      enemyBuffRuntime,
+      undefined,
+      undefined,
+      {
+        config: {},
+        timeManagerDeltaMode: 2,
+      },
+    );
+    assembly.timeDilation!.startGlobal({
+      durationSeconds: 1,
+      slot: 1,
+      priority: 1,
+      constantScale: 0.5,
+    });
+    assembly.timeDilation!.startEntity({
+      entityId: 'enemy',
+      durationSeconds: 1,
+      slot: 2,
+      priority: 1,
+      curve: () => 0.5,
+    });
+
+    assembly.advanceFrame();
+
+    expect(enemyBuffs.getCountById('default-clock')).toBe(0);
+    expect(enemyBuffs.getCountById('global-clock')).toBe(1);
+    expect(enemyBuffs.getCountById('self-clock')).toBe(1);
+    expect(Object.fromEntries(triggerCounts)).toEqual({ default: 2, global: 1, self: 0 });
+
+    assembly.advanceFrame();
+
+    expect(enemyBuffs.getCountById('global-clock')).toBe(0);
+    expect(enemyBuffs.getCountById('self-clock')).toBe(1);
+    expect(Object.fromEntries(triggerCounts)).toEqual({ default: 2, global: 2, self: 1 });
+  });
+
   it('installs equipment event handlers and executes their resource sequence', () => {
     const assembly = new CombatRuntimeAssembly({
       enemy: testEnemy,

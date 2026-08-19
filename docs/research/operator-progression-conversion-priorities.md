@@ -13,9 +13,14 @@
 原生参数、Next 定义、运行时状态和生成数量。
 
 正式 manifest 另按“养成槽位”而不是原始等级效果计数。当前 13 名正式生成干员共有 26 个天赋槽、
-65 个潜能槽：9/26、54/65 已完整写入 `OperatorDefinition`，且 9/26、54/65 已接入标准场景的
+65 个潜能槽：9/26、55/65 已完整写入 `OperatorDefinition`，且 9/26、55/65 已接入标准场景的
 面板、技能补丁、常驻被动或养成事件编译链。完整生成定义不再自动等同于可模拟；逐干员事实与阻塞位于
 `operators[].configuredProgression`，汇总位于 `summary.configuredProgression`。
+
+弧光潜能 5 已证明组合槽位也必须原子转换：原生战技 `count=2` 黑板覆盖与无条件附着 Buff 同属一个
+效果，后者在 `OnBuffStart` 结束已有的额外次数计数 Buff。Next 通过
+`skillBlackboardPatchAndAttachedBuff` 同时生成技能补丁和养成初始化序列；任何一侧无法编译时，整个
+潜能仍保持未转换。
 
 ## 第一优先级：终结技能量消耗乘算
 

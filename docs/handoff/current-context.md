@@ -15,7 +15,7 @@
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 分支：`feature/next`
-- 本文更新前的 HEAD：`1f7ae2f2 feat(next): audit healing and add external hit facts`；实际 HEAD 始终以 `git log` 为准。
+- 本轮开发前的 HEAD：`298ebf65 feat(next): compile operator progression effects`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -94,7 +94,7 @@ step('spawnAbilityEntity', {
 - 新增 `operator_definition_renderer.py`（约 177 行）与 `generation_pipeline.py`（约 235 行）。前者渲染正式干员定义，后者承载逐干员阶段分流、Buff 依赖闭包和文件输出；兼容入口的 `main` 只剩服务装配调用。主入口进一步降至约 7,441 行，当前最大函数为 131 行，已不存在巨型函数。
 - 伤害步骤来源 key 与执行签名分离：折叠后保留成功侧稳定 key，audit 仍保留原始双分支；不同参数、步骤或顺序的分支不会合并。
 - 全量重新生成后，正式/审计技能 TS 中直接 `sequence(sequence(...))` 从 99 处降为 0。Rossi 运行定义由上一轮 160.2 KB / 4,135 行 / 78 分支继续降到约 130.4 KiB / 3,534 行 / 58 分支。
-- 当前结构重构已达到 checkpoint：45 个 Python 模块之间共有 163 条内部依赖边，静态审计未发现循环；已提取后端均不反向导入兼容入口。仅 `audit_all_operators.py`、`audit_recursive_mechanisms.py` 两个命令行工具和 3 个兼容测试继续消费主入口再导出。`OperatorDefinitionRendererServices` 与 `GenerationPipelineServices` 合计 32 个回调均有实际调用，没有无意义接口。当前不再为行数机械拆分，下一步应形成重构 checkpoint 提交，再回到首个可闭环的真实动作缺口。
+- 当前结构重构已达到 checkpoint：45 个 Python 模块之间共有 163 条内部依赖边，静态审计未发现循环；已提取后端均不反向导入兼容入口。仅 `audit_all_operators.py`、`audit_recursive_mechanisms.py` 两个命令行工具和 3 个兼容测试继续消费主入口再导出。`OperatorDefinitionRendererServices` 与 `GenerationPipelineServices` 合计 33 个回调均有实际调用，没有无意义接口。当前不再为行数机械拆分，下一步应形成重构 checkpoint 提交，再回到首个可闭环的真实动作缺口。
 
 ### 条件减速动作
 
@@ -245,15 +245,15 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 
 - 生成 manifest 新增陈千语、洛茜、卡缪，分别生成 10、11、11 个技能并注册到默认 Next 数据仓库；正式生成定义现为 13 名，仓库显式干员入口共 15 名。三个样本都保留 `conversionSupport`，不能因“生成成功”写成整名干员完整转换。卡缪 `normal_skill_2` 原始时间轴只有语音，战斗职责是通过 `switchToBuffConfig` 路由到强化连携；它不作为空技能块注册，用户直接拖放真实的 `combo_skill_2`。
 - 陈千语技能主体 10/10 已闭环；当前缺口只有两个 `attachBuff` 天赋及潜能中的未闭环养成载荷，`skillBehavior` 不应因为玩家侧伤害免疫被误报。
-- 洛茜正式样本保留真实缺口：战技/两段连携共用的 `normal_defup` 同时含玩家侧防御修正和周期输出，不能整体按免伤无效果省略；战技条件流血、二段连携持续伤害的裸 `Target` 来源、QTE 计时监听、换槽计时、终结技流血暴伤/追加战斗形态仍未闭环。终结技 `stopenemy_elite` 的敌方实体时间膨胀也保持未建模，原因不是敌人会行动，而是敌方 Buff 可能选择宿主自身时间域。
+- 洛茜正式样本保留真实缺口：战技/两段连携共用的 `normal_defup` 同时含玩家侧防御修正和周期输出，不能整体按免伤无效果省略；战技条件流血、二段连携持续伤害的裸 `Target` 来源、QTE 计时监听、换槽计时、终结技流血暴伤/追加战斗形态仍未闭环。终结技 `stopenemy_elite` 的敌方实体时间膨胀也保持未建模；当前已排除 Buff 时间域歧义，真实阻塞是数据中的内联倍率曲线为空，不能猜造冻结倍率。
 - 卡缪正式样本保留战技能力实体的弱化/目标死亡监听链，以及终结技效果与变身换槽状态缺口；强化连携形态继续作为可人工拖出的独立技能块，原生零冷却数据不再被强行套用基础连携冷却。
 - 新增 `simulationNoEffectBuffIds`，专门记录标准玩家输出模型中已证明不可观察的行为。当前只用于施加给干员或其能力实体的公共伤害免疫 Buff：敌人无主动攻击，免疫不会改变模拟输出，因此不计入技能转换缺口。它不同于表现型 `ignoreBuffIds`，也不同于会使 `conversionSupport` 变为部分支持的 `unmodeledBuffIds`。
-- 时间域待办：原始 BuffData 的 `useTimeDilationDt`、`onlyUseSelfTimeDilation` 尚未进入生成定义。运行时已经支持 `default/global/self` Buff 时钟，敌方 Buff runtime 也会取得敌人实体的时间膨胀增量；下一步必须从原始字段和反编译证据建立严格映射，并用敌方 Buff 持续时间/周期触发回归确认。洛茜停止敌人的 Buff 自身为 `false/false`，但这不能证明敌人身上的其他 Buff 不受影响。
+- Buff 时间域已经按原生 `Buff.OnTick(deltaTime, allScaledDeltaTime, selfScaledDeltaTime)` 分支闭环：`useTimeDilationDt=false -> default`、`true/false -> global`、`true/true -> self`，第二个字段在第一个为假时不参与选择。生成器保留并校验两个原始字段，内联定义只显式输出非默认时钟；敌方装配回归同时验证了三种时钟下的持续时间和周期触发。当前 2637 份可解析 BuffData 为 2619 个默认域、18 个全局域、0 个自身域；运行时仍完整支持尚未出现的自身域。证据见 `docs/research/native-buff-time-domain.md`。
 
 ### 2026-08-19：养成转换与可模拟数量纳入审计
 
 - `audit_operator_progression.py` 现在同时读取 1.4.4 TableCfg 与正式 `operators.json`，按养成槽位而不是原始等级效果统计两层完成度：`definitionConverted` 表示严格来源效果已写入非占位 `OperatorDefinition`，`standardSimulationCompileReady` 进一步要求面板、技能补丁或常驻被动程序已有标准场景编译消费链。
-- 当前原始盘点为 30 名干员、268 个天赋/潜能等级效果；正式 manifest 为 13 名干员、26 个天赋槽、65 个潜能槽。天赋 9/26 已转换且 9/26 均可进入模拟编译；潜能 54/65 已转换且 54/65 均可进入模拟编译；尚无一名正式生成干员达到“技能主体、全部天赋、全部潜能同时完整”的整干员口径。秋栗（稳定 slug `akekuri`）潜能 1 已按原生 `OnObtainAtb + CheckObtainAtbType(Skill, Gain)` 接入：只在该干员实际通过技能增加共享技力时叠加 10 秒、每层 +10% Atk、最多 5 层并刷新的 Buff；自然回复、普攻/处决、返还技力和满技力时的零实际增量不触发。
+- 当前原始盘点为 30 名干员、268 个天赋/潜能等级效果；正式 manifest 为 13 名干员、26 个天赋槽、65 个潜能槽。天赋 9/26 已转换且 9/26 均可进入模拟编译；潜能 55/65 已转换且 55/65 均可进入模拟编译；尚无一名正式生成干员达到“技能主体、全部天赋、全部潜能同时完整”的整干员口径。秋栗（稳定 slug `akekuri`）潜能 1 已按原生 `OnObtainAtb + CheckObtainAtbType(Skill, Gain)` 接入：只在该干员实际通过技能增加共享技力时叠加 10 秒、每层 +10% Atk、最多 5 层并刷新的 Buff；自然回复、普攻/处决、返还技力和满技力时的零实际增量不触发。
 - 卡缪潜能 3 已作为首个“结构化冷却 + 多技能黑板”的组合潜能接入：原生 `CoolDown/Add -2s` 严格换算为 `comboSkill1` 的 `-60` 帧，两个连携形态的伤害与技力倍率按具体 `skillKey` 分流，不传播到兄弟形态。运行时只支持无条件整数帧冷却补丁；带条件冷却仍失败关闭。
 - 同一组合编译能力也已覆盖陈千语潜能 5（连携技 `-90` 帧并开启终结技 `potential5` 分支）与吉尔伯塔潜能 5（连携技 `-60` 帧并乘算 `atk_scale ×1.3`）；三项都有正式生成物集成测试。
 - 管理员潜能 1/2 已建立直接 `AddBuff` 的独立养成初始化入口：战斗 Buff 生命周期装配后分别给施放者安装 `buff_chr_0003_endminf_potential1/2`，供既有技能读取 `atb_return=50` 与 `ratio=0.5`。该入口与 `passiveSkills` 分离；带条件、事件、光环或未解析行为的 Buff 仍失败关闭。
@@ -263,8 +263,9 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 黎风潜能 3 的目标是天赋隐藏被动而非可释放技能，现由独立 `patchPassiveBlackboard` 在常驻被动编译后修改 `atk_up`。天赋启用时二级值从 0.0015 增至 0.002；天赋关闭时不会凭潜能伪造被动实例。吉尔伯塔、萤石、卡缪的类似来源因目标被动尚未生成，继续保持未转换。
 - 黎风天赋 1 与萤石天赋 1 的 `attachSkill` 已严格归类为 `attachedPassive`：只有隐藏被动、启动 Buff、黑板赋值及引用 Buff 定义全部成功解析时才计入完整转换。它们进入既有常驻被动启用链，不生成时间轴技能块；其余目标被动未形成完整程序的 attachSkill 天赋继续失败关闭。
 - 审计中的“可模拟”只表示定义能够进入标准场景编译，不保证某个触发条件一定会在具体时间轴发生；技能主体、Buff 闭包和敌人木桩行为边界仍须独立满足。
-- 本批最终门禁：生成器 Python 规则测试 331/331、manifest 全量生成及 `--check`、`type-check:next`、Next Vitest 179 文件 1118/1118、`git diff --check` 均通过。`tmp/` 仍为未跟踪目录，未进入生成、测试或提交范围。
-- 建议下一项先处理弧光潜能 5，但必须按一个完整槽位推进：来源同时包含战技 `count=2` 的 `skillBbModifier` 和直接附着 `buff_chr_0007_ikut_finish_count_p5`，不能只转换黑板补丁后把潜能计为完成。应先核对该 Buff 的事件触发、结束计数语义及其与战技分支的消费闭包；任一部分无法严格表达时继续保持未转换。
+- 本批最终门禁：生成器 Python 规则测试 333/333、manifest 全量生成及 `--check`、`type-check:next`、Next Vitest 179 文件 1119/1119、`git diff --check` 均通过。`tmp/` 仍为未跟踪目录，未进入生成、测试或提交范围。
+- 弧光潜能 5 已按完整槽位闭环：`skillBlackboardPatchAndAttachedBuff` 严格要求至少一项技能黑板补丁与恰好一个无条件 AddBuff，战技 `count` 覆盖为 `2`，并在养成初始化阶段安装 `buff_chr_0007_ikut_finish_count_p5`。该 Buff 的 `OnBuffStart` 通过统一内联生命周期编译为 `finishBuffsById`，只结束施法者已有的 `buff_chr_0007_ikut_normal_skill_extra_count`；来源出现额外载荷、多个附着 Buff 或未知事件时继续失败关闭。弧光现为 5/5 潜能已转换且可进入标准模拟，正式 manifest 潜能总计提升为 55/65。
+- Buff 时间域公共机制已闭环并进入洛茜正式生成物：`normal_smarttarget` 的内联定义现显式使用 `global`，敌方 Buff 的持续时间与周期触发已通过标准装配回归。洛茜 `stopenemy_elite` 仍保持未建模，但阻塞已收窄为其 Entity `TimeDilationAction` 的内联曲线没有关键帧；下一步回到洛茜 `normal_defup` 周期输出、裸 `Target` Buff 事件归因和流血相关修正，不能用时间域完成度掩盖这些独立缺口。
 
 ## 8. 恢复工作清单
 

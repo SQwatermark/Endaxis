@@ -29,6 +29,7 @@ class OperatorDefinitionRendererServices:
     collect_definition_helpers: Callable[..., Any]
     parse_conversion_support: Callable[..., Any]
     render_named_skills: Callable[..., Any]
+    compile_progression_buff_definition: Callable[..., Any]
     weapon_type_map: dict[Any, str]
     element_type_map: dict[Any, str]
     profession_map: dict[Any, str]
@@ -61,6 +62,7 @@ def render_operator_definition(
     collect_definition_helpers = services.collect_definition_helpers
     parse_conversion_support = services.parse_conversion_support
     render_named_skills = services.render_named_skills
+    compile_progression_buff_definition = services.compile_progression_buff_definition
     WEAPON_TYPE_MAP = services.weapon_type_map
     ELEMENT_TYPE_MAP = services.element_type_map
     PROFESSION_MAP = services.profession_map
@@ -108,6 +110,7 @@ def render_operator_definition(
         effects,
         passive_skills,
         definitions_by_id,
+        compile_progression_buff_definition,
     )
     trust_attribute_bonus = parse_trust_attribute_bonus(
         growth,

@@ -979,6 +979,73 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertIn("target: 'caster'", rendered[0])
         self.assertIn("'ratio': { kind: 'constant', value: 0.5 }", rendered[0])
 
+    def test_potential_can_combine_skill_blackboard_patch_and_attached_buff(self) -> None:
+        attached_entry = effect_entry(attr_type=0, value=0)
+        attached_entry["modifyType"] = 5
+        attached_entry["attachBuff"] = {
+            "buffId": "buff.reset-counter",
+            "blackboard": [],
+        }
+        blackboard_entry = skill_blackboard_entry(
+            skill_id="skill.battle",
+            blackboard_key="count",
+            value=2,
+        )
+        blackboard_entry["skillBbModifier"]["modifyType"] = 3
+        definition = SimpleNamespace(buffId="buff.reset-counter", blackboard=())
+        with patch(
+            "progression_renderer.compile_inline_buff_definition",
+            return_value=(
+                "stackingType: 'unique',\n"
+                "lifecycleSequences: { start: sequence("
+                "step('finishBuffsById', { buffIds: ['buff.counter'], target: 'caster' })"
+                ") },"
+            ),
+        ):
+            rendered = render_potentials(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "potentials": [
+                        {
+                            "key": "potential5",
+                            "compile": "skillBlackboardPatchAndAttachedBuff",
+                        }
+                    ],
+                    "skillGroups": [
+                        {"key": "battleSkill", "skillKeys": ["battleSkill"]},
+                        {"key": "ultimate", "skillKeys": ["ultimate"]},
+                    ],
+                },
+                [
+                    SimpleNamespace(key="battleSkill", skillId="skill.battle"),
+                    SimpleNamespace(key="ultimate", skillId="skill.ultimate"),
+                ],
+                {
+                    "char": {
+                        "potentialUnlockBundle": [
+                            {"level": 5, "potentialEffectId": "effect.potential5"}
+                        ]
+                    }
+                },
+                {
+                    "effect.potential5": {
+                        "dataList": [
+                            blackboard_entry,
+                            attached_entry,
+                        ]
+                    }
+                },
+                buff_definitions={"buff.reset-counter": definition},
+            )
+
+        self.assertIn("kind: 'patchSkillBlackboard'", rendered[0])
+        self.assertIn("blackboardKey: 'count'", rendered[0])
+        self.assertIn("value: 2", rendered[0])
+        self.assertIn("initializationSequence: sequence(", rendered[0])
+        self.assertIn("buffId: 'buff.reset-counter'", rendered[0])
+        self.assertIn("finishBuffsById", rendered[0])
+
     def test_skill_group_index_rejects_conflicting_group_types(self) -> None:
         growth = {
             "skillGroupMap": {

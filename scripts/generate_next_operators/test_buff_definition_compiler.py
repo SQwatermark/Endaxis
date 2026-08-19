@@ -55,6 +55,8 @@ def definition(**overrides):
         "targetGroupWrites": (),
         "skillReplacements": (),
         "unparsedPayloads": (),
+        "useTimeDilationDt": False,
+        "onlyUseSelfTimeDilation": False,
     }
     values.update(overrides)
     return SimpleNamespace(**values)
@@ -112,6 +114,29 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("stackingType: 'refresh'", result)
         self.assertIn("durationSeconds: 10", result)
         self.assertNotIn("buff.example", result)
+
+    def test_maps_native_buff_tick_flags_to_time_clock(self) -> None:
+        self.assertNotIn(
+            "timeClock",
+            compile_inline_buff_definition(
+                definition(useTimeDilationDt=False, onlyUseSelfTimeDilation=True),
+                "fixture.default",
+            ),
+        )
+        self.assertIn(
+            "timeClock: 'global'",
+            compile_inline_buff_definition(
+                definition(useTimeDilationDt=True, onlyUseSelfTimeDilation=False),
+                "fixture.global",
+            ),
+        )
+        self.assertIn(
+            "timeClock: 'self'",
+            compile_inline_buff_definition(
+                definition(useTimeDilationDt=True, onlyUseSelfTimeDilation=True),
+                "fixture.self",
+            ),
+        )
 
     def test_maps_converted_pulse_modifier_to_runtime_damage_attribute(self) -> None:
         source = definition(
