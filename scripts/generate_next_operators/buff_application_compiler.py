@@ -334,23 +334,25 @@ def compile_aura_action(
             raise ValueError(f"{path}: unsupported AirborneAction payload")
         # DamageAction is independently projected by the recursive hit parser at the same frame.
         return "step('outputAirborne', { target: 'enemy' })"
-    application_target: Literal["enemy", "party"] | None = None
+    application_target: Literal["enemy", "party", "partyExceptCaster"] | None = None
     if (
         common_fixed_area
         and target_filter.factionTarget == "Anti"
-        and aura.targetObjectType in {"Enemy", "EnemyAll"}
+        and aura.targetObjectType in {0, "Enemy", "EnemyAll"}
     ):
         application_target = "enemy"
     elif (
         common_fixed_area
         and target_filter.factionTarget == "Ally"
         and aura.targetObjectType in {0, "Character"}
-        and not aura.excludeOwner
     ):
-        application_target = "party"
+        application_target = "partyExceptCaster" if aura.excludeOwner else "party"
     if not (
         application_target is not None
-        and not aura.limitInfluenceCountPerTarget
+        and (
+            not aura.limitInfluenceCountPerTarget
+            or aura.maxInfluenceCountPerTarget == 1
+        )
         and not aura.actionInAuraTypes
         and not aura.nestedCombatActions
         and not aura.airborneOutputs
@@ -370,7 +372,9 @@ def compile_aura_action(
             root_skill_context=True,
             path=f"{path}.buffs[{index}]",
             context_application_target=(
-                "party" if application_target == "party" else None
+                application_target
+                if application_target in {"party", "partyExceptCaster"}
+                else None
             ),
             input_target=("enemy" if application_target == "enemy" else None),
             buff_definitions=buff_definitions,

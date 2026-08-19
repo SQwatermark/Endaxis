@@ -638,6 +638,7 @@ class BuffDamageModifierSource:
     damageTags: tuple[str, ...] = ()
     damageFeatureMatch: str | None = None
     damageFeatures: tuple[str, ...] = ()
+    damageTypes: tuple[str, ...] = ()
     numberComparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
     healthComparisons: tuple["HealthConditionSource", ...] = ()
 
@@ -1267,7 +1268,7 @@ class ConditionalBranchActionSource:
     projectileTriggeredSkills: tuple[ProjectileTriggeredSkillSource, ...] | None = None
     abilityEntitySpawn: AbilityEntitySpawnPayload | None = None
     abilityEntityDurationAssignment: AbilityEntityDurationAssignmentPayload | None = None
-    auraAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
+    conditionalAbilityEntityHits: tuple[AbilityEntityHitSource, ...] | None = None
     damageUnits: tuple[DamageUnitSource, ...] | None = None
     heal: HealPayload | None = None
     keywordAction: TimedKeywordActionSource | None = None

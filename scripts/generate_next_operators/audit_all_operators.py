@@ -274,7 +274,7 @@ def collect_conditional_aura_actions(
         for action in actions:
             for item in action.projectileTriggeredSkills or ():
                 result.update(collect_projectile_aura_actions(item))
-            for item in action.auraAbilityEntityHits or ():
+            for item in action.conditionalAbilityEntityHits or ():
                 result.update(collect_ability_entity_aura_actions(item))
             if action.nestedCondition is not None:
                 result.update(collect_conditional_aura_actions((action.nestedCondition,)))

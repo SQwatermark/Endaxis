@@ -83,6 +83,9 @@
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [
+            "physical"
+          ],
           "numberComparisons": [],
           "healthComparisons": []
         }

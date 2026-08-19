@@ -70,6 +70,9 @@ def compile_conditional_branch_action(
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
     aura_actions: tuple[AuraActionSource, ...] = (),
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
     *,
     services: ConditionalLeafServices,
 ) -> str:
@@ -184,6 +187,13 @@ def compile_conditional_branch_action(
     if ability_entity_spawn is not None:
         if ability_entity_spawn in projected_ability_entity_spawns:
             return "sequence()"
+        matches = tuple(
+            source
+            for action_path, source in compiled_ability_entity_spawns
+            if action_path == action.actionPath
+        )
+        if len(matches) == 1:
+            return matches[0]
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     duration_assignment = getattr(action, "abilityEntityDurationAssignment", None)
     if duration_assignment is not None:

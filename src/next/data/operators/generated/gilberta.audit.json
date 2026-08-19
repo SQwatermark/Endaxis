@@ -166,6 +166,915 @@
       "onlyUseSelfTimeDilation": false
     },
     {
+      "buffId": "buff_chr_0013_aglina_ultimate_skill",
+      "sourceFile": "buff_chr_0013_aglina_ultimate_skill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "BuffStack",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "FinalRate",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_resistance_scalar",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "final_resistance_scalar_inair",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "move_speed_scalar",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "potential2",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "spell_vulnerable_perstack",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "spell_vulnerable_rate",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [
+        1077554361
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "EffectAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "IfElseAction",
+            "IfElseAction",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction",
+            "DebugPrintAction",
+            "SlowAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "IfElseAction",
+            "SlowAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 16,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "rate": {
+                        "value": 0.0,
+                        "blackboardKey": "FinalRate",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Target",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0013_aglina_ultimate_spell_vulnerable"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "EffectAction",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "IfElseAction",
+                "IfElseAction",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction",
+                "DebugPrintAction"
+              ],
+              "combatActions": [
+                "IfElseAction",
+                "IfElseAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 16,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "rate": {
+                            "value": 0.0,
+                            "blackboardKey": "FinalRate",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "blackboardMutation": {
+                    "key": "FinalRate",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 0.25,
+                      "blackboardKey": "spell_vulnerable_rate",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "blackboardMutation": {
+                    "key": "BuffStack",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 4,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[4]"
+                  ],
+                  "serverActionIndex": 4,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 4,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[4]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffStackNumAdvanced",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "buffStack": {
+                          "targetSource": "Target",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Tag",
+                          "buffIds": [],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [
+                            1075718177
+                          ],
+                          "countType": "BuffCount",
+                          "comparison": "GT",
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "limitSkillCastId": false
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "SaveBuffStackNumAdvanced",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[4]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 6,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffStackRead": {
+                          "outputKey": "BuffStack",
+                          "targetSource": "Target",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Tag",
+                          "buffIds": [],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [
+                            1075718177
+                          ],
+                          "countType": "BuffCount",
+                          "limitSkillCastId": false
+                        }
+                      }
+                    ],
+                    "failActions": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 7,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 7,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[5]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "GT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "potential2",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[5]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 9,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 9,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[5]",
+                            "succeedActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "LE",
+                              "left": {
+                                "value": 0.0,
+                                "blackboardKey": "BuffStack",
+                                "levelValues": [
+                                  0.0
+                                ]
+                              },
+                              "right": {
+                                "value": 3.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": [],
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "ModifyDynamicBlackboard",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[5]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 11,
+                              "blackboardMutation": {
+                                "key": "BuffStack",
+                                "operation": "Add",
+                                "value": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": []
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[5]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 12,
+                        "blackboardMutation": {
+                          "key": "BuffStack",
+                          "operation": "Multiply",
+                          "value": {
+                            "value": 2.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 13,
+                  "blackboardMutation": {
+                    "key": "BuffStack",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "spell_vulnerable_perstack",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 7,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[7]"
+                  ],
+                  "serverActionIndex": 14,
+                  "blackboardMutation": {
+                    "key": "BuffStack",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 8,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[8]"
+                  ],
+                  "serverActionIndex": 15,
+                  "blackboardMutation": {
+                    "key": "FinalRate",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "BuffStack",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 9,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[9]"
+                  ],
+                  "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "rate": {
+                            "value": 0.0,
+                            "blackboardKey": "FinalRate",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SlowAction"
+              ],
+              "combatActions": [
+                "SlowAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "SlowAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 18,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "keywordAction": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 18,
+                    "kind": "slow",
+                    "source": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "duration": {
+                      "value": -1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "rate": {
+                      "value": 0.0,
+                      "blackboardKey": "move_speed_scalar",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "autoFinishByAction": true,
+                    "sequenceIndex": -1
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
+      "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
+      "sourceFile": "buff_chr_0013_aglina_ultimate_spell_vulnerable.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 12.0,
+          "blackboardKey": "2",
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
+      },
+      "blackboard": [
+        {
+          "key": "rate",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "heat",
+            "electric",
+            "cryo",
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "VulnerableAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "VulnerableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
       "buffId": "buff_common_damage_immune_ult_skill",
       "sourceFile": "buff_common_damage_immune_ult_skill.json",
       "sourceAvailable": true,

@@ -56,7 +56,9 @@ def native_condition_sequence_order(
     raise ValueError(f"{path}: condition has no native timeline sequence path")
 
 
-def collect_resolved_damage_hits(skill: SkillSource) -> tuple[ResolvedDamageHitSource, ...]:
+def collect_resolved_damage_hits(
+    skill: SkillSource,
+) -> tuple[ResolvedDamageHitSource, ...]:
     """将根技能及其引用子技能中的伤害动作投影到根技能的绝对帧。"""
     candidates: list[tuple[ResolvedDamageHitSource, str | None, int]] = []
 

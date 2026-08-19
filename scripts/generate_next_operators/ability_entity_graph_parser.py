@@ -36,7 +36,6 @@ class AbilityEntityGraphParserServices:
     """由入口注入其他动作族解析器、来源加载及兼容递归入口。"""
 
     load_projected_skill_data: Callable[..., Any]
-    contains_structured_aura: Callable[..., Any]
     numeric_declared_blackboard: Callable[..., Any]
     parse_ability_entity_finishes: Callable[..., Any]
     parse_aura_actions: Callable[..., Any]
@@ -81,7 +80,7 @@ def resolve_conditional_aura_ability_entity_children(
     *,
     services: AbilityEntityGraphParserServices,
 ) -> tuple[ConditionalActionSource, ...]:
-    """解析条件分支专属的能力实体子技能，但不把它提升为必然发生的根调度。"""
+    """解析条件分支专属能力实体子技能，但不把它提升为必然根调度。"""
 
     def resolve_branch_action(
         condition: ConditionalActionSource,
@@ -117,7 +116,7 @@ def resolve_conditional_aura_ability_entity_children(
                 for nested_action in once_actions
             )
 
-        hits = action.auraAbilityEntityHits
+        hits = action.conditionalAbilityEntityHits
         payload = action.abilityEntitySpawn
         if payload is not None and payload.skillId is not None:
             child_name = f"{payload.skillId}.json"
@@ -137,12 +136,12 @@ def resolve_conditional_aura_ability_entity_children(
                     inherited_blackboard,
                     action_order,
                 )
-            hits = (resolved_hit,) if services.contains_structured_aura(resolved_hit) else None
+            hits = (resolved_hit,)
         return replace(
             action,
             nestedCondition=nested,
             onceActions=once_actions,
-            auraAbilityEntityHits=hits,
+            conditionalAbilityEntityHits=hits,
         )
 
     return tuple(
@@ -277,7 +276,18 @@ def resolve_ability_entity_payload(
     nested = ()
     if not cycle_truncated:
         child_stack = (*stack, skill_id)
-        child_conditions = mark_projected_conditional_children(child_conditions)
+        child_conditions = mark_projected_conditional_children(
+            resolve_conditional_aura_ability_entity_children(
+                child_conditions,
+                child_name,
+                source_dir,
+                spawn_frame,
+                child_stack,
+                child_blackboard,
+                action_order,
+                services=services,
+            )
+        )
         nested = (
             *resolve_ability_entity_hits(
                 child,

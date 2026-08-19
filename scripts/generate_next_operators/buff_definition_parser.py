@@ -428,22 +428,36 @@ def parse_buff_start_vulnerability(
                 lifecycle_duration = parse_scalar(
                     buff.get("duration"), f"{source_name}.duration", blackboard
                 )
+                duration_matches_lifecycle = (
+                    duration.blackboardKey is not None
+                    and duration.blackboardKey == lifecycle_duration.blackboardKey
+                    and duration.levelValues == lifecycle_duration.levelValues
+                )
+                indefinite_during_enable = (
+                    event.get("buffEvent") == "DuringBuffEnable"
+                    and buff.get("lifeType") == "Infinity"
+                    and duration.blackboardKey is None
+                    and duration.value == -1
+                )
                 if not (
                     action.get("isEnable") is True
                     and source.targetSource == "Source"
                     and target.targetSource == "Owner"
                     and target_reference_is_plain(source)
                     and target_reference_is_plain(target)
-                    and duration.blackboardKey is not None
-                    and duration.blackboardKey == lifecycle_duration.blackboardKey
-                    and duration.levelValues == lifecycle_duration.levelValues
+                    and (duration_matches_lifecycle or indefinite_during_enable)
                     and isinstance(action.get("overrideChildBuffId"), bool)
                     and action.get("asChildBuff") is True
                     and action.get("enhancingList") == []
                     and action.get("autoFinishByAction") is False
-                    and action.get("subType") == "Physical"
+                    and action.get("subType") in {"Physical", "Spell"}
                 ):
                     continue
+                damage_types = (
+                    ("physical",)
+                    if action.get("subType") == "Physical"
+                    else ("heat", "electric", "cryo", "nature")
+                )
                 result.append(
                     BuffDamageModifierSource(
                         enabledSide="Defender",
@@ -460,6 +474,7 @@ def parse_buff_start_vulnerability(
                                 ),
                             ),
                         ),
+                        damageTypes=damage_types,
                     )
                 )
     return tuple(result)

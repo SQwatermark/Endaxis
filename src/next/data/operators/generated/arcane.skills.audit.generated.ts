@@ -1036,7 +1036,63 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         41,
         sequence(
-          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill', definition: { lifetime: { kind: 'limited', durationSeconds: 6 } }, dieWhenSourceDies: false, inheritActionBlackboard: true, overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' } }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
+              skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity',
+                      target: 'currentAbilityEntity',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+                scheduled(
+                  0,
+                  sequence(
+                    branch(
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'isWisd' },
+                        operator: 'greaterOrEqual',
+                        right: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                          target: 'enemy',
+                          inheritSourceSkillCastInfo: true,
+                          finishByAction: true,
+                          blackboardAssignments: {
+                            'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                          },
+                        }),
+                      ),
+                      sequence(
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                          target: 'enemy',
+                          inheritSourceSkillCastInfo: true,
+                          finishByAction: true,
+                          blackboardAssignments: {
+                            'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser_will' },
+                          },
+                        }),
+                      ),
+                    ),
+                  ),
+                  1800,
+                ),
+              ],
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
+            overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
+          }),
         ),
       ),
       scheduled(

@@ -279,6 +279,9 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 拖动技能时命中标记的“弹性抖动”来自展示层 `transition: all`：它把 30Hz 实际投影更新产生的 `left` 变化也套入带过冲的悬停缓动。命中相对偏移在拖动预览期间本来保持稳定，问题不在模拟时间。现在只对颜色、边框、阴影和悬停缩放做过渡，位置即时更新；浏览器计算样式确认 `transition-property` 不再包含 `left` 或 `all`，控制台无告警。
 - 命中点击面板已参照旧版重做：420px 弹窗按“上下文、结果、倍率、元素/反应”分节，结果使用大号伤害值，表格密度、次级文本和倍率强调色与旧版对齐，支持遮罩点击、关闭按钮和 Esc。入口同时修复两处身份错误：子组件发出的是 `hitId`，父级不再错存为 `stepKey`；详情回执按 `castId + hitId` 选择首次实际帧，并收集同施法同帧附着/反应，不再要求能力实体伤害的 `sourceId` 等于干员轨道。真实弧光能力实体命中显示第 92 帧、1,214.5 电磁伤害、防御倍率与电磁附着，420px 面板无溢出，新页面控制台无告警。旧版攻击构成、期望暴击和强制暴击缺少 Next 回执事实，暂不伪造。
 
+- 条件能力实体现已统一递归内联：每个 `SpawnAbilityEntity` 叶子以完整 `actionPath` 绑定自己的子 SkillData，互斥分支保持互斥，嵌套实体、伤害、Buff 与局部 Aura 都留在对应 `childSkill`，不会提升为根技能无条件调度；固定点生成位置按项目零空间模型删除。Snowshine 终结技新增严格编译，全量基线为 320/320 可解析、293/320 可编译、14 名完整直转。Tangtang 普通战技已深入到水体实体的 `CheckBuffStackNumAdvanced(limitSkillCastId=true)`，这是下一项明确边界。
+- 递归 Aura 使 Gilberta 终结技此前漏掉的能力实体范围 Buff 进入正式生成。Buff 定义闭包现在递归收集能力实体/投射物/条件分支 Aura，并在 audit 阶段逐根解析；`DuringBuffEnable` 进入标准可重启动 `lifecycleSequences.enable`，动作时长 Slow 使用 `finishByAction` 对称结束。公共 Buff 证据把 `VulnerableAction` 的 `Physical` 限定为物理，把 `Spell` 限定为 heat/electric/cryo/nature。生成器 338 项、全量生成/`--check`、类型检查和 Next 178 文件 1127 项测试通过。
+
 ## 8. 恢复工作清单
 
 1. `git status --short`，确认没有把 `tmp/` 或用户文件带入提交；

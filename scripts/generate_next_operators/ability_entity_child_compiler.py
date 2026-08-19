@@ -24,6 +24,7 @@ class AbilityEntityChildServices:
 
     compile_conditional_action_ir: Callable[..., Any]
     ability_entity_child_timeline_can_compile: Callable[..., Any]
+    compile_aura_action: Callable[..., Any]
     compile_blackboard_mutation: Callable[..., Any]
     compile_buff_application: Callable[..., Any]
     compile_buff_finish: Callable[..., Any]
@@ -50,11 +51,15 @@ def compile_ability_entity_child_skill(
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
     services: AbilityEntityChildServices,
 ) -> str:
     """Render a proven child graph in entity-local frames without a second action protocol."""
     _compile_conditional_action_ir = services.compile_conditional_action_ir
     ability_entity_child_timeline_can_compile = services.ability_entity_child_timeline_can_compile
+    compile_aura_action = services.compile_aura_action
     compile_blackboard_mutation = services.compile_blackboard_mutation
     compile_buff_application = services.compile_buff_application
     compile_buff_finish = services.compile_buff_finish
@@ -209,6 +214,39 @@ def compile_ability_entity_child_skill(
             )
         )
 
+    scoped_end_frames: dict[tuple[int, tuple[int, ...]], int] = {}
+    for aura in hit.auraActions:
+        if len(aura.actionPath) != 4:
+            continue
+        if aura.startFrame is None or aura.endFrame is None:
+            raise ValueError(f"{skill.key}.{hit.skillId}: child Aura has no timeline interval")
+        sequence_order = native_condition_sequence_order(
+            aura.actionPath,
+            hit.actionOrder,
+            hit.skillId,
+            aura.actionIndex,
+        )
+        group_key = (aura.startFrame, sequence_order)
+        existing_end = scoped_end_frames.get(group_key)
+        if existing_end is not None and existing_end != aura.endFrame:
+            raise ValueError(
+                f"{skill.key}.{hit.skillId}: child Aura sequence has conflicting end frames"
+            )
+        scoped_end_frames[group_key] = aura.endFrame
+        compiled.append(
+            (
+                aura.startFrame,
+                sequence_order,
+                (*hit.actionOrder, aura.actionIndex),
+                compile_aura_action(
+                    aura,
+                    f"{skill.key}.{hit.skillId}.auraAction",
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=(skill, config),
+                ).splitlines(),
+            )
+        )
+
     child_damage_frames = tuple(damage.frame - hit.spawnFrame for damage in child_damage_hits)
     projected_interval_frames = {
         interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
@@ -233,18 +271,28 @@ def compile_ability_entity_child_skill(
                 ),
                 step_key_prefix=skill.key,
                 ability_entity_current_target=True,
+                compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+                aura_actions=hit.auraActions,
+                invoked_child_context=(skill, config),
             )
             if source == COMPILED_EMPTY_SEQUENCE:
                 continue
+            sequence_order = native_condition_sequence_order(
+                condition.actionPath,
+                hit.actionOrder,
+                hit.skillId,
+                condition.actionIndex,
+            )
+            if any(
+                aura.actionPath[: len(condition.actionPath)] == condition.actionPath
+                and len(aura.actionPath) > len(condition.actionPath)
+                for aura in hit.auraActions
+            ):
+                scoped_end_frames[(frame, sequence_order)] = condition.endFrame
             compiled.append(
                 (
                     frame,
-                    native_condition_sequence_order(
-                        condition.actionPath,
-                        hit.actionOrder,
-                        hit.skillId,
-                        condition.actionIndex,
-                    ),
+                    sequence_order,
                     (*hit.actionOrder, condition.actionIndex),
                     [
                         line
@@ -261,7 +309,12 @@ def compile_ability_entity_child_skill(
     ordinary_render_groups: list[
         tuple[int, tuple[int, ...], int | None, list[tuple[tuple[int, ...], list[str]]]]
     ] = [
-        (frame, sequence_order, None, actions)
+        (
+            frame,
+            sequence_order,
+            scoped_end_frames.get((frame, sequence_order)),
+            actions,
+        )
         for (frame, sequence_order), actions in grouped.items()
     ]
     render_groups: list[

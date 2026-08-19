@@ -113,6 +113,7 @@ def compile_inline_buff_event_responses(
         response_lines.append("],")
         return "\n".join(response_lines)
     start_sequences: list[CompiledNode] = []
+    enable_sequences: list[CompiledNode] = []
     finish_sequences: list[CompiledNode] = []
     after_enhance_sequences: list[CompiledNode] = []
     ability_response_lines: list[str] = []
@@ -160,6 +161,9 @@ def compile_inline_buff_event_responses(
             ):
                 continue
             is_start = event.eventSource == "buff" and event.event == "OnBuffStart"
+            is_enable = (
+                event.eventSource == "buff" and event.event == "DuringBuffEnable"
+            )
             is_finish = event.eventSource == "buff" and event.event == "OnBuffFinish"
             is_after_enhance = (
                 event.eventSource == "buff" and event.event == "OnBuffAfterTryEnhanced"
@@ -183,22 +187,31 @@ def compile_inline_buff_event_responses(
                 damage_tags=tuple(damage_tags),
                 runtime_blackboard_keys=runtime_blackboard_keys,
                 target_group_writes=getattr(event, "runtimeTargetGroupWrites", ()),
+                input_target=(
+                    "enemy"
+                    if is_enable and buff_owner_target == "enemy"
+                    else None
+                ),
                 step_key_prefix=(
-                    f"{source.buffId}:start:{sequence_index}"
-                    if is_start
+                    f"{source.buffId}:enable:{sequence_index}"
+                    if is_enable
                     else (
-                        f"{source.buffId}:finish:{sequence_index}"
-                        if is_finish
+                        f"{source.buffId}:start:{sequence_index}"
+                        if is_start
                         else (
-                            f"{source.buffId}:afterEnhance:{sequence_index}"
-                            if is_after_enhance
+                            f"{source.buffId}:finish:{sequence_index}"
+                            if is_finish
                             else (
-                                f"{source.buffId}:beforeTakeDamage:{sequence_index}"
-                                if is_before_take_damage
+                                f"{source.buffId}:afterEnhance:{sequence_index}"
+                                if is_after_enhance
                                 else (
-                                    f"{source.buffId}:outputDamage:{sequence_index}"
-                                    if is_output_damage
-                                    else f"{source.buffId}:beforeCastSkill:{sequence_index}"
+                                    f"{source.buffId}:beforeTakeDamage:{sequence_index}"
+                                    if is_before_take_damage
+                                    else (
+                                        f"{source.buffId}:outputDamage:{sequence_index}"
+                                        if is_output_damage
+                                        else f"{source.buffId}:beforeCastSkill:{sequence_index}"
+                                    )
                                 )
                             )
                         )
@@ -212,6 +225,9 @@ def compile_inline_buff_event_responses(
                 current_buff_environment=True,
             )
             if compiled == COMPILED_EMPTY_SEQUENCE:
+                continue
+            if is_enable:
+                enable_sequences.append(compiled)
                 continue
             if is_start:
                 start_sequences.append(compiled)
@@ -254,7 +270,9 @@ def compile_inline_buff_event_responses(
                 ]
             )
             ability_response_count += 1
-    lifecycle_sequences = start_sequences or finish_sequences or after_enhance_sequences
+    lifecycle_sequences = (
+        enable_sequences or start_sequences or finish_sequences or after_enhance_sequences
+    )
     if lifecycle_sequences and getattr(source, "sourceDeathFinish", None) is not None:
         raise ValueError(f"{path}: unsupported mixed Buff lifecycle and source-death events")
     if not lifecycle_sequences and ability_response_count == 0:
@@ -263,6 +281,7 @@ def compile_inline_buff_event_responses(
     if lifecycle_sequences:
         lines.append("lifecycleSequences: {")
         for lifecycle_name, sequences in (
+            ("enable", enable_sequences),
             ("start", start_sequences),
             ("finish", finish_sequences),
             ("afterEnhance", after_enhance_sequences),

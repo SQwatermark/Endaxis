@@ -8,6 +8,7 @@ import type {
   CombatTarget,
   DamageFeature,
   DamageTag,
+  DamageType,
 } from '../../game-data/operatorDefinition';
 import { compareCombatNumbers } from '../runtime/numericComparison';
 import type {
@@ -42,6 +43,10 @@ export type DamageModifierExternalCondition =
       readonly kind: 'eventDamageFeaturesMatch';
       readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly features: readonly DamageFeature[];
+    }
+  | {
+      readonly kind: 'eventDamageTypesMatch';
+      readonly damageTypes: readonly DamageType[];
     }
   | {
       readonly kind: 'targetHealthCompare';

@@ -443,6 +443,7 @@ export const lastRiteGeneratedSource = {
           ],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [],
           "numberComparisons": [
             {
               "left": {

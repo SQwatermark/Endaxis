@@ -440,6 +440,7 @@
           ],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [],
           "numberComparisons": [
             {
               "left": {

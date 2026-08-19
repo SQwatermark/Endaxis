@@ -357,6 +357,10 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
                   damageModifiers: [
                     {
                       enabledSide: 'defender',
+                      condition: {
+                        kind: 'eventDamageTypesMatch',
+                        damageTypes: ['physical'],
+                      },
                       processors: [
                         {
                           kind: 'damageScale',

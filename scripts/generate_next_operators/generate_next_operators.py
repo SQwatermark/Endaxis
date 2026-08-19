@@ -383,7 +383,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "projectileTriggeredSkills",
         "abilityEntitySpawn",
         "abilityEntityDurationAssignment",
-        "auraAbilityEntityHits",
+        "conditionalAbilityEntityHits",
         "damageUnits",
         "keywordAction",
         "projectedAbilityEntitySpawns",
@@ -1275,7 +1275,6 @@ def _make_projectile_graph_parser_services() -> ProjectileGraphParserServices:
 def _make_ability_entity_graph_parser_services() -> AbilityEntityGraphParserServices:
     return AbilityEntityGraphParserServices(
         load_projected_skill_data=load_projected_skill_data,
-        contains_structured_aura=contains_structured_aura,
         numeric_declared_blackboard=numeric_declared_blackboard,
         parse_ability_entity_finishes=parse_ability_entity_finishes,
         parse_aura_actions=parse_aura_actions,
@@ -2011,6 +2010,66 @@ def resolve_buff_definitions(
     )
 
 
+def _nested_aura_buff_ids(node: Any) -> set[str]:
+    result = {
+        buff.buffId
+        for aura in getattr(node, "auraActions", ())
+        for buff in aura.buffs
+    }
+    for field in (
+        "abilityEntityHits",
+        "nestedAbilityEntityHits",
+        "projectileTriggeredSkills",
+        "nestedProjectileTriggeredSkills",
+        "conditionalAbilityEntityHits",
+    ):
+        for child in getattr(node, field, ()) or ():
+            result.update(_nested_aura_buff_ids(child))
+    for condition in getattr(node, "conditionalActions", ()):
+        result.update(_nested_aura_buff_ids(condition))
+    for field in ("succeedActions", "failActions", "onceActions"):
+        for action in getattr(node, field, ()) or ():
+            result.update(_nested_aura_buff_ids(action))
+    nested_condition = getattr(node, "nestedCondition", None)
+    if nested_condition is not None:
+        result.update(_nested_aura_buff_ids(nested_condition))
+    return result
+
+
+def _nested_buff_targets(node: Any) -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
+    for action in getattr(node, "auxiliaryActions", ()):
+        if action.actionType == "CreateBuffAction":
+            result.setdefault(action.sourceId, set()).add(action.targetSource)
+    for field in (
+        "abilityEntityHits",
+        "nestedAbilityEntityHits",
+        "projectileTriggeredSkills",
+        "nestedProjectileTriggeredSkills",
+    ):
+        for child in getattr(node, field, ()):
+            for buff_id, targets in _nested_buff_targets(child).items():
+                result.setdefault(buff_id, set()).update(targets)
+    return result
+
+
+def _operator_root_buff_ids(skills: tuple[SkillSource, ...]) -> set[str]:
+    result = {buff_id for skill in skills for buff_id in skill.referencedBuffIds}
+    for skill in skills:
+        result.update(_nested_aura_buff_ids(skill))
+    return result
+
+
+def _operator_nested_buff_targets(
+    skills: tuple[SkillSource, ...],
+) -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
+    for skill in skills:
+        for buff_id, targets in _nested_buff_targets(skill).items():
+            result.setdefault(buff_id, set()).update(targets)
+    return result
+
+
 def resolve_operator_buff_definitions(
     skills: Iterable[SkillSource],
     buff_source_dir: Path,
@@ -2018,28 +2077,10 @@ def resolve_operator_buff_definitions(
     excluded_buff_ids: Iterable[str] = (),
 ) -> tuple[BuffDefinitionSource, ...]:
     """按干员汇总技能引用，生成一份共享且去重的 Buff 定义目录。"""
-    def nested_buff_targets(node: Any) -> dict[str, set[str]]:
-        result: dict[str, set[str]] = {}
-        for action in getattr(node, "auxiliaryActions", ()):
-            if action.actionType == "CreateBuffAction":
-                result.setdefault(action.sourceId, set()).add(action.targetSource)
-        for field in (
-            "abilityEntityHits",
-            "nestedAbilityEntityHits",
-            "projectileTriggeredSkills",
-            "nestedProjectileTriggeredSkills",
-        ):
-            for child in getattr(node, field, ()):
-                for buff_id, targets in nested_buff_targets(child).items():
-                    result.setdefault(buff_id, set()).update(targets)
-        return result
 
     skills = tuple(skills)
-    root_ids = {buff_id for skill in skills for buff_id in skill.referencedBuffIds}
-    nested_targets: dict[str, set[str]] = {}
-    for skill in skills:
-        for buff_id, targets in nested_buff_targets(skill).items():
-            nested_targets.setdefault(buff_id, set()).update(targets)
+    root_ids = _operator_root_buff_ids(skills)
+    nested_targets = _operator_nested_buff_targets(skills)
     # 主目录保持精选 BuffData；完整导出回退用于公共 Buff 与尚未精选的干员 Buff。
     source_dirs = (buff_source_dir, buff_source_dir.parent / "buff-data-current")
     definitions = {
@@ -2077,14 +2118,43 @@ def resolve_operator_buff_definitions_for_stage(
     excluded_buff_ids: Iterable[str] = (),
 ) -> tuple[tuple[BuffDefinitionSource, ...], tuple[str, ...]]:
     """审计产物记录 Buff 缺口；正式产物继续对同一缺口失败关闭。"""
-    try:
-        return resolve_operator_buff_definitions(
-            skills, buff_source_dir, skill_source_dir, excluded_buff_ids
-        ), ()
-    except ValueError as error:
-        if output_stage != "audit":
-            raise
-        return (), (f"{type(error).__name__}: {error}",)
+    skills = tuple(skills)
+    if output_stage == "audit":
+        definitions: dict[str, BuffDefinitionSource] = {}
+        issues: list[str] = []
+        source_dirs = (buff_source_dir, buff_source_dir.parent / "buff-data-current")
+        for buff_id in sorted(_operator_root_buff_ids(skills)):
+            try:
+                for definition in resolve_buff_definitions(
+                    (buff_id,), source_dirs, skill_source_dir, excluded_buff_ids
+                ):
+                    definitions[definition.buffId] = definition
+            except ValueError as error:
+                issues.append(f"ValueError: {error}")
+        nested_targets = _operator_nested_buff_targets(skills)
+        for buff_id in sorted(
+            buff_id
+            for buff_id, targets in nested_targets.items()
+            if "Owner" in targets and buff_id not in definitions
+        ):
+            try:
+                resolved = resolve_buff_definitions(
+                    (buff_id,), source_dirs, skill_source_dir, excluded_buff_ids
+                )
+                definition = next(
+                    (item for item in resolved if item.buffId == buff_id), None
+                )
+                if definition is not None and definition.sourceDeathFinish is not None:
+                    definitions[buff_id] = definition
+            except ValueError as error:
+                issues.append(f"ValueError: {error}")
+        return (
+            tuple(definitions[buff_id] for buff_id in sorted(definitions)),
+            tuple(issues),
+        )
+    return resolve_operator_buff_definitions(
+        skills, buff_source_dir, skill_source_dir, excluded_buff_ids
+    ), ()
 
 
 def resolve_passive_buff_definitions(
@@ -3924,8 +3994,6 @@ def compile_keyword_action(
     """把关键词动作投影为现有 Buff 步骤；移动效果不属于定点战斗模型。"""
     if action.kind != "slow":
         raise ValueError(f"{path}: unsupported keyword action {action.kind!r}")
-    if action.autoFinishByAction:
-        raise ValueError(f"{path}: keyword Buff lifetime tied to its action is not supported")
     source = resolve_fixed_combat_target(
         action.source.targetSource,
         action.source.targetGroupKey,
@@ -3965,6 +4033,7 @@ def compile_keyword_action(
             "  },",
             "  target: 'enemy',",
             "  inheritSourceSkillCastInfo: true,",
+            *(["  finishByAction: true,"] if action.autoFinishByAction else []),
             "  blackboardAssignments: {",
             f"    rate: {rate},",
             f"    duration: {duration},",
@@ -4449,6 +4518,9 @@ def compile_conditional_branch_action(
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
     aura_actions: tuple[AuraActionSource, ...] = (),
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
 ) -> str:
     """兼容既有调用方的条件分支叶子编译入口。"""
 
@@ -4474,6 +4546,7 @@ def compile_conditional_branch_action(
         invoked_child_context,
         unmodeled_action_types,
         aura_actions,
+        compiled_ability_entity_spawns,
         services=_make_conditional_leaf_services(),
     )
 
@@ -4647,6 +4720,7 @@ def _compile_conditional_leaf_with_context(
         invoked_child_context=context.invoked_child_context,
         unmodeled_action_types=context.unmodeled_action_types,
         aura_actions=context.aura_actions,
+        compiled_ability_entity_spawns=context.compiled_ability_entity_spawns,
     )
 
 
@@ -4749,6 +4823,9 @@ def _compile_conditional_action_ir(
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
     aura_actions: tuple[AuraActionSource, ...] = (),
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
 ) -> CompiledNode:
     """把既有宽参数入口适配到独立条件编译模块。"""
 
@@ -4775,6 +4852,7 @@ def _compile_conditional_action_ir(
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
             aura_actions=aura_actions,
+            compiled_ability_entity_spawns=compiled_ability_entity_spawns,
         ),
     )
 
@@ -4798,6 +4876,9 @@ def compile_conditional_action(
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
 ) -> str:
     """兼容既有调用方的条件控制流 TypeScript 渲染边界。"""
 
@@ -4821,6 +4902,7 @@ def compile_conditional_action(
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
+            compiled_ability_entity_spawns=compiled_ability_entity_spawns,
         )
     )
 
@@ -5401,7 +5483,7 @@ def logical_ability_entity_spawn_payload_for_compile(
     hit: AbilityEntityHitSource,
     skill: SkillSource,
 ) -> AbilityEntitySpawnPayload | None:
-    """在零空间模型中把纯位置 Context 从无战斗子实体的生成目标中删除。"""
+    """在零空间模型中删除由同帧固定点查找产生的纯位置 Context。"""
     payload = getattr(hit, "spawnPayload", None)
     if payload is None:
         return None
@@ -5409,8 +5491,7 @@ def logical_ability_entity_spawn_payload_for_compile(
         return payload
     target = payload.target
     if not (
-        ability_entity_child_is_gameplay_inert(hit)
-        and target is not None
+        target is not None
         and target.targetSource == "Context"
         and target.targetGroupKey
         and target_reference_has_plain_selector(target)
@@ -5689,6 +5770,7 @@ def timeline_jump_can_compile(
 def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource) -> bool:
     """核对能力实体子图中的原生战斗动作均有对应的共享编译路径。"""
     allowed = {
+        "AuraAction",
         "CreateBuffAction",
         "CreateTimedMarker",
         "DamageAction",
@@ -5698,6 +5780,7 @@ def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource)
         "JumpToAction",
         "ObtainCostAction",
         "SpellInfliction",
+        "SpawnAbilityEntity",
     }
     conditional_actions = getattr(hit, "conditionalActions", ())
     if conditional_actions:
@@ -5726,6 +5809,7 @@ def ability_entity_child_timeline_can_compile(
             or getattr(hit, "inflictions", ())
             or getattr(hit, "conditionalActions", ())
             or getattr(hit, "auxiliaryActions", ())
+            or getattr(hit, "auraActions", ())
         )
         and all(
             ability_entity_child_buff_can_compile(
@@ -5758,7 +5842,6 @@ def ability_entity_child_timeline_can_compile(
             and finish.buffCheckType in {"Id", "Tag"}
             for finish in getattr(hit, "buffFinishes", ())
         )
-        and not getattr(hit, "auraActions", ())
         and not getattr(hit, "keywordActions", ())
         and ability_entity_child_combat_actions_can_compile(hit)
     )
@@ -5866,6 +5949,7 @@ def _make_ability_entity_child_services() -> AbilityEntityChildServices:
     return AbilityEntityChildServices(
         compile_conditional_action_ir=_compile_conditional_action_ir,
         ability_entity_child_timeline_can_compile=ability_entity_child_timeline_can_compile,
+        compile_aura_action=compile_aura_action,
         compile_blackboard_mutation=compile_blackboard_mutation,
         compile_buff_application=compile_buff_application,
         compile_buff_finish=compile_buff_finish,
@@ -5893,6 +5977,9 @@ def compile_ability_entity_child_skill(
     ignored_buff_ids: frozenset[str] = frozenset(),
     unmodeled_buff_ids: frozenset[str] = frozenset(),
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = (),
 ) -> str:
     """兼容既有调用方的能力实体子技能编译入口。"""
 
@@ -5907,6 +5994,7 @@ def compile_ability_entity_child_skill(
         ignored_buff_ids=ignored_buff_ids,
         unmodeled_buff_ids=unmodeled_buff_ids,
         buff_definitions=buff_definitions,
+        compiled_ability_entity_spawns=compiled_ability_entity_spawns,
         services=_make_ability_entity_child_services(),
     )
 

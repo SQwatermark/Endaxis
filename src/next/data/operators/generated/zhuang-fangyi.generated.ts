@@ -6556,7 +6556,363 @@ export const zhuangFangyiGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 15,
+                  "actionOrder": [
+                    13,
+                    2
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                  "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                  "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                    "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 1,
+                      "actionIndex": 2,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.04,
+                              0.04,
+                              0.04,
+                              0.05,
+                              0.05,
+                              0.05,
+                              0.06,
+                              0.06,
+                              0.06,
+                              0.07,
+                              0.07,
+                              0.08
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 2
+                    }
+                  ],
+                  "intervalDamageHits": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 8,
+                      "intervalSeconds": 0.1,
+                      "tickFrames": [
+                        9,
+                        11,
+                        14
+                      ],
+                      "damageActionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.04,
+                              0.04,
+                              0.04,
+                              0.05,
+                              0.05,
+                              0.05,
+                              0.06,
+                              0.06,
+                              0.06,
+                              0.07,
+                              0.07,
+                              0.08
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "sequenceIndex": 6
+                    }
+                  ],
+                  "explicitFinishes": [
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 30,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 7
+                    }
+                  ],
+                  "timelineJumps": [],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 10,
+                      "actionPath": [
+                        "timelineActions[6]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "actionOnTick",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "Probablity",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.04,
+                                  0.04,
+                                  0.04,
+                                  0.05,
+                                  0.05,
+                                  0.05,
+                                  0.06,
+                                  0.06,
+                                  0.06,
+                                  0.07,
+                                  0.07,
+                                  0.08
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 20,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 23,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.04,
+                                  0.04,
+                                  0.04,
+                                  0.05,
+                                  0.05,
+                                  0.05,
+                                  0.06,
+                                  0.06,
+                                  0.06,
+                                  0.07,
+                                  0.07,
+                                  0.08
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 29,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "executionFrames": [
+                        9,
+                        11,
+                        14
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale",
+                      "value": 0.2,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "thunderPosIndex",
+                      "value": 0.0,
+                      "isDynamic": true
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "failActions": [
@@ -6588,7 +6944,363 @@ export const zhuangFangyiGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 15,
+                  "actionOrder": [
+                    13,
+                    2
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                  "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                  "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                    "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 1,
+                      "actionIndex": 2,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.04,
+                              0.04,
+                              0.04,
+                              0.05,
+                              0.05,
+                              0.05,
+                              0.06,
+                              0.06,
+                              0.06,
+                              0.07,
+                              0.07,
+                              0.08
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 2
+                    }
+                  ],
+                  "intervalDamageHits": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 8,
+                      "intervalSeconds": 0.1,
+                      "tickFrames": [
+                        9,
+                        11,
+                        14
+                      ],
+                      "damageActionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.04,
+                              0.04,
+                              0.04,
+                              0.05,
+                              0.05,
+                              0.05,
+                              0.06,
+                              0.06,
+                              0.06,
+                              0.07,
+                              0.07,
+                              0.08
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "sequenceIndex": 6
+                    }
+                  ],
+                  "explicitFinishes": [
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 30,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 7
+                    }
+                  ],
+                  "timelineJumps": [],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 10,
+                      "actionPath": [
+                        "timelineActions[6]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "actionOnTick",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "Probablity",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.04,
+                                  0.04,
+                                  0.04,
+                                  0.05,
+                                  0.05,
+                                  0.05,
+                                  0.06,
+                                  0.06,
+                                  0.06,
+                                  0.07,
+                                  0.07,
+                                  0.08
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 20,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 23,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.04,
+                                  0.04,
+                                  0.04,
+                                  0.05,
+                                  0.05,
+                                  0.05,
+                                  0.06,
+                                  0.06,
+                                  0.06,
+                                  0.07,
+                                  0.07,
+                                  0.08
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 29,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "executionFrames": [
+                        9,
+                        11,
+                        14
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale",
+                      "value": 0.2,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "thunderPosIndex",
+                      "value": 0.0,
+                      "isDynamic": true
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -9151,7 +9863,363 @@ export const zhuangFangyiGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 11,
+                  "actionOrder": [
+                    6,
+                    2
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                  "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                  "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                    "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 1,
+                      "actionIndex": 2,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.11,
+                              0.12,
+                              0.14,
+                              0.15,
+                              0.16,
+                              0.17,
+                              0.18,
+                              0.19,
+                              0.2,
+                              0.22,
+                              0.23,
+                              0.25
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 2
+                    }
+                  ],
+                  "intervalDamageHits": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 8,
+                      "intervalSeconds": 0.1,
+                      "tickFrames": [
+                        9,
+                        11,
+                        14
+                      ],
+                      "damageActionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.11,
+                              0.12,
+                              0.14,
+                              0.15,
+                              0.16,
+                              0.17,
+                              0.18,
+                              0.19,
+                              0.2,
+                              0.22,
+                              0.23,
+                              0.25
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "sequenceIndex": 6
+                    }
+                  ],
+                  "explicitFinishes": [
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 30,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 7
+                    }
+                  ],
+                  "timelineJumps": [],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 10,
+                      "actionPath": [
+                        "timelineActions[6]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "actionOnTick",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "Probablity",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.11,
+                                  0.12,
+                                  0.14,
+                                  0.15,
+                                  0.16,
+                                  0.17,
+                                  0.18,
+                                  0.19,
+                                  0.2,
+                                  0.22,
+                                  0.23,
+                                  0.25
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 20,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 23,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.11,
+                                  0.12,
+                                  0.14,
+                                  0.15,
+                                  0.16,
+                                  0.17,
+                                  0.18,
+                                  0.19,
+                                  0.2,
+                                  0.22,
+                                  0.23,
+                                  0.25
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 29,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "executionFrames": [
+                        9,
+                        11,
+                        14
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale",
+                      "value": 0.2,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "thunderPosIndex",
+                      "value": 0.0,
+                      "isDynamic": true
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "failActions": [
@@ -9183,7 +10251,363 @@ export const zhuangFangyiGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 11,
+                  "actionOrder": [
+                    6,
+                    2
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                  "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                  "sourceFile": "chr_0030_zhuangfy_attack2_abilityrange.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
+                    "skillId": "chr_0030_zhuangfy_attack2_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 1,
+                      "actionIndex": 2,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.11,
+                              0.12,
+                              0.14,
+                              0.15,
+                              0.16,
+                              0.17,
+                              0.18,
+                              0.19,
+                              0.2,
+                              0.22,
+                              0.23,
+                              0.25
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 2
+                    }
+                  ],
+                  "intervalDamageHits": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 8,
+                      "intervalSeconds": 0.1,
+                      "tickFrames": [
+                        9,
+                        11,
+                        14
+                      ],
+                      "damageActionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.11,
+                              0.12,
+                              0.14,
+                              0.15,
+                              0.16,
+                              0.17,
+                              0.18,
+                              0.19,
+                              0.2,
+                              0.22,
+                              0.23,
+                              0.25
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 128
+                        }
+                      ],
+                      "sequenceIndex": 6
+                    }
+                  ],
+                  "explicitFinishes": [
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 30,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 7
+                    }
+                  ],
+                  "timelineJumps": [],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 9,
+                      "endFrame": 16,
+                      "actionIndex": 10,
+                      "actionPath": [
+                        "timelineActions[6]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "actionOnTick",
+                        "actionData",
+                        "[1]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "Probablity",
+                          "supported": false,
+                          "comparison": null,
+                          "left": null,
+                          "right": null,
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 14,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.11,
+                                  0.12,
+                                  0.14,
+                                  0.15,
+                                  0.16,
+                                  0.17,
+                                  0.18,
+                                  0.19,
+                                  0.2,
+                                  0.22,
+                                  0.23,
+                                  0.25
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "succeedActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 20,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "failActions": [
+                        {
+                          "actionType": "DamageAction",
+                          "actionIndex": 2,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "serverActionIndex": 23,
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.11,
+                                  0.12,
+                                  0.14,
+                                  0.15,
+                                  0.16,
+                                  0.17,
+                                  0.18,
+                                  0.19,
+                                  0.2,
+                                  0.22,
+                                  0.23,
+                                  0.25
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 128
+                            }
+                          ]
+                        },
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 6,
+                          "actionPath": [
+                            "timelineActions[6]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "actionOnTick",
+                            "actionData",
+                            "[1]",
+                            "failActions",
+                            "actionData",
+                            "[6]"
+                          ],
+                          "serverActionIndex": 29,
+                          "blackboardMutation": {
+                            "key": "thunderPosIndex",
+                            "operation": "Add",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ],
+                      "executionFrames": [
+                        9,
+                        11,
+                        14
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale",
+                      "value": 0.2,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "thunderPosIndex",
+                      "value": 0.0,
+                      "isDynamic": true
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -10423,7 +11847,371 @@ export const zhuangFangyiGeneratedSource = {
                             "saveToContextKey": null,
                             "dieWhenSourceDies": false,
                             "dieOnEnd": false
-                          }
+                          },
+                          "conditionalAbilityEntityHits": [
+                            {
+                              "spawnFrame": 20,
+                              "actionOrder": [
+                                6,
+                                0,
+                                8,
+                                0,
+                                10,
+                                2
+                              ],
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                              "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                              "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+                              "entityBlackboardAssignments": [],
+                              "spawnPayload": {
+                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                                "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                                "entityBlackboardAssignments": [],
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": false,
+                                "dieOnEnd": false
+                              },
+                              "directDamageHits": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 0,
+                                  "actionIndex": 11,
+                                  "damageUnits": [
+                                    {
+                                      "damageType": "Pulse",
+                                      "attributeType": "Hp",
+                                      "calculation": "standard",
+                                      "attackScale": {
+                                        "value": 1.0,
+                                        "blackboardKey": "atk_scale",
+                                        "levelValues": [
+                                          0.48,
+                                          0.53,
+                                          0.58,
+                                          0.62,
+                                          0.67,
+                                          0.72,
+                                          0.77,
+                                          0.82,
+                                          0.86,
+                                          0.92,
+                                          1.0,
+                                          1.08
+                                        ]
+                                      },
+                                      "calculationMultiplier": null,
+                                      "poiseValue": null,
+                                      "definiteValue": null,
+                                      "damageDecorateMask": 2097280
+                                    },
+                                    {
+                                      "damageType": "Pulse",
+                                      "attributeType": "Poise",
+                                      "calculation": "standard",
+                                      "attackScale": {
+                                        "value": 0.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "calculationMultiplier": null,
+                                      "poiseValue": {
+                                        "value": 0.0,
+                                        "blackboardKey": "poise",
+                                        "levelValues": [
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0
+                                        ]
+                                      },
+                                      "definiteValue": null,
+                                      "damageDecorateMask": 0
+                                    }
+                                  ],
+                                  "timedMarkerGate": null,
+                                  "sequenceIndex": 8
+                                }
+                              ],
+                              "intervalDamageHits": [],
+                              "explicitFinishes": [
+                                {
+                                  "startFrame": 897,
+                                  "endFrame": 900,
+                                  "actionIndex": 5,
+                                  "target": {
+                                    "targetSource": "Owner",
+                                    "targetGroupKey": "",
+                                    "selectorOwner": "ActionOwner",
+                                    "ownerContextKey": "",
+                                    "centerType": "ActionSource",
+                                    "centerContextKey": "",
+                                    "centerToGround": false,
+                                    "target": "ActionSource",
+                                    "targetContextKey": "",
+                                    "enableAdvancedDirection": false,
+                                    "selectorDirection": "SourceForward",
+                                    "finderType": null,
+                                    "validatorTypes": [],
+                                    "postProcessorTypes": []
+                                  },
+                                  "skipDieDisplay": false,
+                                  "sequenceIndex": 3
+                                },
+                                {
+                                  "startFrame": 897,
+                                  "endFrame": 900,
+                                  "actionIndex": 9,
+                                  "target": {
+                                    "targetSource": "Owner",
+                                    "targetGroupKey": "",
+                                    "selectorOwner": "ActionOwner",
+                                    "ownerContextKey": "",
+                                    "centerType": "ActionSource",
+                                    "centerContextKey": "",
+                                    "centerToGround": false,
+                                    "target": "ActionSource",
+                                    "targetContextKey": "",
+                                    "enableAdvancedDirection": false,
+                                    "selectorDirection": "SourceForward",
+                                    "finderType": null,
+                                    "validatorTypes": [],
+                                    "postProcessorTypes": []
+                                  },
+                                  "skipDieDisplay": false,
+                                  "sequenceIndex": 7
+                                }
+                              ],
+                              "timelineJumps": [],
+                              "conditionalActions": [],
+                              "inflictions": [],
+                              "auxiliaryActions": [],
+                              "resourceGains": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 2,
+                                  "actionIndex": 17,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 9
+                                },
+                                {
+                                  "startFrame": 4,
+                                  "endFrame": 6,
+                                  "actionIndex": 21,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 10
+                                },
+                                {
+                                  "startFrame": 8,
+                                  "endFrame": 10,
+                                  "actionIndex": 25,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 11
+                                }
+                              ],
+                              "projectileLaunches": [],
+                              "projectileTriggeredSkills": [],
+                              "nestedAbilityEntityHits": [],
+                              "combatActions": [
+                                "DamageAction",
+                                "ObtainCostAction"
+                              ],
+                              "cycleTruncated": false,
+                              "inheritsSourceBlackboard": true,
+                              "declaredBlackboard": [
+                                {
+                                  "key": "atb",
+                                  "value": 20.0,
+                                  "isDynamic": false
+                                },
+                                {
+                                  "key": "atk_scale",
+                                  "value": 0.2,
+                                  "isDynamic": false
+                                },
+                                {
+                                  "key": "effectZ",
+                                  "value": 2.0,
+                                  "isDynamic": true
+                                },
+                                {
+                                  "key": "hasGainAtb",
+                                  "value": 0.0,
+                                  "isDynamic": true
+                                },
+                                {
+                                  "key": "poise",
+                                  "value": 15.0,
+                                  "isDynamic": false
+                                }
+                              ],
+                              "blackboardCalculations": [],
+                              "blackboardMutations": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 2,
+                                  "actionIndex": 18,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 9
+                                },
+                                {
+                                  "startFrame": 4,
+                                  "endFrame": 6,
+                                  "actionIndex": 22,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 10
+                                },
+                                {
+                                  "startFrame": 8,
+                                  "endFrame": 10,
+                                  "actionIndex": 26,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 11
+                                }
+                              ],
+                              "buffBlackboardReads": [],
+                              "buffFinishes": [],
+                              "auraActions": []
+                            }
+                          ]
                         }
                       ],
                       "failActions": [
@@ -10476,7 +12264,371 @@ export const zhuangFangyiGeneratedSource = {
                             "saveToContextKey": null,
                             "dieWhenSourceDies": false,
                             "dieOnEnd": false
-                          }
+                          },
+                          "conditionalAbilityEntityHits": [
+                            {
+                              "spawnFrame": 20,
+                              "actionOrder": [
+                                6,
+                                0,
+                                8,
+                                0,
+                                10,
+                                2
+                              ],
+                              "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                              "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                              "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+                              "entityBlackboardAssignments": [],
+                              "spawnPayload": {
+                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                                "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                                "entityBlackboardAssignments": [],
+                                "assignBlackboard": true,
+                                "sourceType": "ActionSource",
+                                "sourceContextKey": "",
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "overrideDuration": null,
+                                "saveToContextKey": null,
+                                "dieWhenSourceDies": false,
+                                "dieOnEnd": false
+                              },
+                              "directDamageHits": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 0,
+                                  "actionIndex": 11,
+                                  "damageUnits": [
+                                    {
+                                      "damageType": "Pulse",
+                                      "attributeType": "Hp",
+                                      "calculation": "standard",
+                                      "attackScale": {
+                                        "value": 1.0,
+                                        "blackboardKey": "atk_scale",
+                                        "levelValues": [
+                                          0.48,
+                                          0.53,
+                                          0.58,
+                                          0.62,
+                                          0.67,
+                                          0.72,
+                                          0.77,
+                                          0.82,
+                                          0.86,
+                                          0.92,
+                                          1.0,
+                                          1.08
+                                        ]
+                                      },
+                                      "calculationMultiplier": null,
+                                      "poiseValue": null,
+                                      "definiteValue": null,
+                                      "damageDecorateMask": 2097280
+                                    },
+                                    {
+                                      "damageType": "Pulse",
+                                      "attributeType": "Poise",
+                                      "calculation": "standard",
+                                      "attackScale": {
+                                        "value": 0.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "calculationMultiplier": null,
+                                      "poiseValue": {
+                                        "value": 0.0,
+                                        "blackboardKey": "poise",
+                                        "levelValues": [
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0,
+                                          18.0
+                                        ]
+                                      },
+                                      "definiteValue": null,
+                                      "damageDecorateMask": 0
+                                    }
+                                  ],
+                                  "timedMarkerGate": null,
+                                  "sequenceIndex": 8
+                                }
+                              ],
+                              "intervalDamageHits": [],
+                              "explicitFinishes": [
+                                {
+                                  "startFrame": 897,
+                                  "endFrame": 900,
+                                  "actionIndex": 5,
+                                  "target": {
+                                    "targetSource": "Owner",
+                                    "targetGroupKey": "",
+                                    "selectorOwner": "ActionOwner",
+                                    "ownerContextKey": "",
+                                    "centerType": "ActionSource",
+                                    "centerContextKey": "",
+                                    "centerToGround": false,
+                                    "target": "ActionSource",
+                                    "targetContextKey": "",
+                                    "enableAdvancedDirection": false,
+                                    "selectorDirection": "SourceForward",
+                                    "finderType": null,
+                                    "validatorTypes": [],
+                                    "postProcessorTypes": []
+                                  },
+                                  "skipDieDisplay": false,
+                                  "sequenceIndex": 3
+                                },
+                                {
+                                  "startFrame": 897,
+                                  "endFrame": 900,
+                                  "actionIndex": 9,
+                                  "target": {
+                                    "targetSource": "Owner",
+                                    "targetGroupKey": "",
+                                    "selectorOwner": "ActionOwner",
+                                    "ownerContextKey": "",
+                                    "centerType": "ActionSource",
+                                    "centerContextKey": "",
+                                    "centerToGround": false,
+                                    "target": "ActionSource",
+                                    "targetContextKey": "",
+                                    "enableAdvancedDirection": false,
+                                    "selectorDirection": "SourceForward",
+                                    "finderType": null,
+                                    "validatorTypes": [],
+                                    "postProcessorTypes": []
+                                  },
+                                  "skipDieDisplay": false,
+                                  "sequenceIndex": 7
+                                }
+                              ],
+                              "timelineJumps": [],
+                              "conditionalActions": [],
+                              "inflictions": [],
+                              "auxiliaryActions": [],
+                              "resourceGains": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 2,
+                                  "actionIndex": 17,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 9
+                                },
+                                {
+                                  "startFrame": 4,
+                                  "endFrame": 6,
+                                  "actionIndex": 21,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 10
+                                },
+                                {
+                                  "startFrame": 8,
+                                  "endFrame": 10,
+                                  "actionIndex": 25,
+                                  "resource": "sp",
+                                  "amount": {
+                                    "value": 0.0,
+                                    "blackboardKey": "atb",
+                                    "levelValues": [
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0,
+                                      18.0
+                                    ]
+                                  },
+                                  "coefficient": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "spGainKind": "gain",
+                                  "spGainSource": "normalAttack",
+                                  "onlyMainOperator": true,
+                                  "isPercentValue": false,
+                                  "useUltimateRecoveryTag": false,
+                                  "ultimateRecoveryTagId": 0,
+                                  "ignoreUltimateGainScalar": false,
+                                  "onceActionValueKey": "hasGainAtb",
+                                  "sequenceIndex": 11
+                                }
+                              ],
+                              "projectileLaunches": [],
+                              "projectileTriggeredSkills": [],
+                              "nestedAbilityEntityHits": [],
+                              "combatActions": [
+                                "DamageAction",
+                                "ObtainCostAction"
+                              ],
+                              "cycleTruncated": false,
+                              "inheritsSourceBlackboard": true,
+                              "declaredBlackboard": [
+                                {
+                                  "key": "atb",
+                                  "value": 20.0,
+                                  "isDynamic": false
+                                },
+                                {
+                                  "key": "atk_scale",
+                                  "value": 0.2,
+                                  "isDynamic": false
+                                },
+                                {
+                                  "key": "effectZ",
+                                  "value": 2.0,
+                                  "isDynamic": true
+                                },
+                                {
+                                  "key": "hasGainAtb",
+                                  "value": 0.0,
+                                  "isDynamic": true
+                                },
+                                {
+                                  "key": "poise",
+                                  "value": 15.0,
+                                  "isDynamic": false
+                                }
+                              ],
+                              "blackboardCalculations": [],
+                              "blackboardMutations": [
+                                {
+                                  "startFrame": 0,
+                                  "endFrame": 2,
+                                  "actionIndex": 18,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 9
+                                },
+                                {
+                                  "startFrame": 4,
+                                  "endFrame": 6,
+                                  "actionIndex": 22,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 10
+                                },
+                                {
+                                  "startFrame": 8,
+                                  "endFrame": 10,
+                                  "actionIndex": 26,
+                                  "key": "hasGainAtb",
+                                  "operation": "Assign",
+                                  "value": {
+                                    "value": 1.0,
+                                    "blackboardKey": null,
+                                    "levelValues": null
+                                  },
+                                  "sequenceIndex": 11
+                                }
+                              ],
+                              "buffBlackboardReads": [],
+                              "buffFinishes": [],
+                              "auraActions": []
+                            }
+                          ]
                         }
                       ],
                       "projectedAbilityEntitySpawns": [
@@ -10562,7 +12714,369 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 20,
+                        "actionOrder": [
+                          6,
+                          0,
+                          8,
+                          2
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                        "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+                        "entityBlackboardAssignments": [],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                          "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 0,
+                            "endFrame": 0,
+                            "actionIndex": 11,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 1.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.48,
+                                    0.53,
+                                    0.58,
+                                    0.62,
+                                    0.67,
+                                    0.72,
+                                    0.77,
+                                    0.82,
+                                    0.86,
+                                    0.92,
+                                    1.0,
+                                    1.08
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 2097280
+                              },
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Poise",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0
+                                  ]
+                                },
+                                "definiteValue": null,
+                                "damageDecorateMask": 0
+                              }
+                            ],
+                            "timedMarkerGate": null,
+                            "sequenceIndex": 8
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 5,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 3
+                          },
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 9,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 7
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [
+                          {
+                            "startFrame": 0,
+                            "endFrame": 2,
+                            "actionIndex": 17,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": "hasGainAtb",
+                            "sequenceIndex": 9
+                          },
+                          {
+                            "startFrame": 4,
+                            "endFrame": 6,
+                            "actionIndex": 21,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": "hasGainAtb",
+                            "sequenceIndex": 10
+                          },
+                          {
+                            "startFrame": 8,
+                            "endFrame": 10,
+                            "actionIndex": 25,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0,
+                                18.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": "hasGainAtb",
+                            "sequenceIndex": 11
+                          }
+                        ],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "DamageAction",
+                          "ObtainCostAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atb",
+                            "value": 20.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "effectZ",
+                            "value": 2.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "hasGainAtb",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "poise",
+                            "value": 15.0,
+                            "isDynamic": false
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [
+                          {
+                            "startFrame": 0,
+                            "endFrame": 2,
+                            "actionIndex": 18,
+                            "key": "hasGainAtb",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "sequenceIndex": 9
+                          },
+                          {
+                            "startFrame": 4,
+                            "endFrame": 6,
+                            "actionIndex": 22,
+                            "key": "hasGainAtb",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "sequenceIndex": 10
+                          },
+                          {
+                            "startFrame": 8,
+                            "endFrame": 10,
+                            "actionIndex": 26,
+                            "key": "hasGainAtb",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "sequenceIndex": 11
+                          }
+                        ],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -10645,7 +13159,367 @@ export const zhuangFangyiGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 20,
+                  "actionOrder": [
+                    6,
+                    2
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                  "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                  "sourceFile": "chr_0030_zhuangfy_attack5_abilityrange.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
+                    "skillId": "chr_0030_zhuangfy_attack5_abilityrange",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 0,
+                      "actionIndex": 11,
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.48,
+                              0.53,
+                              0.58,
+                              0.62,
+                              0.67,
+                              0.72,
+                              0.77,
+                              0.82,
+                              0.86,
+                              0.92,
+                              1.0,
+                              1.08
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 2097280
+                        },
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0,
+                              18.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 8
+                    }
+                  ],
+                  "intervalDamageHits": [],
+                  "explicitFinishes": [
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 5,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 3
+                    },
+                    {
+                      "startFrame": 897,
+                      "endFrame": 900,
+                      "actionIndex": 9,
+                      "target": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "skipDieDisplay": false,
+                      "sequenceIndex": 7
+                    }
+                  ],
+                  "timelineJumps": [],
+                  "conditionalActions": [],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 2,
+                      "actionIndex": 17,
+                      "resource": "sp",
+                      "amount": {
+                        "value": 0.0,
+                        "blackboardKey": "atb",
+                        "levelValues": [
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "spGainKind": "gain",
+                      "spGainSource": "normalAttack",
+                      "onlyMainOperator": true,
+                      "isPercentValue": false,
+                      "useUltimateRecoveryTag": false,
+                      "ultimateRecoveryTagId": 0,
+                      "ignoreUltimateGainScalar": false,
+                      "onceActionValueKey": "hasGainAtb",
+                      "sequenceIndex": 9
+                    },
+                    {
+                      "startFrame": 4,
+                      "endFrame": 6,
+                      "actionIndex": 21,
+                      "resource": "sp",
+                      "amount": {
+                        "value": 0.0,
+                        "blackboardKey": "atb",
+                        "levelValues": [
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "spGainKind": "gain",
+                      "spGainSource": "normalAttack",
+                      "onlyMainOperator": true,
+                      "isPercentValue": false,
+                      "useUltimateRecoveryTag": false,
+                      "ultimateRecoveryTagId": 0,
+                      "ignoreUltimateGainScalar": false,
+                      "onceActionValueKey": "hasGainAtb",
+                      "sequenceIndex": 10
+                    },
+                    {
+                      "startFrame": 8,
+                      "endFrame": 10,
+                      "actionIndex": 25,
+                      "resource": "sp",
+                      "amount": {
+                        "value": 0.0,
+                        "blackboardKey": "atb",
+                        "levelValues": [
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0,
+                          18.0
+                        ]
+                      },
+                      "coefficient": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "spGainKind": "gain",
+                      "spGainSource": "normalAttack",
+                      "onlyMainOperator": true,
+                      "isPercentValue": false,
+                      "useUltimateRecoveryTag": false,
+                      "ultimateRecoveryTagId": 0,
+                      "ignoreUltimateGainScalar": false,
+                      "onceActionValueKey": "hasGainAtb",
+                      "sequenceIndex": 11
+                    }
+                  ],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction",
+                    "ObtainCostAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atb",
+                      "value": 20.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "atk_scale",
+                      "value": 0.2,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "effectZ",
+                      "value": 2.0,
+                      "isDynamic": true
+                    },
+                    {
+                      "key": "hasGainAtb",
+                      "value": 0.0,
+                      "isDynamic": true
+                    },
+                    {
+                      "key": "poise",
+                      "value": 15.0,
+                      "isDynamic": false
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [
+                    {
+                      "startFrame": 0,
+                      "endFrame": 2,
+                      "actionIndex": 18,
+                      "key": "hasGainAtb",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "sequenceIndex": 9
+                    },
+                    {
+                      "startFrame": 4,
+                      "endFrame": 6,
+                      "actionIndex": 22,
+                      "key": "hasGainAtb",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "sequenceIndex": 10
+                    },
+                    {
+                      "startFrame": 8,
+                      "endFrame": 10,
+                      "actionIndex": 26,
+                      "key": "hasGainAtb",
+                      "operation": "Assign",
+                      "value": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "sequenceIndex": 11
+                    }
+                  ],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "projectedAbilityEntitySpawns": [
@@ -12390,7 +15264,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          11,
+                          0,
+                          13,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -12478,7 +15517,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          11,
+                          0,
+                          13,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -12626,7 +15830,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          11,
+                          0,
+                          18,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -12685,7 +16054,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          11,
+                          0,
+                          18,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -12938,7 +16472,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          23,
+                          0,
+                          25,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -12997,7 +16696,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          23,
+                          0,
+                          25,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -13145,7 +17009,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          23,
+                          0,
+                          29,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -13204,7 +17233,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          23,
+                          0,
+                          29,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -13428,7 +17622,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 14,
+                        "actionOrder": [
+                          33,
+                          0,
+                          35,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -13487,7 +17846,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 14,
+                        "actionOrder": [
+                          33,
+                          0,
+                          35,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -13635,7 +18159,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 14,
+                        "actionOrder": [
+                          33,
+                          0,
+                          39,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -13694,7 +18383,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 14,
+                        "actionOrder": [
+                          33,
+                          0,
+                          39,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -13918,7 +18772,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 15,
+                        "actionOrder": [
+                          43,
+                          0,
+                          45,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -13977,7 +18996,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 15,
+                        "actionOrder": [
+                          43,
+                          0,
+                          45,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -14125,7 +19309,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 15,
+                        "actionOrder": [
+                          43,
+                          0,
+                          49,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -14184,7 +19533,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 15,
+                        "actionOrder": [
+                          43,
+                          0,
+                          49,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.67,
+                                    0.73,
+                                    0.8,
+                                    0.86,
+                                    0.93,
+                                    1.0,
+                                    1.06,
+                                    1.13,
+                                    1.2,
+                                    1.28,
+                                    1.38,
+                                    1.5
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -17099,7 +22613,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 10,
+                        "actionOrder": [
+                          10,
+                          0,
+                          12,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -17187,7 +22866,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 10,
+                        "actionOrder": [
+                          10,
+                          0,
+                          12,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -17335,7 +23179,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 10,
+                        "actionOrder": [
+                          10,
+                          0,
+                          17,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -17394,7 +23403,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 10,
+                        "actionOrder": [
+                          10,
+                          0,
+                          17,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_1_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_1_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   },
                   {
                     "actionType": "ModifyDynamicBlackboard",
@@ -17647,7 +23821,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 11,
+                        "actionOrder": [
+                          22,
+                          0,
+                          24,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -17706,7 +24045,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 11,
+                        "actionOrder": [
+                          22,
+                          0,
+                          24,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -17854,7 +24358,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 11,
+                        "actionOrder": [
+                          22,
+                          0,
+                          28,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -17913,7 +24582,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 11,
+                        "actionOrder": [
+                          22,
+                          0,
+                          28,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_2_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_2_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -18137,7 +24971,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          32,
+                          0,
+                          34,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -18196,7 +25195,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          32,
+                          0,
+                          34,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -18344,7 +25508,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          32,
+                          0,
+                          38,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -18403,7 +25732,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 12,
+                        "actionOrder": [
+                          32,
+                          0,
+                          38,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_3_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_3_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -18627,7 +26121,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          42,
+                          0,
+                          44,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -18686,7 +26345,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          42,
+                          0,
+                          44,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -18834,7 +26658,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          42,
+                          0,
+                          48,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -18893,7 +26882,172 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": null,
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 13,
+                        "actionOrder": [
+                          42,
+                          0,
+                          48,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                        "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack1_ult_4_abilityrange.json",
+                        "entityBlackboardAssignments": [
+                          {
+                            "targetKey": "EntityBB_hitedMark",
+                            "valueType": "String",
+                            "numericValue": 0.0,
+                            "stringValue": "attack1UltHitMark",
+                            "useDirectValue": true,
+                            "inputValueKey": ""
+                          }
+                        ],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
+                          "skillId": "chr_0030_zhuangfy_attack1_ult_4_abilityrange",
+                          "entityBlackboardAssignments": [
+                            {
+                              "targetKey": "EntityBB_hitedMark",
+                              "valueType": "String",
+                              "numericValue": 0.0,
+                              "stringValue": "attack1UltHitMark",
+                              "useDirectValue": true,
+                              "inputValueKey": ""
+                            }
+                          ],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": null,
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 3,
+                            "endFrame": 4,
+                            "actionIndex": 4,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    0.94,
+                                    1.03,
+                                    1.12,
+                                    1.22,
+                                    1.31,
+                                    1.4,
+                                    1.5,
+                                    1.59,
+                                    1.68,
+                                    1.8,
+                                    1.94,
+                                    2.1
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 128
+                              }
+                            ],
+                            "timedMarkerGate": {
+                              "markerBlackboardKey": "EntityBB_hitedMark",
+                              "returnTrueIfNotExists": true,
+                              "durationSeconds": 0.4
+                            },
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [
+                          {
+                            "startFrame": 897,
+                            "endFrame": 900,
+                            "actionIndex": 10,
+                            "target": {
+                              "targetSource": "Owner",
+                              "targetGroupKey": "",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            },
+                            "skipDieDisplay": false,
+                            "sequenceIndex": 6
+                          }
+                        ],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "CreateTimedMarker",
+                          "DamageAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -21738,7 +29892,206 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": "thunder",
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 3,
+                        "actionOrder": [
+                          11,
+                          0,
+                          13,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                        "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+                        "entityBlackboardAssignments": [],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": "thunder",
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 30,
+                            "actionIndex": 2,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    1.34,
+                                    1.47,
+                                    1.6,
+                                    1.74,
+                                    1.87,
+                                    2.0,
+                                    2.14,
+                                    2.27,
+                                    2.4,
+                                    2.57,
+                                    2.77,
+                                    3.0
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 2097280
+                              },
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Poise",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0
+                                  ]
+                                },
+                                "definiteValue": null,
+                                "damageDecorateMask": 0
+                              }
+                            ],
+                            "timedMarkerGate": null,
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 33,
+                            "actionIndex": 5,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": null,
+                            "sequenceIndex": 1
+                          }
+                        ],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "DamageAction",
+                          "ObtainCostAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atb",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "poise",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -21788,7 +30141,206 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": "thunder",
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 3,
+                        "actionOrder": [
+                          11,
+                          0,
+                          13,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                        "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+                        "entityBlackboardAssignments": [],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": "thunder",
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 30,
+                            "actionIndex": 2,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    1.34,
+                                    1.47,
+                                    1.6,
+                                    1.74,
+                                    1.87,
+                                    2.0,
+                                    2.14,
+                                    2.27,
+                                    2.4,
+                                    2.57,
+                                    2.77,
+                                    3.0
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 2097280
+                              },
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Poise",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0
+                                  ]
+                                },
+                                "definiteValue": null,
+                                "damageDecorateMask": 0
+                              }
+                            ],
+                            "timedMarkerGate": null,
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 33,
+                            "actionIndex": 5,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": null,
+                            "sequenceIndex": 1
+                          }
+                        ],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "DamageAction",
+                          "ObtainCostAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atb",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "poise",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -21918,7 +30470,206 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": "thunder",
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 3,
+                        "actionOrder": [
+                          11,
+                          0,
+                          17,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                        "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+                        "entityBlackboardAssignments": [],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": "thunder",
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 30,
+                            "actionIndex": 2,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    1.34,
+                                    1.47,
+                                    1.6,
+                                    1.74,
+                                    1.87,
+                                    2.0,
+                                    2.14,
+                                    2.27,
+                                    2.4,
+                                    2.57,
+                                    2.77,
+                                    3.0
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 2097280
+                              },
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Poise",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0
+                                  ]
+                                },
+                                "definiteValue": null,
+                                "damageDecorateMask": 0
+                              }
+                            ],
+                            "timedMarkerGate": null,
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 33,
+                            "actionIndex": 5,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": null,
+                            "sequenceIndex": 1
+                          }
+                        ],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "DamageAction",
+                          "ObtainCostAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atb",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "poise",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "failActions": [
@@ -21968,7 +30719,206 @@ export const zhuangFangyiGeneratedSource = {
                       "saveToContextKey": "thunder",
                       "dieWhenSourceDies": false,
                       "dieOnEnd": false
-                    }
+                    },
+                    "conditionalAbilityEntityHits": [
+                      {
+                        "spawnFrame": 3,
+                        "actionOrder": [
+                          11,
+                          0,
+                          17,
+                          0
+                        ],
+                        "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                        "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                        "sourceFile": "chr_0030_zhuangfy_attack3_ult_abilityrange.json",
+                        "entityBlackboardAssignments": [],
+                        "spawnPayload": {
+                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+                          "skillId": "chr_0030_zhuangfy_attack3_ult_abilityrange",
+                          "entityBlackboardAssignments": [],
+                          "assignBlackboard": true,
+                          "sourceType": "ActionSource",
+                          "sourceContextKey": "",
+                          "target": {
+                            "targetSource": "Target",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "overrideDuration": null,
+                          "saveToContextKey": "thunder",
+                          "dieWhenSourceDies": false,
+                          "dieOnEnd": false
+                        },
+                        "directDamageHits": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 30,
+                            "actionIndex": 2,
+                            "damageUnits": [
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Hp",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale",
+                                  "levelValues": [
+                                    1.34,
+                                    1.47,
+                                    1.6,
+                                    1.74,
+                                    1.87,
+                                    2.0,
+                                    2.14,
+                                    2.27,
+                                    2.4,
+                                    2.57,
+                                    2.77,
+                                    3.0
+                                  ]
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": null,
+                                "definiteValue": null,
+                                "damageDecorateMask": 2097280
+                              },
+                              {
+                                "damageType": "Pulse",
+                                "attributeType": "Poise",
+                                "calculation": "standard",
+                                "attackScale": {
+                                  "value": 0.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "calculationMultiplier": null,
+                                "poiseValue": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise",
+                                  "levelValues": [
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0,
+                                    18.0
+                                  ]
+                                },
+                                "definiteValue": null,
+                                "damageDecorateMask": 0
+                              }
+                            ],
+                            "timedMarkerGate": null,
+                            "sequenceIndex": 2
+                          }
+                        ],
+                        "intervalDamageHits": [],
+                        "explicitFinishes": [],
+                        "timelineJumps": [],
+                        "conditionalActions": [],
+                        "inflictions": [],
+                        "auxiliaryActions": [],
+                        "resourceGains": [
+                          {
+                            "startFrame": 30,
+                            "endFrame": 33,
+                            "actionIndex": 5,
+                            "resource": "sp",
+                            "amount": {
+                              "value": 0.0,
+                              "blackboardKey": "atb",
+                              "levelValues": [
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0,
+                                20.0
+                              ]
+                            },
+                            "coefficient": {
+                              "value": 1.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "spGainKind": "gain",
+                            "spGainSource": "normalAttack",
+                            "onlyMainOperator": true,
+                            "isPercentValue": false,
+                            "useUltimateRecoveryTag": false,
+                            "ultimateRecoveryTagId": 0,
+                            "ignoreUltimateGainScalar": false,
+                            "onceActionValueKey": null,
+                            "sequenceIndex": 1
+                          }
+                        ],
+                        "projectileLaunches": [],
+                        "projectileTriggeredSkills": [],
+                        "nestedAbilityEntityHits": [],
+                        "combatActions": [
+                          "DamageAction",
+                          "ObtainCostAction"
+                        ],
+                        "cycleTruncated": false,
+                        "inheritsSourceBlackboard": true,
+                        "declaredBlackboard": [
+                          {
+                            "key": "atb",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "atk_scale",
+                            "value": 0.2,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "poise",
+                            "value": 0.0,
+                            "isDynamic": false
+                          },
+                          {
+                            "key": "randomRotate",
+                            "value": 0.0,
+                            "isDynamic": true
+                          },
+                          {
+                            "key": "thunderPosIndex",
+                            "value": 0.0,
+                            "isDynamic": true
+                          }
+                        ],
+                        "blackboardCalculations": [],
+                        "blackboardMutations": [],
+                        "buffBlackboardReads": [],
+                        "buffFinishes": [],
+                        "auraActions": []
+                      }
+                    ]
                   }
                 ],
                 "projectedAbilityEntitySpawns": [
@@ -24994,7 +33944,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            8,
+                                            2,
+                                            2,
+                                            6,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "failActions": [
@@ -25046,7 +34103,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            8,
+                                            2,
+                                            2,
+                                            6,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -25194,7 +34358,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            8,
+                                            2,
+                                            0,
+                                            10,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "failActions": [
@@ -25246,7 +34517,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            8,
+                                            2,
+                                            0,
+                                            10,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -25887,7 +35265,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            3,
+                                            2,
+                                            2,
+                                            6,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "failActions": [
@@ -25939,7 +35424,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            3,
+                                            2,
+                                            2,
+                                            6,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -26087,7 +35679,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            3,
+                                            2,
+                                            0,
+                                            10,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "failActions": [
@@ -26139,7 +35838,114 @@ export const zhuangFangyiGeneratedSource = {
                                         "saveToContextKey": null,
                                         "dieWhenSourceDies": true,
                                         "dieOnEnd": false
-                                      }
+                                      },
+                                      "conditionalAbilityEntityHits": [
+                                        {
+                                          "spawnFrame": 6,
+                                          "actionOrder": [
+                                            42,
+                                            1,
+                                            45,
+                                            3,
+                                            2,
+                                            0,
+                                            10,
+                                            0
+                                          ],
+                                          "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                          "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                          "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                          "entityBlackboardAssignments": [
+                                            {
+                                              "targetKey": "EntityBB_swordDuration",
+                                              "valueType": "Numeric",
+                                              "numericValue": 50.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "sword_duration"
+                                            },
+                                            {
+                                              "targetKey": "EntityBB_swordLimit",
+                                              "valueType": "Numeric",
+                                              "numericValue": 0.0,
+                                              "stringValue": "",
+                                              "useDirectValue": false,
+                                              "inputValueKey": "remain_sword_limit"
+                                            }
+                                          ],
+                                          "spawnPayload": {
+                                            "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                            "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_swordDuration",
+                                                "valueType": "Numeric",
+                                                "numericValue": 50.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "sword_duration"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_swordLimit",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "remain_sword_limit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "sourceType": "ActionSource",
+                                            "sourceContextKey": "",
+                                            "target": null,
+                                            "overrideDuration": null,
+                                            "saveToContextKey": null,
+                                            "dieWhenSourceDies": true,
+                                            "dieOnEnd": false
+                                          },
+                                          "directDamageHits": [],
+                                          "intervalDamageHits": [],
+                                          "explicitFinishes": [],
+                                          "timelineJumps": [],
+                                          "conditionalActions": [],
+                                          "inflictions": [],
+                                          "auxiliaryActions": [],
+                                          "resourceGains": [],
+                                          "projectileLaunches": [],
+                                          "projectileTriggeredSkills": [],
+                                          "nestedAbilityEntityHits": [],
+                                          "combatActions": [],
+                                          "cycleTruncated": false,
+                                          "inheritsSourceBlackboard": true,
+                                          "declaredBlackboard": [
+                                            {
+                                              "key": "atk_scale",
+                                              "value": 0.2,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "potential_n",
+                                              "value": 0.0,
+                                              "isDynamic": false
+                                            },
+                                            {
+                                              "key": "randomRotate",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            },
+                                            {
+                                              "key": "randomVFX",
+                                              "value": 0.0,
+                                              "isDynamic": true
+                                            }
+                                          ],
+                                          "blackboardCalculations": [],
+                                          "blackboardMutations": [],
+                                          "buffBlackboardReads": [],
+                                          "buffFinishes": [],
+                                          "auraActions": []
+                                        }
+                                      ]
                                     }
                                   ],
                                   "projectedAbilityEntitySpawns": [
@@ -30047,7 +39853,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -30099,7 +40014,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -30247,7 +40271,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -30299,7 +40432,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -30736,7 +40978,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -30788,7 +41139,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -30936,7 +41396,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -30988,7 +41557,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  35,
+                                                  1,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -31927,7 +42605,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  8,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -31979,7 +42766,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  8,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -32127,7 +43023,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  8,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -32179,7 +43184,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  8,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -32848,7 +43962,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  3,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -32900,7 +44123,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  3,
+                                                  2,
+                                                  2,
+                                                  6,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [
@@ -33048,7 +44380,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  3,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "failActions": [
@@ -33100,7 +44541,116 @@ export const zhuangFangyiGeneratedSource = {
                                               "saveToContextKey": null,
                                               "dieWhenSourceDies": true,
                                               "dieOnEnd": false
-                                            }
+                                            },
+                                            "conditionalAbilityEntityHits": [
+                                              {
+                                                "spawnFrame": 5,
+                                                "actionOrder": [
+                                                  30,
+                                                  1,
+                                                  33,
+                                                  0,
+                                                  45,
+                                                  3,
+                                                  2,
+                                                  0,
+                                                  10,
+                                                  0
+                                                ],
+                                                "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                "sourceFile": "chr_0030_zhuangfy_normal_skill_sword.json",
+                                                "entityBlackboardAssignments": [
+                                                  {
+                                                    "targetKey": "EntityBB_swordDuration",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 50.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "sword_duration"
+                                                  },
+                                                  {
+                                                    "targetKey": "EntityBB_swordLimit",
+                                                    "valueType": "Numeric",
+                                                    "numericValue": 0.0,
+                                                    "stringValue": "",
+                                                    "useDirectValue": false,
+                                                    "inputValueKey": "remain_sword_limit"
+                                                  }
+                                                ],
+                                                "spawnPayload": {
+                                                  "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+                                                  "skillId": "chr_0030_zhuangfy_normal_skill_sword",
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_swordDuration",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 50.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "sword_duration"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_swordLimit",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "remain_sword_limit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "sourceType": "ActionSource",
+                                                  "sourceContextKey": "",
+                                                  "target": null,
+                                                  "overrideDuration": null,
+                                                  "saveToContextKey": null,
+                                                  "dieWhenSourceDies": true,
+                                                  "dieOnEnd": false
+                                                },
+                                                "directDamageHits": [],
+                                                "intervalDamageHits": [],
+                                                "explicitFinishes": [],
+                                                "timelineJumps": [],
+                                                "conditionalActions": [],
+                                                "inflictions": [],
+                                                "auxiliaryActions": [],
+                                                "resourceGains": [],
+                                                "projectileLaunches": [],
+                                                "projectileTriggeredSkills": [],
+                                                "nestedAbilityEntityHits": [],
+                                                "combatActions": [],
+                                                "cycleTruncated": false,
+                                                "inheritsSourceBlackboard": true,
+                                                "declaredBlackboard": [
+                                                  {
+                                                    "key": "atk_scale",
+                                                    "value": 0.2,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "potential_n",
+                                                    "value": 0.0,
+                                                    "isDynamic": false
+                                                  },
+                                                  {
+                                                    "key": "randomRotate",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  },
+                                                  {
+                                                    "key": "randomVFX",
+                                                    "value": 0.0,
+                                                    "isDynamic": true
+                                                  }
+                                                ],
+                                                "blackboardCalculations": [],
+                                                "blackboardMutations": [],
+                                                "buffBlackboardReads": [],
+                                                "buffFinishes": [],
+                                                "auraActions": []
+                                              }
+                                            ]
                                           }
                                         ],
                                         "projectedAbilityEntitySpawns": [

@@ -449,6 +449,7 @@ export interface GeneratedBuffDamageModifierSource {
   readonly damageTags: readonly string[];
   readonly damageFeatureMatch: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | null;
   readonly damageFeatures: readonly string[];
+  readonly damageTypes: readonly string[];
   readonly numberComparisons: readonly {
     readonly left: GeneratedScalarSource;
     readonly comparison: string;
@@ -945,7 +946,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly abilityEntitySpawn?: GeneratedAbilityEntitySpawnPayload;
   readonly abilityEntityDurationAssignment?: GeneratedAbilityEntityDurationAssignmentPayload;
   /** 仅当所属条件分支被选中时才会执行、且子调用中含 Aura 的能力实体。 */
-  readonly auraAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
+  readonly conditionalAbilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   readonly damageUnits?: readonly GeneratedDamageUnitSource[];
   readonly heal?: {
     readonly healType: string;

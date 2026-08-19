@@ -314,6 +314,14 @@ def compile_inline_buff_definition(
                     f"  features: {ts_inline_literal(damage_features)},",
                     "}",
                 ])
+            damage_types = getattr(modifier, "damageTypes", ())
+            if damage_types:
+                conditions.append([
+                    "{",
+                    "  kind: 'eventDamageTypesMatch',",
+                    f"  damageTypes: {ts_inline_literal(damage_types)},",
+                    "}",
+                ])
             for comparison in getattr(modifier, "numberComparisons", ()):
                 operator = COMPARISON_OPERATORS.get(comparison.comparison)
                 if operator is None:

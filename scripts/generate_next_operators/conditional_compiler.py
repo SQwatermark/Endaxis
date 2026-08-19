@@ -58,6 +58,9 @@ class ConditionalCompileContext:
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = ()
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = ()
     aura_actions: tuple[AuraActionSource, ...] = ()
+    compiled_ability_entity_spawns: tuple[
+        tuple[tuple[str, ...], str], ...
+    ] = ()
     context_action: ConditionalActionSource | None = None
 
 

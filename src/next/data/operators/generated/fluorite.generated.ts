@@ -239,6 +239,7 @@ export const fluoriteGeneratedSource = {
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [],
           "numberComparisons": [],
           "healthComparisons": []
         }

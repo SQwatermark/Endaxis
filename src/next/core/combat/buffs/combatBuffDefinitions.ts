@@ -7,6 +7,7 @@ import {
   COMPARISON_OPERATORS,
   DAMAGE_FEATURES,
   DAMAGE_TAGS,
+  DAMAGE_TYPES,
   type DamageType,
   type InflictionElement,
 } from '../../game-data/operatorDefinition';
@@ -516,6 +517,12 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
           `${path}.match`,
         ),
         features: parseEnumArray(condition.features, DAMAGE_FEATURES, `${path}.features`),
+      };
+    case 'eventDamageTypesMatch':
+      requireOnlyKeys(condition, path, ['kind', 'damageTypes']);
+      return {
+        kind: 'eventDamageTypesMatch',
+        damageTypes: parseEnumArray(condition.damageTypes, DAMAGE_TYPES, `${path}.damageTypes`),
       };
     case 'buffBlackboardCompare':
       requireOnlyKeys(condition, path, ['kind', 'left', 'operator', 'right']);

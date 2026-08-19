@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, Iterable, cast
 
 from compiler_ir import (
@@ -20,6 +20,7 @@ from source_models import (
     BuffFinishSource,
     BuffHoldSource,
     ConditionalActionSource,
+    ConditionalBranchActionSource,
     EveryFrameActionSource,
     ProjectileTriggeredSkillSource,
     ResolvedDamageHitSource,
@@ -399,6 +400,82 @@ def compile_resolved_sequence(
         )
     )
     ability_entity_templates = load_ability_entity_template_evidence()
+
+    def compile_attached_ability_entity(entity: AbilityEntityHitSource) -> str | None:
+        payload = logical_ability_entity_spawn_payload_for_compile(entity, skill)
+        if payload is None or not ability_entity_child_timeline_can_compile(
+            entity,
+            ignored_auxiliary_classifications=frozenset(
+                ignored_auxiliary_classifications
+            ),
+            ignored_buff_ids=ignored_buff_ids,
+            unmodeled_buff_ids=unmodeled_buff_ids,
+            buff_definitions=buff_definitions,
+        ):
+            return None
+        nested_spawns = collect_compiled_conditional_spawns(entity.conditionalActions)
+        child_damage_hits = collect_resolved_damage_hits(
+            replace(
+                skill,
+                directDamageHits=(),
+                projectileTriggeredSkills=(),
+                abilityEntityHits=(entity,),
+                conditionalActions=(),
+            )
+        )
+        child_skill = compile_ability_entity_child_skill(
+            entity,
+            skill,
+            config,
+            child_damage_hits,
+            runtime_blackboard_keys,
+            ignored_auxiliary_classifications=frozenset(
+                ignored_auxiliary_classifications
+            ),
+            ignored_buff_ids=ignored_buff_ids | simulation_no_effect_buff_ids,
+            unmodeled_buff_ids=unmodeled_buff_ids,
+            buff_definitions=buff_definitions,
+            compiled_ability_entity_spawns=tuple(nested_spawns),
+        )
+        return compile_logical_ability_entity_spawn(
+            payload,
+            f"{skill.key}.conditionalAbilityEntitySpawn",
+            ability_entity_templates,
+            child_skill,
+        )
+
+    def collect_compiled_conditional_spawns(
+        conditions: tuple[ConditionalActionSource, ...],
+    ) -> list[tuple[tuple[str, ...], str]]:
+        result: list[tuple[tuple[str, ...], str]] = []
+
+        def visit_actions(actions: tuple[ConditionalBranchActionSource, ...]) -> None:
+            for action in actions:
+                attached_hits = getattr(action, "conditionalAbilityEntityHits", None) or ()
+                if getattr(action, "abilityEntitySpawn", None) is not None and attached_hits:
+                    if len(attached_hits) != 1:
+                        raise ValueError(
+                            f"{skill.key}: conditional AbilityEntity spawn has ambiguous child graph"
+                        )
+                    source = compile_attached_ability_entity(attached_hits[0])
+                    if source is not None:
+                        result.append((action.actionPath, source))
+                if getattr(action, "nestedCondition", None) is not None:
+                    visit_conditions((action.nestedCondition,))
+                if getattr(action, "onceActions", None) is not None:
+                    visit_actions(action.onceActions)
+
+        def visit_conditions(items: tuple[ConditionalActionSource, ...]) -> None:
+            for item in items:
+                visit_actions(item.succeedActions)
+                visit_actions(item.failActions)
+
+        visit_conditions(conditions)
+        return result
+
+    compiled_conditional_ability_entity_spawns = (
+        collect_compiled_conditional_spawns(skill.conditionalActions)
+    )
     scheduled_entity_ids = {
         id(item.payload)
         for item in resolved_schedule
@@ -558,6 +635,9 @@ def compile_resolved_sequence(
                 unmodeled_action_types=unmodeled_action_types,
                 aura_actions=getattr(skill, "auraActions", ()),
                 invoked_child_context=(skill, config),
+                compiled_ability_entity_spawns=tuple(
+                    compiled_conditional_ability_entity_spawns
+                ),
             )
             if compiled_condition == COMPILED_EMPTY_SEQUENCE:
                 continue

@@ -153,6 +153,9 @@ export const lifengGeneratedSource = {
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [
+            "physical"
+          ],
           "numberComparisons": [],
           "healthComparisons": []
         }
@@ -8031,7 +8034,378 @@ export const lifengGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 58,
+                  "actionOrder": [
+                    37,
+                    1
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+                  "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+                  "sourceFile": "chr_0015_lifeng_ultimate_skill_abentity.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+                    "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionIndex": 5,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale1",
+                            "levelValues": [
+                              1.78,
+                              1.96,
+                              2.13,
+                              2.31,
+                              2.49,
+                              2.67,
+                              2.84,
+                              3.02,
+                              3.2,
+                              3.42,
+                              3.69,
+                              4.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 3
+                    },
+                    {
+                      "startFrame": 66,
+                      "endFrame": 67,
+                      "actionIndex": 10,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale2",
+                            "levelValues": [
+                              1.78,
+                              1.96,
+                              2.13,
+                              2.31,
+                              2.49,
+                              2.67,
+                              2.84,
+                              3.02,
+                              3.2,
+                              3.42,
+                              3.69,
+                              4.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise2",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 4
+                    },
+                    {
+                      "startFrame": 121,
+                      "endFrame": 122,
+                      "actionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale3",
+                            "levelValues": [
+                              2.67,
+                              2.94,
+                              3.2,
+                              3.47,
+                              3.74,
+                              4.0,
+                              4.27,
+                              4.54,
+                              4.8,
+                              5.14,
+                              5.54,
+                              6.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise3",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 5
+                    }
+                  ],
+                  "intervalDamageHits": [],
+                  "explicitFinishes": [],
+                  "timelineJumps": [
+                    {
+                      "startFrame": 67,
+                      "endFrame": 68,
+                      "destFrame": 150,
+                      "actionIndex": 22,
+                      "actionPath": [
+                        "timelineActions[8]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditionActionTypes": [],
+                      "directConditions": [],
+                      "directConditionsSupported": false,
+                      "isOnlySequenceAction": false,
+                      "isOnlyBranchAction": true,
+                      "isRootContainerOnlySequenceAction": true,
+                      "sequenceIndex": 8
+                    }
+                  ],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 67,
+                      "endFrame": 68,
+                      "actionIndex": 20,
+                      "actionPath": [
+                        "timelineActions[8]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "Equals",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "isCombo",
+                            "levelValues": null
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [],
+                      "failActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[8]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 23,
+                          "blackboardMutation": {
+                            "key": "EntityBB_isCombo",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 0.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale1",
+                      "value": 1.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "atk_scale2",
+                      "value": 1.5,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "atk_scale3",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "isCombo",
+                      "value": 0.0,
+                      "isDynamic": true
+                    },
+                    {
+                      "key": "poise",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "poise2",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "poise3",
+                      "value": 0.0,
+                      "isDynamic": false
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "failActions": [
@@ -8063,7 +8437,378 @@ export const lifengGeneratedSource = {
                 "saveToContextKey": null,
                 "dieWhenSourceDies": false,
                 "dieOnEnd": false
-              }
+              },
+              "conditionalAbilityEntityHits": [
+                {
+                  "spawnFrame": 58,
+                  "actionOrder": [
+                    37,
+                    0
+                  ],
+                  "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+                  "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+                  "sourceFile": "chr_0015_lifeng_ultimate_skill_abentity.json",
+                  "entityBlackboardAssignments": [],
+                  "spawnPayload": {
+                    "abilityEntityId": "abilityentity_chr_0015_lifeng_ultimate_skill",
+                    "skillId": "chr_0015_lifeng_ultimate_skill_abentity",
+                    "entityBlackboardAssignments": [],
+                    "assignBlackboard": true,
+                    "sourceType": "ActionSource",
+                    "sourceContextKey": "",
+                    "target": null,
+                    "overrideDuration": null,
+                    "saveToContextKey": null,
+                    "dieWhenSourceDies": false,
+                    "dieOnEnd": false
+                  },
+                  "directDamageHits": [
+                    {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionIndex": 5,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale1",
+                            "levelValues": [
+                              1.78,
+                              1.96,
+                              2.13,
+                              2.31,
+                              2.49,
+                              2.67,
+                              2.84,
+                              3.02,
+                              3.2,
+                              3.42,
+                              3.69,
+                              4.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 3
+                    },
+                    {
+                      "startFrame": 66,
+                      "endFrame": 67,
+                      "actionIndex": 10,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale2",
+                            "levelValues": [
+                              1.78,
+                              1.96,
+                              2.13,
+                              2.31,
+                              2.49,
+                              2.67,
+                              2.84,
+                              3.02,
+                              3.2,
+                              3.42,
+                              3.69,
+                              4.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise2",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 4
+                    },
+                    {
+                      "startFrame": 121,
+                      "endFrame": 122,
+                      "actionIndex": 14,
+                      "damageUnits": [
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale3",
+                            "levelValues": [
+                              2.67,
+                              2.94,
+                              3.2,
+                              3.47,
+                              3.74,
+                              4.0,
+                              4.27,
+                              4.54,
+                              4.8,
+                              5.14,
+                              5.54,
+                              6.0
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Physical",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 0.0,
+                            "blackboardKey": "poise3",
+                            "levelValues": [
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0,
+                              5.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "timedMarkerGate": null,
+                      "sequenceIndex": 5
+                    }
+                  ],
+                  "intervalDamageHits": [],
+                  "explicitFinishes": [],
+                  "timelineJumps": [
+                    {
+                      "startFrame": 67,
+                      "endFrame": 68,
+                      "destFrame": 150,
+                      "actionIndex": 22,
+                      "actionPath": [
+                        "timelineActions[8]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]",
+                        "succeedActions",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditionActionTypes": [],
+                      "directConditions": [],
+                      "directConditionsSupported": false,
+                      "isOnlySequenceAction": false,
+                      "isOnlyBranchAction": true,
+                      "isRootContainerOnlySequenceAction": true,
+                      "sequenceIndex": 8
+                    }
+                  ],
+                  "conditionalActions": [
+                    {
+                      "startFrame": 67,
+                      "endFrame": 68,
+                      "actionIndex": 20,
+                      "actionPath": [
+                        "timelineActions[8]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ],
+                      "conditions": [
+                        {
+                          "sourceType": "CompareFloat",
+                          "supported": true,
+                          "comparison": "Equals",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "isCombo",
+                            "levelValues": null
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "skillTypes": [],
+                          "damageDecorateMask": null,
+                          "contextBuffId": null,
+                          "deckAttributeCompare": null
+                        }
+                      ],
+                      "succeedActions": [],
+                      "failActions": [
+                        {
+                          "actionType": "ModifyDynamicBlackboard",
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[8]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "serverActionIndex": 23,
+                          "blackboardMutation": {
+                            "key": "EntityBB_isCombo",
+                            "operation": "Assign",
+                            "value": {
+                              "value": 0.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            }
+                          },
+                          "legacyBuffFinish": null,
+                          "skillCooldownAdjustment": null,
+                          "buffIgnite": null
+                        }
+                      ]
+                    }
+                  ],
+                  "inflictions": [],
+                  "auxiliaryActions": [],
+                  "resourceGains": [],
+                  "projectileLaunches": [],
+                  "projectileTriggeredSkills": [],
+                  "nestedAbilityEntityHits": [],
+                  "combatActions": [
+                    "DamageAction"
+                  ],
+                  "cycleTruncated": false,
+                  "inheritsSourceBlackboard": true,
+                  "declaredBlackboard": [
+                    {
+                      "key": "atk_scale1",
+                      "value": 1.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "atk_scale2",
+                      "value": 1.5,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "atk_scale3",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "isCombo",
+                      "value": 0.0,
+                      "isDynamic": true
+                    },
+                    {
+                      "key": "poise",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "poise2",
+                      "value": 0.0,
+                      "isDynamic": false
+                    },
+                    {
+                      "key": "poise3",
+                      "value": 0.0,
+                      "isDynamic": false
+                    }
+                  ],
+                  "blackboardCalculations": [],
+                  "blackboardMutations": [],
+                  "buffBlackboardReads": [],
+                  "buffFinishes": [],
+                  "auraActions": []
+                }
+              ]
             }
           ],
           "projectedAbilityEntitySpawns": [

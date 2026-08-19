@@ -27,6 +27,9 @@
     }
   ],
   "complete": false,
+  "buffDefinitionResolutionIssues": [
+    "ValueError: buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1.json.timelineActions[0]._sequenceActionData.actionData.[0].selectorData.postProcessorData: unsupported processors ['CircularOrderSort']"
+  ],
   "buffDefinitions": [
     {
       "buffId": "buff_chr_0032_lizhiyan_attack4_effect",
@@ -4888,7 +4891,112 @@
                           "saveToContextKey": "death",
                           "dieWhenSourceDies": false,
                           "dieOnEnd": false
-                        }
+                        },
+                        "conditionalAbilityEntityHits": [
+                          {
+                            "spawnFrame": 41,
+                            "actionOrder": [
+                              3,
+                              13,
+                              0,
+                              15,
+                              1
+                            ],
+                            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
+                            "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_death_move",
+                            "sourceFile": "chr_0032_lizhiyan_combo_skill_abilityentity_death_move.json",
+                            "entityBlackboardAssignments": [],
+                            "spawnPayload": {
+                              "abilityEntityId": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
+                              "skillId": "chr_0032_lizhiyan_combo_skill_abilityentity_death_move",
+                              "entityBlackboardAssignments": [],
+                              "assignBlackboard": true,
+                              "sourceType": "ActionSource",
+                              "sourceContextKey": "",
+                              "target": {
+                                "targetSource": "Target",
+                                "targetGroupKey": "",
+                                "selectorOwner": "ActionOwner",
+                                "ownerContextKey": "",
+                                "centerType": "ActionSource",
+                                "centerContextKey": "",
+                                "centerToGround": false,
+                                "target": "ActionSource",
+                                "targetContextKey": "",
+                                "enableAdvancedDirection": false,
+                                "selectorDirection": "SourceForward",
+                                "finderType": null,
+                                "validatorTypes": [],
+                                "postProcessorTypes": []
+                              },
+                              "overrideDuration": null,
+                              "saveToContextKey": "death",
+                              "dieWhenSourceDies": false,
+                              "dieOnEnd": false
+                            },
+                            "directDamageHits": [],
+                            "intervalDamageHits": [],
+                            "explicitFinishes": [],
+                            "timelineJumps": [],
+                            "conditionalActions": [],
+                            "inflictions": [],
+                            "auxiliaryActions": [],
+                            "resourceGains": [],
+                            "projectileLaunches": [],
+                            "projectileTriggeredSkills": [],
+                            "nestedAbilityEntityHits": [],
+                            "combatActions": [],
+                            "cycleTruncated": false,
+                            "inheritsSourceBlackboard": true,
+                            "declaredBlackboard": [
+                              {
+                                "key": "atb_final",
+                                "value": 50.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "atk_scale_final",
+                                "value": 1.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "minAngle",
+                                "value": 0.0,
+                                "isDynamic": true
+                              },
+                              {
+                                "key": "number",
+                                "value": 0.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "owner_mainchar_alpha",
+                                "value": 0.0,
+                                "isDynamic": true
+                              },
+                              {
+                                "key": "owner_mainchar_distance",
+                                "value": 0.0,
+                                "isDynamic": true
+                              },
+                              {
+                                "key": "poise_final",
+                                "value": 0.0,
+                                "isDynamic": false
+                              },
+                              {
+                                "key": "radius",
+                                "value": 5.0,
+                                "isDynamic": false
+                              }
+                            ],
+                            "blackboardCalculations": [],
+                            "blackboardMutations": [],
+                            "buffBlackboardReads": [],
+                            "buffFinishes": [],
+                            "auraActions": []
+                          }
+                        ]
                       },
                       {
                         "actionType": "CreateBuffAction",

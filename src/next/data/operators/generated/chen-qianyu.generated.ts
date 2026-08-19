@@ -84,6 +84,7 @@ export const chenQianyuGeneratedSource = {
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
+          "damageTypes": [],
           "numberComparisons": [],
           "healthComparisons": [
             {

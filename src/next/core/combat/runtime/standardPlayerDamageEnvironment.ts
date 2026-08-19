@@ -356,6 +356,8 @@ export class StandardPlayerDamageEnvironment {
         return matchDamageProperties(damageContext.tags, condition.tags, condition.match);
       case 'eventDamageFeaturesMatch':
         return matchDamageProperties(damageContext.features, condition.features, condition.match);
+      case 'eventDamageTypesMatch':
+        return condition.damageTypes.includes(damageContext.damageType);
       case 'targetHealthCompare': {
         const current =
           condition.valueType === 'ratio'

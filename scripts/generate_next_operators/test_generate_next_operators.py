@@ -47,6 +47,7 @@ from generate_next_operators import (
     compile_resolved_sequence,
     compile_skill_event_listener,
     compile_time_dilation,
+    compile_keyword_action,
     event_listener_is_proven_noop,
     compile_resource_gain,
     compile_combat_condition,
@@ -471,6 +472,46 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].enabledSide, "Defender")
         self.assertEqual(modifiers[0].processors[0].zone, "VulnerableDmgIncreace")
         self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "rate")
+        self.assertEqual(modifiers[0].damageTypes, ("physical",))
+
+        buff["lifeType"] = "Infinity"
+        action = buff["buffEventAction"][0]["actions"][0]["actionData"][0]
+        action["duration"] = {
+            "useBlackboardKey": False,
+            "value": -1.0,
+            "blackboardKey": "",
+        }
+        action["subType"] = "Spell"
+        spell_modifiers = parse_buff_start_vulnerability(
+            buff,
+            "fixture",
+            {"duration": (6.0,), "rate": (0.15,)},
+        )
+
+        self.assertEqual(
+            spell_modifiers[0].damageTypes,
+            ("heat", "electric", "cryo", "nature"),
+        )
+
+    def test_action_duration_slow_compiles_as_scoped_buff(self) -> None:
+        action = slow_action_fixture()
+        action["autoFinishByAction"] = True
+        parsed = parse_keyword_action(
+            action,
+            "fixture",
+            {},
+            start_frame=0,
+            end_frame=30,
+        )
+
+        compiled = compile_keyword_action(
+            parsed,
+            "fixture",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+
+        self.assertIn("finishByAction: true", compiled)
 
     def test_current_akedb_time_scale_curve_projection_is_preserved(self) -> None:
         curve = parse_time_scale_curve(
@@ -2297,7 +2338,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 )
 
         resolved_branch = result[0].succeedActions[0]
-        self.assertEqual(resolved_branch.auraAbilityEntityHits, (resolved_hit,))
+        self.assertEqual(resolved_branch.conditionalAbilityEntityHits, (resolved_hit,))
         resolver.assert_called_once_with(
             spawn,
             {},
@@ -2551,6 +2592,56 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(marked.projectedAbilityEntitySpawns, ())
         with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'SpawnAbilityEntity'"):
             compile_conditional_action(marked, "fixture.condition")
+
+    def test_conditional_compiler_keeps_precompiled_entity_children_in_each_branch(self) -> None:
+        first = AbilityEntitySpawnPayload("entity.first", "skill.first")
+        second = AbilityEntitySpawnPayload("entity.second", "skill.second")
+        first_path = ("root", "succeed", "spawn")
+        second_path = ("root", "fail", "spawn")
+        source = ConditionalActionSource(
+            3,
+            3,
+            11,
+            ("root",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "Equals",
+                    ScalarSource(1, None, None),
+                    ScalarSource(1, None, None),
+                    (),
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "SpawnAbilityEntity",
+                    0,
+                    actionPath=first_path,
+                    abilityEntitySpawn=first,
+                ),
+            ),
+            (
+                ConditionalBranchActionSource(
+                    "SpawnAbilityEntity",
+                    0,
+                    actionPath=second_path,
+                    abilityEntitySpawn=second,
+                ),
+            ),
+        )
+
+        compiled = compile_conditional_action(
+            source,
+            "fixture.condition",
+            compiled_ability_entity_spawns=(
+                (first_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.first' })"),
+                (second_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.second' })"),
+            ),
+        )
+
+        self.assertIn("abilityEntityId: 'entity.first'", compiled)
+        self.assertIn("abilityEntityId: 'entity.second'", compiled)
 
     def test_conditional_compiler_lifts_identical_projectile_children(self) -> None:
         launch = ProjectileLaunchPayload(
@@ -3725,6 +3816,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.first", "buff.second"),
         )
         self.assertTrue(all(not definition.sourceAvailable for definition in definitions))
+
+    def test_operator_buff_definitions_include_nested_conditional_entity_auras(self) -> None:
+        aura = SimpleNamespace(
+            buffs=(SimpleNamespace(buffId="buff.entity-aura"),),
+        )
+        entity = SimpleNamespace(auraActions=(aura,))
+        branch = SimpleNamespace(conditionalAbilityEntityHits=(entity,))
+        condition = SimpleNamespace(succeedActions=(branch,), failActions=())
+        skill = SimpleNamespace(
+            referencedBuffIds=(),
+            conditionalActions=(condition,),
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            definitions = resolve_operator_buff_definitions((skill,), Path(directory))
+
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.entity-aura",),
+        )
 
     def test_operator_buff_definitions_skip_explicitly_omitted_references(self) -> None:
         skills = (
@@ -6186,7 +6297,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'singleEnemyPresent' }",
         )
 
-    def test_inert_ability_entity_omits_fixed_point_spawn_target(self) -> None:
+    def test_zero_space_ability_entity_omits_fixed_point_spawn_target(self) -> None:
         target = parse_target_reference(
             target_settings_fixture("Context", target_group_key="corner"),
             "fixture.target",
@@ -6250,12 +6361,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIsNotNone(normalized)
         assert normalized is not None
         self.assertIsNone(normalized.target)
-        self.assertIsNone(
-            logical_ability_entity_spawn_payload_for_compile(
-                SimpleNamespace(**{**hit.__dict__, "combatActions": ("DamageAction",)}),
-                skill,
-            )
+        gameplay_normalized = logical_ability_entity_spawn_payload_for_compile(
+            SimpleNamespace(**{**hit.__dict__, "combatActions": ("DamageAction",)}),
+            skill,
         )
+        self.assertIsNotNone(gameplay_normalized)
+        assert gameplay_normalized is not None
+        self.assertIsNone(gameplay_normalized.target)
 
     def test_direct_main_operator_guard_is_assumed_to_pass_for_a_placed_skill(self) -> None:
         root = {
@@ -6895,6 +7007,45 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     "step('applyBuff', {",
                     "  buffId: 'buff.fixture',",
                     "  target: 'party',",
+                    "  inheritSourceSkillCastInfo: true,",
+                    "  finishByAction: true,",
+                    "})",
+                ]
+            ),
+        )
+
+    def test_zero_space_ally_aura_can_exclude_caster_and_limit_once(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = "Character"
+        action["targetFilter"]["factionTarget"] = "Ally"
+        action["excludeOwner"] = True
+        action["limitInfluenceCountPerTarget"] = True
+        action["maxInfluenceCountPerTarget"] = 1
+        action["actionInAura"] = {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 51,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(
+            compile_aura_action(aura, "fixture.aura", buff_definitions=None),
+            "\n".join(
+                [
+                    "step('applyBuff', {",
+                    "  buffId: 'buff.fixture',",
+                    "  target: 'partyExceptCaster',",
                     "  inheritSourceSkillCastInfo: true,",
                     "  finishByAction: true,",
                     "})",
@@ -12017,14 +12168,27 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             compile_conditional_action(without_spawn, "fixture.namedDuration")
 
     def test_audit_stage_records_buff_resolution_failure_but_complete_stage_rethrows(self) -> None:
+        skill = SimpleNamespace(
+            referencedBuffIds=("buff.good", "buff.bad"),
+            conditionalActions=(),
+        )
+
+        def resolve_fixture(buff_ids, *_args, **_kwargs):
+            if "buff.bad" in buff_ids:
+                raise ValueError("unsupported target collection")
+            return tuple(SimpleNamespace(buffId=buff_id) for buff_id in buff_ids)
+
         with patch(
-            "generate_next_operators.resolve_operator_buff_definitions",
-            side_effect=ValueError("unsupported target collection"),
+            "generate_next_operators.resolve_buff_definitions",
+            side_effect=resolve_fixture,
         ):
             definitions, issues = resolve_operator_buff_definitions_for_stage(
-                (), Path("BuffData"), "audit"
+                (skill,), Path("BuffData"), "audit"
             )
-            self.assertEqual(definitions, ())
+            self.assertEqual(
+                tuple(definition.buffId for definition in definitions),
+                ("buff.good",),
+            )
             self.assertEqual(
                 issues,
                 ("ValueError: unsupported target collection",),
@@ -12032,7 +12196,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "unsupported target collection"):
                 resolve_operator_buff_definitions_for_stage(
-                    (), Path("BuffData"), "complete"
+                    (skill,), Path("BuffData"), "complete"
                 )
 
     def test_buff_event_for_each_preserves_ability_entity_collection_and_skill_cast(self) -> None:

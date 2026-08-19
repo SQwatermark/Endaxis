@@ -797,7 +797,180 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         60,
         sequence(
-          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill', definition: { lifetime: { kind: 'limited', durationSeconds: 6 } }, dieWhenSourceDies: false, inheritActionBlackboard: true, overrideDurationSeconds: { kind: 'blackboard', key: 'duration' } }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
+              skillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0013_aglina_ultimate_skill',
+                      definition: {
+                        stackingType: 'stack',
+                        priority: 0,
+                        maxStackCount: 1,
+                        applyTagIds: [1077554361],
+                        blackboard: {
+                          'BuffStack': 0,
+                          'FinalRate': 0,
+                          'final_resistance_scalar': 0,
+                          'final_resistance_scalar_inair': 0,
+                          'move_speed_scalar': 0,
+                          'potential2': 0,
+                          'spell_vulnerable_perstack': 0,
+                          'spell_vulnerable_rate': 0,
+                        },
+                        lifecycleSequences: {
+                          enable: sequence(
+                            step('modifyActionValue', {
+                              key: 'FinalRate',
+                              operation: 'assign',
+                              value: { kind: 'blackboard', key: 'spell_vulnerable_rate' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'BuffStack',
+                              operation: 'assign',
+                              value: { kind: 'constant', value: 0 },
+                            }),
+                            branch(
+                              {
+                                kind: 'buffStackCompare',
+                                target: 'enemy',
+                                tagQueryType: 'hasAny',
+                                buffTagIds: [1075718177],
+                                operator: 'greater',
+                                value: { kind: 'constant', value: 0 },
+                              },
+                              sequence(
+                                step('readBuffStackCount', {
+                                  target: 'enemy',
+                                  outputKey: 'BuffStack',
+                                  query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1075718177] },
+                                }),
+                              ),
+                            ),
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'potential2' },
+                                operator: 'greater',
+                                right: { kind: 'constant', value: 0 },
+                              },
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'actionValueCompare',
+                                    left: { kind: 'blackboard', key: 'BuffStack' },
+                                    operator: 'lessOrEqual',
+                                    right: { kind: 'constant', value: 3 },
+                                  },
+                                  sequence(
+                                    step('modifyActionValue', {
+                                      key: 'BuffStack',
+                                      operation: 'add',
+                                      value: { kind: 'constant', value: 1 },
+                                    }),
+                                  ),
+                                ),
+                                step('modifyActionValue', {
+                                  key: 'BuffStack',
+                                  operation: 'multiply',
+                                  value: { kind: 'constant', value: 2 },
+                                }),
+                              ),
+                            ),
+                            step('modifyActionValue', {
+                              key: 'BuffStack',
+                              operation: 'multiply',
+                              value: { kind: 'blackboard', key: 'spell_vulnerable_perstack' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'BuffStack',
+                              operation: 'add',
+                              value: { kind: 'constant', value: 1 },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'FinalRate',
+                              operation: 'multiply',
+                              value: { kind: 'blackboard', key: 'BuffStack' },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0013_aglina_ultimate_spell_vulnerable',
+                              definition: {
+                                stackingType: 'stack',
+                                priority: 0,
+                                maxStackCount: 1,
+                                blackboard: {
+                                  'rate': 0,
+                                },
+                                damageModifiers: [
+                                  {
+                                    enabledSide: 'defender',
+                                    condition: {
+                                      kind: 'eventDamageTypesMatch',
+                                      damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                                    },
+                                    processors: [
+                                      {
+                                        kind: 'damageScale',
+                                        side: 'defender',
+                                        zone: 'vulnerable',
+                                        addition: { blackboardKey: 'rate' },
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                              target: 'enemy',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'rate': { kind: 'blackboard', key: 'FinalRate' },
+                              },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_common_affixes_slow',
+                              definition: {
+                                stackingType: 'highPriority',
+                                priority: { blackboardKey: 'rate' },
+                                maxStackCount: 1,
+                                durationSeconds: { blackboardKey: 'duration' },
+                                applyTagIds: [1925762097],
+                                blackboard: { rate: 0, duration: 0 },
+                              },
+                              target: 'enemy',
+                              inheritSourceSkillCastInfo: true,
+                              finishByAction: true,
+                              blackboardAssignments: {
+                                rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                                duration: { kind: 'constant', value: -1 },
+                              },
+                            }),
+                          ),
+                        },
+                      },
+                      target: 'enemy',
+                      inheritSourceSkillCastInfo: true,
+                      finishByAction: true,
+                      blackboardAssignments: {
+                        'FinalRate': { kind: 'blackboard', key: 'FinalRate' },
+                        'spell_vulnerable_rate': { kind: 'blackboard', key: 'spell_vulnerable_rate' },
+                        'potential2': { kind: 'blackboard', key: 'potential2' },
+                        'BuffStack': { kind: 'blackboard', key: 'BuffStack' },
+                        'spell_vulnerable_perstack': { kind: 'blackboard', key: 'spell_vulnerable_perstack' },
+                        'move_speed_scalar': { kind: 'blackboard', key: 'move_speed_scalar' },
+                      },
+                    }),
+                  ),
+                  180,
+                ),
+              ],
+            } },
+            dieWhenSourceDies: false,
+            inheritActionBlackboard: true,
+            overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
+          }),
         ),
       ),
       scheduled(

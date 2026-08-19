@@ -256,6 +256,53 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(taggedDamage).toBeCloseTo(normalDamage * (1.4 / 1.2));
   });
 
+  it('filters defender vulnerability by the current damage type', () => {
+    const environment = createEnvironment();
+    const context = createContext();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const enemyBuffs = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(enemyBuffs instanceof BuffDefinitionOperationTarget)) {
+      throw new Error('enemy Buff runtime is unavailable');
+    }
+    enemyBuffs.apply({
+      buffId: 'buff.spell-vulnerable',
+      sourceId: 'operator',
+      blackboardValues: {},
+      definition: {
+        stackingType: 'unique',
+        damageModifiers: [
+          {
+            enabledSide: 'defender',
+            condition: { kind: 'eventDamageTypesMatch', damageTypes: ['electric'] },
+            processors: [
+              { kind: 'damageScale', side: 'defender', zone: 'vulnerable', addition: 0.3 },
+            ],
+          },
+        ],
+      },
+    });
+
+    const beforeElectric = environment.enemyVitals.health;
+    expect(executor.execute(damageStep)).toBe(true);
+    const electricDamage = beforeElectric - environment.enemyVitals.health;
+
+    const physicalStep = {
+      ...damageStep,
+      parameters: { ...damageStep.parameters, damageType: 'physical' as const },
+    };
+    const beforePhysical = environment.enemyVitals.health;
+    expect(executor.execute(physicalStep)).toBe(true);
+    const physicalDamage = beforePhysical - environment.enemyVitals.health;
+
+    const baseline = createEnvironment();
+    const baselineExecutor = baseline.runtimeOptions.createOperationExecutor(createContext());
+    const beforeBaseline = baseline.enemyVitals.health;
+    expect(baselineExecutor.execute(physicalStep)).toBe(true);
+
+    expect(electricDamage).toBeGreaterThan(224);
+    expect(physicalDamage).toBeCloseTo(beforeBaseline - baseline.enemyVitals.health);
+  });
+
   it('evaluates attached-Buff damage bonuses against the enemy current health ratio', () => {
     const environment = createEnvironment();
     const context = createContext();
