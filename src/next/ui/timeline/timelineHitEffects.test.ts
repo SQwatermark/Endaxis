@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import type { ScenarioDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
-import { projectHitEffectsByCast, projectTimelineHitActualFrames } from './timelineHitEffects';
+import {
+  projectHitEffectsByCast,
+  projectTimelineHitActualFrames,
+  projectTimelineHitDetailEntries,
+} from './timelineHitEffects';
 import { projectCastHitMarkers } from './timelineHitProjection';
 
 function baseDamage(): Record<string, number | boolean | string | null> {
@@ -175,6 +179,24 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
 }
 
 describe('projectHitEffectsByCast', () => {
+  it('selects detail receipts by stable hit identity without requiring the operator source id', () => {
+    const hitId = deriveHitId('cast:1', 'step:damage');
+    const damage = {
+      ...damageEntry(1, 60),
+      sourceId: 'ability-entity:7',
+      data: { ...damageEntry(1, 60).data, stepKey: 'ability-child:damage' },
+    };
+    const infliction = { ...inflictionEntry(2, 60), sourceId: 'ability-entity:7' };
+
+    expect(
+      projectTimelineHitDetailEntries(
+        [damage, infliction, damageEntry(3, 90), damageEntry(4, 60, 'step:unknown')],
+        'cast:1',
+        hitId,
+      ).map(entry => entry.sequence),
+    ).toEqual([1, 2]);
+  });
+
   it('uses exact cast and hit identities instead of authored local-frame offsets', () => {
     const scenario = scenarioWithCast();
     const effects = projectHitEffectsByCast(

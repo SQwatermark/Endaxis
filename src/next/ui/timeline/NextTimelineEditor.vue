@@ -108,6 +108,7 @@ import { type TimelineHitMarkerView } from './timelineHitProjection';
 import {
   projectHitEffectsByCast,
   projectTimelineHitActualFrames,
+  projectTimelineHitDetailEntries,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
@@ -506,6 +507,13 @@ function reactionName(reaction: string): string {
   return translated === key ? reaction : translated;
 }
 
+function inflictionOutcomeLabel(outcome: string): string {
+  if (outcome === 'attachmentOnly') return t('nextTimeline.hitInflictionSuffix');
+  if (outcome === 'burst') return t('nextTimeline.effect.burst');
+  if (outcome === 'compoundStatus') return t('nextTimeline.effect.reaction');
+  return outcome;
+}
+
 function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   if (label === undefined) return '';
   const parts: string[] = [];
@@ -551,9 +559,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   );
 }
 
-const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; stepKey: string } | null>(
-  null,
-);
+const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
@@ -564,16 +570,9 @@ const hitDetail = computed(() => {
   const castModel = viewModel.value.tracks[target.trackIndex]?.skillCasts.find(
     candidate => candidate.id === target.castId,
   );
-  const marker =
-    castModel?.hitMarkers.find(candidate => candidate.stepKey === target.stepKey) ?? null;
+  const marker = castModel?.hitMarkers.find(candidate => candidate.hitId === target.hitId) ?? null;
   if (marker === null) return null;
-  const operatorId = track.id;
-  const entries = current.receiptEntries.filter(
-    entry =>
-      entry.sourceId === operatorId &&
-      entry.data?.castId === cast.id &&
-      entry.data?.stepKey === marker.stepKey,
-  );
+  const entries = projectTimelineHitDetailEntries(current.receiptEntries, cast.id, marker.hitId);
   return { cast, marker, entries };
 });
 const hitDetailTitle = computed(() => {
@@ -1737,7 +1736,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   hitDetailTarget = {
                     trackIndex: track.trackIndex,
                     castId: cast.id,
-                    stepKey: $event,
+                    hitId: $event,
                   }
                 "
                 @connection-pointer-down="
@@ -1956,7 +1955,15 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="hitDetailTarget !== null"
     :title="hitDetailTitle"
     :entries="hitDetail?.entries ?? []"
+    :damage-type-label="damageElementLabel"
+    :reaction-label="reactionName"
+    :outcome-label="inflictionOutcomeLabel"
     :labels="{
+      dialogTitle: t('hitDetail.title'),
+      context: t('hitDetail.context'),
+      result: t('hitDetail.result'),
+      multipliers: t('hitDetail.multipliers'),
+      effects: `${t('nextTimeline.hitDetail.element')} / ${t('nextTimeline.hitDetail.reaction')}`,
       frame: t('nextTimeline.hitDetail.frame'),
       damage: t('nextTimeline.hitDetail.damage'),
       actualDamage: t('nextTimeline.hitDetail.actualDamage'),

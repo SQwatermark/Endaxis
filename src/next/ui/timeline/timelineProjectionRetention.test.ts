@@ -50,6 +50,8 @@ describe('Next timeline simulation projection retention', () => {
     expect(actionBlockSource).not.toContain('transition: all');
     expect(actionBlockSource).toContain('background-color 0.15s ease');
     expect(actionBlockSource).toContain('transform 0.15s cubic-bezier');
+    expect(source).toContain('hitId: $event');
+    expect(source).toContain('candidate.hitId === target.hitId');
   });
 
   it('writes cast movement directly in the actual-time domain', () => {

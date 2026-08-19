@@ -42,6 +42,33 @@ export interface TimelineHitEffectLabel {
   readonly reactions: readonly TimelineHitReactionEffect[];
 }
 
+/**
+ * 取得一个稳定命中身份首次实际执行时的完整回执组。伤害按 castId + hitId 精确匹配；
+ * 同帧附着与反应按 castId 归组，和块上提示使用相同边界，不依赖能力实体的 sourceId。
+ */
+export function projectTimelineHitDetailEntries(
+  entries: readonly CombatReceiptEntry[],
+  castId: string,
+  hitId: string,
+): readonly CombatReceiptEntry[] {
+  const firstFrame = entries.find(
+    entry =>
+      entry.event === 'DamageApplied' &&
+      entry.data?.castId === castId &&
+      entry.data?.hitId === hitId,
+  )?.frame;
+  if (firstFrame === undefined) return [];
+  return entries.filter(entry => {
+    if (entry.frame !== firstFrame || entry.data?.castId !== castId) return false;
+    if (entry.event === 'DamageApplied') return entry.data.hitId === hitId;
+    return (
+      entry.event === 'ElementalInflictionApplied' ||
+      entry.event === 'ElementalReactionApplied' ||
+      entry.event === 'ElementalReactionConsumed'
+    );
+  });
+}
+
 /** 每个稳定命中身份首次实际执行的战斗帧；周期重复执行仍只对应定义中的一个标记。 */
 export function projectTimelineHitActualFrames(
   entries: readonly CombatReceiptEntry[],
