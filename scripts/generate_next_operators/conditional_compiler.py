@@ -22,6 +22,7 @@ from compiler_ir import (
 )
 from source_models import (
     AbilityEntitySpawnPayload,
+    AuraActionSource,
     BuffDefinitionSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
@@ -56,6 +57,7 @@ class ConditionalCompileContext:
     unmodeled_action_types: frozenset[str] = frozenset()
     projected_ability_entity_spawns: tuple[AbilityEntitySpawnPayload, ...] = ()
     projected_projectile_launches: tuple[ConditionalProjectileProjection, ...] = ()
+    aura_actions: tuple[AuraActionSource, ...] = ()
     context_action: ConditionalActionSource | None = None
 
 

@@ -7,6 +7,7 @@ from typing import Any, Callable, Literal
 
 from source_models import (
     AbilityEntitySpawnPayload,
+    AuraActionSource,
     BuffDefinitionSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
@@ -23,6 +24,7 @@ class ConditionalLeafServices:
 
     compile_blackboard_calculation: Callable[..., Any]
     compile_blackboard_mutation: Callable[..., Any]
+    compile_aura_action: Callable[..., Any]
     compile_buff_blackboard_read: Callable[..., Any]
     compile_buff_finish: Callable[..., Any]
     compile_buff_stack_read: Callable[..., Any]
@@ -67,12 +69,14 @@ def compile_conditional_branch_action(
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
+    aura_actions: tuple[AuraActionSource, ...] = (),
     *,
     services: ConditionalLeafServices,
 ) -> str:
     """编译一个条件分支叶子；未闭环动作必须在这里显式拒绝。"""
     compile_blackboard_calculation = services.compile_blackboard_calculation
     compile_blackboard_mutation = services.compile_blackboard_mutation
+    compile_aura_action = services.compile_aura_action
     compile_buff_blackboard_read = services.compile_buff_blackboard_read
     compile_buff_finish = services.compile_buff_finish
     compile_buff_stack_read = services.compile_buff_stack_read
@@ -98,6 +102,20 @@ def compile_conditional_branch_action(
         # 只允许 manifest 逐技能显式声明、且已由 unresolvedCombatActions
         # 反向验证存在的缺口。它仍会保留在 audit 中，不能被误报为已建模。
         return "sequence()"
+    if action.actionType == "AuraAction":
+        matches = tuple(
+            aura for aura in aura_actions if aura.actionPath == action.actionPath
+        )
+        if len(matches) != 1:
+            raise ValueError(
+                f"{path}: conditional AuraAction requires one exact parsed payload"
+            )
+        return compile_aura_action(
+            matches[0],
+            path,
+            buff_definitions=buff_definitions,
+            invoked_child_context=invoked_child_context,
+        )
     if action.actionType in {
         "ContinuousFindTargetAction",
         "FindTargetAction",

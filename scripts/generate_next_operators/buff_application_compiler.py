@@ -271,11 +271,11 @@ def compile_aura_action(
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     services: BuffApplicationCompilerServices,
 ) -> str:
-    """在零空间单敌人模型中，把无筛选敌方 Aura 归约为动作区间 Buff。"""
+    """在零空间模型中，把无筛选敌方或友方 Aura 归约为动作区间 Buff。"""
     target_filter = aura.targetFilter
     if aura.activationSource != "timeline" or aura.startFrame is None or aura.endFrame is None:
         raise ValueError(f"{path}: only timeline Aura actions are supported")
-    common_fixed_enemy = (
+    common_fixed_area = (
         aura.auraType in {"GlobalAura", "RangedAura"}
         and aura.root.targetSource == "Owner"
         and not aura.root.targetGroupKey
@@ -284,7 +284,6 @@ def compile_aura_action(
         and aura.excludeColliderOptions == 0
         and target_filter.checkAlive
         and target_filter.autoSetTargetFaction
-        and target_filter.factionTarget == "Anti"
         and not target_filter.filterObjectType
         and not target_filter.filterSlot
         and not target_filter.filterGameplayTag
@@ -299,7 +298,8 @@ def compile_aura_action(
         and not aura.actionWhenExitAuraTypes
     )
     if (
-        common_fixed_enemy
+        common_fixed_area
+        and target_filter.factionTarget == "Anti"
         and aura.excludeOwner
         and aura.targetObjectType == 0
         and aura.limitInfluenceCountPerTarget
@@ -334,9 +334,22 @@ def compile_aura_action(
             raise ValueError(f"{path}: unsupported AirborneAction payload")
         # DamageAction is independently projected by the recursive hit parser at the same frame.
         return "step('outputAirborne', { target: 'enemy' })"
-    if not (
-        common_fixed_enemy
+    application_target: Literal["enemy", "party"] | None = None
+    if (
+        common_fixed_area
+        and target_filter.factionTarget == "Anti"
         and aura.targetObjectType in {"Enemy", "EnemyAll"}
+    ):
+        application_target = "enemy"
+    elif (
+        common_fixed_area
+        and target_filter.factionTarget == "Ally"
+        and aura.targetObjectType in {0, "Character"}
+        and not aura.excludeOwner
+    ):
+        application_target = "party"
+    if not (
+        application_target is not None
         and not aura.limitInfluenceCountPerTarget
         and not aura.actionInAuraTypes
         and not aura.nestedCombatActions
@@ -349,14 +362,17 @@ def compile_aura_action(
         compile_buff_application_values(
             buff_id=buff.buffId,
             blackboard_assignments=buff.blackboardAssignments,
-            target_source="Target",
+            target_source=("Target" if application_target == "enemy" else "Context"),
             target_group_key="",
             count=ScalarSource(1, None, None),
             buff_source=aura.buffSource,
             inherit_source_skill_cast_info=aura.inheritSourceSkillCastId,
             root_skill_context=True,
             path=f"{path}.buffs[{index}]",
-            input_target="enemy",
+            context_application_target=(
+                "party" if application_target == "party" else None
+            ),
+            input_target=("enemy" if application_target == "enemy" else None),
             buff_definitions=buff_definitions,
             invoked_child_context=invoked_child_context,
             finish_by_action=True,

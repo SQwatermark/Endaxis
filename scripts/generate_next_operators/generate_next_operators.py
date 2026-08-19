@@ -4400,6 +4400,7 @@ def compile_immediate_projectile_children(
 
 def _make_conditional_leaf_services() -> ConditionalLeafServices:
     return ConditionalLeafServices(
+        compile_aura_action=compile_aura_action,
         compile_blackboard_calculation=compile_blackboard_calculation,
         compile_blackboard_mutation=compile_blackboard_mutation,
         compile_buff_blackboard_read=compile_buff_blackboard_read,
@@ -4447,6 +4448,7 @@ def compile_conditional_branch_action(
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
+    aura_actions: tuple[AuraActionSource, ...] = (),
 ) -> str:
     """兼容既有调用方的条件分支叶子编译入口。"""
 
@@ -4471,6 +4473,7 @@ def compile_conditional_branch_action(
         current_buff_environment,
         invoked_child_context,
         unmodeled_action_types,
+        aura_actions,
         services=_make_conditional_leaf_services(),
     )
 
@@ -4643,6 +4646,7 @@ def _compile_conditional_leaf_with_context(
         current_buff_environment=context.current_buff_environment,
         invoked_child_context=context.invoked_child_context,
         unmodeled_action_types=context.unmodeled_action_types,
+        aura_actions=context.aura_actions,
     )
 
 
@@ -4744,6 +4748,7 @@ def _compile_conditional_action_ir(
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
+    aura_actions: tuple[AuraActionSource, ...] = (),
 ) -> CompiledNode:
     """把既有宽参数入口适配到独立条件编译模块。"""
 
@@ -4769,6 +4774,7 @@ def _compile_conditional_action_ir(
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
+            aura_actions=aura_actions,
         ),
     )
 

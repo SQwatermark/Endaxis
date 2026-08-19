@@ -239,6 +239,9 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - Catcher 普通战技此前报告“事件响应动作树为空”是 parser 缺口，不是原生空监听。两条响应分别由 `OnBeforeTakeDamage` 与 `OnAddedBuff` 进入，守卫通过后执行 `JumpToAction(destFrame=60)`；中间的 `ConvertToTargetContext(Attacker)` 在当前响应中没有后续 Context 消费者。
 - `JumpToAction` 现只在事件有序序列入口作为 `jumpTimeline` 叶子解析，普通技能时间轴继续使用已有专用跳帧投影，避免重复调度。运行时回归证明事件同步回调能够改写宿主技能局部帧。
 - Catcher 普通战技的新首阻塞是主动技能分支里的 `CheckTargetAngle`。方向角不由零距离假设决定，继续失败关闭；全量统计保持 320/320 可解析、292/320 可编译。
+
+条件 Aura 已接入与根 Aura 相同的精确实例生命周期。生成器按条件叶子的完整 `actionPath` 绑定独立解析的 Aura 载荷，保留分支身份，并把外层原生 Sequence 的结束帧交给 `finishByAction`；未走中的分支不会创建实例，结束时也不会误删其他来源的同名 Buff。固定零空间范围现在同时支持无筛选敌对目标（唯一敌人）和无筛选友方角色（全队）。Snowshine 普通战技的减伤 Aura 与潜能监听 Aura 已穿过该层，首阻塞推进到后续 `CheckTargetAngle`；方向仍不由零距离假设决定。严格审计保持 320/320 可解析、292/320 可编译、14 名完整直转。
+
 - 本地 AKEDB SkillData 一度出现多份截断 JSON，已重新下载并验证 2459 份文件全部可解析后才重跑审计。
 
 ### 2026-08-19：陈千语、洛茜、卡缪正式样本接入与时间域边界

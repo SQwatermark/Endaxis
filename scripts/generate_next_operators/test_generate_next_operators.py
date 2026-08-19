@@ -6856,6 +6856,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
+    def test_zero_space_ally_aura_compiles_to_party_action_duration_buff(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = "Character"
+        action["targetFilter"]["factionTarget"] = "Ally"
+        action["excludeOwner"] = False
+        action["actionInAura"] = {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 51,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+        branch = ConditionalBranchActionSource(
+            "AuraAction",
+            0,
+            actionPath=aura.actionPath,
+        )
+
+        self.assertEqual(
+            compile_conditional_branch_action(
+                branch,
+                "fixture.conditionalAura",
+                aura_actions=(aura,),
+            ),
+            "\n".join(
+                [
+                    "step('applyBuff', {",
+                    "  buffId: 'buff.fixture',",
+                    "  target: 'party',",
+                    "  inheritSourceSkillCastInfo: true,",
+                    "  finishByAction: true,",
+                    "})",
+                ]
+            ),
+        )
+
     def test_zero_space_enemy_aura_outputs_airborne_before_recursive_damage(self) -> None:
         action = aura_action_fixture()
         action["targetObjectType"] = 0

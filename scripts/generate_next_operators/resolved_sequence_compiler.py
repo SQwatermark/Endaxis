@@ -89,6 +89,18 @@ class ResolvedSequenceServices:
     steps: ResolvedSequenceStepServices
 
 
+def conditional_action_contains_aura(
+    action: ConditionalActionSource,
+    aura_actions: Iterable[AuraActionSource],
+) -> bool:
+    """判断条件根下是否存在需随原生 sequence 结束的 Aura。"""
+    return any(
+        aura.actionPath[: len(action.actionPath)] == action.actionPath
+        and len(aura.actionPath) > len(action.actionPath)
+        for aura in aura_actions
+    )
+
+
 def compile_resolved_sequence(
     skill: SkillSource,
     config: dict[str, Any],
@@ -544,6 +556,8 @@ def compile_resolved_sequence(
                     singleton_ability_entity_context_keys
                 ),
                 unmodeled_action_types=unmodeled_action_types,
+                aura_actions=getattr(skill, "auraActions", ()),
+                invoked_child_context=(skill, config),
             )
             if compiled_condition == COMPILED_EMPTY_SEQUENCE:
                 continue
@@ -807,7 +821,16 @@ def compile_resolved_sequence(
             ).endFrame
             for item, _ in entries
             if item.itemType in {"buffHold", "eventListener", "timeDilation"}
-            or (item.itemType == "condition" and isinstance(item.payload, EveryFrameActionSource))
+            or (
+                item.itemType == "condition"
+                and (
+                    isinstance(item.payload, EveryFrameActionSource)
+                    or conditional_action_contains_aura(
+                        cast(ConditionalActionSource, item.payload),
+                        getattr(skill, "auraActions", ()),
+                    )
+                )
+            )
             or item.itemType == "auraAction"
         }
         if len(end_frames) > 1:
