@@ -74,6 +74,7 @@ def compile_conditional_branch_action(
         tuple[tuple[str, ...], str], ...
     ] = (),
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
+    prefer_compiled_ability_entity_spawns: bool = False,
     *,
     services: ConditionalLeafServices,
 ) -> str:
@@ -186,13 +187,15 @@ def compile_conditional_branch_action(
         )
     ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
     if ability_entity_spawn is not None:
-        if ability_entity_spawn in projected_ability_entity_spawns:
-            return "sequence()"
         matches = tuple(
             source
             for action_path, source in compiled_ability_entity_spawns
             if action_path == action.actionPath
         )
+        if prefer_compiled_ability_entity_spawns and len(matches) == 1:
+            return matches[0]
+        if ability_entity_spawn in projected_ability_entity_spawns:
+            return "sequence()"
         if len(matches) == 1:
             return matches[0]
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")

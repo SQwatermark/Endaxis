@@ -189,6 +189,10 @@ from generate_next_operators import (
 from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
 from time_dilation_parser import parse_time_dilation_target
 from action_payload_parser import parse_heal_payload
+from resolved_sequence_compiler import (
+    ability_entity_child_is_inert,
+    projectile_ability_entities_are_condition_projections,
+)
 
 
 def target_settings_fixture(
@@ -2700,13 +2704,25 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
-        compiled = compile_conditional_action(
-            source,
-            "fixture.condition",
-            compiled_ability_entity_spawns=(
-                (first_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.first' })"),
-                (second_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.second' })"),
+        projected = replace(source, projectedAbilityEntitySpawns=(first, second))
+        compiled_spawns = (
+            (first_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.first' })"),
+            (second_path, "step('spawnAbilityEntity', { abilityEntityId: 'entity.second' })"),
+        )
+
+        self.assertEqual(
+            compile_conditional_action(
+                projected,
+                "fixture.condition",
+                compiled_ability_entity_spawns=compiled_spawns,
             ),
+            "sequence()",
+        )
+        compiled = compile_conditional_action(
+            projected,
+            "fixture.condition",
+            compiled_ability_entity_spawns=compiled_spawns,
+            prefer_compiled_ability_entity_spawns=True,
         )
 
         self.assertIn("abilityEntityId: 'entity.first'", compiled)
@@ -2806,6 +2822,83 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(len(marked.projectedProjectileLaunches), 1)
         self.assertEqual(compile_conditional_action(marked, "fixture.condition"), "sequence()")
+
+    def test_projectile_entity_hits_must_exactly_match_condition_projections(self) -> None:
+        payload = AbilityEntitySpawnPayload(
+            abilityEntityId="entity.sword",
+            skillId="skill.sword",
+            assignBlackboard=True,
+        )
+        condition = SimpleNamespace(
+            startFrame=0,
+            projectedAbilityEntitySpawns=(payload,),
+        )
+        matching_hit = SimpleNamespace(
+            spawnFrame=12,
+            spawnPayload=payload,
+            abilityEntityId="entity.sword",
+            skillId="skill.sword",
+        )
+        trigger = SimpleNamespace(
+            launchFrame=12,
+            conditionalActions=(condition,),
+            abilityEntityHits=(matching_hit,),
+        )
+
+        self.assertTrue(projectile_ability_entities_are_condition_projections(trigger))
+        self.assertFalse(
+            projectile_ability_entities_are_condition_projections(
+                SimpleNamespace(
+                    launchFrame=12,
+                    conditionalActions=(condition,),
+                    abilityEntityHits=(matching_hit, matching_hit),
+                )
+            )
+        )
+        self.assertFalse(
+            projectile_ability_entities_are_condition_projections(
+                SimpleNamespace(
+                    launchFrame=12,
+                    conditionalActions=(condition,),
+                    abilityEntityHits=(
+                        SimpleNamespace(
+                            **{**matching_hit.__dict__, "spawnFrame": 13}
+                        ),
+                    ),
+                )
+            )
+        )
+
+    def test_inert_ability_entity_has_no_hidden_child_behavior(self) -> None:
+        empty_fields = {
+            "cycleTruncated": False,
+            "combatActions": (),
+            "directDamageHits": (),
+            "intervalDamageHits": (),
+            "explicitFinishes": (),
+            "timelineJumps": (),
+            "conditionalActions": (),
+            "inflictions": (),
+            "auxiliaryActions": (),
+            "resourceGains": (),
+            "projectileLaunches": (),
+            "projectileTriggeredSkills": (),
+            "nestedAbilityEntityHits": (),
+            "blackboardCalculations": (),
+            "blackboardMutations": (),
+            "buffBlackboardReads": (),
+            "buffFinishes": (),
+            "auraActions": (),
+            "keywordActions": (),
+            "localTargetGroupWrites": (),
+        }
+
+        self.assertTrue(ability_entity_child_is_inert(SimpleNamespace(**empty_fields)))
+        self.assertFalse(
+            ability_entity_child_is_inert(
+                SimpleNamespace(**{**empty_fields, "combatActions": ("DamageAction",)})
+            )
+        )
 
     def test_immediate_projectile_child_preserves_infliction_before_damage(self) -> None:
         damage = TimedDamageSource(
@@ -9336,6 +9429,25 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("overrideDurationSeconds: { kind: 'constant', value: 40 }", compiled)
         self.assertIn("saveToContextKey: 'spawned'", compiled)
         self.assertIn("'EntityBB_power': { kind: 'constant', value: 3 }", compiled)
+
+        template_only = compile_logical_ability_entity_spawn(
+            replace(
+                payload,
+                skillId=None,
+                entityBlackboardAssignments=(),
+                overrideDuration=None,
+                saveToContextKey=None,
+            ),
+            "fixture.templateOnly",
+            {
+                "ability_entity": {
+                    "bornTagIds": [1, -2],
+                    "_endaxisLifetimeKind": "infinite",
+                }
+            },
+        )
+        self.assertIn("lifetime: { kind: 'infinite' }", template_only)
+        self.assertNotIn("childSkill", template_only)
 
     def test_ability_entity_child_buff_source_resolves_to_caster(self) -> None:
         application = AuxiliaryActionSource(

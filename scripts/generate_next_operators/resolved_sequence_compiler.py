@@ -36,6 +36,52 @@ from source_models import (
 from source_utils import indent_source, require_list, ts_inline_literal
 
 
+def projectile_ability_entities_are_condition_projections(
+    trigger: ProjectileTriggeredSkillSource,
+) -> bool:
+    """证明 trigger 的实体集合完全来自已标记的条件无关投影。"""
+    expected: list[tuple[int, Any]] = []
+    for condition in trigger.conditionalActions:
+        expected.extend(
+            (trigger.launchFrame + condition.startFrame, payload)
+            for payload in condition.projectedAbilityEntitySpawns
+        )
+    hits = trigger.abilityEntityHits
+    return bool(hits) and len(hits) == len(expected) and all(
+        hit.spawnFrame == frame
+        and hit.spawnPayload == payload
+        and hit.abilityEntityId == payload.abilityEntityId
+        and hit.skillId == payload.skillId
+        for hit, (frame, payload) in zip(hits, expected, strict=True)
+    )
+
+
+def ability_entity_child_is_inert(hit: AbilityEntityHitSource) -> bool:
+    """识别只保留逻辑实体身份、没有任何待执行子战斗行为的 SkillData。"""
+    return (
+        not hit.cycleTruncated
+        and not hit.combatActions
+        and not hit.directDamageHits
+        and not hit.intervalDamageHits
+        and not hit.explicitFinishes
+        and not hit.timelineJumps
+        and not hit.conditionalActions
+        and not hit.inflictions
+        and not hit.auxiliaryActions
+        and not hit.resourceGains
+        and not hit.projectileLaunches
+        and not hit.projectileTriggeredSkills
+        and not hit.nestedAbilityEntityHits
+        and not hit.blackboardCalculations
+        and not hit.blackboardMutations
+        and not hit.buffBlackboardReads
+        and not hit.buffFinishes
+        and not hit.auraActions
+        and not hit.keywordActions
+        and not hit.localTargetGroupWrites
+    )
+
+
 @dataclass(frozen=True)
 class ResolvedSequenceAnalysisServices:
     """来源证明、调度收集和配置解析服务。"""
@@ -412,7 +458,9 @@ def compile_resolved_sequence(
 
     def compile_attached_ability_entity(entity: AbilityEntityHitSource) -> str | None:
         payload = logical_ability_entity_spawn_payload_for_compile(entity, skill)
-        if payload is None or not ability_entity_child_timeline_can_compile(
+        if payload is None:
+            return None
+        child_can_compile = ability_entity_child_timeline_can_compile(
             entity,
             ignored_auxiliary_classifications=frozenset(
                 ignored_auxiliary_classifications
@@ -420,8 +468,15 @@ def compile_resolved_sequence(
             ignored_buff_ids=ignored_buff_ids,
             unmodeled_buff_ids=unmodeled_buff_ids,
             buff_definitions=buff_definitions,
-        ):
+        )
+        if not child_can_compile and not ability_entity_child_is_inert(entity):
             return None
+        if not child_can_compile:
+            return compile_logical_ability_entity_spawn(
+                payload,
+                f"{skill.key}.conditionalAbilityEntitySpawn",
+                ability_entity_templates,
+            )
         nested_spawns = collect_compiled_conditional_spawns(entity.conditionalActions)
         nested_projectiles = collect_compiled_conditional_projectiles(
             entity.conditionalActions
@@ -473,6 +528,23 @@ def compile_resolved_sequence(
                     source = compile_attached_ability_entity(attached_hits[0])
                     if source is not None:
                         result.append((action.actionPath, source))
+                elif (
+                    getattr(action, "abilityEntitySpawn", None) is not None
+                    and not attached_hits
+                    and action.abilityEntitySpawn.skillId is None
+                ):
+                    # 没有子 SkillData 的模板实体仍需进入逻辑实体目录，供同一技能后续
+                    # Context 查询消费；它不携带也不需要伪造 childSkill。
+                    result.append(
+                        (
+                            action.actionPath,
+                            compile_logical_ability_entity_spawn(
+                                action.abilityEntitySpawn,
+                                f"{skill.key}.conditionalAbilityEntitySpawn",
+                                ability_entity_templates,
+                            ),
+                        )
+                    )
                 if getattr(action, "nestedCondition", None) is not None:
                     visit_conditions((action.nestedCondition,))
                 if getattr(action, "onceActions", None) is not None:
@@ -508,7 +580,10 @@ def compile_resolved_sequence(
                 or trigger.resourceGains
                 or trigger.inflictions
                 or trigger.nestedProjectileTriggeredSkills
-                or trigger.abilityEntityHits
+                or (
+                    trigger.abilityEntityHits
+                    and not projectile_ability_entities_are_condition_projections(trigger)
+                )
                 or trigger.auraActions
                 or trigger.keywordActions
                 or any(
@@ -546,6 +621,7 @@ def compile_resolved_sequence(
                     buff_definitions=buff_definitions,
                     invoked_child_context=(skill, config),
                     compiled_ability_entity_spawns=compiled_spawns,
+                    prefer_compiled_ability_entity_spawns=True,
                     compiled_projectile_launches=compiled_projectiles,
                 )
                 compiled_sources.extend(render_compiled_sequence_children(node))

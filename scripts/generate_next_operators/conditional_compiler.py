@@ -61,6 +61,7 @@ class ConditionalCompileContext:
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = ()
+    prefer_compiled_ability_entity_spawns: bool = False
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = ()
     context_action: ConditionalActionSource | None = None
 

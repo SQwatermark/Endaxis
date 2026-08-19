@@ -4572,6 +4572,7 @@ def compile_conditional_branch_action(
         tuple[tuple[str, ...], str], ...
     ] = (),
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
+    prefer_compiled_ability_entity_spawns: bool = False,
 ) -> str:
     """兼容既有调用方的条件分支叶子编译入口。"""
 
@@ -4599,6 +4600,7 @@ def compile_conditional_branch_action(
         aura_actions,
         compiled_ability_entity_spawns,
         compiled_projectile_launches,
+        prefer_compiled_ability_entity_spawns,
         services=_make_conditional_leaf_services(),
     )
 
@@ -4773,6 +4775,9 @@ def _compile_conditional_leaf_with_context(
         unmodeled_action_types=context.unmodeled_action_types,
         aura_actions=context.aura_actions,
         compiled_ability_entity_spawns=context.compiled_ability_entity_spawns,
+        prefer_compiled_ability_entity_spawns=(
+            context.prefer_compiled_ability_entity_spawns
+        ),
         compiled_projectile_launches=context.compiled_projectile_launches,
     )
 
@@ -4880,6 +4885,7 @@ def _compile_conditional_action_ir(
         tuple[tuple[str, ...], str], ...
     ] = (),
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
+    prefer_compiled_ability_entity_spawns: bool = False,
 ) -> CompiledNode:
     """把既有宽参数入口适配到独立条件编译模块。"""
 
@@ -4907,6 +4913,9 @@ def _compile_conditional_action_ir(
             unmodeled_action_types=unmodeled_action_types,
             aura_actions=aura_actions,
             compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+            prefer_compiled_ability_entity_spawns=(
+                prefer_compiled_ability_entity_spawns
+            ),
             compiled_projectile_launches=compiled_projectile_launches,
         ),
     )
@@ -4935,6 +4944,7 @@ def compile_conditional_action(
         tuple[tuple[str, ...], str], ...
     ] = (),
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
+    prefer_compiled_ability_entity_spawns: bool = False,
 ) -> str:
     """兼容既有调用方的条件控制流 TypeScript 渲染边界。"""
 
@@ -4959,6 +4969,9 @@ def compile_conditional_action(
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
             compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+            prefer_compiled_ability_entity_spawns=(
+                prefer_compiled_ability_entity_spawns
+            ),
             compiled_projectile_launches=compiled_projectile_launches,
         )
     )
