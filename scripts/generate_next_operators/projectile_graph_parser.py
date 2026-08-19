@@ -197,7 +197,8 @@ def resolve_projectile_payload_triggers(
             )
         trigger_root = load_projected_skill_data(trigger_path, trigger_source_name)
         trigger_blackboard = numeric_declared_blackboard(
-            parse_declared_blackboard(trigger_root, trigger_source_name)
+            parse_declared_blackboard(trigger_root, trigger_source_name),
+            include_dynamic_defaults=True,
         )
         if payload.assignBlackboard:
             trigger_blackboard.update(inherited_blackboard)

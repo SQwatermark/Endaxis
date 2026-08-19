@@ -1103,7 +1103,8 @@ export const zhuangFangyiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -33210,7 +33211,8 @@ export const zhuangFangyiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": false,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -33406,7 +33408,8 @@ export const zhuangFangyiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -33811,7 +33814,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -35132,7 +35137,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "left": {
                                   "value": 0.0,
                                   "blackboardKey": "swordsForLimit",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    0.0
+                                  ]
                                 },
                                 "right": {
                                   "value": 0.0,
@@ -37623,7 +37630,8 @@ export const zhuangFangyiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": false,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -37819,7 +37827,8 @@ export const zhuangFangyiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -39720,7 +39729,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -40766,7 +40777,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": false,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -40845,7 +40857,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -41891,7 +41905,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": false,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -42035,7 +42050,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -42472,7 +42488,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -43829,7 +43847,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "left": {
                                         "value": 0.0,
                                         "blackboardKey": "swordsForLimit",
-                                        "levelValues": null
+                                        "levelValues": [
+                                          0.0
+                                        ]
                                       },
                                       "right": {
                                         "value": 0.0,
@@ -45234,7 +45254,9 @@ export const zhuangFangyiGeneratedSource = {
                   "attackScale": {
                     "value": 0.0,
                     "blackboardKey": "atk_scale_final",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "calculationMultiplier": null,
                   "poiseValue": null,
@@ -45328,7 +45350,9 @@ export const zhuangFangyiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "tick_index",
-                    "levelValues": null
+                    "levelValues": [
+                      1.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,
@@ -45477,7 +45501,9 @@ export const zhuangFangyiGeneratedSource = {
                         "left": {
                           "value": 0.0,
                           "blackboardKey": "tick_index",
-                          "levelValues": null
+                          "levelValues": [
+                            1.0
+                          ]
                         },
                         "right": {
                           "value": 1.0,
@@ -45521,7 +45547,9 @@ export const zhuangFangyiGeneratedSource = {
                             "attackScale": {
                               "value": 0.0,
                               "blackboardKey": "atk_scale_final",
-                              "levelValues": null
+                              "levelValues": [
+                                0.0
+                              ]
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
@@ -45562,7 +45590,9 @@ export const zhuangFangyiGeneratedSource = {
                             "attackScale": {
                               "value": 0.0,
                               "blackboardKey": "atk_scale_final",
-                              "levelValues": null
+                              "levelValues": [
+                                0.0
+                              ]
                             },
                             "calculationMultiplier": null,
                             "poiseValue": null,
@@ -45652,7 +45682,9 @@ export const zhuangFangyiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "sword_index",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,
@@ -45889,7 +45921,9 @@ export const zhuangFangyiGeneratedSource = {
               "left": {
                 "value": 0.0,
                 "blackboardKey": "atk_scale_final",
-                "levelValues": null
+                "levelValues": [
+                  0.0
+                ]
               },
               "right": {
                 "value": 18.0,
@@ -47106,7 +47140,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": false,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -47202,7 +47237,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": false,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -47346,7 +47382,8 @@ export const zhuangFangyiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,

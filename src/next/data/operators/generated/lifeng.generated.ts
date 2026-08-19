@@ -8307,7 +8307,9 @@ export const lifengGeneratedSource = {
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "isCombo",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
@@ -8710,7 +8712,9 @@ export const lifengGeneratedSource = {
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "isCombo",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
@@ -9131,7 +9135,9 @@ export const lifengGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "isCombo",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,

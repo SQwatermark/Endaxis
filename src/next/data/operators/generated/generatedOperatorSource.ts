@@ -777,6 +777,7 @@ export interface GeneratedBuffFinishPayload {
   readonly limitSource: boolean;
   readonly isFinishedEarly: boolean;
   readonly isAbsorbed: boolean;
+  readonly finishLayerCount?: GeneratedScalarSource | null;
 }
 
 export interface GeneratedLegacyBuffFinishPayload {

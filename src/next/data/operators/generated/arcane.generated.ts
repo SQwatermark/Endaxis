@@ -1083,7 +1083,8 @@ export const arcaneGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -2487,7 +2488,8 @@ export const arcaneGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -3189,7 +3191,8 @@ export const arcaneGeneratedSource = {
                                       "finishAll": true,
                                       "limitSource": false,
                                       "isFinishedEarly": true,
-                                      "isAbsorbed": false
+                                      "isAbsorbed": false,
+                                      "finishLayerCount": null
                                     },
                                     "legacyBuffFinish": null,
                                     "skillCooldownAdjustment": null,
@@ -3218,7 +3221,8 @@ export const arcaneGeneratedSource = {
                                       "finishAll": true,
                                       "limitSource": false,
                                       "isFinishedEarly": true,
-                                      "isAbsorbed": false
+                                      "isAbsorbed": false,
+                                      "finishLayerCount": null
                                     },
                                     "legacyBuffFinish": null,
                                     "skillCooldownAdjustment": null,
@@ -3792,7 +3796,8 @@ export const arcaneGeneratedSource = {
                                 "finishAll": true,
                                 "limitSource": false,
                                 "isFinishedEarly": true,
-                                "isAbsorbed": false
+                                "isAbsorbed": false,
+                                "finishLayerCount": null
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -4112,7 +4117,8 @@ export const arcaneGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -4689,7 +4695,9 @@ export const arcaneGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "isWisd",
-                    "levelValues": null
+                    "levelValues": [
+                      1.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -5021,7 +5029,9 @@ export const arcaneGeneratedSource = {
                                 "isWisd": {
                                   "value": 0.0,
                                   "blackboardKey": "isWisd",
-                                  "levelValues": null
+                                  "levelValues": [
+                                    1.0
+                                  ]
                                 },
                                 "cd_reduce": {
                                   "value": 0.0,
@@ -5080,7 +5090,9 @@ export const arcaneGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "isWisd",
-                    "levelValues": null
+                    "levelValues": [
+                      1.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -5134,7 +5146,9 @@ export const arcaneGeneratedSource = {
                           "isWisd": {
                             "value": 0.0,
                             "blackboardKey": "isWisd",
-                            "levelValues": null
+                            "levelValues": [
+                              1.0
+                            ]
                           }
                         }
                       }
@@ -5275,12 +5289,16 @@ export const arcaneGeneratedSource = {
                           "duration_vul": {
                             "value": 0.0,
                             "blackboardKey": "duration_calc",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "atk_scale_calc": {
                             "value": 0.0,
                             "blackboardKey": "atk_scale_calc",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "poise_final": {
                             "value": 0.0,
@@ -5292,7 +5310,9 @@ export const arcaneGeneratedSource = {
                           "isWisd": {
                             "value": 0.0,
                             "blackboardKey": "isWisd",
-                            "levelValues": null
+                            "levelValues": [
+                              1.0
+                            ]
                           },
                           "atk_scale_laser1": {
                             "value": 0.0,
@@ -5387,12 +5407,16 @@ export const arcaneGeneratedSource = {
                           "duration_vul": {
                             "value": 0.0,
                             "blackboardKey": "duration_calc",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "atk_scale_calc": {
                             "value": 0.0,
                             "blackboardKey": "atk_scale_calc",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "poise_final": {
                             "value": 0.0,
@@ -5404,7 +5428,9 @@ export const arcaneGeneratedSource = {
                           "isWisd": {
                             "value": 0.0,
                             "blackboardKey": "isWisd",
-                            "levelValues": null
+                            "levelValues": [
+                              1.0
+                            ]
                           },
                           "atk_scale_laser1": {
                             "value": 0.0,
@@ -8409,7 +8435,8 @@ export const arcaneGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -8552,7 +8579,8 @@ export const arcaneGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -27325,7 +27353,9 @@ export const arcaneGeneratedSource = {
                         "left": {
                           "value": 0.0,
                           "blackboardKey": "effect_count",
-                          "levelValues": null
+                          "levelValues": [
+                            0.0
+                          ]
                         },
                         "right": {
                           "value": 0.0,
@@ -27366,7 +27396,9 @@ export const arcaneGeneratedSource = {
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "effect_count",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 1.0,

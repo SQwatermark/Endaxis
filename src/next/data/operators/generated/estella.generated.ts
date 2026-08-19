@@ -4224,7 +4224,9 @@ export const estellaGeneratedSource = {
                               "attackScale": {
                                 "value": 0.0,
                                 "blackboardKey": "up_atk_scale",
-                                "levelValues": null
+                                "levelValues": [
+                                  0.0
+                                ]
                               },
                               "calculationMultiplier": null,
                               "poiseValue": null,
@@ -4617,7 +4619,9 @@ export const estellaGeneratedSource = {
                               "attackScale": {
                                 "value": 0.0,
                                 "blackboardKey": "up_atk_scale",
-                                "levelValues": null
+                                "levelValues": [
+                                  0.0
+                                ]
                               },
                               "calculationMultiplier": null,
                               "poiseValue": null,
@@ -4995,7 +4999,9 @@ export const estellaGeneratedSource = {
                               "attackScale": {
                                 "value": 0.0,
                                 "blackboardKey": "up_atk_scale",
-                                "levelValues": null
+                                "levelValues": [
+                                  0.0
+                                ]
                               },
                               "calculationMultiplier": null,
                               "poiseValue": null,
@@ -5434,7 +5440,9 @@ export const estellaGeneratedSource = {
                       "attackScale": {
                         "value": 0.0,
                         "blackboardKey": "up_atk_scale",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0
+                        ]
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,

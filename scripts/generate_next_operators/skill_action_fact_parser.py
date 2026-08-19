@@ -100,7 +100,9 @@ def parse_blackboard_runtime_actions(
                 continue
             if kind == "FinishBuffAdvanced":
                 payload = parse_buff_finish_payload(
-                    action, f"{source_name}.FinishBuffAdvanced"
+                    action,
+                    f"{source_name}.FinishBuffAdvanced",
+                    inherited_blackboard,
                 )
                 finishes.append(
                     BuffFinishSource(
@@ -119,6 +121,7 @@ def parse_blackboard_runtime_actions(
                         limitSource=payload.limitSource,
                         isFinishedEarly=payload.isFinishedEarly,
                         isAbsorbed=payload.isAbsorbed,
+                        finishLayerCount=payload.finishLayerCount,
                         sequenceIndex=timeline_index,
                     )
                 )

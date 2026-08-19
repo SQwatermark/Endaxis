@@ -11808,7 +11808,9 @@ export const gilbertaGeneratedSource = {
                     "FinalRate": {
                       "value": 0.0,
                       "blackboardKey": "FinalRate",
-                      "levelValues": null
+                      "levelValues": [
+                        0.0
+                      ]
                     },
                     "spell_vulnerable_rate": {
                       "value": 0.0,
@@ -11849,7 +11851,9 @@ export const gilbertaGeneratedSource = {
                     "BuffStack": {
                       "value": 0.0,
                       "blackboardKey": "BuffStack",
-                      "levelValues": null
+                      "levelValues": [
+                        0.0
+                      ]
                     },
                     "spell_vulnerable_perstack": {
                       "value": 0.0,

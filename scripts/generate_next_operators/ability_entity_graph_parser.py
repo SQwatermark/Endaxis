@@ -253,7 +253,13 @@ def resolve_ability_entity_payload(
     if skill_id is None:
         raise AssertionError("combat ability entity payload must expose skillId")
     declared_blackboard = parse_declared_blackboard(child, child_name)
-    child_blackboard = numeric_declared_blackboard(declared_blackboard)
+    # 子 SkillData 的 dynamic 声明仍是该技能实例的真实初值。它不能进入根技能的
+    # 静态等级黑板，但在递归局部图中，若没有继承值/补丁/动作写入，必须作为
+    # 精确来源参与解析；assignBlackboard 和显式 assignPairs 随后按原生顺序覆盖它。
+    child_blackboard = numeric_declared_blackboard(
+        declared_blackboard,
+        include_dynamic_defaults=True,
+    )
     if payload.assignBlackboard:
         child_blackboard.update(blackboard)
     for assignment in payload.entityBlackboardAssignments:

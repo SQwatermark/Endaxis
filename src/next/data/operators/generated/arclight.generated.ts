@@ -378,7 +378,8 @@ export const arclightGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -701,7 +702,8 @@ export const arclightGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -7543,7 +7545,8 @@ export const arclightGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -9074,7 +9077,8 @@ export const arclightGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,

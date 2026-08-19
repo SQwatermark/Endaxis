@@ -286,7 +286,11 @@ def parse_buff_blackboard_read_payload(
     )
 
 
-def parse_buff_finish_payload(action: dict[str, Any], path: str) -> BuffFinishPayload:
+def parse_buff_finish_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> BuffFinishPayload:
     target = require_dict(action.get("buffOwner"), f"{path}.buffOwner")
     check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
         action.get("buffSettings"), f"{path}.buffSettings"
@@ -302,6 +306,15 @@ def parse_buff_finish_payload(action: dict[str, Any], path: str) -> BuffFinishPa
         limitSource=action.get("limitSource") is True,
         isFinishedEarly=action.get("isFinishedEarly") is True,
         isAbsorbed=action.get("isAbsorbed") is True,
+        finishLayerCount=(
+            None
+            if action.get("finishAll") is True
+            else parse_scalar(
+                action.get("finishLayerCnt"),
+                f"{path}.finishLayerCnt",
+                inherited_blackboard,
+            )
+        ),
     )
 
 

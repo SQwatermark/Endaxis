@@ -127,6 +127,7 @@ from generate_next_operators import (
     parse_trust_attribute_bonus,
     parse_conversion_support,
     parse_declared_blackboard,
+    numeric_declared_blackboard,
     parse_aura_actions,
     parse_auxiliary_actions,
     parse_buff_attribute_modifiers,
@@ -1033,6 +1034,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             resolve_skill_blackboard(root, "fixture", patch),
             {"static": (3, 3), "patched": (7, 8), "dynamic": (9, 10)},
+        )
+
+    def test_recursive_child_can_resolve_declared_dynamic_initial_value(self) -> None:
+        values = parse_declared_blackboard(
+            {
+                "blackboard": [
+                    {
+                        "key": "dynamic",
+                        "valueDouble": 0,
+                        "valueStr": "",
+                        "isDynamic": True,
+                    },
+                    {
+                        "key": "static",
+                        "valueDouble": 3,
+                        "valueStr": "",
+                        "isDynamic": False,
+                    },
+                ]
+            },
+            "child.json",
+        )
+
+        self.assertEqual(numeric_declared_blackboard(values), {"static": (3.0,)})
+        self.assertEqual(
+            numeric_declared_blackboard(values, include_dynamic_defaults=True),
+            {"dynamic": (0.0,), "static": (3.0,)},
         )
 
     def test_dynamic_resource_gain_reaches_runtime_compiler(self) -> None:
@@ -4211,6 +4239,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         },
                                     },
                                     "finishAll": True,
+                                    "finishLayerCnt": {
+                                        "useBlackboardKey": False,
+                                        "value": 1,
+                                        "blackboardKey": "",
+                                    },
                                     "limitSource": False,
                                     "isFinishedEarly": True,
                                     "isAbsorbed": False,
@@ -4270,6 +4303,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ]
             ),
         )
+
+    def test_finish_buff_advanced_emits_literal_partial_layer_count(self) -> None:
+        finish = BuffFinishSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=1,
+            targetSource="Source",
+            targetGroupKey="",
+            buffCheckType="Id",
+            buffIds=("buff.example",),
+            tagQueryType="hasAny",
+            buffTagIds=(),
+            finishAll=False,
+            limitSource=False,
+            isFinishedEarly=False,
+            isAbsorbed=False,
+            finishLayerCount=ScalarSource(1, None, None),
+        )
+
+        rendered = compile_buff_finish(finish, "fixture.finish")
+
+        self.assertIn("step('finishBuffsById'", rendered)
+        self.assertIn("count: { kind: 'constant', value: 1 }", rendered)
 
     def test_root_skill_owner_buff_finish_targets_the_caster(self) -> None:
         finish = BuffFinishSource(

@@ -1469,7 +1469,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1716,7 +1717,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1774,7 +1776,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -3571,7 +3574,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -14439,7 +14443,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -14838,7 +14844,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -15161,7 +15169,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -15648,7 +15658,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -16062,7 +16074,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -16394,7 +16408,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -16549,7 +16565,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -17015,7 +17033,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -17414,7 +17434,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -17737,7 +17759,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -18224,7 +18248,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -18638,7 +18664,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -18970,7 +18998,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -19125,7 +19155,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -19271,7 +19303,9 @@ export const rossiGeneratedSource = {
                       "attackScale": {
                         "value": 0.0,
                         "blackboardKey": "atk_scale_once",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0
+                        ]
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
@@ -19384,7 +19418,9 @@ export const rossiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "potential_upgrade",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -19419,7 +19455,9 @@ export const rossiGeneratedSource = {
                     "amount": {
                       "value": 0.0,
                       "blackboardKey": "atb_return",
-                      "levelValues": null
+                      "levelValues": [
+                        10.0
+                      ]
                     },
                     "coefficient": {
                       "value": 1.0,
@@ -19460,7 +19498,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -19493,7 +19532,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -20040,7 +20080,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -20439,7 +20481,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -20762,7 +20806,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -21249,7 +21295,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -21663,7 +21711,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -21995,7 +22045,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -22150,7 +22202,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -22616,7 +22670,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -23015,7 +23071,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -23338,7 +23396,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -23825,7 +23885,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -24239,7 +24301,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -24571,7 +24635,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -24726,7 +24792,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -24872,7 +24940,9 @@ export const rossiGeneratedSource = {
                       "attackScale": {
                         "value": 0.0,
                         "blackboardKey": "atk_scale_once",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0
+                        ]
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
@@ -24985,7 +25055,9 @@ export const rossiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "potential_upgrade",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -25020,7 +25092,9 @@ export const rossiGeneratedSource = {
                     "amount": {
                       "value": 0.0,
                       "blackboardKey": "atb_return",
-                      "levelValues": null
+                      "levelValues": [
+                        10.0
+                      ]
                     },
                     "coefficient": {
                       "value": 1.0,
@@ -25061,7 +25135,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -25094,7 +25169,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -25663,7 +25739,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -26062,7 +26140,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -26385,7 +26465,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -26872,7 +26954,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -27286,7 +27370,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -27618,7 +27704,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -27773,7 +27861,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -28239,7 +28329,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -28638,7 +28730,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -28961,7 +29055,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -29448,7 +29544,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -29862,7 +29960,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -30194,7 +30294,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -30349,7 +30451,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -30495,7 +30599,9 @@ export const rossiGeneratedSource = {
                       "attackScale": {
                         "value": 0.0,
                         "blackboardKey": "atk_scale_once",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0
+                        ]
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
@@ -30608,7 +30714,9 @@ export const rossiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "potential_upgrade",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -30643,7 +30751,9 @@ export const rossiGeneratedSource = {
                     "amount": {
                       "value": 0.0,
                       "blackboardKey": "atb_return",
-                      "levelValues": null
+                      "levelValues": [
+                        10.0
+                      ]
                     },
                     "coefficient": {
                       "value": 1.0,
@@ -30684,7 +30794,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -30717,7 +30828,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -31264,7 +31376,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -31663,7 +31777,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -31986,7 +32102,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -32473,7 +32591,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -32887,7 +33007,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -33219,7 +33341,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -33374,7 +33498,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -33840,7 +33966,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -34239,7 +34367,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -34562,7 +34692,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -35049,7 +35181,9 @@ export const rossiGeneratedSource = {
                                               "attackScale": {
                                                 "value": 0.0,
                                                 "blackboardKey": "atk_scale_once",
-                                                "levelValues": null
+                                                "levelValues": [
+                                                  0.0
+                                                ]
                                               },
                                               "calculationMultiplier": null,
                                               "poiseValue": null,
@@ -35463,7 +35597,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -35795,7 +35931,9 @@ export const rossiGeneratedSource = {
                                                     "attackScale": {
                                                       "value": 0.0,
                                                       "blackboardKey": "atk_scale_once",
-                                                      "levelValues": null
+                                                      "levelValues": [
+                                                        0.0
+                                                      ]
                                                     },
                                                     "calculationMultiplier": null,
                                                     "poiseValue": null,
@@ -35950,7 +36088,9 @@ export const rossiGeneratedSource = {
                                         "attackScale": {
                                           "value": 0.0,
                                           "blackboardKey": "atk_scale_once",
-                                          "levelValues": null
+                                          "levelValues": [
+                                            0.0
+                                          ]
                                         },
                                         "calculationMultiplier": null,
                                         "poiseValue": null,
@@ -36096,7 +36236,9 @@ export const rossiGeneratedSource = {
                       "attackScale": {
                         "value": 0.0,
                         "blackboardKey": "atk_scale_once",
-                        "levelValues": null
+                        "levelValues": [
+                          0.0
+                        ]
                       },
                       "calculationMultiplier": null,
                       "poiseValue": null,
@@ -36209,7 +36351,9 @@ export const rossiGeneratedSource = {
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "potential_upgrade",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 1.0,
@@ -36244,7 +36388,9 @@ export const rossiGeneratedSource = {
                     "amount": {
                       "value": 0.0,
                       "blackboardKey": "atb_return",
-                      "levelValues": null
+                      "levelValues": [
+                        10.0
+                      ]
                     },
                     "coefficient": {
                       "value": 1.0,
@@ -36285,7 +36431,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -36318,7 +36465,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -38861,7 +39009,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": false,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -40559,7 +40708,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": false,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -41791,7 +41941,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -42018,7 +42169,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -42266,7 +42418,8 @@ export const rossiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -42535,7 +42688,8 @@ export const rossiGeneratedSource = {
                                   "finishAll": true,
                                   "limitSource": false,
                                   "isFinishedEarly": true,
-                                  "isAbsorbed": false
+                                  "isAbsorbed": false,
+                                  "finishLayerCount": null
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -42865,7 +43019,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -42904,7 +43059,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -43074,7 +43230,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -43301,7 +43458,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -43549,7 +43707,8 @@ export const rossiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -43818,7 +43977,8 @@ export const rossiGeneratedSource = {
                                   "finishAll": true,
                                   "limitSource": false,
                                   "isFinishedEarly": true,
-                                  "isAbsorbed": false
+                                  "isAbsorbed": false,
+                                  "finishLayerCount": null
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -44225,7 +44385,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -44306,7 +44467,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -44379,7 +44541,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -44636,7 +44799,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -46682,7 +46846,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -46909,7 +47074,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -47157,7 +47323,8 @@ export const rossiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -47426,7 +47593,8 @@ export const rossiGeneratedSource = {
                                   "finishAll": true,
                                   "limitSource": false,
                                   "isFinishedEarly": true,
-                                  "isAbsorbed": false
+                                  "isAbsorbed": false,
+                                  "finishLayerCount": null
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -47756,7 +47924,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -47795,7 +47964,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -47965,7 +48135,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -48192,7 +48363,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": true,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -48440,7 +48612,8 @@ export const rossiGeneratedSource = {
                             "finishAll": true,
                             "limitSource": false,
                             "isFinishedEarly": true,
-                            "isAbsorbed": false
+                            "isAbsorbed": false,
+                            "finishLayerCount": null
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -48709,7 +48882,8 @@ export const rossiGeneratedSource = {
                                   "finishAll": true,
                                   "limitSource": false,
                                   "isFinishedEarly": true,
-                                  "isAbsorbed": false
+                                  "isAbsorbed": false,
+                                  "finishLayerCount": null
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -49116,7 +49290,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -49197,7 +49372,8 @@ export const rossiGeneratedSource = {
                       "finishAll": true,
                       "limitSource": false,
                       "isFinishedEarly": false,
-                      "isAbsorbed": false
+                      "isAbsorbed": false,
+                      "finishLayerCount": null
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -49270,7 +49446,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -49527,7 +49704,8 @@ export const rossiGeneratedSource = {
                 "finishAll": true,
                 "limitSource": false,
                 "isFinishedEarly": true,
-                "isAbsorbed": false
+                "isAbsorbed": false,
+                "finishLayerCount": null
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -94790,7 +94968,8 @@ export const rossiGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,

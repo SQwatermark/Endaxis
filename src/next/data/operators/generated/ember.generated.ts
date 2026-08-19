@@ -176,7 +176,8 @@ export const emberGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": false,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,

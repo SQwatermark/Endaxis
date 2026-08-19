@@ -964,6 +964,7 @@ class BuffFinishPayload:
     limitSource: bool
     isFinishedEarly: bool
     isAbsorbed: bool
+    finishLayerCount: ScalarSource | None = None
 
 
 @dataclass(frozen=True)

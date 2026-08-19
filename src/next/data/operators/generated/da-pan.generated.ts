@@ -1704,7 +1704,8 @@ export const daPanGeneratedSource = {
                     "finishAll": true,
                     "limitSource": false,
                     "isFinishedEarly": true,
-                    "isAbsorbed": false
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,

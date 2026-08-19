@@ -1191,12 +1191,15 @@ def collect_declared_blackboard_keys(root: dict[str, Any], source_name: str) -> 
 
 def numeric_declared_blackboard(
     values: tuple[DeclaredBlackboardValueSource, ...],
+    *,
+    include_dynamic_defaults: bool = False,
 ) -> dict[str, tuple[float, ...]]:
-    """只向数值计算层提供非动态数值；字符串身份保留在审计层。"""
+    """提供数值声明；动态初值只在明确请求的局部子图解析中参与来源证明。"""
     return {
         item.key: (item.value,)
         for item in values
-        if not item.isDynamic and isinstance(item.value, float)
+        if (include_dynamic_defaults or not item.isDynamic)
+        and isinstance(item.value, float)
     }
 
 

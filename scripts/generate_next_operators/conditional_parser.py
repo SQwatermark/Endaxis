@@ -1192,7 +1192,9 @@ def parse_conditional_actions(
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)
                 elif action_type == "FinishBuffAdvanced":
-                    buff_finish = parse_buff_finish_payload(action, source_path)
+                    buff_finish = parse_buff_finish_payload(
+                        action, source_path, inherited_blackboard
+                    )
                 elif action_type == "FinishBuffAction":
                     legacy_buff_finish = parse_legacy_buff_finish_payload(
                         action, source_path, inherited_blackboard

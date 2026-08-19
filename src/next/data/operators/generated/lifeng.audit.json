@@ -5007,7 +5007,9 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "isCombo",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
@@ -5410,7 +5412,9 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "isCombo",
-                            "levelValues": null
+                            "levelValues": [
+                              0.0
+                            ]
                           },
                           "right": {
                             "value": 0.0,
@@ -5831,7 +5835,9 @@
                   "left": {
                     "value": 0.0,
                     "blackboardKey": "isCombo",
-                    "levelValues": null
+                    "levelValues": [
+                      0.0
+                    ]
                   },
                   "right": {
                     "value": 0.0,
