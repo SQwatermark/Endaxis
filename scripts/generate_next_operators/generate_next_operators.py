@@ -1266,6 +1266,7 @@ def _make_projectile_graph_parser_services() -> ProjectileGraphParserServices:
         parse_direct_damage_hits=parse_direct_damage_hits,
         parse_inflictions=parse_inflictions,
         parse_resource_gains=parse_resource_gains,
+        parse_target_group_writes=parse_target_group_writes,
         resolve_ability_entity_hits=resolve_ability_entity_hits,
         resolve_conditional_aura_ability_entity_children=resolve_conditional_aura_ability_entity_children,
         resolve_guaranteed_conditional_ability_entity_hits=resolve_guaranteed_conditional_ability_entity_hits,
@@ -4184,6 +4185,24 @@ def compile_timed_marker_application(
                 f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
                 "  autoFinishByAction: "
                 f"{ts_inline_literal(payload.autoFinishByAction)},",
+                "  timeDomain: 'self',",
+                "})",
+            ]
+        )
+    if (
+        ability_entity_current_target
+        and payload.targetSource in {"Owner", "Target"}
+        and not payload.targetGroupKey
+    ):
+        return "\n".join(
+            [
+                "step('createAbilityEntityTimedMarker', {",
+                f"  markerId: {ts_inline_literal(payload.markerId)},",
+                "  durationSeconds: "
+                f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
+                "  autoFinishByAction: "
+                f"{ts_inline_literal(payload.autoFinishByAction)},",
+                "  timeDomain: 'global',",
                 "})",
             ]
         )

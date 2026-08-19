@@ -7,13 +7,14 @@ import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
-import type { TimedMarkerContainer, TimedMarkerHandle } from './timedMarkers';
+import type { TimedMarkerClock, TimedMarkerContainer, TimedMarkerHandle } from './timedMarkers';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
 export interface TimedMarkerOperationDependencies {
   readonly resolveTarget: (target: CombatTarget) => TimedMarkerContainer;
   readonly resolveAbilityEntityTarget?: (target: RuntimeTargetRef) => TimedMarkerContainer;
+  readonly globalClock?: TimedMarkerClock;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -39,7 +40,11 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       step.kind === 'createTimedMarker'
         ? this.dependencies.resolveTarget(step.parameters.target)
         : this.#resolveCurrentAbilityEntity(context.currentTarget);
-    const handle = target.add(step.parameters.markerId, duration);
+    const markerClock =
+      step.kind === 'createAbilityEntityTimedMarker' && step.parameters.timeDomain === 'global'
+        ? this.#requireGlobalClock()
+        : undefined;
+    const handle = target.add(step.parameters.markerId, duration, markerClock);
     if (step.parameters.autoFinishByAction) {
       this.#handles.set(step, [...(this.#handles.get(step) ?? []), handle]);
     }
@@ -69,6 +74,14 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('abilityEntityTimedMarkerPresent requires a combat operation context');
       }
+      if (condition.contextKey !== undefined) {
+        if (context.targetContext === undefined) {
+          throw new Error('context ability entity timed marker requires a target context');
+        }
+        return context.targetContext
+          .get(condition.contextKey)
+          .some(target => this.#resolveCurrentAbilityEntity(target).has(condition.markerId));
+      }
       return this.#resolveCurrentAbilityEntity(context.currentTarget).has(condition.markerId);
     }
     return context === undefined
@@ -85,5 +98,12 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       throw new Error('ability entity timed marker runtime is not configured');
     }
     return resolve(target);
+  }
+
+  #requireGlobalClock(): TimedMarkerClock {
+    if (this.dependencies.globalClock === undefined) {
+      throw new Error('global-clock ability entity timed marker runtime is not configured');
+    }
+    return this.dependencies.globalClock;
   }
 }

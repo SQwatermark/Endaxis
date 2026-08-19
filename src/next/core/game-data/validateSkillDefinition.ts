@@ -526,6 +526,7 @@ function validateCombatCondition(
       break;
     case 'abilityEntityTimedMarkerPresent':
       requireString(record, 'markerId', path, out);
+      if (record.contextKey !== undefined) requireString(record, 'contextKey', path, out);
       break;
     case 'eventDamageTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
@@ -1298,6 +1299,7 @@ function validateCombatStep(
         out,
       );
       requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
+      requireEnum(parameters, 'timeDomain', new Set(['global', 'self']), `${path}.parameters`, out);
       break;
     case 'startTimeDilation': {
       const parameterPath = `${path}.parameters`;

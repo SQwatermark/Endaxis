@@ -281,9 +281,10 @@ export type CombatCondition =
       markerId: string;
     }
   | {
-      /** 检查当前能力实体按自身局部时间持有的定时标记。 */
+      /** 检查当前能力实体或 Context 能力实体集合中仍有效的定时标记。 */
       kind: 'abilityEntityTimedMarkerPresent';
       markerId: string;
+      contextKey?: string;
     }
   | {
       /** 匹配触发当前响应的伤害事件标签；普通技能步骤没有事件上下文。 */
@@ -647,11 +648,12 @@ export interface CombatStepParameters {
     durationSeconds: ActionValueOperand;
     autoFinishByAction: boolean;
   };
-  /** 在当前能力实体的局部时间轴上创建定时标记。 */
+  /** 在当前能力实体上创建定时标记；每个标记显式选择共享战斗或实体自身时钟。 */
   createAbilityEntityTimedMarker: {
     markerId: string;
     durationSeconds: ActionValueOperand;
     autoFinishByAction: boolean;
+    timeDomain: 'global' | 'self';
   };
   /** 创建普通全局或实体时间膨胀实例；终结技专用时间动作另行建模。 */
   startTimeDilation:

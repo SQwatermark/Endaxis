@@ -6,6 +6,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 const delegate: CombatOperationExecutor = {
   execute: () => false,
@@ -63,6 +64,7 @@ describe('TimedMarkerOperationExecutor', () => {
         markerId: 'end',
         durationSeconds: { kind: 'constant', value: 1 },
         autoFinishByAction: false,
+        timeDomain: 'self',
       },
     };
 
@@ -75,5 +77,75 @@ describe('TimedMarkerOperationExecutor', () => {
     expect(
       executor.evaluate({ kind: 'abilityEntityTimedMarkerPresent', markerId: 'end' }, context),
     ).toBe(false);
+  });
+
+  it('keeps global-clock entity markers independent from the entity local clock', () => {
+    const globalClock = new CombatClock();
+    const entities = new LogicalAbilityEntityRuntime({ resolveDeltaSeconds: () => 1 / 120 });
+    const target = entities.spawn({
+      abilityEntityId: 'water',
+      definition: { lifetime: { kind: 'infinite' } },
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    const executor = new TimedMarkerOperationExecutor({
+      resolveTarget: () => new TimedMarkerContainer('unused', globalClock),
+      resolveAbilityEntityTarget: current => entities.timedMarkers(current),
+      globalClock,
+      delegate,
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('water_group', target);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      currentTarget: target,
+      targetContext,
+    };
+    const globalStep: ResolvedCombatOperationStep = {
+      kind: 'createAbilityEntityTimedMarker',
+      parameters: {
+        markerId: 'global',
+        durationSeconds: { kind: 'constant', value: 1 },
+        autoFinishByAction: false,
+        timeDomain: 'global',
+      },
+    };
+    const selfStep: ResolvedCombatOperationStep = {
+      kind: 'createAbilityEntityTimedMarker',
+      parameters: {
+        markerId: 'self',
+        durationSeconds: { kind: 'constant', value: 1 },
+        autoFinishByAction: false,
+        timeDomain: 'self',
+      },
+    };
+
+    executor.execute(globalStep, context);
+    executor.execute(selfStep, context);
+    for (let frame = 0; frame < 31; frame += 1) {
+      globalClock.advanceFrame();
+      entities.advanceFrame();
+    }
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'abilityEntityTimedMarkerPresent',
+          markerId: 'global',
+          contextKey: 'water_group',
+        },
+        context,
+      ),
+    ).toBe(false);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'abilityEntityTimedMarkerPresent',
+          markerId: 'self',
+          contextKey: 'water_group',
+        },
+        context,
+      ),
+    ).toBe(true);
   });
 });

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal
 
 from source_models import (
@@ -644,14 +644,41 @@ def compile_conditional_branch_action(
             ]
         )
     if getattr(action, "timedMarkerApplication", None) is not None:
-        return compile_timed_marker_application(
-            action.timedMarkerApplication,
+        marker = action.timedMarkerApplication
+        context_key = (
+            marker.targetGroupKey
+            if marker.targetSource == "Context"
+            and marker.targetGroupKey in singleton_ability_entity_context_keys
+            else None
+        )
+        compiled_marker = compile_timed_marker_application(
+            (
+                replace(marker, targetSource="Owner", targetGroupKey="")
+                if context_key is not None
+                else marker
+            ),
             path,
             root_skill_context=root_skill_context,
             input_target=input_target,
-            ability_entity_current_target=ability_entity_current_target,
+            ability_entity_current_target=(
+                ability_entity_current_target or context_key is not None
+            ),
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+        )
+        if context_key is None:
+            return compiled_marker
+        marker_lines = indent_source(compiled_marker, 4)
+        marker_lines[-1] += ","
+        return "\n".join(
+            [
+                "forEachContextTarget(",
+                f"  {ts_inline_literal(context_key)},",
+                "  sequence(",
+                *marker_lines,
+                "  ),",
+                ")",
+            ]
         )
     if getattr(action, "globalCooldownApplication", None) is not None:
         return compile_global_cooldown_application(

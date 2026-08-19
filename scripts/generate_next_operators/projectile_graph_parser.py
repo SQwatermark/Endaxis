@@ -43,6 +43,7 @@ class ProjectileGraphParserServices:
     parse_direct_damage_hits: Callable[..., Any]
     parse_inflictions: Callable[..., Any]
     parse_resource_gains: Callable[..., Any]
+    parse_target_group_writes: Callable[..., Any]
     resolve_ability_entity_hits: Callable[..., Any]
     resolve_conditional_aura_ability_entity_children: Callable[..., Any]
     resolve_guaranteed_conditional_ability_entity_hits: Callable[..., Any]
@@ -179,6 +180,7 @@ def resolve_projectile_payload_triggers(
     parse_direct_damage_hits = services.parse_direct_damage_hits
     parse_inflictions = services.parse_inflictions
     parse_resource_gains = services.parse_resource_gains
+    parse_target_group_writes = services.parse_target_group_writes
     resolve_ability_entity_hits = services.resolve_ability_entity_hits
     resolve_conditional_aura_ability_entity_children = services.resolve_conditional_aura_ability_entity_children
     resolve_guaranteed_conditional_ability_entity_hits = services.resolve_guaranteed_conditional_ability_entity_hits
@@ -335,6 +337,9 @@ def resolve_projectile_payload_triggers(
                 ),
                 keywordActions=parse_timed_keyword_actions(
                     trigger_root, trigger_source_name, trigger_blackboard
+                ),
+                localTargetGroupWrites=parse_target_group_writes(
+                    trigger_root, trigger_source_name
                 ),
             )
         )

@@ -1042,6 +1042,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+      globalClock: this.clock,
       delegate: statusOperations,
     });
     const rankConditions = new EnemyRankConditionExecutor(enemy.rank, timedMarkerOperations);
@@ -1174,6 +1175,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+      globalClock: this.clock,
       delegate: statusOperations,
     });
     const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, markerOperations);

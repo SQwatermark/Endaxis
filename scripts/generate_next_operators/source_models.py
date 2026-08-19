@@ -351,6 +351,7 @@ class ProjectileTriggeredSkillSource:
     abilityEntityHits: tuple["AbilityEntityHitSource", ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
 
 
 @dataclass(frozen=True)

@@ -461,6 +461,28 @@ def compile_combat_condition(
             if marker.returnTrueIfNotExists:
                 return f"{{ kind: 'not', condition: {condition} }}"
             return condition
+        if (
+            marker.targetSource == "Context"
+            and marker.targetGroupKey
+            and (
+                write := resolve_latest_target_group_write(
+                    action,
+                    marker.targetGroupKey,
+                    target_group_writes,
+                )
+            )
+            is not None
+            and target_group_write_ability_entity_collection_identity(write)
+            is not None
+        ):
+            condition = (
+                "{ kind: 'abilityEntityTimedMarkerPresent', markerId: "
+                f"{ts_inline_literal(marker.markerId)}, contextKey: "
+                f"{ts_inline_literal(marker.targetGroupKey)} }}"
+            )
+            if marker.returnTrueIfNotExists:
+                return f"{{ kind: 'not', condition: {condition} }}"
+            return condition
         target = resolve_fixed_combat_target(
             marker.targetSource,
             marker.targetGroupKey,
@@ -470,9 +492,15 @@ def compile_combat_condition(
             input_target=input_target,
         )
         if target is None:
+            matching_writes = tuple(
+                (write.actionIndex, write.actionPath)
+                for write in target_group_writes
+                if write.targetGroupKey == marker.targetGroupKey
+            )
             raise ValueError(
                 f"{path}: unsupported timed marker target "
-                f"{marker.targetSource!r}/{marker.targetGroupKey!r}"
+                f"{marker.targetSource!r}/{marker.targetGroupKey!r} "
+                f"(matchingWrites={matching_writes!r})"
             )
         condition = (
             f"{{ kind: 'timedMarkerPresent', target: {ts_inline_literal(target)}, markerId: "

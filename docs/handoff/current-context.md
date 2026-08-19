@@ -290,6 +290,9 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - Tangtang 水体的固定阵营 Aura 现已按统一零空间规则闭环：`Anti/Bad` 指向唯一敌人，`Anti/Good + excludeOwner` 指向除施法者外友方；进入 Aura 的直接 `FinishBuffAdvanced` 先结束 outaura Buff，领域 Buff 使用动作区间句柄，能力实体局部结束帧再执行直接 `CreateBuffAction` 施加 outaura Buff。能力实体子图的 `OwnerSpawnedEntityFinder.selectorOwner=ActionSource` 只在该上下文归约为原施法者，根技能没有放宽；同组 `CheckEntityNum(Context, GE >= 1)` 已证明带标签实体存在时，相关 Context 距离才允许按零距离折叠。Tangtang 由 9/11 提升到 10/11，全量保持 320/320 可解析、299/320 可编译、14 名完整直转。
 - Tangtang 唯一剩余入口的当前首阻塞为 `Context/water_abilityentity02` 上的 `CreateTimedMarker(useTimeDilationDt=false)`。该 Context 有同分支单例生成来源，但现有 `createAbilityEntityTimedMarker` 明确绑定实体局部 elapsed time；原动作要求非时间膨胀时钟，因此不能直接复用。下一步应在逻辑能力实体上提供可由共享战斗时钟驱动的标记容器或等价的显式时钟选择，并同时贯通创建、`CheckTimedMarkerCondition`、动作结束清理和测试，不能把局部时钟标记改名后放行。
 - 本批门禁：生成器 Python 规则测试 349/349、全量生成和 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1128/1128 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
+- Tangtang 的最后一条能力实体标记链已闭环。`createAbilityEntityTimedMarker` 现在要求 `timeDomain: 'self' | 'global'`：前者读取实体局部 elapsed time，后者读取场景共享 `CombatClock`；`TimedMarkerContainer` 为每个实例保存创建时钟，所以两类标记可在同一实体上共存且独立到期。单例 Context 创建在 `forEachContextTarget` 中执行；`abilityEntityTimedMarkerPresent` 可在有明确 owner-spawned AbilityEntity 来源时检查 Context 集合任一实例。
+- 取证过程中确认 Tangtang 的 `water_group` 并非能力实体子图本地写入，而属于递归条件投射物触发的 `chr_0027_tangtang_combo_skill_water_gene` 自身。此前 `ProjectileTriggeredSkillSource` 没有保留该 SkillData 的目标组写入，导致条件编译看不到原生第 4 号 `FindTargetAction`。现在调用图保存 `localTargetGroupWrites`，分支内联前按 born tag 生成实际 `findOwnerSpawnedAbilityEntities`，再执行水体阶段标记条件。Tangtang 已达到 11/11，严格全量基线更新为 320/320 可解析、300/320 可编译、15 名完整直转。下一步将其加入正式 manifest/注册链并做标准场景回执验证。
+- 本批门禁：生成器 Python 规则测试 350/350、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1129/1129、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
 
 ## 8. 恢复工作清单
 

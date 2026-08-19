@@ -13419,6 +13419,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("step('createAbilityEntityTimedMarker'", compiled)
         self.assertIn("markerId: 'lizhiyan_bunshin_end'", compiled)
+        self.assertIn("timeDomain: 'self'", compiled)
         with self.assertRaisesRegex(ValueError, "unsupported time-dilated timed marker target"):
             compile_timed_marker_application(
                 payload,
@@ -13426,6 +13427,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 root_skill_context=True,
                 input_target="enemy",
             )
+
+    def test_singleton_context_entity_marker_uses_global_clock_inside_for_each(self) -> None:
+        payload = TimedMarkerApplicationPayload(
+            targetSource="Context",
+            targetGroupKey="water_entity",
+            markerId="water_stage",
+            duration=ScalarSource(30.0, "duration_water", None),
+            autoFinishByAction=False,
+            useTimeDilationDt=False,
+        )
+        branch = ConditionalBranchActionSource(
+            "CreateTimedMarker",
+            0,
+            timedMarkerApplication=payload,
+        )
+
+        compiled = compile_conditional_branch_action(
+            branch,
+            "water.marker",
+            singleton_ability_entity_context_keys=frozenset({"water_entity"}),
+        )
+
+        self.assertIn("forEachContextTarget(\n  'water_entity'", compiled)
+        self.assertIn("step('createAbilityEntityTimedMarker'", compiled)
+        self.assertIn("timeDomain: 'global'", compiled)
+        self.assertIn("key: 'duration_water'", compiled)
+        with self.assertRaisesRegex(ValueError, "unsupported timed marker target"):
+            compile_conditional_branch_action(branch, "water.markerWithoutProvenance")
 
 
 if __name__ == "__main__":

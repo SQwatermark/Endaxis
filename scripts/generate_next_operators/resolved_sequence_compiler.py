@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any, Callable, Iterable, cast
+from typing import Any, Callable, Iterable, Iterator, cast
 
 from compiler_ir import (
     EMPTY_SEQUENCE as COMPILED_EMPTY_SEQUENCE,
@@ -80,6 +80,24 @@ def ability_entity_child_is_inert(hit: AbilityEntityHitSource) -> bool:
         and not hit.keywordActions
         and not hit.localTargetGroupWrites
     )
+
+
+def iter_nested_conditional_actions(
+    actions: tuple[ConditionalActionSource, ...],
+) -> Iterator[ConditionalActionSource]:
+    """遍历投射物触发子树中的条件节点，供 Context 查询前置编译复用。"""
+    def visit_branches(
+        branches: tuple[ConditionalBranchActionSource, ...],
+    ) -> Iterator[ConditionalActionSource]:
+        for branch in branches:
+            if branch.nestedCondition is not None:
+                yield from iter_nested_conditional_actions((branch.nestedCondition,))
+            if branch.onceActions is not None:
+                yield from visit_branches(branch.onceActions)
+
+    for action in actions:
+        yield action
+        yield from visit_branches((*action.succeedActions, *action.failActions))
 
 
 @dataclass(frozen=True)
@@ -608,6 +626,48 @@ def compile_resolved_sequence(
                 covered_actions.add("SpawnAbilityEntity")
             if any(action_type not in covered_actions for action_type in trigger.combatActions):
                 return None
+            query_sources: list[str] = []
+            queried_keys: set[str] = set()
+            templates: dict[str, dict[str, Any]] | None = None
+            for conditional in iter_nested_conditional_actions(
+                trigger.conditionalActions
+            ):
+                for condition in conditional.conditions:
+                    context_key = None
+                    timed_marker = getattr(condition, "timedMarker", None)
+                    if (
+                        condition.sourceType == "CheckTimedMarkerCondition"
+                        and timed_marker is not None
+                        and timed_marker.targetSource == "Context"
+                    ):
+                        context_key = timed_marker.targetGroupKey
+                    if not context_key or context_key in queried_keys:
+                        continue
+                    write = resolve_latest_target_group_write_at(
+                        read_frame=conditional.startFrame,
+                        read_action_index=conditional.actionIndex,
+                        read_action_path=conditional.actionPath,
+                        target_group_key=context_key,
+                        writes=trigger.localTargetGroupWrites,
+                    )
+                    if (
+                        write is None
+                        or target_group_write_ability_entity_collection_identity(write)
+                        is None
+                    ):
+                        continue
+                    if templates is None:
+                        templates = load_ability_entity_template_evidence()
+                    query_sources.append(
+                        compile_skill_target_group_ability_entity_query(
+                            write,
+                            templates,
+                            f"{skill.key}.{trigger.triggerSkillId}.targetGroupWrite",
+                            allow_action_source_owner=True,
+                        )
+                    )
+                    queried_keys.add(context_key)
+            compiled_sources.extend(query_sources)
             for condition in trigger.conditionalActions:
                 node = _compile_conditional_action_ir(
                     condition,
@@ -615,6 +675,7 @@ def compile_resolved_sequence(
                     ignored_buff_ids | unmodeled_buff_ids | simulation_no_effect_buff_ids,
                     damage_tags,
                     runtime_blackboard_keys,
+                    target_group_writes=trigger.localTargetGroupWrites,
                     root_skill_context=False,
                     input_target="enemy",
                     step_key_prefix=skill.key,
