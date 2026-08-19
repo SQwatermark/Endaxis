@@ -300,6 +300,8 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 根技能新增严格的固定周期直接伤害投影。Tangtang 下落攻击原生 `TickIntervalAction` 在第 3–11 帧每 0.07 秒直接执行一个 DamageAction，按既有 30 Hz 单精度累计规则生成第 3/5/7/9/11 帧五段冰伤。只接受唯一直接伤害且不与条件伤害混合的形状；Liino 等复杂/逐帧 Tick 仍走原有独立解析链，不被本次规则吞掉或近似。
 - 水体 Buff 中 `SlowAction(asChildBuff=true)` 仅在 plain Source→Owner、持续时间与宿主相同、空子 Buff ID、无 enhancing、`autoFinishByAction=true` 全部成立时折叠为宿主 `slowed` 标签；Aura 离场 Buff、递归条件 Buff 和能力实体条件中的 Buff ID 也纳入定义闭包及省略声明校验。Rossi 已明确跳过其本就未建模的 `normal_bleed` 定义递归，避免把流血暴击附加伤害的未支持治疗载荷误报成已转换。
 - 当前严格横向审计保持 30 名、320/320 可解析、300/320 可编译、15 名无专用声明完整直转。正式生成定义增至 14 名，仓库显式入口增至 16 名；养成审计更新为天赋 11/28 已转换且 11/28 可进入标准模拟，潜能 59/70 已转换且 59/70 可进入标准模拟。验证基线：Python 351/351、manifest 全量生成与 `--check`、Next 类型检查、Next Vitest 178 文件 1133/1133。
+- 后续对 5 个 `projectile-data` 阻断做了本机 VFS 精确取证。Wulfgard 终结技与 Ardelia 重击的三个组件资产均唯一命中，但当前 AnimeStudio JSON 只导出 Unity 基础字段，没有 managed-reference registry，接口 422 表示解码链退化而非组件为空；Liino 6 个相关 projectileId 在当前 manifest 中均不存在。关闭 hit/block/reach/finish SkillData 回调不能证明投射物没有独立碰撞或命中语义，因此 5 项继续失败关闭。精确 record/asset 身份、9 个 ID 的边界和恢复顺序见 `docs/research/projectile-component-evidence-gap.md`。
+- 养成候选也保持同一证据标准：Camille 潜能 5 指向尚未生成的治疗监听隐藏被动，不能映射到可释放技能组；Last Rite 天赋 1 监听 `OnConsumeBuff` 并按被消费附着层数生成晶体易伤，不是静态常驻 Buff。元素附着适配器已有消费层数事实，但原生 Tag `-193971080` 的集合身份尚未闭合，两项均未放宽。
 - 本批门禁：生成器 Python 规则测试 350/350、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1129/1129、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
 
 ## 8. 恢复工作清单
