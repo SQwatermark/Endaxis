@@ -307,6 +307,261 @@ export const endministratorGeneratedSource = {
       "onlyUseSelfTimeDilation": false
     },
     {
+      "buffId": "buff_chr_0003_endminf_potential5",
+      "sourceFile": "buff_chr_0003_endminf_potential5.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "cd_minus",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnAddedBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext",
+            "SetSkillCdAtOnce",
+            "SetSkillCdAtOnce"
+          ],
+          "combatActions": [
+            "SetSkillCdAtOnce"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "SetSkillCdAtOnce",
+                "SetSkillCdAtOnce"
+              ],
+              "combatActions": [
+                "SetSkillCdAtOnce",
+                "SetSkillCdAtOnce"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Id",
+                          "buffIds": [
+                            "buff_chr_0003_endminf_potential5_trigger"
+                          ],
+                          "queryType": "HasAny"
+                        },
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "SetSkillCdAtOnce",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": {
+                          "target": {
+                            "targetSource": "Owner",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "useSkillType": false,
+                          "skillTypeMask": "None",
+                          "skillId": "chr_0003_endminf_combo_skill",
+                          "functionType": "Reduce",
+                          "isPercentage": false,
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": "cd_minus",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        },
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "SetSkillCdAtOnce",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 2,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": {
+                          "target": {
+                            "targetSource": "Owner",
+                            "targetGroupKey": "",
+                            "selectorOwner": "ActionOwner",
+                            "ownerContextKey": "",
+                            "centerType": "ActionSource",
+                            "centerContextKey": "",
+                            "centerToGround": false,
+                            "target": "ActionSource",
+                            "targetContextKey": "",
+                            "enableAdvancedDirection": false,
+                            "selectorDirection": "SourceForward",
+                            "finderType": null,
+                            "validatorTypes": [],
+                            "postProcessorTypes": []
+                          },
+                          "useSkillType": false,
+                          "skillTypeMask": "None",
+                          "skillId": "chr_0002_endminm_combo_skill",
+                          "functionType": "Reduce",
+                          "isPercentage": false,
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": "cd_minus",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        },
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
       "buffId": "buff_chr_0003_endminf_potential5_trigger",
       "sourceFile": "buff_chr_0003_endminf_potential5_trigger.json",
       "sourceAvailable": true,

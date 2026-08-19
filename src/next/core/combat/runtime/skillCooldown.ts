@@ -89,6 +89,17 @@ export class SkillCooldown {
     return true;
   }
 
+  /** 原生 SetSkillCdAtOnce(Reduce, absolute) 从当前剩余冷却扣除固定帧数。 */
+  reduceByFrames(frames: number): boolean {
+    if (!Number.isFinite(frames) || frames < 0) {
+      throw new RangeError('skill cooldown reduction frames must be non-negative and finite');
+    }
+    const timer = this.#timer;
+    if (timer === undefined || timer.isReady) return false;
+    timer.update(frames);
+    return true;
+  }
+
   /** 把剩余冷却直接设置为基础周期的给定比例。 */
   setByBaseDurationRatio(ratio: number): boolean {
     if (!Number.isFinite(ratio) || ratio < 0) {

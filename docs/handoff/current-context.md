@@ -299,11 +299,12 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 能力实体子技能现在把递归 SkillData 自身声明的数值黑板内联进 `childSkill.blackboard`，运行时按现有“子技能初值 + 实体继承/显式赋值”链解析。Tangtang 水体的 `ratio_speedreduction`、持续时间和跳转参数因此有本地证据来源；标准场景已实际跑通连携伤害、能力实体生成、水体 Aura/Buff、全局/局部定时标记及局部第 900 帧实体结束回执。
 - 根技能新增严格的固定周期直接伤害投影。Tangtang 下落攻击原生 `TickIntervalAction` 在第 3–11 帧每 0.07 秒直接执行一个 DamageAction，按既有 30 Hz 单精度累计规则生成第 3/5/7/9/11 帧五段冰伤。只接受唯一直接伤害且不与条件伤害混合的形状；Liino 等复杂/逐帧 Tick 仍走原有独立解析链，不被本次规则吞掉或近似。
 - 水体 Buff 中 `SlowAction(asChildBuff=true)` 仅在 plain Source→Owner、持续时间与宿主相同、空子 Buff ID、无 enhancing、`autoFinishByAction=true` 全部成立时折叠为宿主 `slowed` 标签；Aura 离场 Buff、递归条件 Buff 和能力实体条件中的 Buff ID 也纳入定义闭包及省略声明校验。Rossi 已明确跳过其本就未建模的 `normal_bleed` 定义递归，避免把流血暴击附加伤害的未支持治疗载荷误报成已转换。
-- 当前严格横向审计保持 30 名、320/320 可解析、300/320 可编译、15 名无专用声明完整直转。正式生成定义增至 14 名，仓库显式入口增至 16 名；养成审计更新为天赋 13/28 已转换且 13/28 可进入标准模拟，潜能 59/70 已转换且 59/70 可进入标准模拟。验证基线：Python 351/351、manifest 全量生成与 `--check`、Next 类型检查、Next Vitest 178 文件 1139/1139。
+- 当前严格横向审计保持 30 名、320/320 可解析、300/320 可编译、15 名无专用声明完整直转。正式生成定义增至 14 名，仓库显式入口增至 16 名；养成审计更新为天赋 13/28 已转换且 13/28 可进入标准模拟，潜能 60/70 已转换且 60/70 可进入标准模拟。验证基线：Python 352/352、manifest 全量生成与 `--check`、Next 类型检查、Next Vitest 178 文件 1141/1141。
 - 后续对 5 个 `projectile-data` 阻断做了本机 VFS 精确取证。Wulfgard 终结技与 Ardelia 重击的三个组件资产均唯一命中，但当前 AnimeStudio JSON 只导出 Unity 基础字段，没有 managed-reference registry，接口 422 表示解码链退化而非组件为空；Liino 6 个相关 projectileId 在当前 manifest 中均不存在。关闭 hit/block/reach/finish SkillData 回调不能证明投射物没有独立碰撞或命中语义，因此 5 项继续失败关闭。精确 record/asset 身份、9 个 ID 的边界和恢复顺序见 `docs/research/projectile-component-evidence-gap.md`。
 - Last Rite 天赋 1 已闭环。同版本 `OnConsumeBuff`、通用 `dispell_spellinf`、训练关 `check_any_inflict` 与连携智能选敌语料共同把 Tag `-193971080` 限定为法术附着集合；Next 不实现通用 Tag 父子查询，只在元素状态机实际移除旧附着后发布 `elementalAttachmentConsumed`。事件动态写入真实消费层数，养成监听器再用等级常量 `2%/4%` 计算并给唯一敌人施加 15 秒寒冷易伤。监听与子 Buff 均内联在天赋定义中；证据边界见 `docs/research/last-rite-consumed-infliction-talent.md`。Camille 潜能 5 仍指向尚未生成的治疗监听隐藏被动，不能映射到可释放技能组。
 - Da Pan 天赋 2 已由现有严格技能黑板补丁链接入终结技：两级分别写入 1/2 层准备 Buff 上限，并共同写入 20 秒持续时间和 40% 连携技基础冷却缩减。终结技、嵌套 Buff、施法前监听、输出伤害监听和冷却执行器此前均已闭环，本次没有新增事件类型或近似规则。
-- 本批门禁：生成器 Python 规则测试 351/351、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1139/1139、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
+- Endministrator 潜能 5 已按完整事件型附着 Buff 生成：战技/终结技施加 `buff_chr_0003_endminf_potential5_trigger` 后，常驻监听器用精确 Buff ID 条件命中，并分别对 `chr_0003_endminf_combo_skill` 与 `chr_0002_endminm_combo_skill` 的当前剩余冷却扣除 2 秒。运行时 `absoluteSeconds` 操作按 30fps 转成 60 帧并最低归零，不修改基础周期；该链不依赖敌方主动行为或外部事件。
+- 本批门禁：生成器 Python 规则测试 352/352、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1141/1141、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
 
 ## 8. 恢复工作清单
 

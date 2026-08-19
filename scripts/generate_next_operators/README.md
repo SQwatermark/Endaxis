@@ -136,7 +136,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
 和 Buff 闭包审计。当前基线为 14 名正式生成干员：天赋 13/28 已转换、13/28 可进入模拟编译；潜能
-59/70 已转换、59/70 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+60/70 已转换、60/70 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
@@ -159,6 +159,9 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `passiveSkills`。管理员潜能 1/2 是首批样本，分别安装供技能读取的 `atb_return=50` 与 `ratio=0.5`。
 伤害修正中的严格 `CheckHp(Target)` 也可保留为实时目标生命条件；陈千语潜能 1 会在敌人当前生命
 比例低于 `0.5` 时向攻击方 `normal` 伤害倍率区间增加 `0.2`，阈值和加值均从所属 Buff 黑板读取。
+管理员潜能 5 证明事件型附着 Buff 也可走同一入口：监听精确的连携触发 Buff ID，并对男女管理员
+两个原生连携技能 ID 的当前剩余冷却各扣除 `2` 秒。`absoluteSeconds` 保持为运行时操作语义，按
+30fps 换算后从剩余冷却扣除并最低归零，不改写技能定义的基础冷却。
 
 潜能中的 `attrModifier` 只有在每条数据均为已确认的永久静态属性
 （条目 `modifyType = 4`、`modifyAttributeType = 0`，且属性与公式槽组合受支持）时，

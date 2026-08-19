@@ -845,6 +845,30 @@ export class CombatRuntimeAssembly {
     return changed;
   }
 
+  #reduceSkillCooldownsByAbsoluteFrames(
+    operatorId: string,
+    skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
+    frames: number,
+  ): number {
+    const matchedKeys = new Set<string>();
+    let changed = 0;
+    for (const program of this.#skillPrograms.values()) {
+      if (
+        program.operatorId !== operatorId ||
+        (skill.kind === 'type'
+          ? program.skillType !== skill.skillType
+          : program.skillId !== skill.skillId)
+      ) {
+        continue;
+      }
+      const key = `${operatorId}\u0000${program.skillId}`;
+      if (matchedKeys.has(key)) continue;
+      matchedKeys.add(key);
+      if (this.#skillCooldowns.get(key)?.cooldown.reduceByFrames(frames)) changed += 1;
+    }
+    return changed;
+  }
+
   #setSkillCooldowns(
     operatorId: string,
     skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
@@ -968,6 +992,8 @@ export class CombatRuntimeAssembly {
     const cooldownDelegate = new SkillCooldownOperationExecutor({
       reduceByBaseDurationRatio: (skill, ratio) =>
         this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
+      reduceByAbsoluteFrames: (skill, frames) =>
+        this.#reduceSkillCooldownsByAbsoluteFrames(operatorId, skill, frames),
       setByBaseDurationRatio: (skill, ratio) =>
         this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
       setByAbsoluteFrames: (skill, frames) =>

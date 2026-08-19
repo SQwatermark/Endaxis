@@ -108,6 +108,58 @@ describe('operator upgrade compilation', () => {
     });
   });
 
+  it('compiles Endministrator potential 5 into its trigger listener and absolute cooldown reduction', () => {
+    const active = resolveActiveOperatorUpgrades(
+      build({ operatorSlug: endministratorGeneratedOperator.slug, potential: 5 }),
+      endministratorGeneratedOperator,
+    );
+    const program = compileOperatorInitializationPrograms(active).find(
+      item => item.key === 'potential:potential5',
+    );
+
+    expect(program?.sequence.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_chr_0003_endminf_potential5',
+        blackboardAssignments: { cd_minus: { kind: 'constant', value: 2 } },
+        definition: {
+          abilityEventResponses: [
+            {
+              event: 'addedBuff',
+              sequence: {
+                steps: [
+                  {
+                    kind: 'conditional',
+                    whenTrue: {
+                      steps: [
+                        {
+                          kind: 'adjustSkillCooldown',
+                          parameters: {
+                            skill: { kind: 'id', skillId: 'chr_0003_endminf_combo_skill' },
+                            operation: 'reduce',
+                            basis: 'absoluteSeconds',
+                          },
+                        },
+                        {
+                          kind: 'adjustSkillCooldown',
+                          parameters: {
+                            skill: { kind: 'id', skillId: 'chr_0002_endminm_combo_skill' },
+                            operation: 'reduce',
+                            basis: 'absoluteSeconds',
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+  });
+
   it('compiles generated talent and potential effects into operator skills', () => {
     const arclightBuild = build({
       operatorSlug: arclightGeneratedOperator.slug,

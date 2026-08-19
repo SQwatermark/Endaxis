@@ -363,8 +363,6 @@ def compile_conditional_branch_action(
         )
         if operation is None:
             raise ValueError(f"{path}: unsupported skill cooldown operation")
-        if operation == "reduce" and not cooldown_adjustment.isPercentage:
-            raise ValueError(f"{path}: absolute cooldown reduction is unsupported")
         basis = (
             "baseDurationRatio"
             if cooldown_adjustment.isPercentage

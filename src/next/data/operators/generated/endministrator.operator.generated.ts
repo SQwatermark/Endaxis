@@ -2287,7 +2287,55 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0003_endminf_potential5',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            blackboard: {
+              'cd_minus': 0,
+            },
+            abilityEventResponses: [
+              {
+                event: 'addedBuff',
+                priority: 0,
+                sequence:
+                  sequence(
+                    branch(
+                      {
+                        kind: 'eventBuffIdMatch',
+                        buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
+                      },
+                      sequence(
+                        step('adjustSkillCooldown', {
+                          target: 'caster',
+                          skill: { kind: 'id', skillId: 'chr_0003_endminf_combo_skill' },
+                          operation: 'reduce',
+                          basis: 'absoluteSeconds',
+                          value: { kind: 'blackboard', key: 'cd_minus' },
+                        }),
+                        step('adjustSkillCooldown', {
+                          target: 'caster',
+                          skill: { kind: 'id', skillId: 'chr_0002_endminm_combo_skill' },
+                          operation: 'reduce',
+                          basis: 'absoluteSeconds',
+                          value: { kind: 'blackboard', key: 'cd_minus' },
+                        }),
+                      ),
+                    ),
+                  ),
+              },
+            ],
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'cd_minus': { kind: 'constant', value: 2 },
+          },
+        }),
+      ),
     },
   ],
   conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['basicAttackMale4', 'basicAttackFemale4', 'ultimate', 'ultimateFemale'] }] },

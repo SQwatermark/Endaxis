@@ -2474,6 +2474,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operation: 'reduce'", compiled)
         self.assertIn("basis: 'baseDurationRatio'", compiled)
 
+    def test_conditional_skill_cooldown_reduce_supports_absolute_seconds(self) -> None:
+        target = parse_target_reference(target_settings_fixture("Owner"), "fixture.target")
+        payload = SimpleNamespace(
+            target=target,
+            useSkillType=False,
+            skillTypeMask="None",
+            skillId="skill.target",
+            functionType="Reduce",
+            isPercentage=False,
+            value=ScalarSource(2, None, None),
+        )
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "SetSkillCdAtOnce", 0, skillCooldownAdjustment=payload
+            ),
+            "fixture.cooldown",
+        )
+
+        self.assertIn("skillId: 'skill.target'", compiled)
+        self.assertIn("operation: 'reduce'", compiled)
+        self.assertIn("basis: 'absoluteSeconds'", compiled)
+        self.assertIn("value: { kind: 'constant', value: 2 }", compiled)
+
     def test_store_max_health_reads_runtime_panel_blackboard(self) -> None:
         scalar = lambda value: {
             "useBlackboardKey": False,

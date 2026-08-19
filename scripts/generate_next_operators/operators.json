@@ -2242,7 +2242,7 @@
         { "key": "potential2", "compile": "attachedBuff" },
         { "key": "potential3", "compile": "unmodeledPotential" },
         { "key": "potential4", "compile": "unmodeledPotential" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "attachedBuff" }
       ],
       "skillGroups": [
         {

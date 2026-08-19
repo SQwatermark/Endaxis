@@ -73,6 +73,18 @@ describe('SkillCooldown', () => {
     expect(cooldown.snapshot.ready).toBe(true);
   });
 
+  it('reduces the remaining cooldown by an absolute frame count without going below ready', () => {
+    const cooldown = new SkillCooldown(100, 0);
+    cooldown.tryReserve();
+    cooldown.advance(10);
+
+    expect(cooldown.reduceByFrames(30)).toBe(true);
+    expect(cooldown.snapshot.remainingFrames).toBe(60);
+    expect(cooldown.reduceByFrames(90)).toBe(true);
+    expect(cooldown.snapshot.remainingFrames).toBe(0);
+    expect(cooldown.reduceByFrames(1)).toBe(false);
+  });
+
   it('sets remaining cooldown from either the base ratio or absolute frames', () => {
     const cooldown = new SkillCooldown(100, 0);
 

@@ -9,6 +9,10 @@ export interface SkillCooldownOperationExecutorOptions {
     skill: CombatStepParameters['adjustSkillCooldown']['skill'],
     ratio: number,
   ) => number;
+  readonly reduceByAbsoluteFrames: (
+    skill: CombatStepParameters['adjustSkillCooldown']['skill'],
+    frames: number,
+  ) => number;
   readonly setByBaseDurationRatio: (
     skill: CombatStepParameters['adjustSkillCooldown']['skill'],
     ratio: number,
@@ -37,6 +41,8 @@ export class SkillCooldownOperationExecutor implements CombatOperationExecutor {
     const { operation, basis, skill } = step.parameters;
     if (operation === 'reduce' && basis === 'baseDurationRatio') {
       this.options.reduceByBaseDurationRatio(skill, value);
+    } else if (operation === 'reduce' && basis === 'absoluteSeconds') {
+      this.options.reduceByAbsoluteFrames(skill, value * COMBAT_FRAMES_PER_SECOND);
     } else if (operation === 'set' && basis === 'baseDurationRatio') {
       this.options.setByBaseDurationRatio(skill, value);
     } else if (operation === 'set' && basis === 'absoluteSeconds') {
