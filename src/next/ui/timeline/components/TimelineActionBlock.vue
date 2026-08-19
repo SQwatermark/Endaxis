@@ -9,7 +9,10 @@ import { computed } from 'vue';
 import { EditPen } from '@element-plus/icons-vue';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
 import type { TimelineConnectionPort } from '../timelineConnections';
-import type { TimelineHitMarkerView } from '../timelineHitProjection';
+import {
+  projectTimelineHitMarkerLeftPx,
+  type TimelineHitMarkerView,
+} from '../timelineHitProjection';
 
 const props = defineProps<{
   actionId: string;
@@ -57,9 +60,7 @@ function beginMove(event: PointerEvent): void {
 }
 
 function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
-  const width = Math.max(1, props.width);
-  const leftPx = Math.min(Math.max(marker.leftPx, 0), width);
-  return { left: `${leftPx}px` };
+  return { left: `${projectTimelineHitMarkerLeftPx(marker.leftPx)}px` };
 }
 </script>
 

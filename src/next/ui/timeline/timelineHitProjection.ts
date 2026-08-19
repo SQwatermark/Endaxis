@@ -31,6 +31,14 @@ export interface TimelineHitMarkerView {
   readonly title?: string;
 }
 
+/**
+ * 命中可以由能力实体等延迟到主技能块结束之后，不能被技能块宽度截断。
+ * 负偏移没有可展示的实际意义，仍收敛到技能起点。
+ */
+export function projectTimelineHitMarkerLeftPx(leftPx: number): number {
+  return Math.max(0, leftPx);
+}
+
 function collectDamageSteps(
   step: CombatStepDefinition,
   conditional: boolean,

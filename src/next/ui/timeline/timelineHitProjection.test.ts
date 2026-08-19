@@ -5,7 +5,11 @@ import type {
 } from '../../core/game-data/operatorDefinition';
 import type { SkillCastDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
-import { projectCastHitMarkers, findCastHitMarker } from './timelineHitProjection';
+import {
+  findCastHitMarker,
+  projectCastHitMarkers,
+  projectTimelineHitMarkerLeftPx,
+} from './timelineHitProjection';
 
 function fixtureDef(cast: SkillCastDocument): SkillDefinition {
   return cast.customDefinition!;
@@ -43,6 +47,11 @@ function damageStep(stepKey: string | undefined, hitKey: string): CombatStepDefi
 }
 
 describe('projectCastHitMarkers', () => {
+  it('keeps delayed hits beyond the skill block at their actual horizontal position', () => {
+    expect(projectTimelineHitMarkerLeftPx(-3)).toBe(0);
+    expect(projectTimelineHitMarkerLeftPx(120)).toBe(120);
+  });
+
   it('把调度帧与放置帧合并为绝对偏移，并保留定义步骤键', () => {
     const cast = createCast([damageStep('step:damage', 'hit:1'), damageStep(undefined, 'hit:2')]);
     const markers = projectCastHitMarkers(cast, fixtureDef(cast));
