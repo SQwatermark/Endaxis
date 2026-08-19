@@ -281,6 +281,9 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 
 - 条件能力实体现已统一递归内联：每个 `SpawnAbilityEntity` 叶子以完整 `actionPath` 绑定自己的子 SkillData，互斥分支保持互斥，嵌套实体、伤害、Buff 与局部 Aura 都留在对应 `childSkill`，不会提升为根技能无条件调度；固定点生成位置按项目零空间模型删除。Snowshine 终结技新增严格编译，全量基线为 320/320 可解析、293/320 可编译、14 名完整直转。Tangtang 普通战技已深入到水体实体的 `CheckBuffStackNumAdvanced(limitSkillCastId=true)`，这是下一项明确边界。
 - 递归 Aura 使 Gilberta 终结技此前漏掉的能力实体范围 Buff 进入正式生成。Buff 定义闭包现在递归收集能力实体/投射物/条件分支 Aura，并在 audit 阶段逐根解析；`DuringBuffEnable` 进入标准可重启动 `lifecycleSequences.enable`，动作时长 Slow 使用 `finishByAction` 对称结束。公共 Buff 证据把 `VulnerableAction` 的 `Physical` 限定为物理，把 `Spell` 限定为 heat/electric/cryo/nature。生成器 338 项、全量生成/`--check`、类型检查和 Next 178 文件 1127 项测试通过。
+- `CheckBuffStackNumAdvanced` / `SaveBuffStackNumAdvanced` 的 `limitSkillCastId=true` 已进入统一 DSL 与运行时：查询按当前 `skillCastInfo.skillCastId` 过滤 Buff 实例，缺少施法身份时失败关闭。条件分支内已成功编译的 `SpawnAbilityEntity(saveToContext)` 会把单例来源只传播给同分支后续兄弟动作，因此紧随其后的 Context Buff/时长操作可逐稳定句柄执行；同名 key 没有实际生成来源时仍拒绝。
+- 技能和能力实体子技能中的 `OwnerSpawnedEntityFinder + AbilityEntity + TagValidator` 现在会生成实际 `findOwnerSpawnedAbilityEntities` 步骤；`SkillCastIdValidator` 保留为同次施法过滤，实体数量可写入动作黑板或直接由 `contextTargetCountCompare` 比较，后续 `ForEach` 仍遍历完整集合。Tangtang 普通战技由此严格编译。无标签 owner-spawned 时间膨胀查询直接作用于运行时逻辑实体目录，不再错误要求目标属于当前技能子图；Liino、Yvonne 连携新增严格编译。全量基线为 320/320 可解析、296/320 可编译、14 名完整直转；Tangtang 连携已推进到条件分支递归投射物子图（投射物子技能继续生成能力实体），不能按即时命中投射物近似。
+- 本轮门禁：生成器 339 项通过；全量生成与 `--check`、`npm run type-check:next` 通过；Next Vitest 178 文件、1128 项全部通过。`tmp/` 仍仅为未跟踪审计输出，不得提交。
 
 ## 8. 恢复工作清单
 

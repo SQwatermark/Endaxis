@@ -601,10 +601,15 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 统计所有未结束且 ID 命中任一候选项的 Buff 层数。 */
-  getCountByIds(ids: readonly string[]): number {
+  getCountByIds(ids: readonly string[], skillCastId?: number): number {
     const accepted = new Set(ids);
     return this.#buffs
-      .filter(buff => !buff.isFinished && accepted.has(buff.definition.id))
+      .filter(
+        buff =>
+          !buff.isFinished &&
+          accepted.has(buff.definition.id) &&
+          (skillCastId === undefined || buff.skillCastInfo?.skillCastId === skillCastId),
+      )
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
@@ -711,11 +716,13 @@ export class CombatBuffContainer<Key extends string> {
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType = 'hasAny',
     exact = false,
+    skillCastId?: number,
   ): number {
     return this.#buffs
       .filter(
         buff =>
           !buff.isFinished &&
+          (skillCastId === undefined || buff.skillCastInfo?.skillCastId === skillCastId) &&
           this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
       )
       .reduce((count, buff) => count + buff.enhanceCount, 0);

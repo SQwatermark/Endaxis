@@ -72,6 +72,7 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'actionValueCompare':
+    case 'contextTargetCountCompare':
     case 'abilityEntityRemainingDurationCompare':
     case 'timedMarkerPresent':
     case 'elementalReactionActive':

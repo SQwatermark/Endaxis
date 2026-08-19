@@ -192,6 +192,16 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
+    if (condition.kind === 'contextTargetCountCompare') {
+      if (context?.targetContext === undefined) {
+        throw new Error('Context target count comparison requires a combat target context');
+      }
+      return compareCombatNumbers(
+        context.targetContext.get(condition.contextKey).length,
+        condition.value,
+        condition.operator,
+      );
+    }
     if (condition.kind === 'abilityEntityRemainingDurationCompare') {
       if (context?.currentTarget === undefined) {
         throw new Error('AbilityEntity duration comparison requires a current Context target');

@@ -4306,6 +4306,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("target: 'enemy'", result)
         self.assertIn("kind: 'tag'", result)
+        limited = compile_buff_stack_read(
+            replace(read, limitSkillCastId=True),
+            "fixture.read",
+            input_target="enemy",
+        )
+        self.assertIn("sameSourceSkillCast: true", limited)
         with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
             compile_buff_stack_read(read, "fixture.read")
 
@@ -5508,6 +5514,24 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("kind: 'buffStackCompare'", compiled)
         self.assertIn("target: 'enemy'", compiled)
+        limited = compile_combat_condition_group(
+            (
+                SimpleNamespace(
+                    **{
+                        **condition.__dict__,
+                        "buffStack": SimpleNamespace(
+                            **{
+                                **condition.buffStack.__dict__,
+                                "limitSkillCastId": True,
+                            }
+                        ),
+                    }
+                ),
+            ),
+            "fixture.conditions",
+            input_target="enemy",
+        )
+        self.assertIn("sameSourceSkillCast: true", limited)
         with self.assertRaisesRegex(ValueError, "unsupported Buff stack query"):
             compile_combat_condition_group(
                 (condition,),
@@ -12166,6 +12190,54 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "requires singleton provenance"):
             compile_conditional_action(without_spawn, "fixture.namedDuration")
+
+    def test_named_context_provenance_follows_inline_conditional_spawn(self) -> None:
+        spawn_path = ("timelineActions[0]", "succeedActions[0]")
+        spawn = AbilityEntitySpawnPayload(
+            abilityEntityId="abilityentity_fixture",
+            skillId="fixture_child",
+            sourceType="ActionSource",
+            saveToContextKey="spawned",
+        )
+        assignment = AbilityEntityDurationAssignmentPayload(
+            setMultipleTarget=False,
+            actionTargetType="ContextTarget",
+            targetContextKey="spawned",
+            operation="Assign",
+            value=ScalarSource(0.5, None, None),
+        )
+        action = UnconditionalActionSource(
+            startFrame=0,
+            endFrame=1,
+            actionIndex=0,
+            actionPath=("timelineActions[0]",),
+            conditions=(),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="SpawnAbilityEntity",
+                    actionIndex=0,
+                    actionPath=spawn_path,
+                    abilityEntitySpawn=spawn,
+                ),
+                ConditionalBranchActionSource(
+                    actionType="SetAbilityEntityDuration",
+                    actionIndex=1,
+                    abilityEntityDurationAssignment=assignment,
+                ),
+            ),
+            failActions=(),
+        )
+
+        compiled = compile_conditional_action(
+            action,
+            "fixture.inlineSpawn",
+            compiled_ability_entity_spawns=((spawn_path, "step('spawnAbilityEntity', {})"),),
+        )
+
+        self.assertIn("step('spawnAbilityEntity', {})", compiled)
+        self.assertIn("forEachContextTarget(", compiled)
+        self.assertIn("'spawned'", compiled)
+        self.assertIn("setAbilityEntityRemainingDuration", compiled)
 
     def test_audit_stage_records_buff_resolution_failure_but_complete_stage_rethrows(self) -> None:
         skill = SimpleNamespace(

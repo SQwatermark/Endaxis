@@ -235,6 +235,13 @@ export type CombatCondition =
       right: ActionValueOperand;
     }
   | {
+      /** 比较本次释放 Context 中已查询目标组的实例数量。 */
+      kind: 'contextTargetCountCompare';
+      contextKey: string;
+      operator: ComparisonOperator;
+      value: number;
+    }
+  | {
       /** 比较当前 Context 迭代目标的有限能力实体剩余时长。 */
       kind: 'abilityEntityRemainingDurationCompare';
       operator: ComparisonOperator;
@@ -247,6 +254,7 @@ export type CombatCondition =
       target: CombatTarget;
       tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
+      sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
@@ -262,6 +270,7 @@ export type CombatCondition =
       kind: 'buffIdStackCompare';
       target: CombatTarget;
       buffIds: readonly string[];
+      sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
       value: number | ActionValueOperand;
     }
@@ -329,6 +338,7 @@ export const COMBAT_CONDITION_KINDS = [
   'healthCompare',
   'contextFlagEquals',
   'actionValueCompare',
+  'contextTargetCountCompare',
   'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',
@@ -589,6 +599,7 @@ export interface CombatStepParameters {
           tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
           buffTagIds: readonly number[];
         };
+    sameSourceSkillCast?: boolean;
   };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {

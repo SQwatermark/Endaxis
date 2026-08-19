@@ -80,6 +80,7 @@ class ResolvedSequenceStepServices:
     compile_logical_ability_entity_spawn: Callable[..., Any]
     compile_resolved_damage_steps: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
+    compile_skill_target_group_ability_entity_query: Callable[..., Any]
     compile_skill_event_listener: Callable[..., Any]
     compile_time_dilation: Callable[..., Any]
 
@@ -149,6 +150,9 @@ def compile_resolved_sequence(
     compile_logical_ability_entity_spawn = steps.compile_logical_ability_entity_spawn
     compile_resolved_damage_steps = steps.compile_resolved_damage_steps
     compile_resource_gain = steps.compile_resource_gain
+    compile_skill_target_group_ability_entity_query = (
+        steps.compile_skill_target_group_ability_entity_query
+    )
     compile_skill_event_listener = steps.compile_skill_event_listener
     compile_time_dilation = steps.compile_time_dilation
     ignored_auxiliary_classifications = set(
@@ -615,6 +619,66 @@ def compile_resolved_sequence(
                 item.targetGroupWrites
                 or root_target_group_writes_for_condition(skill, item, payload)
             )
+            ability_entity_query_steps: list[str] = []
+            queried_context_keys: set[str] = set()
+            for condition_index, condition in enumerate(payload.conditions):
+                entity_count = getattr(condition, "entityCount", None)
+                if (
+                    condition.sourceType != "CheckEntityNum"
+                    or entity_count is None
+                    or entity_count.targetSource != "Context"
+                    or not entity_count.targetGroupKey
+                ):
+                    continue
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=payload.actionPath,
+                    target_group_key=entity_count.targetGroupKey,
+                    writes=target_group_writes,
+                )
+                if (
+                    write is None
+                    or target_group_write_ability_entity_collection_identity(write)
+                    is None
+                ):
+                    continue
+                ability_entity_query_steps.append(
+                    compile_skill_target_group_ability_entity_query(
+                        write,
+                        ability_entity_templates,
+                        f"{skill.key}.schedule[{schedule_index}].conditionalAction."
+                        f"conditions[{condition_index}].targetGroupWrite",
+                        save_count_to_blackboard_key=(entity_count.storeKey or None),
+                    )
+                )
+                queried_context_keys.add(entity_count.targetGroupKey)
+            for_each_context_key = getattr(payload, "contextKey", None)
+            if (
+                isinstance(for_each_context_key, str)
+                and for_each_context_key
+                and for_each_context_key not in queried_context_keys
+            ):
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=payload.actionPath,
+                    target_group_key=for_each_context_key,
+                    writes=target_group_writes,
+                )
+                if (
+                    write is not None
+                    and target_group_write_ability_entity_collection_identity(write)
+                    is not None
+                ):
+                    ability_entity_query_steps.append(
+                        compile_skill_target_group_ability_entity_query(
+                            write,
+                            ability_entity_templates,
+                            f"{skill.key}.schedule[{schedule_index}].conditionalAction."
+                            "forEachTargetGroupWrite",
+                        )
+                    )
             compiled_condition = _compile_conditional_action_ir(
                 payload,
                 f"{skill.key}.schedule[{schedule_index}].conditionalAction",
@@ -643,7 +707,10 @@ def compile_resolved_sequence(
                 continue
             step_lines = [
                 line
-                for source in render_compiled_sequence_children(compiled_condition)
+                for source in (
+                    *ability_entity_query_steps,
+                    *render_compiled_sequence_children(compiled_condition),
+                )
                 for line in source.splitlines()
             ]
         elif item.itemType == "blackboardCalculation":

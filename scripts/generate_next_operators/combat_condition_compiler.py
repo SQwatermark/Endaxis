@@ -25,6 +25,7 @@ class CombatConditionServices:
     resolve_fixed_combat_target: Callable[..., Literal["caster", "enemy"] | None]
     resolve_latest_target_group_write: Callable[..., Any]
     resolve_latest_target_group_write_at: Callable[..., Any]
+    target_group_write_ability_entity_collection_identity: Callable[[Any], Any]
     target_group_write_guarantees_single_enemy: Callable[[Any], bool]
     target_reference_has_plain_selector: Callable[[Any], bool]
 
@@ -91,6 +92,9 @@ def compile_combat_condition(
     resolve_latest_target_group_write = services.resolve_latest_target_group_write
     resolve_latest_target_group_write_at = (
         services.resolve_latest_target_group_write_at
+    )
+    target_group_write_ability_entity_collection_identity = (
+        services.target_group_write_ability_entity_collection_identity
     )
     target_group_write_guarantees_single_enemy = (
         services.target_group_write_guarantees_single_enemy
@@ -173,6 +177,47 @@ def compile_combat_condition(
             "{ kind: 'singleEnemyPresent' }"
             if result
             else "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }"
+        )
+    if (
+        source.sourceType == "CheckEntityNum"
+        and entity_count is not None
+        and entity_count.targetSource == "Context"
+        and entity_count.targetGroupKey
+        and not entity_count.containsHittableTarget
+        and (
+            entity_write := resolve_latest_target_group_write(
+                action, entity_count.targetGroupKey, target_group_writes
+            )
+        )
+        is not None
+        and target_group_write_ability_entity_collection_identity(entity_write)
+        is not None
+    ):
+        operator = comparison_operator_map.get(entity_count.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported entity-count comparison")
+        if not entity_count.storeKey:
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'contextTargetCountCompare',",
+                    f"  contextKey: {ts_inline_literal(entity_count.targetGroupKey)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {entity_count.minimumCount},",
+                    "}",
+                ]
+            )
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'actionValueCompare',",
+                "  left: { kind: 'blackboard', key: "
+                f"{ts_inline_literal(entity_count.storeKey)} }},",
+                f"  operator: {ts_inline_literal(operator)},",
+                "  right: { kind: 'constant', value: "
+                f"{entity_count.minimumCount} }},",
+                "}",
+            ]
         )
     if source.sourceType == "CheckSquadInFight":
         return "{ kind: 'combatActive' }"
@@ -447,7 +492,7 @@ def compile_combat_condition(
         buff = source.buffStack
         if buff is None:
             raise ValueError(f"{path}: missing Buff stack condition payload")
-        if buff.countType != "BuffCount" or buff.limitSkillCastId:
+        if buff.countType != "BuffCount":
             raise ValueError(f"{path}: unsupported Buff stack count semantics")
         operator = comparison_operator_map.get(buff.comparison)
         if operator is None:
@@ -474,6 +519,11 @@ def compile_combat_condition(
                     f"  target: {ts_inline_literal(target)},",
                     f"  tagQueryType: {ts_inline_literal(buff.tagQueryType)},",
                     f"  buffTagIds: {ts_inline_literal(buff.buffTagIds)},",
+                    *(
+                        ["  sameSourceSkillCast: true,"]
+                        if buff.limitSkillCastId
+                        else []
+                    ),
                     f"  operator: {ts_inline_literal(operator)},",
                     f"  value: {value_source},",
                     "}",
@@ -491,6 +541,11 @@ def compile_combat_condition(
                     "  kind: 'buffIdStackCompare',",
                     f"  target: {ts_inline_literal(target)},",
                     f"  buffIds: {ts_inline_literal(buff.buffIds)},",
+                    *(
+                        ["  sameSourceSkillCast: true,"]
+                        if buff.limitSkillCastId
+                        else []
+                    ),
                     f"  operator: {ts_inline_literal(operator)},",
                     f"  value: {value_source},",
                     "}",

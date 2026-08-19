@@ -90,6 +90,17 @@ describe('AbilityEntityOperationExecutor', () => {
 
     expect(targetContext.get('ComboLances')).toHaveLength(1);
     expect(blackboard.getNumber('ComboLanceCount')).toBe(1);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'contextTargetCountCompare',
+          contextKey: 'ComboLances',
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+        { blackboard, targetContext },
+      ),
+    ).toBe(true);
   });
 
   it('applies SkillCastIdValidator semantics to owner-spawned queries', () => {

@@ -42,7 +42,7 @@ export interface BuffOperationTarget {
   configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
   apply?(request: BuffApplicationRequest): boolean;
   applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
-  getCountByIds(ids: readonly string[]): number;
+  getCountByIds(ids: readonly string[], skillCastId?: number): number;
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   finishCountByIds?(ids: readonly string[], count: number, reason: BuffFinishReason): number;
@@ -52,6 +52,7 @@ export interface BuffOperationTarget {
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,
     exact?: boolean,
+    skillCastId?: number,
   ): number;
   matchesEntityTags(
     tags: readonly GameplayTagId[],
@@ -218,13 +219,18 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('readBuffStackCount requires a combat operation context');
       }
       const target = this.dependencies.resolveTarget(step.parameters.target);
+      const skillCastId = step.parameters.sameSourceSkillCast
+        ? this.#requireSkillCastId(context, 'readBuffStackCount')
+        : undefined;
       const count =
         step.parameters.query.kind === 'tag'
           ? target.getCountByTags(
               step.parameters.query.buffTagIds.map(gameplayTagId),
               step.parameters.query.tagQueryType,
+              false,
+              skillCastId,
             )
-          : target.getCountByIds(step.parameters.query.buffIds);
+          : target.getCountByIds(step.parameters.query.buffIds, skillCastId);
       context.blackboard.assignDynamic(step.parameters.outputKey, count);
       return true;
     }
@@ -360,7 +366,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       const count = this.dependencies
         .resolveTarget(condition.target)
-        .getCountByTags(condition.buffTagIds.map(gameplayTagId), condition.tagQueryType);
+        .getCountByTags(
+          condition.buffTagIds.map(gameplayTagId),
+          condition.tagQueryType,
+          false,
+          condition.sameSourceSkillCast
+            ? this.#requireSkillCastId(context, 'buffStackCompare')
+            : undefined,
+        );
       return compareCombatNumbers(
         count,
         resolveActionValueOperand(condition.value, context.blackboard),
@@ -375,7 +388,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (condition.kind === 'buffIdStackCompare') {
       const count = this.dependencies
         .resolveTarget(condition.target)
-        .getCountByIds(condition.buffIds);
+        .getCountByIds(
+          condition.buffIds,
+          condition.sameSourceSkillCast
+            ? this.#requireSkillCastId(context, 'buffIdStackCompare')
+            : undefined,
+        );
       if (typeof condition.value === 'number') {
         return compareCombatNumbers(count, condition.value, condition.operator);
       }
@@ -405,5 +423,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       throw new Error('currentAbilityEntity Buff operation runtime is not configured');
     }
     return resolve(context.currentTarget);
+  }
+
+  #requireSkillCastId(
+    context: Parameters<CombatOperationExecutor['execute']>[1],
+    operation: string,
+  ): number {
+    const skillCastId = context?.skillCastInfo?.skillCastId;
+    if (skillCastId === undefined) {
+      throw new Error(`${operation} same-source query requires skill cast info`);
+    }
+    return skillCastId;
   }
 }

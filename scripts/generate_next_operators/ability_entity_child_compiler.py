@@ -32,10 +32,14 @@ class AbilityEntityChildServices:
     compile_infliction: Callable[..., Any]
     compile_resolved_damage_steps: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
+    compile_skill_target_group_ability_entity_query: Callable[..., Any]
     filter_once_resource_gains: Callable[..., Any]
+    load_ability_entity_template_evidence: Callable[..., Any]
     native_condition_sequence_order: Callable[..., Any]
     native_sequence_order: Callable[..., Any]
+    resolve_latest_target_group_write: Callable[..., Any]
     resource_gain_can_change_value: Callable[..., Any]
+    target_group_write_ability_entity_collection_identity: Callable[..., Any]
     timeline_jump_outer_condition: Callable[..., Any]
 
 
@@ -67,10 +71,18 @@ def compile_ability_entity_child_skill(
     compile_infliction = services.compile_infliction
     compile_resolved_damage_steps = services.compile_resolved_damage_steps
     compile_resource_gain = services.compile_resource_gain
+    compile_skill_target_group_ability_entity_query = (
+        services.compile_skill_target_group_ability_entity_query
+    )
     filter_once_resource_gains = services.filter_once_resource_gains
+    load_ability_entity_template_evidence = services.load_ability_entity_template_evidence
     native_condition_sequence_order = services.native_condition_sequence_order
     native_sequence_order = services.native_sequence_order
+    resolve_latest_target_group_write = services.resolve_latest_target_group_write
     resource_gain_can_change_value = services.resource_gain_can_change_value
+    target_group_write_ability_entity_collection_identity = (
+        services.target_group_write_ability_entity_collection_identity
+    )
     timeline_jump_outer_condition = services.timeline_jump_outer_condition
     if not ability_entity_child_timeline_can_compile(
         hit,
@@ -251,11 +263,72 @@ def compile_ability_entity_child_skill(
     projected_interval_frames = {
         interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
     }
+    ability_entity_templates: dict[str, dict[str, Any]] | None = None
     for condition in hit.conditionalActions:
         if getattr(condition, "executionFrames", ()) in projected_interval_frames:
             continue
         frames = getattr(condition, "executionFrames", ()) or (condition.startFrame,)
         for frame in frames:
+            ability_entity_query_steps: list[str] = []
+            queried_context_keys: set[str] = set()
+            for condition_index, condition_source in enumerate(condition.conditions):
+                entity_count = getattr(condition_source, "entityCount", None)
+                if (
+                    condition_source.sourceType != "CheckEntityNum"
+                    or entity_count is None
+                    or entity_count.targetSource != "Context"
+                    or not entity_count.targetGroupKey
+                ):
+                    continue
+                write = resolve_latest_target_group_write(
+                    condition,
+                    entity_count.targetGroupKey,
+                    hit.localTargetGroupWrites,
+                )
+                if (
+                    write is None
+                    or target_group_write_ability_entity_collection_identity(write)
+                    is None
+                ):
+                    continue
+                if ability_entity_templates is None:
+                    ability_entity_templates = load_ability_entity_template_evidence()
+                ability_entity_query_steps.append(
+                    compile_skill_target_group_ability_entity_query(
+                        write,
+                        ability_entity_templates,
+                        f"{skill.key}.{hit.skillId}.conditionalAction."
+                        f"conditions[{condition_index}].targetGroupWrite",
+                        save_count_to_blackboard_key=(entity_count.storeKey or None),
+                    )
+                )
+                queried_context_keys.add(entity_count.targetGroupKey)
+            for_each_context_key = getattr(condition, "contextKey", None)
+            if (
+                isinstance(for_each_context_key, str)
+                and for_each_context_key
+                and for_each_context_key not in queried_context_keys
+            ):
+                write = resolve_latest_target_group_write(
+                    condition,
+                    for_each_context_key,
+                    hit.localTargetGroupWrites,
+                )
+                if (
+                    write is not None
+                    and target_group_write_ability_entity_collection_identity(write)
+                    is not None
+                ):
+                    if ability_entity_templates is None:
+                        ability_entity_templates = load_ability_entity_template_evidence()
+                    ability_entity_query_steps.append(
+                        compile_skill_target_group_ability_entity_query(
+                            write,
+                            ability_entity_templates,
+                            f"{skill.key}.{hit.skillId}.conditionalAction."
+                            "forEachTargetGroupWrite",
+                        )
+                    )
             source = _compile_conditional_action_ir(
                 condition,
                 f"{skill.key}.{hit.skillId}.conditionalAction",
@@ -296,7 +369,10 @@ def compile_ability_entity_child_skill(
                     (*hit.actionOrder, condition.actionIndex),
                     [
                         line
-                        for compiled_source in render_compiled_sequence_children(source)
+                        for compiled_source in (
+                            *ability_entity_query_steps,
+                            *render_compiled_sequence_children(source),
+                        )
                         for line in compiled_source.splitlines()
                     ],
                 )

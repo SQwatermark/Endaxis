@@ -38,6 +38,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         operator: 'equal',
         right: { kind: 'constant', value: 0 },
       };
+    case 'contextTargetCountCompare':
+      return { kind, contextKey: 'custom-targets', operator: 'greaterOrEqual', value: 1 };
     case 'abilityEntityRemainingDurationCompare':
       return {
         kind,

@@ -477,6 +477,11 @@ function validateCombatCondition(
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.right, `${path}.right`, out);
       break;
+    case 'contextTargetCountCompare':
+      requireString(record, 'contextKey', path, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      requireNonNegativeInteger(record, 'value', path, out);
+      break;
     case 'abilityEntityRemainingDurationCompare':
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
@@ -497,6 +502,9 @@ function validateCombatCondition(
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
+      if (record.sameSourceSkillCast !== undefined) {
+        requireBoolean(record, 'sameSourceSkillCast', path, out);
+      }
       break;
     case 'entityTagMatch':
       requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
@@ -508,6 +516,9 @@ function validateCombatCondition(
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateLevelValuesOrActionValueOperand(record.value, `${path}.value`, out);
+      if (record.sameSourceSkillCast !== undefined) {
+        requireBoolean(record, 'sameSourceSkillCast', path, out);
+      }
       break;
     case 'timedMarkerPresent':
       requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
@@ -1176,6 +1187,9 @@ function validateCombatStep(
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       if (kind === 'readBuffBlackboard') {
         requireString(parameters, 'desiredKey', `${path}.parameters`, out);
+      }
+      if (parameters.sameSourceSkillCast !== undefined) {
+        requireBoolean(parameters, 'sameSourceSkillCast', `${path}.parameters`, out);
       }
       const query = asRecord(parameters.query, `${path}.parameters.query`, out);
       if (query === null) break;

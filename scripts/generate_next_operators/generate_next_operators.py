@@ -3610,6 +3610,9 @@ def _make_combat_condition_services() -> CombatConditionServices:
         resolve_fixed_combat_target=resolve_fixed_combat_target,
         resolve_latest_target_group_write=resolve_latest_target_group_write,
         resolve_latest_target_group_write_at=resolve_latest_target_group_write_at,
+        target_group_write_ability_entity_collection_identity=(
+            target_group_write_ability_entity_collection_identity
+        ),
         target_group_write_guarantees_single_enemy=(
             target_group_write_guarantees_single_enemy
         ),
@@ -4253,8 +4256,6 @@ def compile_buff_stack_read(
     """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
     if payload.countType != "BuffCount":
         raise ValueError(f"{path}: unsupported Buff count type {payload.countType!r}")
-    if payload.limitSkillCastId:
-        raise ValueError(f"{path}: skill-cast-limited Buff count is not supported")
     target = (
         buff_owner_target
         if (
@@ -4294,6 +4295,11 @@ def compile_buff_stack_read(
             f"  target: {ts_inline_literal(target)},",
             f"  outputKey: {ts_inline_literal(payload.outputKey)},",
             f"  query: {query},",
+            *(
+                ["  sameSourceSkillCast: true,"]
+                if payload.limitSkillCastId
+                else []
+            ),
             "})",
         ]
     )
@@ -5344,12 +5350,51 @@ def target_group_write_ability_entity_collection_identity(
         or any(
             processor != "PriorityFilter" for processor in write.postProcessorTypes
         )
-        or not write.validatorTypes
-        or any(validator != "TagValidator" for validator in write.validatorTypes)
-        or len(write.validatorTagQueries) != len(write.validatorTypes)
+        or write.validatorTypes.count("TagValidator") != 1
+        or write.validatorTypes.count("SkillCastIdValidator") > 1
+        or any(
+            validator not in {"TagValidator", "SkillCastIdValidator"}
+            for validator in write.validatorTypes
+        )
+        or len(write.validatorTagQueries)
+        != write.validatorTypes.count("TagValidator")
     ):
         return None
     return write.validatorTagQueries
+
+
+def compile_skill_target_group_ability_entity_query(
+    write: TargetGroupWriteSource,
+    templates: dict[str, dict[str, Any]],
+    path: str,
+    *,
+    save_count_to_blackboard_key: str | None = None,
+) -> str:
+    """编译技能时间线中 owner-spawned 能力实体集合查询。"""
+    identity = target_group_write_ability_entity_collection_identity(write)
+    if (
+        identity is None
+        or write.center != "ActionSource"
+        or write.centerContextKey
+        or write.selectorOwner != "ActionOwner"
+        or write.selectorOwnerContextKey
+    ):
+        raise ValueError(f"{path}: unsupported skill target-group producer")
+    ability_entity_ids = resolve_ability_entity_ids_from_tag_queries(
+        identity, templates, f"{path}.validatorTagQueries"
+    )
+    fields = [
+        f"saveToContextKey: {ts_inline_literal(write.targetGroupKey)}",
+        f"abilityEntityIds: {ts_inline_literal(ability_entity_ids)}",
+    ]
+    if "SkillCastIdValidator" in write.validatorTypes:
+        fields.append("sameSourceSkillCast: true")
+    if save_count_to_blackboard_key is not None:
+        fields.append(
+            "saveCountToBlackboardKey: "
+            f"{ts_inline_literal(save_count_to_blackboard_key)}"
+        )
+    return f"step('findOwnerSpawnedAbilityEntities', {{ {', '.join(fields)} }})"
 
 
 def target_group_write_buff_application_target(
@@ -5887,7 +5932,7 @@ def ability_entity_time_dilation_targets_are_closed(
     migrated_entities: tuple[AbilityEntityHitSource, ...],
     templates: dict[str, dict[str, Any]],
 ) -> bool:
-    """证明带标签查询只会命中当前技能已逻辑生成且时钟所有权完整的实体。"""
+    """证明查询可由逻辑实体目录执行；带标签查询另校验当前技能闭包。"""
     if not action.effectAbilityEntityTargets:
         return True
     reachable_source_files = {skill.sourceFile} | {
@@ -5898,6 +5943,10 @@ def ability_entity_time_dilation_targets_are_closed(
             compile_ability_entity_time_dilation_query(query, "effectTargets", templates)
         except ValueError:
             return False
+        # 无标签的 OwnerSpawnedEntityFinder 查询的是运行时目录中的全部逻辑实例。
+        # 目录不会包含未建模的原生表现实体，因此无需把跨技能实例误限为当前技能子图。
+        if not query.tagQueries:
+            continue
         if (
             len(query.tagQueries) != 1
             or query.tagQueries[0][0] != "HasAny"
@@ -5957,10 +6006,18 @@ def _make_ability_entity_child_services() -> AbilityEntityChildServices:
         compile_infliction=compile_infliction,
         compile_resolved_damage_steps=compile_resolved_damage_steps,
         compile_resource_gain=compile_resource_gain,
+        compile_skill_target_group_ability_entity_query=(
+            compile_skill_target_group_ability_entity_query
+        ),
         filter_once_resource_gains=filter_once_resource_gains,
+        load_ability_entity_template_evidence=load_ability_entity_template_evidence,
         native_condition_sequence_order=native_condition_sequence_order,
         native_sequence_order=native_sequence_order,
+        resolve_latest_target_group_write=resolve_latest_target_group_write,
         resource_gain_can_change_value=resource_gain_can_change_value,
+        target_group_write_ability_entity_collection_identity=(
+            target_group_write_ability_entity_collection_identity
+        ),
         timeline_jump_outer_condition=timeline_jump_outer_condition,
     )
 
@@ -6653,6 +6710,9 @@ def _make_resolved_sequence_services() -> ResolvedSequenceServices:
             compile_logical_ability_entity_spawn=compile_logical_ability_entity_spawn,
             compile_resolved_damage_steps=compile_resolved_damage_steps,
             compile_resource_gain=compile_resource_gain,
+            compile_skill_target_group_ability_entity_query=(
+                compile_skill_target_group_ability_entity_query
+            ),
             compile_skill_event_listener=compile_skill_event_listener,
             compile_time_dilation=compile_time_dilation,
         ),

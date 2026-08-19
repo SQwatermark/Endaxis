@@ -835,6 +835,54 @@ describe('BuffOperationExecutor', () => {
     expect(caster.getCountById('sword-trigger')).toBe(0);
   });
 
+  it('limits Buff stack queries to the current inherited skill cast', () => {
+    const caster = new CombatBuffContainer('operator', new CombatAttributeSet());
+    const skillCastInfo = {
+      skillCastId: 7,
+      originSkillId: 'normal',
+      nonReturnedSpCost: 0,
+    };
+    caster.add({ id: 'infliction', stackingType: 'unlimited' }, 'operator', { skillCastInfo });
+    caster.add({ id: 'infliction', stackingType: 'unlimited' }, 'operator', {
+      skillCastInfo: { ...skillCastInfo, skillCastId: 8 },
+    });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => caster,
+      delegate,
+    });
+    const context = { blackboard: new ActionBlackboard(), skillCastInfo };
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['infliction'],
+          sameSourceSkillCast: true,
+          operator: 'equal',
+          value: 1,
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'caster',
+            outputKey: 'count',
+            query: { kind: 'id', buffIds: ['infliction'] },
+            sameSourceSkillCast: true,
+          },
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(context.blackboard.getNumber('count')).toBe(1);
+  });
+
   it('releases the exact Buff hold when the ranged operation ends', () => {
     const caster = new CombatBuffContainer('operator', new CombatAttributeSet());
     const buff = caster.add(

@@ -149,7 +149,6 @@ class ConditionalCompiler:
             ability_entity_spawn = getattr(action, "abilityEntitySpawn", None)
             if (
                 ability_entity_spawn is not None
-                and ability_entity_spawn in context.projected_ability_entity_spawns
                 and ability_entity_spawn.saveToContextKey is not None
                 and self.services.logical_spawn_can_compile(ability_entity_spawn)
             ):
