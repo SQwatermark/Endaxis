@@ -354,4 +354,36 @@ describe('CombatSemanticEventRuntime', () => {
 
     expect(received).toEqual(['matched']);
   });
+
+  it('routes attachment consumption only to the operator that caused it', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: number[] = [];
+    runtime.register({
+      ownerOperatorId: 'operator:last-rite',
+      trigger: { kind: 'elementalAttachmentConsumed' },
+      phase: 'dataAction',
+      handle: context => {
+        if (context.event.kind === 'elementalAttachmentConsumed') {
+          received.push(context.event.layers);
+        }
+      },
+    });
+
+    runtime.emit({
+      kind: 'elementalAttachmentConsumed',
+      sourceOperatorId: 'operator:other',
+      targetId: 'enemy',
+      element: 'cryo',
+      layers: 2,
+    });
+    runtime.emit({
+      kind: 'elementalAttachmentConsumed',
+      sourceOperatorId: 'operator:last-rite',
+      targetId: 'enemy',
+      element: 'cryo',
+      layers: 4,
+    });
+
+    expect(received).toEqual([4]);
+  });
 });

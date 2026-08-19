@@ -405,6 +405,8 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "validatorTagQueries",
         "skillReplacements",
         "obtainAtbFilters",
+        "contextBuffTagQueries",
+        "consumeBuffLayerChecks",
     }
 )
 
@@ -2274,13 +2276,47 @@ def resolve_passive_buff_definitions(
 
 def resolve_progression_buff_definitions(
     operator: dict[str, Any],
+    growth: dict[str, Any],
     potential_table: dict[str, Any],
     effects: dict[str, Any],
     buff_source_dir: Path,
 ) -> tuple[BuffDefinitionSource, ...]:
-    """只解析 manifest 明确启用的直接 AddBuff 养成；复杂未建模 Buff 不污染正式生成。"""
+    """只解析 manifest 明确启用的 AddBuff 养成；复杂未建模 Buff 不污染正式生成。"""
+    buff_ids: set[str] = set()
+    talent_configs = {
+        require_non_negative_int(config.get("index"), f"{operator['slug']}.talents[].index"): config
+        for config in (
+            require_dict(raw, f"{operator['slug']}.talents[]")
+            for raw in require_list(operator.get("talents", []), f"{operator['slug']}.talents")
+        )
+    }
+    for raw_node in require_dict(
+        growth.get("talentNodeMap"), "CharGrowthTable.talentNodeMap"
+    ).values():
+        node = require_dict(raw_node, "CharGrowthTable.talentNodeMap[]")
+        passive = require_dict(node.get("passiveSkillNodeInfo"), "passiveSkillNodeInfo")
+        effect_id = passive.get("talentEffectId")
+        if not effect_id:
+            continue
+        index = require_non_negative_int(passive.get("index"), "passiveSkillNodeInfo.index")
+        if talent_configs.get(index, {}).get("compile") != "consumedInflictionVulnerability":
+            continue
+        effect = table_row(effects, str(effect_id), "PotentialTalentEffectTable")
+        entries = require_list(effect.get("dataList"), f"{effect_id}.dataList")
+        if len(entries) != 1:
+            raise ValueError(f"{effect_id}: consumed-infliction talent expects one entry")
+        entry = require_dict(entries[0], f"{effect_id}.dataList[0]")
+        attach = require_dict(entry.get("attachBuff"), f"{effect_id}.dataList[0].attachBuff")
+        buff_id = attach.get("buffId")
+        if not isinstance(buff_id, str) or not buff_id:
+            raise ValueError(f"{effect_id}.dataList[0].attachBuff.buffId: expected non-empty id")
+        buff_ids.add(buff_id)
+
     if "potentials" not in operator:
-        return ()
+        return resolve_buff_definitions(
+            tuple(sorted(buff_ids)),
+            (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+        ) if buff_ids else ()
     char_id = str(operator["charId"])
     potential = table_row(potential_table, char_id, "CharacterPotentialTable")
     unlocks = require_list(
@@ -2289,7 +2325,6 @@ def resolve_progression_buff_definitions(
     configs = require_list(operator.get("potentials"), f"{operator['slug']}.potentials")
     if len(unlocks) != len(configs):
         raise ValueError(f"{char_id}: potential config count does not match source")
-    buff_ids: set[str] = set()
     for index, (raw_unlock, raw_config) in enumerate(zip(unlocks, configs, strict=True)):
         config = require_dict(raw_config, f"{operator['slug']}.potentials[{index}]")
         if config.get("compile") not in {

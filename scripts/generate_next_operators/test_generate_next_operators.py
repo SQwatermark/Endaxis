@@ -501,6 +501,32 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("heat", "electric", "cryo", "nature"),
         )
 
+        buff["lifeType"] = "Limited"
+        action["duration"] = {
+            "useBlackboardKey": True,
+            "value": 0.0,
+            "blackboardKey": "real_duration",
+        }
+        action["autoFinishByAction"] = True
+        action["subType"] = "Crystal"
+        buff["buffEventAction"][0]["actions"][0]["actionData"].insert(
+            0,
+            {
+                "$type": "Beyond.Gameplay.Core.SaveBuffLifeTime+Data, Gameplay.Beyond",
+                "isEnable": True,
+                "buffOwner": target_settings_fixture("Owner"),
+                "buffSettings": {"checkType": "Environment"},
+                "key": "real_duration",
+            },
+        )
+        crystal_modifiers = parse_buff_start_vulnerability(
+            buff,
+            "fixture",
+            {"duration": (6.0,), "real_duration": (0.0,), "rate": (0.15,)},
+        )
+
+        self.assertEqual(crystal_modifiers[0].damageTypes, ("cryo",))
+
     def test_action_duration_slow_compiles_as_scoped_buff(self) -> None:
         action = slow_action_fixture()
         action["autoFinishByAction"] = True

@@ -122,8 +122,51 @@ def parse_buff_event_actions(
                 action_name(item["$type"]) for item in walked_actions
             )
             obtain_atb_filters: list[ObtainAtbFilterSource] = []
+            context_buff_tag_queries: list[tuple[str, tuple[int, ...]]] = []
+            consume_buff_layer_checks: list[tuple[str, float, str]] = []
             for item in walked_actions:
-                if action_name(item["$type"]) != "CheckObtainAtbType":
+                item_type = action_name(item["$type"])
+                if item_type == "CheckBuffIdInContextAdvanced":
+                    if item.get("checkType") != "Tag" or require_list(
+                        item.get("buffIdList"), f"{event_path}.buffIdList"
+                    ):
+                        continue
+                    query = require_dict(item.get("query"), f"{event_path}.query")
+                    query_type = query.get("queryType")
+                    if not isinstance(query_type, str) or not query_type:
+                        raise ValueError(f"{event_path}.query.queryType: expected string")
+                    tag_ids = tuple(
+                        require_dict(raw_tag, f"{event_path}.query.tags[{index}]").get("tagId")
+                        for index, raw_tag in enumerate(
+                            require_list(query.get("tags"), f"{event_path}.query.tags")
+                        )
+                    )
+                    if not tag_ids or any(
+                        not isinstance(tag_id, int) or isinstance(tag_id, bool)
+                        for tag_id in tag_ids
+                    ):
+                        raise ValueError(f"{event_path}.query.tags: expected integer tag ids")
+                    context_buff_tag_queries.append((query_type, tag_ids))
+                    continue
+                if item_type == "CheckConsumeBuffLayer":
+                    scalar = require_dict(item.get("num"), f"{event_path}.num")
+                    if scalar.get("useBlackboardKey") is not False:
+                        continue
+                    value = scalar.get("value")
+                    comparison = item.get("compareType")
+                    store_key = item.get("storeKey")
+                    if (
+                        not isinstance(value, (int, float))
+                        or isinstance(value, bool)
+                        or not isinstance(comparison, str)
+                        or not comparison
+                        or not isinstance(store_key, str)
+                        or not store_key
+                    ):
+                        raise ValueError(f"{event_path}: invalid consumed-layer check")
+                    consume_buff_layer_checks.append((comparison, float(value), store_key))
+                    continue
+                if item_type != "CheckObtainAtbType":
                     continue
                 item_path = f"{event_path}.CheckObtainAtbType"
                 expected_fields = {
@@ -409,6 +452,8 @@ def parse_buff_event_actions(
                     sequences=tuple(parsed_sequences),
                     runtimeTargetGroupWrites=tuple(runtime_target_group_writes),
                     obtainAtbFilters=tuple(obtain_atb_filters),
+                    contextBuffTagQueries=tuple(context_buff_tag_queries),
+                    consumeBuffLayerChecks=tuple(consume_buff_layer_checks),
                 )
             )
     return tuple(result)

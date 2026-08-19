@@ -167,16 +167,16 @@
       "operatorCount": 14,
       "talent": {
         "totalCount": 28,
-        "definitionConvertedCount": 11,
-        "standardSimulationCompileReadyCount": 11
+        "definitionConvertedCount": 12,
+        "standardSimulationCompileReadyCount": 12
       },
       "potential": {
         "totalCount": 70,
         "definitionConvertedCount": 59,
         "standardSimulationCompileReadyCount": 59
       },
-      "definitionCompleteOperatorCount": 0,
-      "standardSimulationCompileReadyOperatorCount": 0
+      "definitionCompleteOperatorCount": 1,
+      "standardSimulationCompileReadyOperatorCount": 1
     }
   },
   "operators": [
@@ -5102,24 +5102,23 @@
         "slug": "last-rite",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 1,
-          "standardSimulationCompileReadyCount": 1
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
           "definitionConvertedCount": 5,
           "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0026_lastrite_talent_1_1", "chr_0026_lastrite_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "consumedInflictionVulnerability",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",

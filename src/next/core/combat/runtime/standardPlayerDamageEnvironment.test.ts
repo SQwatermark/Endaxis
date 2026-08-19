@@ -129,6 +129,23 @@ function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
         stackingType: 'unlimited',
         role: { kind: 'elementalBurst', element: 'electric' },
       },
+      {
+        id: 'attachment.heat',
+        stackingType: 'enhanceAndRefresh',
+        stackingKey: 'attachment.heat',
+        maxStackCount: 4,
+        durationSeconds: 10,
+        role: { kind: 'elementalAttachment', element: 'heat' },
+      },
+      {
+        id: 'status.electric.heat',
+        stackingType: 'unlimited',
+        role: {
+          kind: 'compoundStatus',
+          consumedElement: 'electric',
+          incomingElement: 'heat',
+        },
+      },
     ],
   };
   return new StandardPlayerDamageEnvironment({
@@ -595,6 +612,43 @@ describe('StandardPlayerDamageEnvironment', () => {
       event: 'ElementalInflictionApplied',
       data: { outcomeKind: 'burst', currentLayers: 2 },
     });
+  });
+
+  it('publishes the actual attachment layers consumed by a different incoming element', () => {
+    const context = createContext();
+    const consumed: number[] = [];
+    context.semanticEvents.register({
+      ownerOperatorId: 'operator',
+      trigger: { kind: 'elementalAttachmentConsumed' },
+      phase: 'dataAction',
+      handle: event => {
+        if (event.event.kind === 'elementalAttachmentConsumed') {
+          consumed.push(event.event.layers);
+        }
+      },
+    });
+    const executor = createInflictionEnvironment().runtimeOptions.createOperationExecutor(context);
+
+    expect(
+      executor.execute({
+        kind: 'applyElementalInfliction',
+        parameters: { element: 'electric', isExtra: false },
+      }),
+    ).toBe(true);
+    expect(
+      executor.execute({
+        kind: 'applyElementalInfliction',
+        parameters: { element: 'electric', isExtra: false },
+      }),
+    ).toBe(true);
+    expect(
+      executor.execute({
+        kind: 'applyElementalInfliction',
+        parameters: { element: 'heat', isExtra: false },
+      }),
+    ).toBe(true);
+
+    expect(consumed).toEqual([2]);
   });
 
   it('records a burst without applying a missing burst buff definition', () => {

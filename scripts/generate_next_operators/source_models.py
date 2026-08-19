@@ -659,6 +659,8 @@ class BuffEventActionSource:
     finishAfterIgnited: bool = False
     runtimeTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
     obtainAtbFilters: tuple["ObtainAtbFilterSource", ...] = ()
+    contextBuffTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
+    consumeBuffLayerChecks: tuple[tuple[str, float, str], ...] = ()
 
 
 @dataclass(frozen=True)

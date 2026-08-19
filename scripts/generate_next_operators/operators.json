@@ -2483,7 +2483,7 @@
       "exportName": "lastRiteGeneratedSource",
       "charId": "chr_0026_lastrite",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
+        { "index": 0, "key": "talent1", "compile": "consumedInflictionVulnerability" },
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [

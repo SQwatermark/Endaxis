@@ -460,6 +460,16 @@ export function compileOperatorUpgradeEventPrograms(
       programs.push({
         key,
         event: handler.event,
+        initialBlackboard: Object.fromEntries(
+          Object.entries(handler.blackboard ?? {}).map(([blackboardKey, value]) => [
+            blackboardKey,
+            resolveUpgradeLevelValue(
+              value,
+              upgrade.level,
+              `${upgrade.source} '${upgrade.definition.key}'.eventHandlers[${index}].blackboard.${blackboardKey}`,
+            ),
+          ]),
+        ),
         sequence: compileActionSequence(
           handler.sequence,
           upgrade.level,

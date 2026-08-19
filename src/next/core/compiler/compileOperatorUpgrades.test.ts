@@ -8,8 +8,10 @@ import { endministratorGeneratedOperator } from '../../data/operators/generated/
 import { lifengGeneratedOperator } from '../../data/operators/generated/lifeng.operator.generated';
 import { fluoriteGeneratedOperator } from '../../data/operators/generated/fluorite.operator.generated';
 import { gilbertaGeneratedOperator } from '../../data/operators/generated/gilberta.operator.generated';
+import { lastRiteGeneratedOperator } from '../../data/operators/generated/last-rite.operator.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
+import type { OperatorUpgradeDefinition } from '../game-data/operatorDefinition';
 import { compileOperatorDefinitionSkills } from './compileScenarioTimeline';
 import {
   applyOperatorUpgradeSkillPatches,
@@ -427,6 +429,55 @@ describe('operator upgrade compilation', () => {
                   durationSeconds: 5,
                   attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
                 },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('resolves an upgrade event listener blackboard at the selected talent level', () => {
+    const definition: OperatorUpgradeDefinition = {
+      key: 'consumedInflictionVulnerability',
+      levels: 2,
+      eventHandlers: [
+        {
+          event: { kind: 'elementalAttachmentConsumed' },
+          blackboard: { crystal_up: [0.02, 0.04], duration: 15 },
+          sequence: { steps: [] },
+        },
+      ],
+    };
+
+    expect(
+      compileOperatorUpgradeEventPrograms([{ source: 'talent', level: 2, definition }]),
+    ).toMatchObject([
+      {
+        initialBlackboard: { crystal_up: 0.04, duration: 15 },
+      },
+    ]);
+  });
+
+  it('compiles Last Rite talent 1 into the attachment-consumption event program', () => {
+    const active = resolveActiveOperatorUpgrades(
+      build({ operatorSlug: lastRiteGeneratedOperator.slug, talentStates: { 0: 2 } }),
+      lastRiteGeneratedOperator,
+    );
+
+    expect(compileOperatorUpgradeEventPrograms(active)).toMatchObject([
+      {
+        key: 'talent:talent1:0',
+        event: { kind: 'elementalAttachmentConsumed' },
+        initialBlackboard: { crystal_up: 0.04, duration: 15 },
+        sequence: {
+          steps: [
+            { kind: 'calculateActionValue', parameters: { key: 'crystal_vul' } },
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff_chr_0026_lastrite_talent_1_vul',
+                target: 'enemy',
               },
             },
           ],

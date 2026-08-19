@@ -120,7 +120,8 @@ def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:
         for event in source.eventActions
         if getattr(event, "eventSource", None) == "buff"
         and getattr(event, "event", None) in {"OnBuffStart", "DuringBuffEnable"}
-        and getattr(event, "orderedActionTypes", ()) == ("VulnerableAction",)
+        and getattr(event, "orderedActionTypes", ())
+        in {("VulnerableAction",), ("SaveBuffLifeTime", "VulnerableAction")}
     )
     return bool(vulnerable_events) and len(vulnerable_events) == len(source.eventActions) and any(
         not modifier.tagIds

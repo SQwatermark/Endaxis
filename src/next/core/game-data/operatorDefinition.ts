@@ -1219,10 +1219,13 @@ export type UpgradeModifierKind = (typeof UPGRADE_MODIFIER_KINDS)[number];
 export type UpgradeEvent =
   | { kind: 'reactionApplied'; reaction: ElementalReaction }
   | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
+  | { kind: 'elementalAttachmentConsumed' }
   | Extract<CombatEventTrigger, { kind: 'skillHit' }>;
 
 export interface UpgradeEventHandlerDefinition {
   event: UpgradeEvent;
+  /** 监听器实例的原生常量黑板；数组按当前养成等级解析。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
   sequence: ActionSequenceDefinition;
 }
 

@@ -1249,7 +1249,41 @@
       "applyTagIds": [],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate_spellvulnerable",
+                "levelValues": [
+                  0.05
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "heat",
+            "electric",
+            "cryo",
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
       "directDamageHits": [],
       "inflictions": [],
       "conditionalActions": [],

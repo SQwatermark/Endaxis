@@ -1520,6 +1520,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               key: 'potential:attackAfterElectrification:0',
               event: { kind: 'reactionApplied', reaction: 'electrification' },
+              initialBlackboard: {},
               sequence: {
                 steps: [
                   {
@@ -1623,6 +1624,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               key: 'potential:skill-sp-attack:0',
               event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+              initialBlackboard: {},
               sequence: {
                 steps: [
                   {

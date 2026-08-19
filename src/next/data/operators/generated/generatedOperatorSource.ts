@@ -1094,6 +1094,10 @@ export interface GeneratedBuffEventActionSource {
     readonly checkObtainMethod: boolean;
     readonly obtainMethods: readonly string[];
   }[];
+  /** 事件上下文 Buff 的原生标签查询；只作为严格转换与审计证据。 */
+  readonly contextBuffTagQueries?: readonly (readonly [string, readonly number[]])[];
+  /** 被消费 Buff 层数的原生比较方式、阈值与写入黑板键。 */
+  readonly consumeBuffLayerChecks?: readonly (readonly [string, number, string])[];
 }
 
 export interface GeneratedBuffEventTargetGroupWriteSource {

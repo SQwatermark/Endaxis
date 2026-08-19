@@ -1353,6 +1353,60 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      eventHandlers: [
+        {
+          event: { kind: 'elementalAttachmentConsumed' },
+          blackboard: {
+            'crystal_up': [0.02, 0.04],
+            'duration': 15,
+          },
+          sequence: sequence(
+            step('calculateActionValue', {
+              key: 'crystal_vul',
+              operation: 'multiply',
+              left: { kind: 'blackboard', key: 'infliction_num' },
+              right: { kind: 'blackboard', key: 'crystal_up' },
+            }),
+            step('applyBuff', {
+              buffId: 'buff_chr_0026_lastrite_talent_1_vul',
+              definition: {
+                stackingType: 'highPriority',
+                priority: { blackboardKey: 'crystal_vul' },
+                maxStackCount: 1,
+                durationSeconds: { blackboardKey: 'duration' },
+                blackboard: {
+                  'crystal_vul': 0,
+                  'duration': 0,
+                  'real_duration': 0,
+                },
+                damageModifiers: [
+                  {
+                    enabledSide: 'defender',
+                    condition: {
+                      kind: 'eventDamageTypesMatch',
+                      damageTypes: ['cryo'],
+                    },
+                    processors: [
+                      {
+                        kind: 'damageScale',
+                        side: 'defender',
+                        zone: 'vulnerable',
+                        addition: { blackboardKey: 'crystal_vul' },
+                      },
+                    ],
+                  },
+                ],
+              },
+              target: 'enemy',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: {
+                'crystal_vul': { kind: 'blackboard', key: 'crystal_vul' },
+                'duration': { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',
@@ -1489,5 +1543,5 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

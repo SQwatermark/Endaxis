@@ -498,6 +498,27 @@ def parse_buff_start_vulnerability(
                 lifecycle_duration = parse_scalar(
                     buff.get("duration"), f"{source_name}.duration", blackboard
                 )
+                saved_lifetime = False
+                if action_index > 0 and duration.blackboardKey is not None:
+                    previous = require_dict(
+                        raw_action_data[action_index - 1],
+                        f"{sequence_path}.actionData[{action_index - 1}]",
+                    )
+                    if action_name(str(previous.get("$type", ""))) == "SaveBuffLifeTime":
+                        saved_owner = parse_target_reference(
+                            previous.get("buffOwner"), f"{action_path}.previous.buffOwner"
+                        )
+                        saved_settings = require_dict(
+                            previous.get("buffSettings"),
+                            f"{action_path}.previous.buffSettings",
+                        )
+                        saved_lifetime = (
+                            previous.get("isEnable") is True
+                            and previous.get("key") == duration.blackboardKey
+                            and saved_owner.targetSource == "Owner"
+                            and target_reference_is_plain(saved_owner)
+                            and saved_settings.get("checkType") == "Environment"
+                        )
                 duration_matches_lifecycle = (
                     duration.blackboardKey is not None
                     and duration.blackboardKey == lifecycle_duration.blackboardKey
@@ -515,19 +536,23 @@ def parse_buff_start_vulnerability(
                     and target.targetSource == "Owner"
                     and target_reference_is_plain(source)
                     and target_reference_is_plain(target)
-                    and (duration_matches_lifecycle or indefinite_during_enable)
+                    and (duration_matches_lifecycle or indefinite_during_enable or saved_lifetime)
                     and isinstance(action.get("overrideChildBuffId"), bool)
                     and action.get("asChildBuff") is True
                     and action.get("enhancingList") == []
-                    and action.get("autoFinishByAction") is False
-                    and action.get("subType") in {"Physical", "Spell"}
+                    and action.get("autoFinishByAction") is saved_lifetime
+                    and action.get("subType")
+                    in {"Physical", "Spell", "Fire", "Pulse", "Crystal", "Natural"}
                 ):
                     continue
-                damage_types = (
-                    ("physical",)
-                    if action.get("subType") == "Physical"
-                    else ("heat", "electric", "cryo", "nature")
-                )
+                damage_types = {
+                    "Physical": ("physical",),
+                    "Spell": ("heat", "electric", "cryo", "nature"),
+                    "Fire": ("heat",),
+                    "Pulse": ("electric",),
+                    "Crystal": ("cryo",),
+                    "Natural": ("nature",),
+                }[str(action.get("subType"))]
                 result.append(
                     BuffDamageModifierSource(
                         enabledSide="Defender",

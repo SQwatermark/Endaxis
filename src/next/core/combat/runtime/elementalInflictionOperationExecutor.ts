@@ -45,6 +45,8 @@ export interface ElementalInflictionOperationDependencies {
   readonly receipt: CombatReceiptSink;
   readonly getExistingAttachment: () => ExistingElementalAttachment | null;
   readonly applyOperation: (operation: ElementalInflictionOperation) => void;
+  /** 原生 OnConsumeBuff 对应事实：附着层已从目标容器中实际移除后同步报告。 */
+  readonly emitSemanticAttachmentConsumed?: (attachment: ExistingElementalAttachment) => void;
   /** 附着状态已经写入目标后，向统一语义事件层报告实际施加的元素。 */
   readonly emitSemanticInfliction?: (element: InflictionStep['parameters']['element']) => void;
   readonly emitSourceEvent: (
@@ -83,7 +85,12 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     this.dependencies.emitTargetEvent('beforeTakeInfliction', payload);
     const existing = this.dependencies.getExistingAttachment();
     const operations = resolveElementalInfliction(step.parameters.element, existing);
-    for (const operation of operations) this.dependencies.applyOperation(operation);
+    for (const operation of operations) {
+      this.dependencies.applyOperation(operation);
+      if (operation.kind === 'consumeAttachment') {
+        this.dependencies.emitSemanticAttachmentConsumed?.(operation.attachment);
+      }
+    }
     this.dependencies.emitSourceEvent('afterOutputInfliction', payload);
     this.dependencies.emitTargetEvent('afterTakeInfliction', payload);
     const current = this.dependencies.getExistingAttachment();

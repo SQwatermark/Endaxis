@@ -7,6 +7,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 const PROGRAM: CompiledOperatorUpgradeEventProgram = {
   key: 'potential:attackAfterElectrification:0',
   event: { kind: 'reactionApplied', reaction: 'electrification' },
+  initialBlackboard: {},
   sequence: {
     steps: [
       {
@@ -61,5 +62,45 @@ describe('OperatorUpgradeEventRuntime', () => {
     runtime.dispose();
     events.emit(event);
     expect(executed).toEqual(['applyBuff']);
+  });
+
+  it('seeds the native consumed-layer store key for attachment-consumption handlers', () => {
+    const events = new CombatSemanticEventRuntime();
+    let consumedLayers: number | undefined;
+    const program: CompiledOperatorUpgradeEventProgram = {
+      key: 'talent:consumed-infliction:0',
+      event: { kind: 'elementalAttachmentConsumed' },
+      initialBlackboard: { crystal_up: 0.04 },
+      sequence: {
+        steps: [
+          {
+            kind: 'calculateActionValue',
+            parameters: {
+              key: 'result',
+              operation: 'multiply',
+              left: { kind: 'blackboard', key: 'infliction_num' },
+              right: { kind: 'constant', value: 0.04 },
+            },
+          },
+        ],
+      },
+    };
+    new OperatorUpgradeEventRuntime(events, 'operator:last-rite', [program], () => ({
+      execute: (_step, context) => {
+        consumedLayers = context?.blackboard.getNumber('infliction_num');
+        return true;
+      },
+      evaluate: () => false,
+    }));
+
+    events.emit({
+      kind: 'elementalAttachmentConsumed',
+      sourceOperatorId: 'operator:last-rite',
+      targetId: 'enemy',
+      element: 'heat',
+      layers: 3,
+    });
+
+    expect(consumedLayers).toBe(3);
   });
 });

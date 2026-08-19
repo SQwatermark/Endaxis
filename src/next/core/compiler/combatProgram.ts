@@ -271,6 +271,7 @@ export interface CompiledSkillCost {
 export interface CompiledOperatorUpgradeEventProgram {
   readonly key: string;
   readonly event: UpgradeEvent;
+  readonly initialBlackboard: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }
 

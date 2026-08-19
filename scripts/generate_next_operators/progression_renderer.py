@@ -362,6 +362,131 @@ def _render_skill_blackboard_patch_modifiers(
     return "\n".join(lines)
 
 
+def _render_consumed_infliction_vulnerability(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    """严格转换 OnConsumeBuff -> 按被消费法术附着层数施加晶体易伤。"""
+    listener_id: str | None = None
+    crystal_values: list[int | float] = []
+    duration_values: list[int | float] = []
+    for effect_id, data_list in effect_entries:
+        if len(data_list) != 1:
+            raise ValueError(f"{effect_id}: expected one consumed-infliction talent entry")
+        entry = data_list[0]
+        entry_path = f"{effect_id}.dataList[0]"
+        if _effect_payload_kinds(entry, entry_path) != ("attachBuff",):
+            raise ValueError(f"{entry_path}: expected only attachBuff")
+        if entry.get("modifyType") != 5:
+            raise ValueError(f"{entry_path}.modifyType: expected AddBuff(5)")
+        if require_list(entry.get("activeCondition"), f"{entry_path}.activeCondition"):
+            raise ValueError(f"{entry_path}: conditional listener attachment is unsupported")
+        attach = require_dict(entry.get("attachBuff"), f"{entry_path}.attachBuff")
+        current_id = attach.get("buffId")
+        if not isinstance(current_id, str) or not current_id:
+            raise ValueError(f"{entry_path}.attachBuff.buffId: expected non-empty id")
+        if listener_id is None:
+            listener_id = current_id
+        elif listener_id != current_id:
+            raise ValueError(f"{effect_id}: talent levels attach different listener Buffs")
+        values: dict[str, int | float] = {}
+        for index, raw in enumerate(
+            require_list(attach.get("blackboard"), f"{entry_path}.attachBuff.blackboard")
+        ):
+            item = require_dict(raw, f"{entry_path}.attachBuff.blackboard[{index}]")
+            key = item.get("key")
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"{entry_path}.attachBuff.blackboard[{index}].key: expected string")
+            if key in values:
+                raise ValueError(f"{entry_path}.attachBuff.blackboard: duplicate key {key!r}")
+            values[key] = require_number(
+                item.get("value"), f"{entry_path}.attachBuff.blackboard[{index}].value"
+            )
+        if set(values) != {"crystal_up", "duration"}:
+            raise ValueError(f"{entry_path}: unexpected listener blackboard keys {sorted(values)}")
+        crystal_values.append(values["crystal_up"])
+        duration_values.append(values["duration"])
+
+    assert listener_id is not None
+    listener = buff_definitions.get(listener_id)
+    if listener is None or listener.lifecycle is None:
+        raise ValueError(f"talent listener: missing resolved Buff {listener_id!r}")
+    event = listener.eventActions[0] if len(listener.eventActions) == 1 else None
+    if (
+        listener.lifecycle.lifeType != "Infinity"
+        or listener.lifecycle.stackingType != "Unique"
+        or event is None
+        or event.eventSource != "ability"
+        or event.event != "OnConsumeBuff"
+        or event.orderedActionTypes
+        != (
+            "CheckBuffIdInContextAdvanced",
+            "CheckConsumeBuffLayer",
+            "SimpleCalcBBAction",
+            "CreateBuffAction",
+        )
+        or len(event.sequences) != 1
+        or len(event.buffApplications) != 1
+        or event.contextBuffTagQueries != (("HasAny", (-193971080,)),)
+        or event.consumeBuffLayerChecks != (("GE", 1.0, "infliction_num"),)
+    ):
+        raise ValueError("talent listener: unsupported consumed-infliction event shape")
+    application = event.buffApplications[0].payload
+    if (
+        application.targetSource != "Target"
+        or application.targetGroupKey
+        or application.buffSource != "ActionSource"
+        or len(application.buffs) != 1
+    ):
+        raise ValueError("talent listener: unsupported vulnerability Buff application")
+    child_application = application.buffs[0]
+    if set(child_application.blackboardAssignments) != {"crystal_vul", "duration"}:
+        raise ValueError("talent listener: vulnerability assignments are incomplete")
+    child = buff_definitions.get(child_application.buffId)
+    if child is None:
+        raise ValueError(f"talent listener: missing child Buff {child_application.buffId!r}")
+    child_definition = compile_inline_buff_definition(child, "consumed-infliction vulnerability")
+    crystal_value: int | float | list[int | float] = (
+        crystal_values[0] if len(set(crystal_values)) == 1 else crystal_values
+    )
+    duration_value: int | float | list[int | float] = (
+        duration_values[0] if len(set(duration_values)) == 1 else duration_values
+    )
+    return "\n".join(
+        [
+            "  eventHandlers: [",
+            "    {",
+            "      event: { kind: 'elementalAttachmentConsumed' },",
+            "      blackboard: {",
+            f"        'crystal_up': {ts_inline_literal(crystal_value)},",
+            f"        'duration': {ts_inline_literal(duration_value)},",
+            "      },",
+            "      sequence: sequence(",
+            "        step('calculateActionValue', {",
+            "          key: 'crystal_vul',",
+            "          operation: 'multiply',",
+            "          left: { kind: 'blackboard', key: 'infliction_num' },",
+            "          right: { kind: 'blackboard', key: 'crystal_up' },",
+            "        }),",
+            "        step('applyBuff', {",
+            f"          buffId: {ts_inline_literal(child_application.buffId)},",
+            "          definition: {",
+            *("            " + line for line in child_definition.splitlines()),
+            "          },",
+            "          target: 'enemy',",
+            "          inheritSourceSkillCastInfo: true,",
+            "          blackboardAssignments: {",
+            "            'crystal_vul': { kind: 'blackboard', key: 'crystal_vul' },",
+            "            'duration': { kind: 'blackboard', key: 'duration' },",
+            "          },",
+            "        }),",
+            "      ),",
+            "    },",
+            "  ],",
+        ]
+    )
+
+
 def _parse_skill_cooldown_add_entry(
     entry: dict[str, Any],
     entry_path: str,
@@ -1032,6 +1157,22 @@ def render_talents(
                         f"  levels: {len(entries)},",
                         "  modifiers: [],",
                         passive_body,
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "consumedInflictionVulnerability":
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  modifiers: [],",
+                        _render_consumed_infliction_vulnerability(
+                            attach_entries,
+                            buff_definitions,
+                        ),
                         "}",
                     ]
                 )

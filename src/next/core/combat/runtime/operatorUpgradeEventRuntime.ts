@@ -52,8 +52,12 @@ export class OperatorUpgradeEventRuntime {
     operations: CombatOperationExecutor,
     event: CombatSemanticEventContext['event'],
   ): void {
+    const eventBlackboard = {
+      ...program.initialBlackboard,
+      ...(event.kind === 'elementalAttachmentConsumed' ? { infliction_num: event.layers } : {}),
+    };
     const operationContext: CombatOperationContext = {
-      blackboard: new ActionBlackboard(),
+      blackboard: new ActionBlackboard(eventBlackboard),
       event,
     };
     new CombatActionSequenceRuntime(operations, operationContext)

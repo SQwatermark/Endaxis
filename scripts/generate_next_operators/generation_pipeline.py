@@ -139,6 +139,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
         )
         progression_buff_definitions = resolve_progression_buff_definitions(
             operator,
+            growth,
             loaded_tables["CharacterPotentialTable.json"],
             loaded_tables["PotentialTalentEffectTable.json"],
             buff_source_dir,

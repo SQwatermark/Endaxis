@@ -10,6 +10,7 @@ import type {
   DamageFeature,
   DamageElement,
   DamageTag,
+  InflictionElement,
   SpGainKind,
   SpGainSource,
   UpgradeEvent,
@@ -46,6 +47,13 @@ export type CombatSemanticEvent =
       readonly kind: 'elementalInflictionApplied';
       readonly sourceOperatorId: string;
       readonly elements: readonly DamageElement[];
+    }
+  | {
+      readonly kind: 'elementalAttachmentConsumed';
+      readonly sourceOperatorId: string;
+      readonly targetId: string;
+      readonly element: InflictionElement;
+      readonly layers: number;
     }
   | {
       readonly kind: 'reactionApplied';
@@ -161,6 +169,10 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
         event.kind === 'reactionApplied' &&
         event.sourceOperatorId === ownerOperatorId &&
         event.reaction === trigger.reaction
+      );
+    case 'elementalAttachmentConsumed':
+      return (
+        event.kind === 'elementalAttachmentConsumed' && event.sourceOperatorId === ownerOperatorId
       );
     case 'skillHit':
       return (

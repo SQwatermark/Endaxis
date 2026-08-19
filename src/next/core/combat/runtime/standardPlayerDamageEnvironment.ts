@@ -380,6 +380,14 @@ export class StandardPlayerDamageEnvironment {
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
       applyOperation: (operation: ElementalInflictionOperation) => adapter.apply(operation),
+      emitSemanticAttachmentConsumed: attachment =>
+        context.semanticEvents.emit({
+          kind: 'elementalAttachmentConsumed',
+          sourceOperatorId: context.program.operatorId,
+          targetId: 'enemy',
+          element: attachment.element,
+          layers: attachment.layers,
+        }),
       emitSemanticInfliction: element =>
         context.semanticEvents.emit({
           kind: 'elementalInflictionApplied',
