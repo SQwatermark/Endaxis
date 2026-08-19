@@ -8513,6 +8513,14 @@ def compile_conditional_branch_action(
                 "})",
             ]
         )
+    timeline_jump_destination_frame = getattr(
+        action, "timelineJumpDestinationFrame", None
+    )
+    if timeline_jump_destination_frame is not None:
+        return (
+            "step('jumpTimeline', { destinationFrame: "
+            f"{timeline_jump_destination_frame} }})"
+        )
     buff_ignite = getattr(action, "buffIgnite", None)
     if buff_ignite is not None:
         if buff_ignite.successTargetContextKey:
@@ -12079,6 +12087,16 @@ def compile_skill_event_listener(
             )
         if not response.actions:
             raise ValueError(f"{response_path}: event response action tree is empty")
+        for action_index, action_type in enumerate(response.orderedActionTypes):
+            if action_type != "ConvertToTargetContext":
+                continue
+            if response.orderedActionTypes[action_index:] != (
+                "ConvertToTargetContext",
+                "JumpToAction",
+            ):
+                raise ValueError(
+                    f"{response_path}: target Context conversion has an unsupported consumer"
+                )
         sequence_source = compile_conditional_branch(
             response.actions,
             f"{response_path}.actions",

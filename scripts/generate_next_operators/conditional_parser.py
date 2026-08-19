@@ -68,6 +68,7 @@ from source_models import (
     SwitchActionSource,
     TargetIdentityConditionSource,
     TimedMarkerConditionSource,
+    TimelineJumpBranchActionSource,
     UnconditionalActionSource,
 )
 from source_utils import (
@@ -285,6 +286,7 @@ def parse_conditional_actions(
     *,
     include_target_group_provenance: bool = False,
     include_for_each_sequence_guards: bool = False,
+    include_ordered_timeline_jumps: bool = False,
 ) -> tuple[ConditionalActionSource, ...]:
     """按原始顺序保留会改变战斗行为的 IfElse 树；展示动作不进入审计层。"""
     group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
@@ -896,6 +898,11 @@ def parse_conditional_actions(
             if action_type in SEQUENCE_GUARD_ACTION_NAMES | EVENT_SEQUENCE_GUARD_ACTION_NAMES:
                 if not any(
                     contains_combat_effect(item)
+                    or (
+                        include_ordered_timeline_jumps
+                        and isinstance(item, dict)
+                        and action_name(str(item.get("$type", ""))) == "JumpToAction"
+                    )
                     for item in raw_actions[index + 1 :]
                 ):
                     continue
@@ -1082,6 +1089,8 @@ def parse_conditional_actions(
             elif action_type in CONDITIONAL_AUDIT_ACTION_NAMES or (
                 include_target_group_provenance
                 and action_type in TARGET_GROUP_PROVENANCE_ACTION_NAMES
+            ) or (
+                include_ordered_timeline_jumps and action_type == "JumpToAction"
             ):
                 source_path = f"{source_name}.{'.'.join(action_path)}"
                 calculation = None
@@ -1107,6 +1116,7 @@ def parse_conditional_actions(
                 keyword_action = None
                 time_dilation = None
                 heal = None
+                timeline_jump_destination_frame = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
                         action, source_path, inherited_blackboard
@@ -1272,6 +1282,40 @@ def parse_conditional_actions(
                     if not isinstance(output_key, str) or not output_key:
                         raise ValueError(f"{source_path}.blackboardKey: expected non-empty string")
                     store_current_timeline_frame = StoreCurrentTimelineFramePayload(output_key)
+                elif action_type == "JumpToAction":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "conditionAction", "destFrame",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected JumpToAction fields {sorted(action)}"
+                        )
+                    condition = require_dict(
+                        action.get("conditionAction"), f"{source_path}.conditionAction"
+                    )
+                    if set(condition) != {
+                        "actionData", "onlyExecuteWhenSourceIsMainChar",
+                        "onlyExecuteWhenSourceIsGuard",
+                    }:
+                        raise ValueError(
+                            f"{source_path}.conditionAction: unexpected fields {sorted(condition)}"
+                        )
+                    if (
+                        require_list(condition.get("actionData"), f"{source_path}.conditionAction.actionData")
+                        or require_bool(
+                            condition.get("onlyExecuteWhenSourceIsMainChar"),
+                            f"{source_path}.conditionAction.onlyExecuteWhenSourceIsMainChar",
+                        )
+                        or require_bool(
+                            condition.get("onlyExecuteWhenSourceIsGuard"),
+                            f"{source_path}.conditionAction.onlyExecuteWhenSourceIsGuard",
+                        )
+                    ):
+                        raise ValueError(f"{source_path}: conditional timeline jump is unsupported")
+                    timeline_jump_destination_frame = require_non_negative_int(
+                        action.get("destFrame"), f"{source_path}.destFrame"
+                    )
                 elif action_type == "SlowAction":
                     keyword_action = parse_keyword_action(
                         action,
@@ -1291,6 +1335,8 @@ def parse_conditional_actions(
                 branch_type = (
                     ConditionalTimeDilationActionSource
                     if time_dilation is not None
+                    else TimelineJumpBranchActionSource
+                    if timeline_jump_destination_frame is not None
                     else StoreCurrentTimelineFrameActionSource
                     if store_current_timeline_frame is not None
                     else ConditionalBranchActionSource
@@ -1328,6 +1374,10 @@ def parse_conditional_actions(
                     branch_arguments["timeDilation"] = time_dilation
                 if store_current_timeline_frame is not None:
                     branch_arguments["storeCurrentTimelineFrame"] = store_current_timeline_frame
+                if timeline_jump_destination_frame is not None:
+                    branch_arguments["timelineJumpDestinationFrame"] = (
+                        timeline_jump_destination_frame
+                    )
                 actions.append(branch_type(**branch_arguments))
         return tuple(actions)
 
@@ -1802,6 +1852,7 @@ def parse_ordered_action_sequence(
         source_name,
         inherited_blackboard,
         include_target_group_provenance=include_target_group_provenance,
+        include_ordered_timeline_jumps=True,
     )
     if not parsed:
         return ()

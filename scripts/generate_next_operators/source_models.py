@@ -77,6 +77,7 @@ __all__ = [
     "StoreCurrentTimelineFrameActionSource",
     "StoreCurrentTimelineFramePayload",
     "ConditionalTimeDilationActionSource",
+    "TimelineJumpBranchActionSource",
     "ConditionalActionSource",
     "SequenceGuardActionSource",
     "SwitchActionSource",
@@ -1262,6 +1263,13 @@ class ConditionalTimeDilationActionSource(ConditionalBranchActionSource):
     """仍位于原条件分支中的时间膨胀动作。"""
 
     timeDilation: TimedTimeDilationSource | None = None
+
+
+@dataclass(frozen=True)
+class TimelineJumpBranchActionSource(ConditionalBranchActionSource):
+    """事件有序响应中的宿主技能时间轴跳转。"""
+
+    timelineJumpDestinationFrame: int | None = None
 
 
 @dataclass(frozen=True)

@@ -13,9 +13,9 @@
       "projectile-child-actions": 2,
       "projectile-data": 5,
       "root-action-coverage": 2,
-      "other": 5,
+      "other": 4,
       "conditional-leaf": 6,
-      "condition-other": 4,
+      "condition-other": 5,
       "condition-entity-count": 1,
       "buff-source-or-target": 3
     },
@@ -1117,7 +1117,7 @@
       "complete": false,
       "blockerKinds": {
         "buff-source-or-target": 1,
-        "other": 1
+        "condition-other": 1
       }
     },
     {
@@ -5687,8 +5687,8 @@
       "skillId": "chr_0020_meurs_normal_skill",
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[2].eventListener.sequences[0]: event response action tree is empty",
+      "blockerKind": "condition-other",
+      "blocker": "normal_skill.schedule[5].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
       "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 3,

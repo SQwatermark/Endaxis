@@ -11495,6 +11495,53 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("match: 'hasAll'", compiled)
         self.assertIn("tags: ['comboSkill']", compiled)
 
+    def test_event_sequence_guard_preserves_unconditional_timeline_jump(self) -> None:
+        actions = parse_ordered_action_sequence(
+            [
+                {
+                    "$type": "Example.CheckBuffIdInContext+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 50,
+                    "checkType": "Id",
+                    "buffIdList": [{"buffId": "buff.enemy.catch"}],
+                    "query": {"queryType": "HasAny", "tags": []},
+                    "blackboardKey": "",
+                },
+                {
+                    "$type": "Example.ConvertToTargetContext+Data, Example",
+                    "isEnable": True,
+                    "serverActionIndex": 51,
+                },
+                {
+                    "$type": "Example.JumpToAction+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 52,
+                    "conditionAction": {
+                        "actionData": [],
+                        "onlyExecuteWhenSourceIsMainChar": False,
+                        "onlyExecuteWhenSourceIsGuard": False,
+                    },
+                    "destFrame": 60,
+                },
+            ],
+            "fixture.eventSequence",
+            {},
+        )
+
+        self.assertEqual(len(actions), 1)
+        self.assertIsNotNone(actions[0].nestedCondition)
+        compiled = compile_conditional_branch_action(
+            actions[0],
+            "fixture.eventSequence.actions[0]",
+            root_skill_context=True,
+        )
+        self.assertIn("kind: 'eventBuffIdMatch'", compiled)
+        self.assertIn("step('jumpTimeline', { destinationFrame: 60 })", compiled)
+
     def test_empty_id_buff_finish_makes_native_listener_a_proven_noop(self) -> None:
         finish = BuffFinishPayload(
             targetSource="Owner",

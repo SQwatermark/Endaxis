@@ -234,6 +234,54 @@ describe('SkillRuntime', () => {
     expect(fixture.operations.execute).toHaveBeenCalledTimes(2);
   });
 
+  it('allows a synchronous skill event response to jump the hosting timeline', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'listener-jump-fixture',
+      timelineBlockFrames: 8,
+      scheduledSequences: [
+        {
+          startFrame: 1,
+          endFrame: 8,
+          sequence: {
+            steps: [
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    {
+                      key: 'jump-on-buff',
+                      event: { kind: 'buffApplied' },
+                      sequence: {
+                        steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 6 } }],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(1);
+    fixture.semanticEvents.emit({
+      kind: 'buffApplied',
+      targetId: 'perlica',
+      sourceId: 'enemy',
+      buffId: 'buff.enemy.catch',
+    });
+
+    expect(fixture.runtime.passedFrames).toBe(6);
+    expect(fixture.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillTimelineJumped',
+        data: expect.objectContaining({ destinationFrame: 6 }),
+      }),
+    );
+  });
+
   it('同一次释放只执行一次共享作用域，并在下一次释放时重置', () => {
     const onceStep = {
       kind: 'once',

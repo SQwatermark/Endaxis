@@ -62,9 +62,9 @@
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
 | `conditional-leaf`         |      6 |
-| `other`                    |      5 |
+| `condition-other`          |      5 |
 | `projectile-data`          |      5 |
-| `condition-other`          |      4 |
+| `other`                    |      4 |
 | `buff-source-or-target`    |      3 |
 | `projectile-child-actions` |      2 |
 | `root-action-coverage`     |      2 |
