@@ -79,6 +79,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, skillTypes: ['battleSkill'] };
     case 'eventBuffIdMatch':
       return { kind, buffIds: ['custom-buff'] };
+    case 'eventBuffTagsMatch':
+      return { kind, match: 'hasAny', buffTagIds: [0] };
     case 'eventSourceMatchesBuffSource':
       return { kind };
     case 'elementalInflictionPresent':

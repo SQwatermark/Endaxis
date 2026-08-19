@@ -691,12 +691,17 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
       scheduled(
         22,
         sequence(
-          step('createTimedMarker', {
-            target: 'caster',
-            markerId: 'lizhiyan_attack5',
-            durationSeconds: { kind: 'constant', value: 0.1 },
-            autoFinishByAction: false,
-          }),
+          branch(
+            { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_attack5' } },
+            sequence(
+              step('createTimedMarker', {
+                target: 'caster',
+                markerId: 'lizhiyan_attack5',
+                durationSeconds: { kind: 'constant', value: 0.1 },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
     ],

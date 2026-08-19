@@ -681,8 +681,83 @@ export const estellaGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0021_whiten_potential_5',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            blackboard: {
+              'cd': 1,
+              'usp': 5,
+            },
+            lifecycleSequences: {
+              enable: sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0021_whiten_potential_5_inaura',
+                  definition: {
+                    stackingType: 'unique',
+                    priority: 0,
+                    maxStackCount: 1,
+                    blackboard: {
+                      'cd': 1,
+                      'usp': 5,
+                    },
+                    abilityEventResponses: [
+                      {
+                        event: 'addedBuff',
+                        priority: 0,
+                        sequence:
+                          sequence(
+                            branch(
+                              {
+                                kind: 'eventBuffTagsMatch',
+                                match: 'hasAny',
+                                buffTagIds: [1535684437],
+                              },
+                              sequence(
+                                branch(
+                                  { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'buff_chr_0021_whiten_potential_5_cd' } },
+                                  sequence(
+                                    step('createTimedMarker', {
+                                      target: 'caster',
+                                      markerId: 'buff_chr_0021_whiten_potential_5_cd',
+                                      durationSeconds: { kind: 'blackboard', key: 'cd' },
+                                      autoFinishByAction: false,
+                                    }),
+                                    step('changeResourceByActionValue', {
+                                      resource: 'ultimateEnergy',
+                                      amount: { kind: 'blackboard', key: 'usp' },
+                                      recipient: 'caster',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      },
+                    ],
+                  },
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: false,
+                  finishByAction: true,
+                  blackboardAssignments: {
+                    'usp': { kind: 'blackboard', key: 'usp' },
+                    'cd': { kind: 'blackboard', key: 'cd' },
+                  },
+                }),
+              ),
+            },
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'usp': { kind: 'constant', value: 5 },
+          },
+        }),
+      ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

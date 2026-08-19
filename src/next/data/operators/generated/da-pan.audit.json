@@ -5590,8 +5590,8 @@
           ],
           "succeedActions": [
             {
-              "actionType": "CreateBuffAction",
-              "actionIndex": 2,
+              "actionType": "CheckTimedMarkerCondition",
+              "actionIndex": 0,
               "actionPath": [
                 "timelineActions[11]",
                 "_sequenceActionData",
@@ -5599,73 +5599,128 @@
                 "[1]",
                 "succeedActions",
                 "actionData",
-                "[2]"
+                "[0]"
               ],
-              "serverActionIndex": 39,
-              "legacyBuffFinish": null,
-              "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "buffApplication": {
-                "buffs": [
+              "serverActionIndex": 37,
+              "nestedCondition": {
+                "startFrame": 43,
+                "endFrame": 46,
+                "actionIndex": 37,
+                "actionPath": [
+                  "timelineActions[11]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
                   {
-                    "buffId": "buff_physical_no_guard",
-                    "classification": null,
-                    "blackboardAssignments": {}
+                    "sourceType": "CheckTimedMarkerCondition",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "timedMarker": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "potential_5_interval",
+                      "blackboardKey": "",
+                      "useBlackboardKey": false,
+                      "returnTrueIfNotExists": true
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
                   }
                 ],
-                "targetSource": "Context",
-                "targetGroupKey": "tar",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            },
-            {
-              "actionType": "CreateTimedMarker",
-              "actionIndex": 3,
-              "actionPath": [
-                "timelineActions[11]",
-                "_sequenceActionData",
-                "actionData",
-                "[1]",
-                "succeedActions",
-                "actionData",
-                "[3]"
-              ],
-              "serverActionIndex": 40,
+                "succeedActions": [
+                  {
+                    "actionType": "CreateBuffAction",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[11]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 39,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "buffApplication": {
+                      "buffs": [
+                        {
+                          "buffId": "buff_physical_no_guard",
+                          "classification": null,
+                          "blackboardAssignments": {}
+                        }
+                      ],
+                      "targetSource": "Context",
+                      "targetGroupKey": "tar",
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "buffSource": "ActionSource",
+                      "buffSourceContextKey": "",
+                      "inheritSourceSkillCastInfo": true
+                    }
+                  },
+                  {
+                    "actionType": "CreateTimedMarker",
+                    "actionIndex": 3,
+                    "actionPath": [
+                      "timelineActions[11]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[1]",
+                      "succeedActions",
+                      "actionData",
+                      "[3]"
+                    ],
+                    "serverActionIndex": 40,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "timedMarkerApplication": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "potential_5_interval",
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "potential_5_interval",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "autoFinishByAction": false,
+                      "useTimeDilationDt": false
+                    }
+                  }
+                ],
+                "failActions": []
+              },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "timedMarkerApplication": {
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "markerId": "potential_5_interval",
-                "duration": {
-                  "value": 0.0,
-                  "blackboardKey": "potential_5_interval",
-                  "levelValues": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0
-                  ]
-                },
-                "autoFinishByAction": false,
-                "useTimeDilationDt": false
-              }
+              "buffIgnite": null
             }
           ],
           "failActions": []

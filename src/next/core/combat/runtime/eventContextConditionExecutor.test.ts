@@ -17,6 +17,7 @@ describe('EventContextConditionExecutor', () => {
         targetId: 'operator',
         buffId: 'buff:matched',
         sourceId: 'enemy',
+        buffTagIds: [101, 202],
       },
     };
 
@@ -26,6 +27,12 @@ describe('EventContextConditionExecutor', () => {
     expect(executor.evaluate({ kind: 'eventBuffIdMatch', buffIds: ['buff:other'] }, context)).toBe(
       false,
     );
+    expect(
+      executor.evaluate(
+        { kind: 'eventBuffTagsMatch', match: 'hasAny', buffTagIds: [202] },
+        context,
+      ),
+    ).toBe(true);
   });
 
   it.each([

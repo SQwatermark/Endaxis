@@ -48,7 +48,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly definitions: CombatBuffDefinitionResolver<Key>,
     readonly currentTarget?: RuntimeTargetRef,
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
-    readonly onBuffApplied?: () => void,
+    readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
   ) {}
 
   get ownerId(): string {
@@ -79,13 +79,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
       sourceActionId: request.sourceActionId ?? request.buffId,
       ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
     });
-    if (applied !== null) this.onBuffApplied?.();
     if (applied !== null) {
-      this.#buffAppliedObserver?.({
+      const event: BuffAppliedEvent = {
         targetId: this.ownerId,
         buffId: request.buffId,
         sourceId: request.sourceId,
-      });
+        buffTagIds: definition.applyTags?.map(Number) ?? [],
+      };
+      this.onBuffApplied?.(event);
+      this.#buffAppliedObserver?.(event);
     }
     return applied;
   }

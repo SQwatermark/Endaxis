@@ -35,6 +35,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventDamageFeaturesMatch' &&
       condition.kind !== 'eventSkillTypeIn' &&
       condition.kind !== 'eventBuffIdMatch' &&
+      condition.kind !== 'eventBuffTagsMatch' &&
       condition.kind !== 'eventSourceMatchesBuffSource'
     ) {
       return context === undefined
@@ -61,6 +62,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     if (condition.kind === 'eventBuffIdMatch') {
       return (
         context.event.kind === 'buffApplied' && condition.buffIds.includes(context.event.buffId)
+      );
+    }
+    if (condition.kind === 'eventBuffTagsMatch') {
+      return (
+        context.event.kind === 'buffApplied' &&
+        matchValues(context.event.buffTagIds, condition.buffTagIds, condition.match)
       );
     }
     const damageEvent = eventDamageProperties(context.event);

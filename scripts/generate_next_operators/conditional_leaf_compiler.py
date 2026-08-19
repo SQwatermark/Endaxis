@@ -109,7 +109,13 @@ def compile_conditional_branch_action(
         return "sequence()"
     if action.actionType == "AuraAction":
         matches = tuple(
-            aura for aura in aura_actions if aura.actionPath == action.actionPath
+            aura
+            for aura in aura_actions
+            if aura.actionPath == action.actionPath
+            or (
+                current_buff_environment
+                and aura.actionIndex == action.serverActionIndex
+            )
         )
         if len(matches) != 1:
             raise ValueError(
@@ -120,6 +126,8 @@ def compile_conditional_branch_action(
             path,
             buff_definitions=buff_definitions,
             invoked_child_context=invoked_child_context,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
         )
     if action.actionType in {
         "ContinuousFindTargetAction",

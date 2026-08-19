@@ -65,7 +65,11 @@ def compile_buff_application_values(
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
     # 根 SkillData 中 ActionSource 与 ActionOwner 都是施法干员；嵌套动作尚不能做相同假设。
-    supported_sources = {"ActionSource", "ActionOwner"} if root_skill_context else {"ActionSource"}
+    supported_sources = (
+        {"ActionSource", "ActionOwner"}
+        if root_skill_context or current_buff_environment
+        else {"ActionSource"}
+    )
     source = None
     if buff_source == "InputTarget" and (root_skill_context or input_target == "enemy"):
         source = "enemy"
@@ -270,12 +274,26 @@ def compile_aura_action(
     *,
     buff_definitions: dict[str, BuffDefinitionSource] | None,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
     services: BuffApplicationCompilerServices,
 ) -> str:
     """在零空间模型中，把无筛选敌方或友方 Aura 归约为动作区间 Buff。"""
     target_filter = aura.targetFilter
-    if aura.activationSource != "timeline" or aura.startFrame is None or aura.endFrame is None:
-        raise ValueError(f"{path}: only timeline Aura actions are supported")
+    timeline_aura = (
+        aura.activationSource == "timeline"
+        and aura.startFrame is not None
+        and aura.endFrame is not None
+    )
+    buff_enable_aura = (
+        current_buff_environment
+        and aura.activationSource == "buffEvent"
+        and aura.activationEvent == "DuringBuffEnable"
+        and aura.startFrame is None
+        and aura.endFrame is None
+    )
+    if not (timeline_aura or buff_enable_aura):
+        raise ValueError(f"{path}: unsupported Aura activation boundary")
     common_fixed_area = (
         aura.auraType in {"GlobalAura", "RangedAura"}
         and aura.root.targetSource == "Owner"
@@ -289,7 +307,10 @@ def compile_aura_action(
         and not target_filter.filterGameplayTag
         and not target_filter.tagIds
         and not aura.includeUnmarkable
-        and aura.buffSource == "ActionSource"
+        and (
+            aura.buffSource == "ActionSource"
+            or (buff_enable_aura and aura.buffSource == "ActionOwner")
+        )
         and not aura.overrideBuffIconDuration
         and not aura.actionInAuraOnlyMainOperator
         and not aura.actionInAuraOnlyGuard
@@ -434,6 +455,8 @@ def compile_aura_action(
             input_target=("enemy" if application_target == "enemy" else None),
             buff_definitions=buff_definitions,
             invoked_child_context=invoked_child_context,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
             finish_by_action=True,
             services=services,
         )

@@ -138,7 +138,7 @@ export class StandardPlayerDamageEnvironment {
     },
     undefined,
     this.#buffAbilityEventRegistrar('enemy'),
-    () => this.#emit('enemy', 'addedBuff', {}),
+    event => this.#emit('enemy', 'addedBuff', event),
   );
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
@@ -183,7 +183,7 @@ export class StandardPlayerDamageEnvironment {
           },
           target,
           this.#buffAbilityEventRegistrar(entityId),
-          () => this.#emit(entityId, 'addedBuff', {}),
+          event => this.#emit(entityId, 'addedBuff', event),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
@@ -503,7 +503,7 @@ export class StandardPlayerDamageEnvironment {
         },
         undefined,
         this.#buffAbilityEventRegistrar(operatorId),
-        () => this.#emit(operatorId, 'addedBuff', {}),
+        event => this.#emit(operatorId, 'addedBuff', event),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
@@ -536,6 +536,8 @@ export class StandardPlayerDamageEnvironment {
         this.#enemyBuffs,
         operatorId,
         this.#ensureElementalDefinitions(),
+        undefined,
+        event => this.#emit('enemy', 'addedBuff', event),
       );
       this.#inflictionAdapters.set(operatorId, adapter);
     }

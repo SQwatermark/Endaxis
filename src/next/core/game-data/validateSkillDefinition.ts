@@ -550,6 +550,10 @@ function validateCombatCondition(
     case 'eventBuffIdMatch':
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       break;
+    case 'eventBuffTagsMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
       if (record.minimumStacks !== undefined) {

@@ -9,6 +9,7 @@ import { lifengGeneratedOperator } from '../../data/operators/generated/lifeng.o
 import { fluoriteGeneratedOperator } from '../../data/operators/generated/fluorite.operator.generated';
 import { gilbertaGeneratedOperator } from '../../data/operators/generated/gilberta.operator.generated';
 import { lastRiteGeneratedOperator } from '../../data/operators/generated/last-rite.operator.generated';
+import { estellaGeneratedOperator } from '../../data/operators/generated/estella.operator.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
 import type { OperatorUpgradeDefinition } from '../game-data/operatorDefinition';
@@ -155,6 +156,94 @@ describe('operator upgrade compilation', () => {
               },
             },
           ],
+        },
+      },
+    });
+  });
+
+  it('compiles Estella potential 5 into a persistent enemy Buff-tag listener', () => {
+    const active = resolveActiveOperatorUpgrades(
+      build({ operatorSlug: estellaGeneratedOperator.slug, potential: 5 }),
+      estellaGeneratedOperator,
+    );
+    const program = compileOperatorInitializationPrograms(active).find(
+      item => item.key === 'potential:potential5',
+    );
+
+    expect(program?.sequence.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_chr_0021_whiten_potential_5',
+        definition: {
+          lifecycleSequences: {
+            enable: {
+              steps: [
+                {
+                  kind: 'applyBuff',
+                  parameters: {
+                    buffId: 'buff_chr_0021_whiten_potential_5_inaura',
+                    target: 'enemy',
+                    finishByAction: true,
+                    definition: {
+                      abilityEventResponses: [
+                        {
+                          event: 'addedBuff',
+                          sequence: {
+                            steps: [
+                              {
+                                kind: 'conditional',
+                                parameters: {
+                                  condition: {
+                                    kind: 'eventBuffTagsMatch',
+                                    match: 'hasAny',
+                                    buffTagIds: [1535684437],
+                                  },
+                                },
+                                whenTrue: {
+                                  steps: [
+                                    {
+                                      kind: 'conditional',
+                                      parameters: {
+                                        condition: {
+                                          kind: 'not',
+                                          condition: {
+                                            kind: 'timedMarkerPresent',
+                                            target: 'caster',
+                                            markerId: 'buff_chr_0021_whiten_potential_5_cd',
+                                          },
+                                        },
+                                      },
+                                      whenTrue: {
+                                        steps: [
+                                          {
+                                            kind: 'createTimedMarker',
+                                            parameters: {
+                                              markerId: 'buff_chr_0021_whiten_potential_5_cd',
+                                            },
+                                          },
+                                          {
+                                            kind: 'changeResourceByActionValue',
+                                            parameters: {
+                                              resource: 'ultimateEnergy',
+                                              recipient: 'caster',
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    },
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
         },
       },
     });

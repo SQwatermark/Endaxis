@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
 import type { InflictionElement } from '../../game-data/operatorDefinition';
@@ -93,5 +94,33 @@ describe('ElementalInflictionBuffAdapter', () => {
     expect(events).toEqual([]);
     target.add(definition, 'operator');
     expect(events).toEqual(['electric:2:enemy']);
+  });
+
+  it('publishes every successful elemental Buff application with native tags', () => {
+    const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
+    const onBuffApplied = vi.fn();
+    const taggedIndex: ElementalInflictionBuffIndex<Attribute> = {
+      ...index,
+      getAttachment: element => ({
+        ...attachment(element),
+        applyTags: [1535684437 as never],
+      }),
+    };
+    const adapter = new ElementalInflictionBuffAdapter(
+      target,
+      'operator',
+      taggedIndex,
+      undefined,
+      onBuffApplied,
+    );
+
+    adapter.apply({ kind: 'addAttachment', element: 'cryo' });
+
+    expect(onBuffApplied).toHaveBeenCalledWith({
+      targetId: 'enemy',
+      buffId: 'attachment.cryo',
+      sourceId: 'operator',
+      buffTagIds: [1535684437],
+    });
   });
 });

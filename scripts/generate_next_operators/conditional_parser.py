@@ -140,6 +140,7 @@ TARGET_GROUP_PROVENANCE_ACTION_NAMES = {
 EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
     "CheckBuffIdInContext",
     "CheckDamageDecorateMask",
+    "CheckTimedMarkerCondition",
     "CompareFloat",
 }
 
@@ -460,6 +461,17 @@ def parse_conditional_actions(
                 if not isinstance(buff_id, str) or not buff_id:
                     raise ValueError(f"{path}.buffIdList[{index}].buffId: expected string")
                 buff_ids.append(buff_id)
+            buff_tag_ids: list[int] = []
+            for index, raw_tag in enumerate(
+                require_list(query.get("tags", []), f"{path}.query.tags")
+            ):
+                tag = require_dict(raw_tag, f"{path}.query.tags[{index}]")
+                if set(tag) != {"tagId"}:
+                    raise ValueError(f"{path}.query.tags[{index}]: unexpected fields")
+                tag_id = tag.get("tagId")
+                if not isinstance(tag_id, int) or isinstance(tag_id, bool):
+                    raise ValueError(f"{path}.query.tags[{index}].tagId: expected integer")
+                buff_tag_ids.append(tag_id)
             return ConditionSource(
                 sourceType=condition_type,
                 supported=False,
@@ -471,6 +483,7 @@ def parse_conditional_actions(
                     checkType=check_type,
                     buffIds=tuple(buff_ids),
                     queryType=query_type,
+                    buffTagIds=tuple(buff_tag_ids),
                 ),
             )
         if condition_type == "CompareFloat":

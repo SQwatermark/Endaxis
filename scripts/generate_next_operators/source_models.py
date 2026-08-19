@@ -870,6 +870,7 @@ class BuffIdInContextConditionSource:
     checkType: str
     buffIds: tuple[str, ...]
     queryType: str
+    buffTagIds: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)

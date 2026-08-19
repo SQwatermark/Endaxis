@@ -243,7 +243,12 @@ describe('BuffDefinitionOperationTarget', () => {
         definition: { stackingType: 'unique' },
       }),
     ).toBe(true);
-    expect(onBuffApplied).toHaveBeenCalledOnce();
+    expect(onBuffApplied).toHaveBeenCalledWith({
+      targetId: 'operator',
+      buffId: 'added-buff',
+      sourceId: 'operator',
+      buffTagIds: [],
+    });
   });
 
   it('publishes the exact successful Buff application to the scene observer', () => {
@@ -269,6 +274,7 @@ describe('BuffDefinitionOperationTarget', () => {
       targetId: 'operator',
       buffId: 'added-buff',
       sourceId: 'enemy',
+      buffTagIds: [],
     });
     expect(() => target.configureBuffAppliedObserver(observer)).toThrow('observer is configured');
   });
@@ -288,7 +294,7 @@ describe('BuffDefinitionOperationTarget', () => {
         handleAdded = handle;
         return { dispose: vi.fn() };
       },
-      () => handleAdded?.({}),
+      event => handleAdded?.(event),
     );
     target.configureLifecycleOperations(() => ({ execute, evaluate: () => true }));
 

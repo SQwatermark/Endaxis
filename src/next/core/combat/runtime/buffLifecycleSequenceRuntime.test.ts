@@ -196,6 +196,47 @@ describe('attachBuffLifecycleSequences', () => {
     expect(reached).toEqual([2, 1]);
   });
 
+  it('让启用序列的作用域操作持续到 Buff 停用或结束', () => {
+    const reached: string[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: () => {
+        reached.push('apply');
+        return true;
+      },
+      end: () => reached.push('finish'),
+      evaluate: () => true,
+    };
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'persistent-aura', stackingType: 'unlimited' },
+      {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'aura-child',
+                target: 'enemy',
+                finishByAction: true,
+              },
+            },
+          ],
+        },
+      },
+      () => operations,
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const disabled = container.add(definition, 'source')!;
+
+    expect(reached).toEqual(['apply']);
+    disabled.disable();
+    expect(reached).toEqual(['apply', 'finish']);
+
+    const finished = container.add(definition, 'source')!;
+    expect(reached).toEqual(['apply', 'finish', 'apply']);
+    finished.finish();
+    expect(reached).toEqual(['apply', 'finish', 'apply', 'finish']);
+  });
+
   it('只在 Buff 启用期间订阅承伤事件并把伤害属性交给事件条件', () => {
     const reached: string[] = [];
     const terminal: CombatOperationExecutor = {
@@ -398,7 +439,12 @@ describe('attachBuffLifecycleSequences', () => {
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
 
     container.add(definition, 'source');
-    handleAdded?.({});
+    handleAdded?.({
+      sourceId: 'source',
+      targetId: 'operator',
+      buffId: 'added',
+      buffTagIds: [],
+    });
 
     expect(registered).toBe(1);
     expect(reached).toBe(1);

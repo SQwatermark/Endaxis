@@ -200,6 +200,7 @@ from source_models import (
     GlobalCooldownConditionSource,
     SkillHasHitConditionSource,
     ConditionSource,
+    BuffIdInContextConditionSource,
     EntityTagConditionSource,
     BlackboardCalculationPayload,
     BlackboardMutationPayload,
@@ -425,6 +426,15 @@ TARGET_GROUP_WRITE_INTERNAL_KEYS = frozenset(
 
 def serialize_audit_value(value: Any) -> Any:
     """序列化审计对象，并省略仅对特定条件有意义的空详情。"""
+    if isinstance(value, BuffIdInContextConditionSource):
+        return serialize_audit_value(
+            {
+                "checkType": value.checkType,
+                "buffIds": value.buffIds,
+                "queryType": value.queryType,
+                **({"buffTagIds": value.buffTagIds} if value.buffTagIds else {}),
+            }
+        )
     if isinstance(value, TargetGroupWriteSource):
         return serialize_audit_value(
             {
@@ -456,6 +466,15 @@ def serialize_audit_value(value: Any) -> Any:
 
 def omit_empty_execution_frames(value: Any) -> Any:
     """保留旧审计结构，只省略没有重复执行语义的空帧列表。"""
+    if isinstance(value, BuffIdInContextConditionSource):
+        return omit_empty_execution_frames(
+            {
+                "checkType": value.checkType,
+                "buffIds": value.buffIds,
+                "queryType": value.queryType,
+                **({"buffTagIds": value.buffTagIds} if value.buffTagIds else {}),
+            }
+        )
     if isinstance(value, TargetGroupWriteSource):
         return omit_empty_execution_frames(
             {
@@ -4300,12 +4319,16 @@ def compile_aura_action(
     *,
     buff_definitions: dict[str, BuffDefinitionSource] | None,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
 ) -> str:
     return compile_aura_action_backend(
         aura,
         path,
         buff_definitions=buff_definitions,
         invoked_child_context=invoked_child_context,
+        buff_owner_target=buff_owner_target,
+        current_buff_environment=current_buff_environment,
         services=_make_buff_application_compiler_services(),
     )
 
@@ -4798,6 +4821,7 @@ def _compile_conditional_branch_ir(
     current_buff_environment: bool = False,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     unmodeled_action_types: frozenset[str] = frozenset(),
+    aura_actions: tuple[AuraActionSource, ...] = (),
 ) -> CompiledNode:
     """把既有宽参数入口适配到独立条件编译模块。"""
 
@@ -4820,6 +4844,7 @@ def _compile_conditional_branch_ir(
             current_buff_environment=current_buff_environment,
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
+            aura_actions=aura_actions,
             projected_ability_entity_spawns=projected_ability_entity_spawns,
             projected_projectile_launches=projected_projectile_launches,
             context_action=context_action,

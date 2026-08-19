@@ -271,6 +271,7 @@ describe('SkillRuntime', () => {
       targetId: 'perlica',
       sourceId: 'enemy',
       buffId: 'buff.enemy.catch',
+      buffTagIds: [],
     });
 
     expect(fixture.runtime.passedFrames).toBe(6);

@@ -136,7 +136,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
 和 Buff 闭包审计。当前基线为 14 名正式生成干员：天赋 13/28 已转换、13/28 可进入模拟编译；潜能
-60/70 已转换、60/70 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+61/70 已转换、61/70 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
@@ -162,6 +162,14 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 管理员潜能 5 证明事件型附着 Buff 也可走同一入口：监听精确的连携触发 Buff ID，并对男女管理员
 两个原生连携技能 ID 的当前剩余冷却各扣除 `2` 秒。`absoluteSeconds` 保持为运行时操作语义，按
 30fps 换算后从剩余冷却扣除并最低归零，不改写技能定义的基础冷却。
+
+Estella 潜能 5 覆盖 Buff 生命周期中的 `DuringBuffEnable` Aura：常驻潜能 Buff 启用时，以精确
+动作作用域向唯一敌人施加监听 Buff，停用或结束时只释放该实例。监听器接收成功施加 Buff 的
+真实 ID、原生标签、来源与宿主；`CheckBuffIdInContext(Tags + HasAny)` 编译为
+`eventBuffTagsMatch`，命中标签 `1535684437` 且 1 秒本地标记不存在时，创建标记并回复 5 点终结
+技能量。元素附着适配器直接写入 Buff 容器的路径也会发布同一 `addedBuff` 事实，不再绕过事件
+边界。当前版本化元素定义尚未包含携带该标签的冻结状态创建链，因此生产场景不能伪造一次冻结
+来宣称端到端触发；潜能定义、Aura 生命周期、标签事件条件与资源响应分别由严格生成及运行时回归覆盖。
 
 潜能中的 `attrModifier` 只有在每条数据均为已确认的永久静态属性
 （条目 `modifyType = 4`、`modifyAttributeType = 0`，且属性与公式槽组合受支持）时，

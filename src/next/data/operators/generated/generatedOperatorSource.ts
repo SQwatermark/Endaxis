@@ -676,6 +676,7 @@ export interface GeneratedBuffIdInContextConditionSource {
   readonly checkType: string;
   readonly buffIds: readonly string[];
   readonly queryType: string;
+  readonly buffTagIds?: readonly number[];
 }
 
 export interface GeneratedAbilityEntityDurationConditionSource {

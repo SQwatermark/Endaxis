@@ -788,8 +788,8 @@ export const lastRiteGeneratedSource = {
               "buffApplications": [],
               "actions": [
                 {
-                  "actionType": "CheckDamageDecorateMask",
-                  "actionIndex": 2,
+                  "actionType": "CheckTimedMarkerCondition",
+                  "actionIndex": 1,
                   "actionPath": [
                     "timelineActions[0]",
                     "_sequenceActionData",
@@ -797,13 +797,13 @@ export const lastRiteGeneratedSource = {
                     "[0]",
                     "succeedActions",
                     "actionData",
-                    "[2]"
+                    "[1]"
                   ],
-                  "serverActionIndex": 11,
+                  "serverActionIndex": 10,
                   "nestedCondition": {
                     "startFrame": 0,
                     "endFrame": 0,
-                    "actionIndex": 11,
+                    "actionIndex": 10,
                     "actionPath": [
                       "timelineActions[0]",
                       "_sequenceActionData",
@@ -811,28 +811,33 @@ export const lastRiteGeneratedSource = {
                       "[0]",
                       "succeedActions",
                       "actionData",
-                      "[2]"
+                      "[1]"
                     ],
                     "conditions": [
                       {
-                        "sourceType": "CheckDamageDecorateMask",
-                        "supported": false,
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
                         "comparison": null,
                         "left": null,
                         "right": null,
                         "skillTypes": [],
-                        "damageDecorateMask": {
-                          "checkType": "HasAny",
-                          "mask": 2097152
+                        "timedMarker": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "markerId": "buff_chr_0026_lastrite_normal_skill_marker",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
                         },
+                        "damageDecorateMask": null,
                         "contextBuffId": null,
                         "deckAttributeCompare": null
                       }
                     ],
                     "succeedActions": [
                       {
-                        "actionType": "CheckMainCharacterCondition",
-                        "actionIndex": 3,
+                        "actionType": "CheckDamageDecorateMask",
+                        "actionIndex": 2,
                         "actionPath": [
                           "timelineActions[0]",
                           "_sequenceActionData",
@@ -840,13 +845,13 @@ export const lastRiteGeneratedSource = {
                           "[0]",
                           "succeedActions",
                           "actionData",
-                          "[3]"
+                          "[2]"
                         ],
-                        "serverActionIndex": 12,
+                        "serverActionIndex": 11,
                         "nestedCondition": {
                           "startFrame": 0,
                           "endFrame": 0,
-                          "actionIndex": 12,
+                          "actionIndex": 11,
                           "actionPath": [
                             "timelineActions[0]",
                             "_sequenceActionData",
@@ -854,29 +859,28 @@ export const lastRiteGeneratedSource = {
                             "[0]",
                             "succeedActions",
                             "actionData",
-                            "[3]"
+                            "[2]"
                           ],
                           "conditions": [
                             {
-                              "sourceType": "CheckMainCharacterCondition",
-                              "supported": true,
+                              "sourceType": "CheckDamageDecorateMask",
+                              "supported": false,
                               "comparison": null,
                               "left": null,
                               "right": null,
                               "skillTypes": [],
-                              "mainOperator": {
-                                "targetSource": "Owner",
-                                "targetGroupKey": ""
+                              "damageDecorateMask": {
+                                "checkType": "HasAny",
+                                "mask": 2097152
                               },
-                              "damageDecorateMask": null,
                               "contextBuffId": null,
                               "deckAttributeCompare": null
                             }
                           ],
                           "succeedActions": [
                             {
-                              "actionType": "IfElseAction",
-                              "actionIndex": 4,
+                              "actionType": "CheckMainCharacterCondition",
+                              "actionIndex": 3,
                               "actionPath": [
                                 "timelineActions[0]",
                                 "_sequenceActionData",
@@ -884,13 +888,13 @@ export const lastRiteGeneratedSource = {
                                 "[0]",
                                 "succeedActions",
                                 "actionData",
-                                "[4]"
+                                "[3]"
                               ],
-                              "serverActionIndex": 13,
+                              "serverActionIndex": 12,
                               "nestedCondition": {
                                 "startFrame": 0,
                                 "endFrame": 0,
-                                "actionIndex": 13,
+                                "actionIndex": 12,
                                 "actionPath": [
                                   "timelineActions[0]",
                                   "_sequenceActionData",
@@ -898,23 +902,19 @@ export const lastRiteGeneratedSource = {
                                   "[0]",
                                   "succeedActions",
                                   "actionData",
-                                  "[4]"
+                                  "[3]"
                                 ],
                                 "conditions": [
                                   {
-                                    "sourceType": "CheckTagMatch",
+                                    "sourceType": "CheckMainCharacterCondition",
                                     "supported": true,
                                     "comparison": null,
                                     "left": null,
                                     "right": null,
                                     "skillTypes": [],
-                                    "entityTag": {
+                                    "mainOperator": {
                                       "targetSource": "Owner",
-                                      "targetGroupKey": "",
-                                      "tagQueryType": "hasAny",
-                                      "tagIds": [
-                                        264623624
-                                      ]
+                                      "targetGroupKey": ""
                                     },
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
@@ -923,8 +923,8 @@ export const lastRiteGeneratedSource = {
                                 ],
                                 "succeedActions": [
                                   {
-                                    "actionType": "CreateBuffAction",
-                                    "actionIndex": 0,
+                                    "actionType": "IfElseAction",
+                                    "actionIndex": 4,
                                     "actionPath": [
                                       "timelineActions[0]",
                                       "_sequenceActionData",
@@ -932,47 +932,229 @@ export const lastRiteGeneratedSource = {
                                       "[0]",
                                       "succeedActions",
                                       "actionData",
-                                      "[4]",
-                                      "succeedActions",
-                                      "actionData",
-                                      "[0]"
+                                      "[4]"
                                     ],
-                                    "serverActionIndex": 15,
-                                    "legacyBuffFinish": null,
-                                    "skillCooldownAdjustment": null,
-                                    "buffIgnite": null,
-                                    "buffApplication": {
-                                      "buffs": [
+                                    "serverActionIndex": 13,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 13,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[4]"
+                                      ],
+                                      "conditions": [
                                         {
-                                          "buffId": "buff_chr_0026_lastrite_normal_skill_phantom_main",
-                                          "classification": null,
-                                          "blackboardAssignments": {
-                                            "atk_scale1": {
-                                              "value": 0.0,
-                                              "blackboardKey": "atk_scale",
-                                              "levelValues": [
-                                                3.0
-                                              ]
-                                            }
+                                          "sourceType": "CheckTagMatch",
+                                          "supported": true,
+                                          "comparison": null,
+                                          "left": null,
+                                          "right": null,
+                                          "skillTypes": [],
+                                          "entityTag": {
+                                            "targetSource": "Owner",
+                                            "targetGroupKey": "",
+                                            "tagQueryType": "hasAny",
+                                            "tagIds": [
+                                              264623624
+                                            ]
+                                          },
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "deckAttributeCompare": null
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 15,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0026_lastrite_normal_skill_phantom_main",
+                                                "classification": null,
+                                                "blackboardAssignments": {
+                                                  "atk_scale1": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "atk_scale",
+                                                    "levelValues": [
+                                                      3.0
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ],
+                                            "targetSource": "InstantSearch",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true,
+                                            "targetFinderType": "MainTargetFinder"
+                                          }
+                                        },
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[1]"
+                                          ],
+                                          "serverActionIndex": 16,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
+                                                "classification": null,
+                                                "blackboardAssignments": {}
+                                              }
+                                            ],
+                                            "targetSource": "Source",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true
                                           }
                                         }
                                       ],
-                                      "targetSource": "InstantSearch",
-                                      "targetGroupKey": "",
-                                      "count": {
-                                        "value": 1.0,
-                                        "blackboardKey": null,
-                                        "levelValues": null
-                                      },
-                                      "buffSource": "ActionSource",
-                                      "buffSourceContextKey": "",
-                                      "inheritSourceSkillCastInfo": true,
-                                      "targetFinderType": "MainTargetFinder"
-                                    }
+                                      "failActions": [
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 18,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0026_lastrite_normal_skill_phantom",
+                                                "classification": null,
+                                                "blackboardAssignments": {
+                                                  "atk_scale": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "atk_scale",
+                                                    "levelValues": [
+                                                      3.0
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ],
+                                            "targetSource": "InstantSearch",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true,
+                                            "targetFinderType": "MainTargetFinder"
+                                          }
+                                        },
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "failActions",
+                                            "actionData",
+                                            "[1]"
+                                          ],
+                                          "serverActionIndex": 19,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
+                                                "classification": null,
+                                                "blackboardAssignments": {}
+                                              }
+                                            ],
+                                            "targetSource": "Source",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
                                   },
                                   {
-                                    "actionType": "CreateBuffAction",
-                                    "actionIndex": 1,
+                                    "actionType": "CreateTimedMarker",
+                                    "actionIndex": 5,
                                     "actionPath": [
                                       "timelineActions[0]",
                                       "_sequenceActionData",
@@ -980,158 +1162,31 @@ export const lastRiteGeneratedSource = {
                                       "[0]",
                                       "succeedActions",
                                       "actionData",
-                                      "[4]",
-                                      "succeedActions",
-                                      "actionData",
-                                      "[1]"
+                                      "[5]"
                                     ],
-                                    "serverActionIndex": 16,
+                                    "serverActionIndex": 20,
                                     "legacyBuffFinish": null,
                                     "skillCooldownAdjustment": null,
                                     "buffIgnite": null,
-                                    "buffApplication": {
-                                      "buffs": [
-                                        {
-                                          "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
-                                          "classification": null,
-                                          "blackboardAssignments": {}
-                                        }
-                                      ],
-                                      "targetSource": "Source",
+                                    "timedMarkerApplication": {
+                                      "targetSource": "Owner",
                                       "targetGroupKey": "",
-                                      "count": {
-                                        "value": 1.0,
+                                      "markerId": "buff_chr_0026_lastrite_normal_skill_marker",
+                                      "duration": {
+                                        "value": 0.1,
                                         "blackboardKey": null,
                                         "levelValues": null
                                       },
-                                      "buffSource": "ActionSource",
-                                      "buffSourceContextKey": "",
-                                      "inheritSourceSkillCastInfo": true
+                                      "autoFinishByAction": false,
+                                      "useTimeDilationDt": false
                                     }
                                   }
                                 ],
-                                "failActions": [
-                                  {
-                                    "actionType": "CreateBuffAction",
-                                    "actionIndex": 0,
-                                    "actionPath": [
-                                      "timelineActions[0]",
-                                      "_sequenceActionData",
-                                      "actionData",
-                                      "[0]",
-                                      "succeedActions",
-                                      "actionData",
-                                      "[4]",
-                                      "failActions",
-                                      "actionData",
-                                      "[0]"
-                                    ],
-                                    "serverActionIndex": 18,
-                                    "legacyBuffFinish": null,
-                                    "skillCooldownAdjustment": null,
-                                    "buffIgnite": null,
-                                    "buffApplication": {
-                                      "buffs": [
-                                        {
-                                          "buffId": "buff_chr_0026_lastrite_normal_skill_phantom",
-                                          "classification": null,
-                                          "blackboardAssignments": {
-                                            "atk_scale": {
-                                              "value": 0.0,
-                                              "blackboardKey": "atk_scale",
-                                              "levelValues": [
-                                                3.0
-                                              ]
-                                            }
-                                          }
-                                        }
-                                      ],
-                                      "targetSource": "InstantSearch",
-                                      "targetGroupKey": "",
-                                      "count": {
-                                        "value": 1.0,
-                                        "blackboardKey": null,
-                                        "levelValues": null
-                                      },
-                                      "buffSource": "ActionSource",
-                                      "buffSourceContextKey": "",
-                                      "inheritSourceSkillCastInfo": true,
-                                      "targetFinderType": "MainTargetFinder"
-                                    }
-                                  },
-                                  {
-                                    "actionType": "CreateBuffAction",
-                                    "actionIndex": 1,
-                                    "actionPath": [
-                                      "timelineActions[0]",
-                                      "_sequenceActionData",
-                                      "actionData",
-                                      "[0]",
-                                      "succeedActions",
-                                      "actionData",
-                                      "[4]",
-                                      "failActions",
-                                      "actionData",
-                                      "[1]"
-                                    ],
-                                    "serverActionIndex": 19,
-                                    "legacyBuffFinish": null,
-                                    "skillCooldownAdjustment": null,
-                                    "buffIgnite": null,
-                                    "buffApplication": {
-                                      "buffs": [
-                                        {
-                                          "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
-                                          "classification": null,
-                                          "blackboardAssignments": {}
-                                        }
-                                      ],
-                                      "targetSource": "Source",
-                                      "targetGroupKey": "",
-                                      "count": {
-                                        "value": 1.0,
-                                        "blackboardKey": null,
-                                        "levelValues": null
-                                      },
-                                      "buffSource": "ActionSource",
-                                      "buffSourceContextKey": "",
-                                      "inheritSourceSkillCastInfo": true
-                                    }
-                                  }
-                                ]
+                                "failActions": []
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
-                            },
-                            {
-                              "actionType": "CreateTimedMarker",
-                              "actionIndex": 5,
-                              "actionPath": [
-                                "timelineActions[0]",
-                                "_sequenceActionData",
-                                "actionData",
-                                "[0]",
-                                "succeedActions",
-                                "actionData",
-                                "[5]"
-                              ],
-                              "serverActionIndex": 20,
-                              "legacyBuffFinish": null,
-                              "skillCooldownAdjustment": null,
-                              "buffIgnite": null,
-                              "timedMarkerApplication": {
-                                "targetSource": "Owner",
-                                "targetGroupKey": "",
-                                "markerId": "buff_chr_0026_lastrite_normal_skill_marker",
-                                "duration": {
-                                  "value": 0.1,
-                                  "blackboardKey": null,
-                                  "levelValues": null
-                                },
-                                "autoFinishByAction": false,
-                                "useTimeDilationDt": false
-                              }
                             }
                           ],
                           "failActions": []

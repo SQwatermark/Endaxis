@@ -76,6 +76,7 @@ export interface BuffAppliedEvent {
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
+  readonly buffTagIds: readonly number[];
 }
 
 /** 由有状态动作精确持有的 Buff 实例，不按 ID 误删其他来源实例。 */

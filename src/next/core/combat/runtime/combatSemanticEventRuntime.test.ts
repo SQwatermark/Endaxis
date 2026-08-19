@@ -23,6 +23,7 @@ describe('CombatSemanticEventRuntime', () => {
       targetId: 'operator:b',
       buffId: 'buff:test',
       sourceId: 'operator:a',
+      buffTagIds: [],
     });
 
     expect(received).toEqual(['operator:b']);

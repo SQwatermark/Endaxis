@@ -141,6 +141,558 @@
       "onlyUseSelfTimeDilation": false
     },
     {
+      "buffId": "buff_chr_0021_whiten_potential_5",
+      "sourceFile": "buff_chr_0021_whiten_potential_5.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "cd",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp",
+          "value": 5.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "AuraAction"
+          ],
+          "combatActions": [
+            "AuraAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [
+            "buff_chr_0021_whiten_potential_5_inaura"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "AuraAction"
+              ],
+              "combatActions": [
+                "AuraAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "AuraAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 0,
+          "sourceFile": "buff_chr_0021_whiten_potential_5.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[0]",
+            "actionData",
+            "[0]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "whiten_recover_usp",
+          "auraType": "GlobalAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Box",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 0.0,
+            "heightKey": "",
+            "radius": 0.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": "EnemyAll",
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": true,
+            "factionTarget": "Anti",
+            "factionTargetType": 0,
+            "filterObjectType": false,
+            "objectType": "All",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": false,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionOwner",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0021_whiten_potential_5_inaura",
+              "classification": null,
+              "blackboardAssignments": {
+                "usp": {
+                  "value": 0.0,
+                  "blackboardKey": "usp",
+                  "levelValues": [
+                    5.0
+                  ]
+                },
+                "cd": {
+                  "value": 0.0,
+                  "blackboardKey": "cd",
+                  "levelValues": [
+                    1.0
+                  ]
+                }
+              }
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "AbilityEntity",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": false,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [],
+          "nestedCombatActions": [],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": []
+        }
+      ],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
+      "buffId": "buff_chr_0021_whiten_potential_5_inaura",
+      "sourceFile": "buff_chr_0021_whiten_potential_5_inaura.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "cd",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp",
+          "value": 5.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnAddedBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext",
+            "CheckTimedMarkerCondition",
+            "CreateTimedMarker",
+            "ObtainCostAction"
+          ],
+          "combatActions": [
+            "CreateTimedMarker",
+            "ObtainCostAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "CheckTimedMarkerCondition",
+                "CreateTimedMarker",
+                "ObtainCostAction"
+              ],
+              "combatActions": [
+                "CreateTimedMarker",
+                "ObtainCostAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Tag",
+                          "buffIds": [],
+                          "queryType": "HasAny",
+                          "buffTagIds": [
+                            1535684437
+                          ]
+                        },
+                        "deckAttributeCompare": null
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckTimedMarkerCondition",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "buff_chr_0021_whiten_potential_5_cd",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "deckAttributeCompare": null
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 2,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "buff_chr_0021_whiten_potential_5_cd",
+                                "duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "cd",
+                                  "levelValues": [
+                                    1.0
+                                  ]
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            },
+                            {
+                              "actionType": "ObtainCostAction",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "resourceGain": {
+                                "resource": "ultimateEnergy",
+                                "amount": {
+                                  "value": 0.0,
+                                  "blackboardKey": "usp",
+                                  "levelValues": [
+                                    5.0
+                                  ]
+                                },
+                                "coefficient": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "spGainKind": null,
+                                "spGainSource": null,
+                                "onlyMainOperator": false,
+                                "isPercentValue": false,
+                                "useUltimateRecoveryTag": false,
+                                "ultimateRecoveryTagId": 0,
+                                "ignoreUltimateGainScalar": false
+                              }
+                            }
+                          ],
+                          "failActions": []
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": []
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,

@@ -39,6 +39,13 @@ export interface ElementalInflictionStartedPayload {
   readonly layers: number;
 }
 
+export interface ElementalBuffAppliedPayload {
+  readonly targetId: string;
+  readonly buffId: string;
+  readonly sourceId: string;
+  readonly buffTagIds: readonly number[];
+}
+
 export function createElementalAttachmentLifecycleActions<Key extends string>(
   element: InflictionElement,
   emitStarted: (payload: ElementalInflictionStartedPayload, buff: CombatBuff<Key>) => void,
@@ -59,6 +66,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly sourceId: string,
     readonly index: ElementalInflictionBuffIndex<Key>,
     readonly addOptions?: CombatBuffAddOptions,
+    readonly onBuffApplied?: (event: ElementalBuffAppliedPayload) => void,
   ) {}
 
   getExistingAttachment(): ExistingElementalAttachment | null {
@@ -70,14 +78,10 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
   apply(operation: ElementalInflictionOperation): void {
     switch (operation.kind) {
       case 'addAttachment':
-        this.target.add(
-          this.index.getAttachment(operation.element),
-          this.sourceId,
-          this.addOptions,
-        );
+        this.add(this.index.getAttachment(operation.element));
         return;
       case 'triggerBurst':
-        this.target.add(this.index.getBurst(operation.element), this.sourceId, this.addOptions);
+        this.add(this.index.getBurst(operation.element));
         return;
       case 'consumeAttachment': {
         const projected = this.#projectedAttachment;
@@ -94,9 +98,8 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
         return;
       }
       case 'createCompoundStatus':
-        this.target.add(
+        this.add(
           this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
-          this.sourceId,
           {
             ...this.addOptions,
             blackboardValues: {
@@ -109,6 +112,19 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
         );
         return;
     }
+  }
+
+  private add(
+    definition: CombatBuffDefinition<Key>,
+    options: CombatBuffAddOptions | undefined = this.addOptions,
+  ): void {
+    if (this.target.add(definition, this.sourceId, options) === null) return;
+    this.onBuffApplied?.({
+      targetId: this.target.ownerId,
+      buffId: definition.id,
+      sourceId: this.sourceId,
+      buffTagIds: definition.applyTags?.map(Number) ?? [],
+    });
   }
 
   private findAttachment():

@@ -195,6 +195,7 @@ def compile_inline_buff_definition(
                 )
             )
             or (field in SCHEDULE_BEHAVIOR_FIELDS and compile_scheduled_sequences is not None)
+            or (field == "auraActions" and compile_event_responses is not None)
         )
     )
     if unsupported:

@@ -88,6 +88,12 @@ def compile_inline_buff_event_responses(
                     buff_definitions=buff_definitions,
                     buff_owner_target=buff_owner_target,
                     current_buff_environment=True,
+                    aura_actions=tuple(
+                        aura
+                        for aura in source.auraActions
+                        if aura.activationSource == "buffEvent"
+                        and aura.activationEvent == event.event
+                    ),
                 )
                 if compiled != COMPILED_EMPTY_SEQUENCE:
                     compiled_sequences.append(compiled)
@@ -223,6 +229,13 @@ def compile_inline_buff_event_responses(
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
+                aura_actions=tuple(
+                    aura
+                    for aura in getattr(source, "auraActions", ())
+                    if aura.activationSource
+                    == ("buffEvent" if event.eventSource == "buff" else "abilityEvent")
+                    and aura.activationEvent == event.event
+                ),
             )
             if compiled == COMPILED_EMPTY_SEQUENCE:
                 continue

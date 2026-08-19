@@ -24622,8 +24622,8 @@ export const arcaneGeneratedSource = {
           ],
           "succeedActions": [
             {
-              "actionType": "CreateTimedMarker",
-              "actionIndex": 2,
+              "actionType": "CheckTimedMarkerCondition",
+              "actionIndex": 0,
               "actionPath": [
                 "timelineActions[12]",
                 "_sequenceActionData",
@@ -24634,30 +24634,91 @@ export const arcaneGeneratedSource = {
                 "[0]",
                 "action",
                 "actionData",
-                "[2]"
+                "[0]"
               ],
-              "serverActionIndex": 32,
+              "serverActionIndex": 30,
+              "nestedCondition": {
+                "startFrame": 22,
+                "endFrame": 25,
+                "actionIndex": 30,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckTimedMarkerCondition",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "timedMarker": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "blackboardKey": "",
+                      "useBlackboardKey": false,
+                      "returnTrueIfNotExists": true
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateTimedMarker",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "action",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "timedMarkerApplication": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "duration": {
+                        "value": 0.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "autoFinishByAction": false,
+                      "useTimeDilationDt": false
+                    }
+                  }
+                ],
+                "failActions": []
+              },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "timedMarkerApplication": {
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "markerId": "lizhiyan_attack5",
-                "duration": {
-                  "value": 0.1,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "autoFinishByAction": false,
-                "useTimeDilationDt": false
-              }
+              "buffIgnite": null
             }
           ],
           "failActions": [
             {
-              "actionType": "CreateTimedMarker",
-              "actionIndex": 2,
+              "actionType": "CheckTimedMarkerCondition",
+              "actionIndex": 0,
               "actionPath": [
                 "timelineActions[12]",
                 "_sequenceActionData",
@@ -24668,24 +24729,85 @@ export const arcaneGeneratedSource = {
                 "[0]",
                 "action",
                 "actionData",
-                "[2]"
+                "[0]"
               ],
-              "serverActionIndex": 48,
+              "serverActionIndex": 46,
+              "nestedCondition": {
+                "startFrame": 22,
+                "endFrame": 25,
+                "actionIndex": 46,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckTimedMarkerCondition",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "timedMarker": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "blackboardKey": "",
+                      "useBlackboardKey": false,
+                      "returnTrueIfNotExists": true
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateTimedMarker",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "action",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "timedMarkerApplication": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "duration": {
+                        "value": 0.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "autoFinishByAction": false,
+                      "useTimeDilationDt": false
+                    }
+                  }
+                ],
+                "failActions": []
+              },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "timedMarkerApplication": {
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "markerId": "lizhiyan_attack5",
-                "duration": {
-                  "value": 0.1,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "autoFinishByAction": false,
-                "useTimeDilationDt": false
-              }
+              "buffIgnite": null
             }
           ]
         }
@@ -25174,8 +25296,8 @@ export const arcaneGeneratedSource = {
           ],
           "succeedActions": [
             {
-              "actionType": "CreateTimedMarker",
-              "actionIndex": 2,
+              "actionType": "CheckTimedMarkerCondition",
+              "actionIndex": 0,
               "actionPath": [
                 "timelineActions[12]",
                 "_sequenceActionData",
@@ -25186,30 +25308,91 @@ export const arcaneGeneratedSource = {
                 "[0]",
                 "action",
                 "actionData",
-                "[2]"
+                "[0]"
               ],
-              "serverActionIndex": 32,
+              "serverActionIndex": 30,
+              "nestedCondition": {
+                "startFrame": 22,
+                "endFrame": 25,
+                "actionIndex": 30,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckTimedMarkerCondition",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "timedMarker": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "blackboardKey": "",
+                      "useBlackboardKey": false,
+                      "returnTrueIfNotExists": true
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateTimedMarker",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]",
+                      "action",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 32,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "timedMarkerApplication": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "duration": {
+                        "value": 0.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "autoFinishByAction": false,
+                      "useTimeDilationDt": false
+                    }
+                  }
+                ],
+                "failActions": []
+              },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "timedMarkerApplication": {
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "markerId": "lizhiyan_attack5",
-                "duration": {
-                  "value": 0.1,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "autoFinishByAction": false,
-                "useTimeDilationDt": false
-              }
+              "buffIgnite": null
             }
           ],
           "failActions": [
             {
-              "actionType": "CreateTimedMarker",
-              "actionIndex": 2,
+              "actionType": "CheckTimedMarkerCondition",
+              "actionIndex": 0,
               "actionPath": [
                 "timelineActions[12]",
                 "_sequenceActionData",
@@ -25220,24 +25403,85 @@ export const arcaneGeneratedSource = {
                 "[0]",
                 "action",
                 "actionData",
-                "[2]"
+                "[0]"
               ],
-              "serverActionIndex": 48,
+              "serverActionIndex": 46,
+              "nestedCondition": {
+                "startFrame": 22,
+                "endFrame": 25,
+                "actionIndex": 46,
+                "actionPath": [
+                  "timelineActions[12]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[0]",
+                  "failActions",
+                  "actionData",
+                  "[0]",
+                  "action",
+                  "actionData",
+                  "[0]"
+                ],
+                "conditions": [
+                  {
+                    "sourceType": "CheckTimedMarkerCondition",
+                    "supported": true,
+                    "comparison": null,
+                    "left": null,
+                    "right": null,
+                    "skillTypes": [],
+                    "timedMarker": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "blackboardKey": "",
+                      "useBlackboardKey": false,
+                      "returnTrueIfNotExists": true
+                    },
+                    "damageDecorateMask": null,
+                    "contextBuffId": null,
+                    "deckAttributeCompare": null
+                  }
+                ],
+                "succeedActions": [
+                  {
+                    "actionType": "CreateTimedMarker",
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[12]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]",
+                      "action",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "serverActionIndex": 48,
+                    "legacyBuffFinish": null,
+                    "skillCooldownAdjustment": null,
+                    "buffIgnite": null,
+                    "timedMarkerApplication": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "markerId": "lizhiyan_attack5",
+                      "duration": {
+                        "value": 0.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "autoFinishByAction": false,
+                      "useTimeDilationDt": false
+                    }
+                  }
+                ],
+                "failActions": []
+              },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
-              "buffIgnite": null,
-              "timedMarkerApplication": {
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "markerId": "lizhiyan_attack5",
-                "duration": {
-                  "value": 0.1,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "autoFinishByAction": false,
-                "useTimeDilationDt": false
-              }
+              "buffIgnite": null
             }
           ]
         }

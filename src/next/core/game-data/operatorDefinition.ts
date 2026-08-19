@@ -308,6 +308,12 @@ export type CombatCondition =
       kind: 'eventBuffIdMatch';
       buffIds: readonly string[];
     }
+  | {
+      /** 匹配触发当前响应的新施加 Buff 原生标签。 */
+      kind: 'eventBuffTagsMatch';
+      match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      buffTagIds: readonly number[];
+    }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
   | {
@@ -351,6 +357,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageFeaturesMatch',
   'eventSkillTypeIn',
   'eventBuffIdMatch',
+  'eventBuffTagsMatch',
   'eventSourceMatchesBuffSource',
   'elementalInflictionPresent',
   'elementalReactionActive',

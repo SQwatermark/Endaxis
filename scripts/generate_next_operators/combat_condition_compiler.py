@@ -107,19 +107,35 @@ def compile_combat_condition(
         if context_buff is None:
             raise ValueError(f"{path}: missing event Buff identity payload")
         if (
-            context_buff.checkType != "Id"
-            or context_buff.queryType != "HasAny"
-            or not context_buff.buffIds
+            context_buff.checkType == "Id"
+            and context_buff.queryType == "HasAny"
+            and context_buff.buffIds
+            and not context_buff.buffTagIds
         ):
-            raise ValueError(f"{path}: unsupported event Buff identity query")
-        return "\n".join(
-            [
-                "{",
-                "  kind: 'eventBuffIdMatch',",
-                f"  buffIds: {ts_inline_literal(context_buff.buffIds)},",
-                "}",
-            ]
-        )
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'eventBuffIdMatch',",
+                    f"  buffIds: {ts_inline_literal(context_buff.buffIds)},",
+                    "}",
+                ]
+            )
+        if (
+            context_buff.checkType == "Tag"
+            and context_buff.queryType in {"HasAny", "HasAll", "ExceptAny", "ExceptAll"}
+            and context_buff.buffTagIds
+            and not context_buff.buffIds
+        ):
+            return "\n".join(
+                [
+                    "{",
+                    "  kind: 'eventBuffTagsMatch',",
+                    f"  match: {ts_inline_literal(context_buff.queryType[0].lower() + context_buff.queryType[1:])},",
+                    f"  buffTagIds: {ts_inline_literal(context_buff.buffTagIds)},",
+                    "}",
+                ]
+            )
+        raise ValueError(f"{path}: unsupported event Buff identity query")
     if source.sourceType == "CheckTargetsEqual" and buff_ability_damage_event:
         identity = source.targetIdentity
         if identity is None:
@@ -462,6 +478,18 @@ def compile_combat_condition(
                 return f"{{ kind: 'not', condition: {condition} }}"
             return condition
         if (
+            marker.targetSource == "Owner"
+            and not marker.targetGroupKey
+            and buff_owner_target == "currentAbilityEntity"
+        ):
+            condition = (
+                "{ kind: 'abilityEntityTimedMarkerPresent', markerId: "
+                f"{ts_inline_literal(marker.markerId)} }}"
+            )
+            if marker.returnTrueIfNotExists:
+                return f"{{ kind: 'not', condition: {condition} }}"
+            return condition
+        if (
             marker.targetSource == "Context"
             and marker.targetGroupKey
             and (
@@ -483,13 +511,19 @@ def compile_combat_condition(
             if marker.returnTrueIfNotExists:
                 return f"{{ kind: 'not', condition: {condition} }}"
             return condition
-        target = resolve_fixed_combat_target(
-            marker.targetSource,
-            marker.targetGroupKey,
-            action=action,
-            target_group_writes=target_group_writes,
-            root_skill_context=root_skill_context,
-            input_target=input_target,
+        target = (
+            buff_owner_target
+            if marker.targetSource == "Owner"
+            and not marker.targetGroupKey
+            and buff_owner_target in {"caster", "enemy"}
+            else resolve_fixed_combat_target(
+                marker.targetSource,
+                marker.targetGroupKey,
+                action=action,
+                target_group_writes=target_group_writes,
+                root_skill_context=root_skill_context,
+                input_target=input_target,
+            )
         )
         if target is None:
             matching_writes = tuple(
