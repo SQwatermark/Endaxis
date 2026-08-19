@@ -27,6 +27,7 @@ class GenerationPipelineServices:
     render_typescript: Callable[..., Any]
     resolve_operator_buff_definitions_for_stage: Callable[..., Any]
     resolve_passive_buff_definitions: Callable[..., Any]
+    resolve_progression_buff_definitions: Callable[..., Any]
     write_or_check: Callable[..., Any]
 
 
@@ -45,6 +46,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
     render_typescript = services.render_typescript
     resolve_operator_buff_definitions_for_stage = services.resolve_operator_buff_definitions_for_stage
     resolve_passive_buff_definitions = services.resolve_passive_buff_definitions
+    resolve_progression_buff_definitions = services.resolve_progression_buff_definitions
     write_or_check = services.write_or_check
     args = parse_args()
     manifest = require_dict(json.loads(args.manifest.read_text(encoding="utf-8")), str(args.manifest))
@@ -135,9 +137,19 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
         passive_buff_definitions, passive_buff_resolution_issues = (
             resolve_passive_buff_definitions(passive_skills, buff_source_dir)
         )
+        progression_buff_definitions = resolve_progression_buff_definitions(
+            operator,
+            loaded_tables["CharacterPotentialTable.json"],
+            loaded_tables["PotentialTalentEffectTable.json"],
+            buff_source_dir,
+        )
         audited_buff_definitions_by_id = {
             definition.buffId: definition
-            for definition in (*skill_buff_definitions, *passive_buff_definitions)
+            for definition in (
+                *skill_buff_definitions,
+                *passive_buff_definitions,
+                *progression_buff_definitions,
+            )
         }
         audited_buff_definitions = tuple(
             audited_buff_definitions_by_id[key]
@@ -167,6 +179,9 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
                 for definition in passive_buff_definitions
                 if definition.buffId in renderable_passive_buff_ids
             }
+        )
+        buff_definitions_by_id.update(
+            {definition.buffId: definition for definition in progression_buff_definitions}
         )
         buff_definitions = tuple(
             buff_definitions_by_id[key] for key in sorted(buff_definitions_by_id)

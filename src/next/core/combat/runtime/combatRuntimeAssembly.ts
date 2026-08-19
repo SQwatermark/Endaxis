@@ -4,7 +4,9 @@
  */
 import type {
   CompiledComboSkillRegistration,
+  CompiledOperatorInitializationProgram,
   CompiledOperatorPassiveProgram,
+  CompiledOperatorUpgradeEventProgram,
   CompiledSkillSlotGroup,
   CompiledSkillProgram,
 } from '../../compiler/combatProgram';
@@ -48,6 +50,7 @@ import {
   type EquipmentEventExecutionContext,
 } from './equipmentEventRuntime';
 import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
+import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 import {
   TimeDilationRuntime,
   type AbilityTickDeltas,
@@ -88,8 +91,12 @@ export interface CombatOperatorProgram {
   readonly skills: readonly CompiledSkillProgram[];
   /** 稳定技能组的基础形态与不可直接放置的运行时替换形态。 */
   readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
+  /** 构筑启用的养成初始化行为；在 Buff 生命周期装配后执行一次。 */
+  readonly initializationPrograms?: readonly CompiledOperatorInitializationProgram[];
   /** 构筑启用的常驻被动；按声明顺序在战斗装配完成后启用一次。 */
   readonly passivePrograms?: readonly CompiledOperatorPassiveProgram[];
+  /** 构筑启用的养成事件监听器；按养成声明顺序注册到数据动作阶段。 */
+  readonly upgradeEventPrograms?: readonly CompiledOperatorUpgradeEventProgram[];
   /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
   readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
   /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
@@ -284,6 +291,7 @@ export class CombatRuntimeAssembly {
     }
   >();
   readonly #equipmentEventRuntimes: EquipmentEventRuntime[] = [];
+  readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveSequences: ActionSequence[] = [];
@@ -487,6 +495,25 @@ export class CombatRuntimeAssembly {
     }
 
     for (const operator of options.operators) {
+      const programs = operator.upgradeEventPrograms ?? [];
+      if (programs.length === 0) continue;
+      this.#operatorUpgradeEventRuntimes.push(
+        new OperatorUpgradeEventRuntime(
+          this.semanticEvents,
+          operator.operatorId,
+          programs,
+          context =>
+            this.#createReactiveOperationChain(
+              operator,
+              `upgrade-event:${context.programKey}`,
+              unsupportedReactiveTerminal,
+              options,
+            ),
+        ),
+      );
+    }
+
+    for (const operator of options.operators) {
       const registrations = operator.comboSkillRegistrations ?? [];
       if (registrations.length === 0) continue;
       this.#comboSkillRegistrationRuntimes.push(
@@ -520,8 +547,33 @@ export class CombatRuntimeAssembly {
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
 
-    // 原生先初始化全部技能，再统一 Enable 被动；此处也必须晚于实体和 Buff 生命周期装配。
+    // 养成直接附着 Buff 与原生被动都必须晚于实体和 Buff 生命周期装配。
     for (const operator of options.operators) {
+      for (const initialization of operator.initializationPrograms ?? []) {
+        const operations = this.#createReactiveOperationChain(
+          operator,
+          `upgrade-initialization:${initialization.key}`,
+          unsupportedReactiveTerminal,
+          options,
+        );
+        const runtime = new CombatActionSequenceRuntime(
+          operations,
+          { blackboard: new ActionBlackboard() },
+          {},
+          this.semanticEvents,
+          operator.operatorId,
+        );
+        const sequence = runtime.createSequence(initialization.sequence);
+        sequence.executeInstant({});
+        this.#passiveSequences.push(sequence);
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'OperatorUpgradeInitialized',
+          sourceId: operator.operatorId,
+          data: { key: initialization.key },
+        });
+      }
       for (const passive of operator.passivePrograms ?? []) {
         const blackboard = new ActionBlackboard(passive.initialBlackboard);
         const operations = this.#createReactiveOperationChain(
@@ -1026,6 +1078,7 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       getNonReturnedSpCost,
       finisherSpRecovery: enemy.stagger.finisherSpRecovery,
+      onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
       delegate,
     });
     return rootOperations;
@@ -1152,6 +1205,7 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       getNonReturnedSpCost: () => 0,
       finisherSpRecovery: options.enemy.stagger.finisherSpRecovery,
+      onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
       delegate: blackboardOperations,
     });
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;

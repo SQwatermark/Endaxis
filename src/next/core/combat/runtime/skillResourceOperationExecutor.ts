@@ -6,6 +6,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
+import type { SpGainKind, SpGainSource } from '../../game-data/operatorDefinition';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
@@ -22,6 +23,12 @@ export interface SkillResourceOperationDependencies {
   readonly getNonReturnedSpCost: () => number;
   /** 当前敌人的处决技力回复基础值；技能步骤只保存自身倍率。 */
   readonly finisherSpRecovery: number;
+  readonly onSpGained?: (event: {
+    readonly sourceOperatorId: string;
+    readonly source: SpGainSource;
+    readonly gainKind: SpGainKind;
+    readonly amount: number;
+  }) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -68,7 +75,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         step.parameters.spGainKind,
         step.parameters.spGainSource ?? 'default',
       );
-      this.#recordSpChange(change);
+      this.#recordSpChange(change, step.parameters.spGainSource ?? 'default');
       return true;
     }
 
@@ -95,7 +102,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'gainFinisherSp') {
       const baseValue = Math.fround(this.dependencies.finisherSpRecovery * step.parameters.factor);
       const change = this.dependencies.resources.gainSp(baseValue, 'gain', 'powerAttack');
-      this.#recordSpChange(change);
+      this.#recordSpChange(change, 'powerAttack');
       return true;
     }
 
@@ -130,7 +137,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.evaluate(condition, context);
   }
 
-  #recordSpChange(change: ReturnType<CombatResources['gainSp']>): void {
+  #recordSpChange(change: ReturnType<CombatResources['gainSp']>, source: SpGainSource): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
@@ -145,8 +152,17 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         previousValue: change.previousValue,
         currentValue: change.currentValue,
         gainKind: change.gainKind,
+        spGainSource: source,
       },
     });
+    if (change.actualValue > 0) {
+      this.dependencies.onSpGained?.({
+        sourceOperatorId: this.dependencies.sourceOperatorId,
+        source,
+        gainKind: change.gainKind,
+        amount: change.actualValue,
+      });
+    }
   }
 
   #recordUltimateEnergyChange(change: ReturnType<CombatResources['changeUltimateEnergy']>): void {

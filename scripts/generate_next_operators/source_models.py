@@ -636,6 +636,7 @@ class BuffDamageModifierSource:
     damageFeatureMatch: str | None = None
     damageFeatures: tuple[str, ...] = ()
     numberComparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
+    healthComparisons: tuple["HealthConditionSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -652,6 +653,17 @@ class BuffEventActionSource:
     sequences: tuple["SkillEventActionSequenceSource", ...] = ()
     finishAfterIgnited: bool = False
     runtimeTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
+    obtainAtbFilters: tuple["ObtainAtbFilterSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class ObtainAtbFilterSource:
+    """OnObtainAtb 中显式声明的技力来源与获取方式筛选。"""
+
+    checkObtainType: bool
+    obtainTypes: tuple[str, ...]
+    checkObtainMethod: bool
+    obtainMethods: tuple[str, ...]
 
 
 @dataclass(frozen=True)

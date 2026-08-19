@@ -2,7 +2,13 @@
  * 把构筑中启用的天赋、潜能统一解析为编译期养成计划，并将已支持的修正应用到技能程序。
  * 各编译阶段应复用这里的选择结果；运行时只消费修正后的程序，不再解释养成 DSL。
  */
-import type { CompiledOperatorPassiveProgram, CompiledSkillProgram } from './combatProgram';
+import type {
+  CompiledOperatorInitializationProgram,
+  CompiledOperatorPassiveProgram,
+  CompiledOperatorUpgradeEventProgram,
+  CompiledSkillProgram,
+  ResolvedCombatStep,
+} from './combatProgram';
 import type {
   LevelValues,
   OperatorDefinition,
@@ -114,7 +120,63 @@ export function compileOperatorPassivePrograms(
       });
     }
   }
-  return programs;
+  let patched = programs;
+  for (const upgrade of upgrades) {
+    for (const [modifierIndex, modifier] of (upgrade.definition.modifiers ?? []).entries()) {
+      if (modifier.kind !== 'patchPassiveBlackboard') continue;
+      const path = `${upgrade.source} '${upgrade.definition.key}'.modifiers[${modifierIndex}]`;
+      const targets = patched.filter(program => program.key === modifier.passiveSkillKey);
+      // 项目允许关闭天赋；此时潜能仍存在，但没有被动实例可供修改。
+      if (targets.length === 0) continue;
+      if (targets.length !== 1) {
+        throw new Error(`${path} expected one passive '${modifier.passiveSkillKey}'`);
+      }
+      const value = resolveUpgradeLevelValue(modifier.value, upgrade.level, `${path}.value`);
+      patched = patched.map(program => {
+        if (program.key !== modifier.passiveSkillKey) return program;
+        const previousValue = program.initialBlackboard[modifier.blackboardKey];
+        if (previousValue === undefined) {
+          throw new Error(
+            `${path} references missing passive blackboard '${modifier.blackboardKey}'`,
+          );
+        }
+        const nextValue =
+          modifier.operation === 'add'
+            ? previousValue + value
+            : modifier.operation === 'multiply'
+              ? previousValue * value
+              : value;
+        return {
+          ...program,
+          initialBlackboard: {
+            ...program.initialBlackboard,
+            [modifier.blackboardKey]: Math.fround(nextValue),
+          },
+        };
+      });
+    }
+  }
+  return patched;
+}
+
+/** 将直接附着 Buff 等养成初始化行为编译为独立的一次性程序。 */
+export function compileOperatorInitializationPrograms(
+  upgrades: readonly ActiveOperatorUpgrade[],
+): readonly CompiledOperatorInitializationProgram[] {
+  return upgrades.flatMap(upgrade => {
+    const sequence = upgrade.definition.initializationSequence;
+    if (sequence === undefined) return [];
+    return [
+      {
+        key: `${upgrade.source}:${upgrade.definition.key}`,
+        sequence: compileActionSequence(
+          sequence,
+          upgrade.level,
+          `${upgrade.source} '${upgrade.definition.key}'.initializationSequence`,
+        ),
+      },
+    ];
+  });
 }
 
 function patchSkillBlackboard(
@@ -124,12 +186,21 @@ function patchSkillBlackboard(
   path: string,
 ): readonly CompiledSkillProgram[] {
   const value = resolveUpgradeLevelValue(modifier.value, upgradeLevel, `${path}.value`);
-  const targets = programs.filter(program => program.skillGroupKey === modifier.skillGroupKey);
+  const targets = programs.filter(
+    program =>
+      program.skillGroupKey === modifier.skillGroupKey &&
+      (modifier.skillKey === undefined || program.skillId === modifier.skillKey),
+  );
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
   }
   return programs.map(program => {
-    if (program.skillGroupKey !== modifier.skillGroupKey) return program;
+    if (
+      program.skillGroupKey !== modifier.skillGroupKey ||
+      (modifier.skillKey !== undefined && program.skillId !== modifier.skillKey)
+    ) {
+      return program;
+    }
     const previousValue = program.initialBlackboard[modifier.blackboardKey] ?? 0;
     const nextValue =
       modifier.operation === 'add'
@@ -175,6 +246,157 @@ function multiplySkillCost(
   });
 }
 
+function addSkillCooldownFrames(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'addSkillCooldownFrames' }>,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  if (!Number.isInteger(modifier.frames)) {
+    throw new RangeError(`${path}.frames must be an integer frame delta`);
+  }
+  if (modifier.condition !== undefined) {
+    throw new Error(`${path}.condition is not connected to skill compilation`);
+  }
+  const isTarget = (program: CompiledSkillProgram): boolean =>
+    program.skillGroupKey === modifier.skillGroupKey &&
+    (modifier.skillKey === undefined || program.skillId === modifier.skillKey);
+  const targets = programs.filter(isTarget);
+  if (targets.length === 0) {
+    throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
+  }
+  for (const target of targets) {
+    if (target.cooldownFrames === undefined) {
+      throw new Error(`${path} target '${target.skillId}' has no cooldown`);
+    }
+    if (target.cooldownFrames + modifier.frames <= 0) {
+      throw new RangeError(`${path} makes target '${target.skillId}' cooldown non-positive`);
+    }
+  }
+  return programs.map(program =>
+    isTarget(program)
+      ? { ...program, cooldownFrames: program.cooldownFrames! + modifier.frames }
+      : program,
+  );
+}
+
+type CompiledReactionStep = Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }>;
+
+function patchKeyedReactionStep(
+  programs: readonly CompiledSkillProgram[],
+  skillGroupKey: string,
+  stepKey: string,
+  path: string,
+  patch: (step: CompiledReactionStep) => CompiledReactionStep,
+): readonly CompiledSkillProgram[] {
+  const targets = programs.filter(program => program.skillGroupKey === skillGroupKey);
+  if (targets.length === 0) {
+    throw new Error(`${path} references missing skill group '${skillGroupKey}'`);
+  }
+  let matchCount = 0;
+  const result = programs.map(program => {
+    if (program.skillGroupKey !== skillGroupKey) return program;
+    return {
+      ...program,
+      timelineActions: program.timelineActions.map(action => ({
+        ...action,
+        sequence: {
+          steps: action.sequence.steps.map(step => {
+            if (step.key !== stepKey) return step;
+            if (step.kind !== 'applyElementalReaction') {
+              throw new Error(
+                `${path} step '${stepKey}' is '${step.kind}', expected 'applyElementalReaction'`,
+              );
+            }
+            matchCount += 1;
+            return patch(step);
+          }),
+        },
+      })),
+    };
+  });
+  if (matchCount !== 1) {
+    throw new Error(
+      `${path} expected exactly one root reaction step '${stepKey}', found ${matchCount}`,
+    );
+  }
+  return result;
+}
+
+function multiplyEffectDuration(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'multiplyEffectDuration' }>,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  requireMultiplier(modifier.multiplier, `${path}.multiplier`);
+  return patchKeyedReactionStep(programs, modifier.skillGroupKey, modifier.stepKey, path, step => ({
+    ...step,
+    parameters: {
+      ...step.parameters,
+      durationSeconds: step.parameters.durationSeconds * modifier.multiplier,
+    },
+  }));
+}
+
+function setEffectiveness(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'setEffectiveness' }>,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  requireMultiplier(modifier.value, `${path}.value`);
+  return patchKeyedReactionStep(programs, modifier.skillGroupKey, modifier.stepKey, path, step => ({
+    ...step,
+    parameters: { ...step.parameters, effectiveness: modifier.value },
+  }));
+}
+
+function addSkillStat(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'addSkillStat' }>,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  if (!Number.isFinite(modifier.value)) {
+    throw new TypeError(`${path}.value must be finite`);
+  }
+  const targets = programs.filter(program => program.skillGroupKey === modifier.skillGroupKey);
+  if (targets.length === 0) {
+    throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
+  }
+  return programs.map(program => {
+    if (program.skillGroupKey !== modifier.skillGroupKey) return program;
+    return {
+      ...program,
+      statModifiers: {
+        ...program.statModifiers,
+        criticalRate: (program.statModifiers?.criticalRate ?? 0) + modifier.value,
+      },
+    };
+  });
+}
+
+function addConditionalDamage(
+  programs: readonly CompiledSkillProgram[],
+  modifier: Extract<UpgradeModifierDefinition, { kind: 'addConditionalDamage' }>,
+  upgradeLevel: number,
+  path: string,
+): readonly CompiledSkillProgram[] {
+  const condition = modifier.condition;
+  if (condition.kind !== 'targetStaggered' || condition.target !== 'enemy') {
+    throw new Error(
+      `${path}.condition only supports targetStaggered for the enemy damage snapshot`,
+    );
+  }
+  const value = resolveUpgradeLevelValue(modifier.values, upgradeLevel, `${path}.values`);
+  if (programs.length === 0) throw new Error(`${path} requires at least one compiled skill`);
+  return programs.map(program => ({
+    ...program,
+    statModifiers: {
+      ...program.statModifiers,
+      damageToStaggeredEnemyIncrease:
+        (program.statModifiers?.damageToStaggeredEnemyIncrease ?? 0) + value,
+    },
+  }));
+}
+
 /**
  * 按养成声明顺序修正技能程序。面板类 modifier 由面板编译器消费；其余还没做通的类型必须失败。
  */
@@ -195,13 +417,56 @@ export function applyOperatorUpgradeSkillPatches(
         patched = patchSkillBlackboard(patched, modifier, upgrade.level, path);
         continue;
       }
+      if (modifier.kind === 'addSkillCooldownFrames') {
+        patched = addSkillCooldownFrames(patched, modifier, path);
+        continue;
+      }
+      if (modifier.kind === 'patchPassiveBlackboard') continue;
+      if (modifier.kind === 'multiplyEffectDuration') {
+        patched = multiplyEffectDuration(patched, modifier, path);
+        continue;
+      }
+      if (modifier.kind === 'setEffectiveness') {
+        patched = setEffectiveness(patched, modifier, path);
+        continue;
+      }
+      if (modifier.kind === 'addSkillStat') {
+        patched = addSkillStat(patched, modifier, path);
+        continue;
+      }
+      if (modifier.kind === 'addConditionalDamage') {
+        patched = addConditionalDamage(patched, modifier, upgrade.level, path);
+        continue;
+      }
       throw new Error(`${path} kind '${modifier.kind}' is not connected to skill compilation`);
-    }
-    if (upgrade.definition.eventHandlers?.length) {
-      throw new Error(
-        `${upgrade.source} '${upgrade.definition.key}' has event handlers, but upgrade event compilation is not connected`,
-      );
     }
   }
   return patched;
+}
+
+/**
+ * 将启用养成项的同步事件动作编译为独立程序；事件监听不伪装成可释放技能。
+ */
+export function compileOperatorUpgradeEventPrograms(
+  upgrades: readonly ActiveOperatorUpgrade[],
+): readonly CompiledOperatorUpgradeEventProgram[] {
+  const programs: CompiledOperatorUpgradeEventProgram[] = [];
+  const keys = new Set<string>();
+  for (const upgrade of upgrades) {
+    for (const [index, handler] of (upgrade.definition.eventHandlers ?? []).entries()) {
+      const key = `${upgrade.source}:${upgrade.definition.key}:${index}`;
+      if (keys.has(key)) throw new Error(`duplicate operator upgrade event program '${key}'`);
+      keys.add(key);
+      programs.push({
+        key,
+        event: handler.event,
+        sequence: compileActionSequence(
+          handler.sequence,
+          upgrade.level,
+          `${upgrade.source} '${upgrade.definition.key}'.eventHandlers[${index}].sequence`,
+        ),
+      });
+    }
+  }
+  return programs;
 }

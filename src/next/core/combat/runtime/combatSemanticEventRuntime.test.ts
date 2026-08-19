@@ -288,4 +288,70 @@ describe('CombatSemanticEventRuntime', () => {
     expect(executorCreations).toBe(1);
     expect(received).toEqual(['handled']);
   });
+
+  it('routes skill SP gains only to their source operator and exact gain method', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    for (const ownerOperatorId of ['operator:a', 'operator:b']) {
+      runtime.register({
+        ownerOperatorId,
+        trigger: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+        phase: 'dataAction',
+        handle: () => received.push(ownerOperatorId),
+      });
+    }
+
+    runtime.emit({
+      kind: 'spGained',
+      sourceOperatorId: 'operator:b',
+      source: 'normalAttack',
+      gainKind: 'gain',
+      amount: 10,
+    });
+    runtime.emit({
+      kind: 'spGained',
+      sourceOperatorId: 'operator:b',
+      source: 'skill',
+      gainKind: 'refund',
+      amount: 10,
+    });
+    runtime.emit({
+      kind: 'spGained',
+      sourceOperatorId: 'operator:b',
+      source: 'skill',
+      gainKind: 'gain',
+      amount: 10,
+    });
+
+    expect(received).toEqual(['operator:b']);
+  });
+
+  it('matches an upgrade reaction event only for its owner and reaction', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    runtime.register({
+      ownerOperatorId: 'operator:a',
+      trigger: { kind: 'reactionApplied', reaction: 'electrification' },
+      phase: 'dataAction',
+      handle: () => received.push('matched'),
+    });
+
+    runtime.emit({
+      kind: 'reactionApplied',
+      sourceOperatorId: 'operator:b',
+      reaction: 'electrification',
+    });
+    runtime.emit({
+      kind: 'reactionApplied',
+      sourceOperatorId: 'operator:a',
+      reaction: 'corrosion',
+    });
+    runtime.emit({
+      kind: 'reactionApplied',
+      sourceOperatorId: 'operator:a',
+      reaction: 'electrification',
+    });
+
+    expect(received).toEqual(['matched']);
+  });
 });

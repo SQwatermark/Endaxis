@@ -19,6 +19,7 @@ from source_models import (
     BuffEventTargetGroupWriteSource,
     BuffSkillReplacementSource,
     EventBuffApplicationSource,
+    ObtainAtbFilterSource,
     SkillEventActionSequenceSource,
     SkillEventListenerSource,
     TargetGroupWriteSource,
@@ -111,6 +112,40 @@ def parse_buff_event_actions(
             ordered_action_types = tuple(
                 action_name(item["$type"]) for item in walked_actions
             )
+            obtain_atb_filters: list[ObtainAtbFilterSource] = []
+            for item in walked_actions:
+                if action_name(item["$type"]) != "CheckObtainAtbType":
+                    continue
+                item_path = f"{event_path}.CheckObtainAtbType"
+                expected_fields = {
+                    "$type", "isEnable", "priorityLevel", "priorityOffset",
+                    "serverActionIndex", "checkObtainType", "obtainTypeList",
+                    "checkObtainMethod", "obtainMethodList",
+                }
+                if set(item) != expected_fields:
+                    raise ValueError(f"{item_path}: unexpected fields {sorted(item)}")
+                obtain_types = require_list(
+                    item.get("obtainTypeList"), f"{item_path}.obtainTypeList"
+                )
+                obtain_methods = require_list(
+                    item.get("obtainMethodList"), f"{item_path}.obtainMethodList"
+                )
+                if not all(isinstance(value, str) and value for value in obtain_types):
+                    raise ValueError(f"{item_path}.obtainTypeList: expected strings")
+                if not all(isinstance(value, str) and value for value in obtain_methods):
+                    raise ValueError(f"{item_path}.obtainMethodList: expected strings")
+                obtain_atb_filters.append(
+                    ObtainAtbFilterSource(
+                        checkObtainType=require_bool(
+                            item.get("checkObtainType"), f"{item_path}.checkObtainType"
+                        ),
+                        obtainTypes=tuple(obtain_types),
+                        checkObtainMethod=require_bool(
+                            item.get("checkObtainMethod"), f"{item_path}.checkObtainMethod"
+                        ),
+                        obtainMethods=tuple(obtain_methods),
+                    )
+                )
             for_each_actions: list[BuffEventForEachSource] = []
             event_target_group_writes: list[BuffEventTargetGroupWriteSource] = []
             for item in walked_actions:
@@ -363,6 +398,7 @@ def parse_buff_event_actions(
                     targetGroupWrites=tuple(event_target_group_writes),
                     sequences=tuple(parsed_sequences),
                     runtimeTargetGroupWrites=tuple(runtime_target_group_writes),
+                    obtainAtbFilters=tuple(obtain_atb_filters),
                 )
             )
     return tuple(result)

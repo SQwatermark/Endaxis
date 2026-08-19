@@ -7,9 +7,11 @@ import unittest
 from unittest.mock import patch
 
 from audit_operator_progression import (
+    audit_configured_operator_progression,
     audit_effect,
     audit_skill_parameter_candidates,
     collect_skill_group_types,
+    progression_conversion_item,
     render_json,
 )
 from progression_renderer import (
@@ -73,6 +75,18 @@ def skill_parameter_entry(*, skill_id: str, value: float) -> dict[str, object]:
     return entry
 
 
+def skill_cooldown_add_entry(*, skill_id: str, seconds: float) -> dict[str, object]:
+    entry = effect_entry(attr_type=0, value=0)
+    entry["modifyType"] = 2
+    entry["skillParamModifier"] = {
+        "modifyType": 1,
+        "paramType": 2,
+        "paramValue": seconds,
+        "skillId": skill_id,
+    }
+    return entry
+
+
 def skill_blackboard_entry(
     *, skill_id: str, blackboard_key: str, value: float
 ) -> dict[str, object]:
@@ -90,6 +104,85 @@ def skill_blackboard_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_progression_audit_separates_definition_conversion_from_simulation(self) -> None:
+        reaction_event = progression_conversion_item(
+            source="potential",
+            key="reaction-event",
+            compiler="attackAfterReaction",
+            effect_ids=("potential.event",),
+        )
+        connected = progression_conversion_item(
+            source="potential",
+            key="attributes",
+            compiler="staticAttributes",
+            effect_ids=("potential.effect",),
+        )
+        unmodeled = progression_conversion_item(
+            source="talent",
+            key="unknown",
+            compiler="unmodeledTalent",
+            effect_ids=("talent.unknown",),
+        )
+
+        self.assertTrue(reaction_event["definitionConverted"])
+        self.assertTrue(reaction_event["standardSimulationCompileReady"])
+        self.assertTrue(connected["definitionConverted"])
+        self.assertTrue(connected["standardSimulationCompileReady"])
+        self.assertFalse(unmodeled["definitionConverted"])
+        self.assertEqual(unmodeled["blocker"], "unmodeled-source-effect")
+
+    def test_configured_progression_audit_infers_ultimate_cost_consumer(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "node": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 1,
+                        "talentEffectId": "talent.effect",
+                    }
+                }
+            },
+            "skillGroupMap": {
+                "ultimate": {
+                    "skillGroupType": 2,
+                    "skillIdList": ["skill.ultimate"],
+                }
+            },
+        }
+        audited = audit_configured_operator_progression(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "talents": [
+                    {"index": 0, "key": "talent", "compile": "skillBlackboardPatch"}
+                ],
+                "potentials": [{"key": "cost"}],
+            },
+            growth,
+            {
+                "potentialUnlockBundle": [
+                    {"level": 1, "potentialEffectId": "potential.effect"}
+                ]
+            },
+            {
+                "talent.effect": {"dataList": []},
+                "potential.effect": {
+                    "dataList": [
+                        skill_parameter_entry(skill_id="skill.ultimate", value=0.85)
+                    ]
+                },
+            },
+        )
+
+        self.assertEqual(audited["talent"]["definitionConvertedCount"], 1)
+        self.assertEqual(audited["talent"]["standardSimulationCompileReadyCount"], 1)
+        self.assertEqual(audited["potential"]["definitionConvertedCount"], 1)
+        self.assertEqual(
+            audited["potential"]["standardSimulationCompileReadyCount"], 1
+        )
+        self.assertEqual(audited["potentials"][0]["compiler"], "multiplyUltimateCost")
+        self.assertTrue(audited["standardSimulationCompileReady"])
+
     def test_unmodeled_talent_can_still_render_a_proven_attached_passive(self) -> None:
         growth = {
             "talentNodeMap": {
@@ -762,6 +855,7 @@ class ProgressionRendererTests(unittest.TestCase):
                     {"key": "potential1", "compile": "skillBlackboardPatch"}
                 ],
                 "skillGroups": [
+                    {"key": "battleSkill", "skillKeys": ["battleSkill"]},
                     {"key": "ultimate", "skillKeys": ["ultimate"]}
                 ],
             },
@@ -798,6 +892,92 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertEqual(rendered[0].count("kind: 'patchSkillBlackboard'"), 2)
         self.assertIn("blackboardKey: 'damage'", rendered[0])
         self.assertIn("blackboardKey: 'stagger'", rendered[0])
+
+    def test_potential_can_combine_variant_cooldown_and_blackboard_patches(self) -> None:
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [
+                    {"key": "potential3", "compile": "skillCooldownAndBlackboardPatch"}
+                ],
+                "skillGroups": [
+                    {"key": "comboSkill", "skillKeys": ["comboSkill1", "comboSkill2"]},
+                    {"key": "ultimate", "skillKeys": ["ultimate"]},
+                ],
+            },
+            [
+                SimpleNamespace(key="comboSkill1", skillId="skill.combo.1"),
+                SimpleNamespace(key="comboSkill2", skillId="skill.combo.2"),
+                SimpleNamespace(key="ultimate", skillId="skill.ultimate"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 3, "potentialEffectId": "effect.potential3"}
+                    ]
+                }
+            },
+            {
+                "effect.potential3": {
+                    "dataList": [
+                        skill_cooldown_add_entry(skill_id="skill.combo.1", seconds=-2),
+                        skill_blackboard_entry(
+                            skill_id="skill.combo.1", blackboard_key="atk_scale", value=1.3
+                        ),
+                        skill_blackboard_entry(
+                            skill_id="skill.combo.2", blackboard_key="atb", value=1.15
+                        ),
+                    ]
+                }
+            },
+        )
+
+        self.assertIn("kind: 'addSkillCooldownFrames'", rendered[0])
+        self.assertIn("skillGroupKey: 'comboSkill'", rendered[0])
+        self.assertIn("skillKey: 'comboSkill1'", rendered[0])
+        self.assertIn("frames: -60", rendered[0])
+        self.assertEqual(rendered[0].count("kind: 'patchSkillBlackboard'"), 2)
+        self.assertIn("skillKey: 'comboSkill2'", rendered[0])
+
+    def test_potential_attached_buff_renders_as_upgrade_initialization(self) -> None:
+        entry = effect_entry(attr_type=0, value=0)
+        entry["modifyType"] = 5
+        entry["attachBuff"] = {
+            "buffId": "buff.potential",
+            "blackboard": [{"key": "ratio", "value": 0.5, "valueStr": ""}],
+        }
+        definition = SimpleNamespace(
+            buffId="buff.potential",
+            blackboard=(SimpleNamespace(key="ratio"),),
+        )
+        with patch(
+            "progression_renderer.compile_inline_buff_definition",
+            return_value="stackingType: 'unique',\npriority: 0,\nblackboard: { 'ratio': 0.5 },",
+        ):
+            rendered = render_potentials(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "potentials": [{"key": "potential1", "compile": "attachedBuff"}],
+                    "skillGroups": [{"key": "ultimate", "skillKeys": ["ultimate"]}],
+                },
+                [SimpleNamespace(key="ultimate", skillId="skill.ultimate")],
+                {
+                    "char": {
+                        "potentialUnlockBundle": [
+                            {"level": 1, "potentialEffectId": "effect.potential1"}
+                        ]
+                    }
+                },
+                {"effect.potential1": {"dataList": [entry]}},
+                buff_definitions={"buff.potential": definition},
+            )
+
+        self.assertIn("initializationSequence: sequence(", rendered[0])
+        self.assertIn("buffId: 'buff.potential'", rendered[0])
+        self.assertIn("target: 'caster'", rendered[0])
+        self.assertIn("'ratio': { kind: 'constant', value: 0.5 }", rendered[0])
 
     def test_skill_group_index_rejects_conflicting_group_types(self) -> None:
         growth = {

@@ -22,6 +22,8 @@ import type {
 import { compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
+  compileOperatorInitializationPrograms,
+  compileOperatorUpgradeEventPrograms,
   compileOperatorPassivePrograms,
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
@@ -212,7 +214,9 @@ function compileResolvedTimelineTracks(
       operatorId: track.id,
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       skillSlotGroups: compileSkillSlotGroups(operator),
+      initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
       passivePrograms: compileOperatorPassivePrograms(activeUpgrades),
+      upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
       skills: applyOperatorUpgradeSkillPatches(skills, activeUpgrades),
     });
   }

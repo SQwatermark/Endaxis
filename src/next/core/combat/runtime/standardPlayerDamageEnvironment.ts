@@ -50,6 +50,7 @@ import type { FrameRuntime } from './combatSimulation';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
 import { gameplayTagId } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
+import { compareCombatNumbers } from './numericComparison';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -244,8 +245,13 @@ export class StandardPlayerDamageEnvironment {
           timing,
           side,
           damageContext,
-          condition =>
-            this.#evaluateDamageModifierCondition(condition, operatorBuffs, damageContext),
+          (condition, resolveNumber) =>
+            this.#evaluateDamageModifierCondition(
+              condition,
+              operatorBuffs,
+              damageContext,
+              resolveNumber,
+            ),
         ),
       addInstantAttributeModifier: (_side, request) => {
         throw new Error(
@@ -315,6 +321,12 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       container: this.#reactions,
+      emitReactionApplied: reaction =>
+        context.semanticEvents.emit({
+          kind: 'reactionApplied',
+          sourceOperatorId: context.program.operatorId,
+          reaction,
+        }),
       delegate: this.#createInflictionExecutor(context),
     });
   }
@@ -323,6 +335,7 @@ export class StandardPlayerDamageEnvironment {
     condition: DamageModifierExternalCondition,
     operatorBuffs: CombatBuffContainer<string>,
     damageContext: import('../damage/playerDamageContext').PlayerDamageContext,
+    resolveNumber: (value: import('../damage/damageModifiers').DamageModifierNumber) => number,
   ): boolean {
     switch (condition.kind) {
       case 'entityTagMatch': {
@@ -343,6 +356,13 @@ export class StandardPlayerDamageEnvironment {
         return matchDamageProperties(damageContext.tags, condition.tags, condition.match);
       case 'eventDamageFeaturesMatch':
         return matchDamageProperties(damageContext.features, condition.features, condition.match);
+      case 'targetHealthCompare': {
+        const current =
+          condition.valueType === 'ratio'
+            ? this.#enemyVitals.health / this.#enemyVitals.maxHealth
+            : this.#enemyVitals.health;
+        return compareCombatNumbers(current, resolveNumber(condition.value), condition.operator);
+      }
     }
   }
 

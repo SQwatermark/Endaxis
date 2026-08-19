@@ -151,7 +151,8 @@ export const lifengGeneratedSource = {
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
-          "numberComparisons": []
+          "numberComparisons": [],
+          "healthComparisons": []
         }
       ],
       "directDamageHits": [],

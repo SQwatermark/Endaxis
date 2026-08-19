@@ -282,8 +282,9 @@ def _render_attached_passive_skills(
 def _parse_skill_blackboard_patch_entry(
     entry: dict[str, Any],
     entry_path: str,
+    operator: dict[str, Any],
     skills: list[SkillSource],
-) -> tuple[str, str, str, float]:
+) -> tuple[str, str | None, str, str, float]:
     """解析只包含 skillBbModifier 的养成条目；目标技能必须能对应到稳定技能组。"""
     payload_kinds = _effect_payload_kinds(entry, entry_path)
     if payload_kinds != ("skillBbModifier",):
@@ -294,7 +295,7 @@ def _parse_skill_blackboard_patch_entry(
     skill_id = modifier.get("skillId")
     if not isinstance(skill_id, str) or not skill_id:
         raise ValueError(f"{entry_path}.skillBbModifier.skillId: expected non-empty skill id")
-    group_key = skill_key_by_id(skills, skill_id)
+    group_key, skill_key = skill_patch_target_by_id(operator, skills, skill_id)
     blackboard_key = modifier.get("bbKey")
     if not isinstance(blackboard_key, str) or not blackboard_key:
         raise ValueError(f"{entry_path}.skillBbModifier.bbKey: expected non-empty blackboard key")
@@ -306,12 +307,13 @@ def _parse_skill_blackboard_patch_entry(
     value = float(require_number(modifier.get("floatValue"), f"{entry_path}.skillBbModifier.floatValue"))
     if not math.isfinite(value):
         raise ValueError(f"{entry_path}.skillBbModifier.floatValue: expected finite value")
-    return group_key, blackboard_key, operation, value
+    return group_key, skill_key, blackboard_key, operation, value
 
 
 def _render_skill_blackboard_patch_modifiers(
     entries: list[dict[str, Any]],
     path: str,
+    operator: dict[str, Any],
     skills: list[SkillSource],
     *,
     multi_level: bool,
@@ -319,21 +321,21 @@ def _render_skill_blackboard_patch_modifiers(
     """渲染 patchSkillBlackboard modifiers；multi_level 为 true 时 value 按等级数组展开。"""
     if not entries:
         raise ValueError(f"{path}: expected at least one skillBbModifier entry")
-    order: list[tuple[str, str, str]] = []
-    values_by_key: dict[tuple[str, str, str], list[float]] = {}
+    order: list[tuple[str, str | None, str, str]] = []
+    values_by_key: dict[tuple[str, str | None, str, str], list[float]] = {}
     for entry_index, entry in enumerate(entries):
         entry_path = f"{path}[{entry_index}]"
-        group_key, blackboard_key, operation, value = _parse_skill_blackboard_patch_entry(
-            entry, entry_path, skills
+        group_key, skill_key, blackboard_key, operation, value = _parse_skill_blackboard_patch_entry(
+            entry, entry_path, operator, skills
         )
-        key = (group_key, blackboard_key, operation)
+        key = (group_key, skill_key, blackboard_key, operation)
         if key not in values_by_key:
             values_by_key[key] = []
             order.append(key)
         values_by_key[key].append(value)
     lines = ["  modifiers: ["]
     for key in order:
-        group_key, blackboard_key, operation = key
+        group_key, skill_key, blackboard_key, operation = key
         values = values_by_key[key]
         rendered_value = values if multi_level else values[0]
         lines.extend(
@@ -341,6 +343,7 @@ def _render_skill_blackboard_patch_modifiers(
                 "    {",
                 "      kind: 'patchSkillBlackboard',",
                 f"      skillGroupKey: {ts_inline_literal(group_key)},",
+                *([] if skill_key is None else [f"      skillKey: {ts_inline_literal(skill_key)},"]),
                 f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
                 f"      operation: {ts_inline_literal(operation)},",
                 f"      value: {ts_inline_literal(rendered_value)},",
@@ -349,6 +352,245 @@ def _render_skill_blackboard_patch_modifiers(
         )
     lines.append("  ],")
     return "\n".join(lines)
+
+
+def _parse_skill_cooldown_add_entry(
+    entry: dict[str, Any],
+    entry_path: str,
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+) -> tuple[str, str | None, int]:
+    """解析 ChangeSkillParam/CoolDown/Add，并把原生秒数严格换算成 30fps 帧差。"""
+    if _effect_payload_kinds(entry, entry_path) != ("skillParamModifier",):
+        raise ValueError(f"{entry_path}: expected only skillParamModifier")
+    modifier = require_dict(entry.get("skillParamModifier"), f"{entry_path}.skillParamModifier")
+    if entry.get("modifyType") != 2 or modifier.get("paramType") != 2 or modifier.get("modifyType") != 1:
+        raise ValueError(f"{entry_path}: expected ChangeSkillParam/CoolDown/Add")
+    skill_id = modifier.get("skillId")
+    if not isinstance(skill_id, str) or not skill_id:
+        raise ValueError(f"{entry_path}.skillParamModifier.skillId: expected non-empty skill id")
+    seconds = float(
+        require_number(modifier.get("paramValue"), f"{entry_path}.skillParamModifier.paramValue")
+    )
+    frames_float = seconds * 30
+    frames = round(frames_float)
+    if not math.isfinite(frames_float) or not math.isclose(frames_float, frames, abs_tol=1e-6):
+        raise ValueError(f"{entry_path}.skillParamModifier.paramValue: not representable at 30fps")
+    group_key, skill_key = skill_patch_target_by_id(operator, skills, skill_id)
+    return group_key, skill_key, frames
+
+
+def _render_skill_cooldown_and_blackboard_patch_modifiers(
+    entries: list[dict[str, Any]],
+    path: str,
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+) -> str:
+    cooldown_entries: list[tuple[int, dict[str, Any]]] = []
+    blackboard_entries: list[dict[str, Any]] = []
+    for index, entry in enumerate(entries):
+        payload_kinds = _effect_payload_kinds(entry, f"{path}[{index}]")
+        if payload_kinds == ("skillParamModifier",):
+            cooldown_entries.append((index, entry))
+        elif payload_kinds == ("skillBbModifier",):
+            blackboard_entries.append(entry)
+        else:
+            raise ValueError(f"{path}[{index}]: unsupported mixed progression payload {list(payload_kinds)!r}")
+    if len(cooldown_entries) != 1 or not blackboard_entries:
+        raise ValueError(f"{path}: expected one cooldown patch and at least one blackboard patch")
+    index, cooldown_entry = cooldown_entries[0]
+    group_key, skill_key, frames = _parse_skill_cooldown_add_entry(
+        cooldown_entry, f"{path}[{index}]", operator, skills
+    )
+    blackboard_body = _render_skill_blackboard_patch_modifiers(
+        blackboard_entries, path, operator, skills, multi_level=False
+    ).splitlines()
+    lines = [
+        "  modifiers: [",
+        "    {",
+        "      kind: 'addSkillCooldownFrames',",
+        f"      skillGroupKey: {ts_inline_literal(group_key)},",
+        *([] if skill_key is None else [f"      skillKey: {ts_inline_literal(skill_key)},"]),
+        f"      frames: {frames},",
+        "    },",
+        *blackboard_body[1:-1],
+        "  ],",
+    ]
+    return "\n".join(lines)
+
+
+def _render_attached_buff_initialization(
+    entry: dict[str, Any],
+    path: str,
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    """将原生 PotentialModifyType.AddBuff 渲染为独立养成初始化序列。"""
+    if _effect_payload_kinds(entry, path) != ("attachBuff",):
+        raise ValueError(f"{path}: expected only attachBuff")
+    if entry.get("modifyType") != 5:
+        raise ValueError(f"{path}.modifyType: expected AddBuff(5)")
+    if require_list(entry.get("activeCondition"), f"{path}.activeCondition"):
+        raise ValueError(f"{path}.activeCondition: conditional attached Buff is not supported")
+    attach = require_dict(entry.get("attachBuff"), f"{path}.attachBuff")
+    buff_id = attach.get("buffId")
+    if not isinstance(buff_id, str) or not buff_id:
+        raise ValueError(f"{path}.attachBuff.buffId: expected non-empty id")
+    definition = buff_definitions.get(buff_id)
+    if definition is None:
+        raise ValueError(f"{path}: missing resolved Buff {buff_id!r}")
+    declared_keys = {item.key for item in definition.blackboard}
+    assignments: list[tuple[str, int | float]] = []
+    for index, raw_item in enumerate(
+        require_list(attach.get("blackboard"), f"{path}.attachBuff.blackboard")
+    ):
+        item_path = f"{path}.attachBuff.blackboard[{index}]"
+        item = require_dict(raw_item, item_path)
+        key = item.get("key")
+        if not isinstance(key, str) or not key:
+            raise ValueError(f"{item_path}.key: expected non-empty string")
+        if key not in declared_keys:
+            raise ValueError(f"{item_path}.key: Buff {buff_id!r} has no blackboard {key!r}")
+        if any(existing_key == key for existing_key, _ in assignments):
+            raise ValueError(f"{item_path}.key: duplicate {key!r}")
+        assignments.append((key, require_number(item.get("value"), f"{item_path}.value")))
+    lines = [
+        "  initializationSequence: sequence(",
+        "    step('applyBuff', {",
+        f"      buffId: {ts_inline_literal(buff_id)},",
+        "      definition: {",
+        *(
+            "        " + line
+            for line in compile_inline_buff_definition(definition, path).splitlines()
+        ),
+        "      },",
+        "      target: 'caster',",
+        "      inheritSourceSkillCastInfo: false,",
+    ]
+    if assignments:
+        lines.append("      blackboardAssignments: {")
+        for key, value in assignments:
+            lines.append(
+                f"        {ts_inline_literal(key)}: {{ kind: 'constant', value: {ts_inline_literal(value)} }},"
+            )
+        lines.append("      },")
+    lines.extend(["    }),", "  ),"])
+    return "\n".join(lines)
+
+
+def _render_skill_sp_gain_attack_stack(
+    entry: dict[str, Any],
+    path: str,
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    """转换秋栗“技能回复技力”监听器；任何来源、方法或 Buff 形状漂移都失败。"""
+    if _effect_payload_kinds(entry, path) != ("attachBuff",) or entry.get("modifyType") != 5:
+        raise ValueError(f"{path}: expected one AddBuff payload")
+    if require_list(entry.get("activeCondition"), f"{path}.activeCondition"):
+        raise ValueError(f"{path}.activeCondition: expected no build condition")
+    attach = require_dict(entry.get("attachBuff"), f"{path}.attachBuff")
+    root_id = attach.get("buffId")
+    root = buff_definitions.get(root_id) if isinstance(root_id, str) else None
+    if root is None or root.lifecycle is None:
+        raise ValueError(f"{path}: missing listener Buff {root_id!r}")
+    values: dict[str, float] = {}
+    for index, raw_item in enumerate(
+        require_list(attach.get("blackboard"), f"{path}.attachBuff.blackboard")
+    ):
+        item_path = f"{path}.attachBuff.blackboard[{index}]"
+        item = require_dict(raw_item, item_path)
+        key = item.get("key")
+        if not isinstance(key, str) or not key or key in values:
+            raise ValueError(f"{item_path}.key: expected unique non-empty string")
+        values[key] = float(require_number(item.get("value"), f"{item_path}.value"))
+    if set(values) != {"atk_up", "duration", "max_stack"}:
+        raise ValueError(f"{path}: unexpected listener blackboard {sorted(values)}")
+
+    empty_root_fields = (
+        root.applyTagIds, root.extendTagIds, root.attributeModifiers, root.damageModifiers,
+        root.directDamageHits, root.inflictions, root.conditionalActions,
+        root.blackboardCalculations, root.blackboardMutations, root.buffBlackboardReads,
+        root.buffFinishes, root.igniteEventActions, root.resourceGains, root.combatActions,
+        root.unparsedPayloads, root.auraActions, root.invokedAbilityEntitySkills,
+        root.auxiliaryActions, root.targetGroupWrites, root.skillReplacements,
+    )
+    if (
+        root.lifecycle.lifeType != "Infinity"
+        or root.lifecycle.stackingType != "Unique"
+        or any(empty_root_fields)
+        or len(root.eventActions) != 1
+    ):
+        raise ValueError(f"{path}: listener Buff contains unsupported behavior")
+    event = root.eventActions[0]
+    if (
+        event.eventSource != "ability"
+        or event.event != "OnObtainAtb"
+        or event.orderedActionTypes != ("CheckObtainAtbType", "CreateBuffAction")
+        or len(event.obtainAtbFilters) != 1
+        or event.obtainAtbFilters[0].checkObtainType is not True
+        or event.obtainAtbFilters[0].obtainTypes != ("Skill",)
+        or event.obtainAtbFilters[0].checkObtainMethod is not True
+        or event.obtainAtbFilters[0].obtainMethods != ("Gain",)
+        or len(event.sequences) != 1
+        or len(event.buffApplications) != 1
+    ):
+        raise ValueError(f"{path}: unsupported OnObtainAtb listener shape")
+    sequence_source = event.sequences[0]
+    application = event.buffApplications[0].payload
+    if (
+        sequence_source.onlyMainOperator
+        or sequence_source.onlyGuard
+        or sequence_source.priority != 0
+        or len(sequence_source.actions) != 1
+        or application.targetSource != "Owner"
+        or application.targetGroupKey
+        or application.buffSource != "ActionOwner"
+        or application.buffSourceContextKey
+        or application.inheritSourceSkillCastInfo is not True
+        or application.count.blackboardKey is not None
+        or application.count.value != 1
+        or len(application.buffs) != 1
+    ):
+        raise ValueError(f"{path}: unsupported listener Buff application")
+    child_application = application.buffs[0]
+    child = buff_definitions.get(child_application.buffId)
+    if child is None or child.lifecycle is None:
+        raise ValueError(f"{path}: missing child Buff {child_application.buffId!r}")
+    assignments = child_application.blackboardAssignments
+    if set(assignments) != {"atk_up", "duration"} or any(
+        scalar.blackboardKey != key for key, scalar in assignments.items()
+    ):
+        raise ValueError(f"{path}: child Buff assignments do not forward listener values")
+    if (
+        child.lifecycle.lifeType != "Limited"
+        or child.lifecycle.stackingType != "EnhanceAndRefresh"
+        or child.lifecycle.maxStackCount.blackboardKey is not None
+        or child.lifecycle.maxStackCount.value != values["max_stack"]
+    ):
+        raise ValueError(f"{path}: child Buff stack lifecycle does not match potential values")
+    definition = compile_inline_buff_definition(child, path)
+    return "\n".join(
+        [
+            "  eventHandlers: [",
+            "    {",
+            "      event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },",
+            "      sequence: sequence(",
+            "        step('applyBuff', {",
+            f"          buffId: {ts_inline_literal(child.buffId)},",
+            "          definition: {",
+            *("            " + line for line in definition.splitlines()),
+            "          },",
+            "          target: 'caster',",
+            "          inheritSourceSkillCastInfo: true,",
+            "          blackboardAssignments: {",
+            f"            'atk_up': {{ kind: 'constant', value: {ts_inline_literal(values['atk_up'])} }},",
+            f"            'duration': {{ kind: 'constant', value: {ts_inline_literal(values['duration'])} }},",
+            "          },",
+            "        }),",
+            "      ),",
+            "    },",
+            "  ],",
+        ]
+    )
 
 
 def parse_static_attribute_progression(
@@ -609,6 +851,26 @@ def skill_key_by_id(skills: list[SkillSource], skill_id: str) -> str:
     return matches[0]
 
 
+def skill_patch_target_by_id(
+    operator: dict[str, Any], skills: list[SkillSource], skill_id: str
+) -> tuple[str, str | None]:
+    """把原生技能 ID 映射到稳定技能组；多形态组同时保留具体生成技能 key。"""
+    skill_key = skill_key_by_id(skills, skill_id)
+    raw_groups = require_list(operator.get("skillGroups", []), f"{operator['slug']}.skillGroups")
+    if not raw_groups:
+        return skill_key, None
+    matches: list[tuple[str, list[Any]]] = []
+    for index, raw_group in enumerate(raw_groups):
+        group = require_dict(raw_group, f"{operator['slug']}.skillGroups[{index}]")
+        skill_keys = require_list(group.get("skillKeys"), f"{operator['slug']}.skillGroups[{index}].skillKeys")
+        if skill_key in skill_keys:
+            matches.append((str(group["key"]), skill_keys))
+    if len(matches) != 1:
+        raise ValueError(f"operator skills: expected one group containing {skill_key!r}")
+    group_key, group_skill_keys = matches[0]
+    return group_key, skill_key if len(group_skill_keys) > 1 else None
+
+
 def skill_ids_by_group_key(
     operator: dict[str, Any],
     skills: list[SkillSource],
@@ -701,7 +963,22 @@ def render_talents(
                 )
             )
             continue
-        if kind == "targetStaggeredDamage":
+        if kind == "attachedPassive":
+            if passive_body is None:
+                raise ValueError(f"talent {key}: attached passive did not produce a complete program")
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  modifiers: [],",
+                        passive_body,
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "targetStaggeredDamage":
             values: list[float] = []
             for _, effect_id in entries:
                 effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
@@ -736,19 +1013,19 @@ def render_talents(
             )
         elif kind == "skillBlackboardPatch":
             patch_entries: list[dict[str, Any]] = []
-            expected_keys: set[tuple[str, str, str]] | None = None
+            expected_keys: set[tuple[str, str | None, str, str]] | None = None
             for level, effect_id in entries:
                 effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
                 data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-                level_keys: set[tuple[str, str, str]] = set()
+                level_keys: set[tuple[str, str | None, str, str]] = set()
                 level_entries: list[dict[str, Any]] = []
                 for index, raw_entry in enumerate(data_list):
                     entry_path = f"{effect_id}.dataList[{index}]"
                     entry = require_dict(raw_entry, entry_path)
-                    group_key, blackboard_key, operation, _ = _parse_skill_blackboard_patch_entry(
-                        entry, entry_path, skills
+                    group_key, skill_key, blackboard_key, operation, _ = _parse_skill_blackboard_patch_entry(
+                        entry, entry_path, operator, skills
                     )
-                    patch_key = (group_key, blackboard_key, operation)
+                    patch_key = (group_key, skill_key, blackboard_key, operation)
                     if patch_key in level_keys:
                         raise ValueError(f"{entry_path}: duplicate blackboard patch {patch_key!r}")
                     level_keys.add(patch_key)
@@ -761,6 +1038,7 @@ def render_talents(
             body = _render_skill_blackboard_patch_modifiers(
                 patch_entries,
                 f"CharGrowthTable.talentNodeMap",
+                operator,
                 skills,
                 multi_level=True,
             )
@@ -874,6 +1152,7 @@ def render_potentials(
         if kind not in {
             "staticAttributes",
             "skillBlackboardPatch",
+            "skillCooldownAndBlackboardPatch",
             "multiplyUltimateCost",
         }:
             if len(data_list) != 1:
@@ -891,8 +1170,68 @@ def render_potentials(
             body = _render_skill_blackboard_patch_modifiers(
                 [require_dict(entry, f"{effect_id}.dataList[{index}]") for index, entry in enumerate(data_list)],
                 f"PotentialTalentEffectTable.{effect_id}.dataList",
+                operator,
                 skills,
                 multi_level=False,
+            )
+        elif kind == "skillCooldownAndBlackboardPatch":
+            body = _render_skill_cooldown_and_blackboard_patch_modifiers(
+                [require_dict(entry, f"{effect_id}.dataList[{index}]") for index, entry in enumerate(data_list)],
+                f"PotentialTalentEffectTable.{effect_id}.dataList",
+                operator,
+                skills,
+            )
+        elif kind == "attachedBuff":
+            assert data is not None
+            body = _render_attached_buff_initialization(
+                data,
+                f"PotentialTalentEffectTable.{effect_id}.dataList[0]",
+                buff_definitions,
+            )
+        elif kind == "skillSpGainAttackStack":
+            assert data is not None
+            body = _render_skill_sp_gain_attack_stack(
+                data,
+                f"PotentialTalentEffectTable.{effect_id}.dataList[0]",
+                buff_definitions,
+            )
+        elif kind == "passiveBlackboardPatch":
+            assert data is not None
+            entry_path = f"PotentialTalentEffectTable.{effect_id}.dataList[0]"
+            if _effect_payload_kinds(data, entry_path) != ("skillBbModifier",):
+                raise ValueError(f"{entry_path}: expected only skillBbModifier")
+            modifier = require_dict(data.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
+            passive_skill_id = modifier.get("skillId")
+            if not isinstance(passive_skill_id, str) or not passive_skill_id:
+                raise ValueError(f"{entry_path}.skillBbModifier.skillId: expected passive skill id")
+            passive = passive_skills.get(passive_skill_id)
+            if passive is None or not passive.can_generate_add_buff:
+                raise ValueError(f"{entry_path}: target passive {passive_skill_id!r} is not generated")
+            blackboard_key = modifier.get("bbKey")
+            if blackboard_key not in passive.declared_blackboard_keys:
+                raise ValueError(
+                    f"{entry_path}: passive {passive_skill_id!r} has no blackboard {blackboard_key!r}"
+                )
+            operation = SKILL_BB_MODIFIER_OPERATIONS.get(modifier.get("modifyType"))
+            if operation is None:
+                raise ValueError(
+                    f"{entry_path}.skillBbModifier.modifyType: unsupported {modifier.get('modifyType')!r}"
+                )
+            value = float(
+                require_number(modifier.get("floatValue"), f"{entry_path}.skillBbModifier.floatValue")
+            )
+            body = "\n".join(
+                [
+                    "  modifiers: [",
+                    "    {",
+                    "      kind: 'patchPassiveBlackboard',",
+                    f"      passiveSkillKey: {ts_inline_literal(passive_skill_id)},",
+                    f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
+                    f"      operation: {ts_inline_literal(operation)},",
+                    f"      value: {ts_inline_literal(value)},",
+                    "    },",
+                    "  ],",
+                ]
             )
         elif kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
             assert data is not None
@@ -972,14 +1311,21 @@ def render_potentials(
                     "    {",
                     "      event: { kind: 'reactionApplied', reaction: 'electrification' },",
                     "      sequence: sequence(",
-                    "        step('applyStatus', {",
-                    "          statusKey: 'attackAfterElectrification',",
+                    "        step('applyBuff', {",
+                    "          buffId: 'buff_chr_0004_pelica_potential_3_atkup',",
+                    "          definition: {",
+                    "            stackingType: 'enhanceAndRefresh',",
+                    f"            maxStackCount: {ts_inline_literal(values['max_stack'])},",
+                    f"            durationSeconds: {ts_inline_literal(values['atk_duration'])},",
+                    "            attributeModifiers: [",
+                    "              {",
+                    "                attribute: 'Atk',",
+                    "                slot: 'baseMultiplier',",
+                    f"                value: {ts_inline_literal(values['atk_up'])},",
+                    "              },",
+                    "            ],",
+                    "          },",
                     "          target: 'caster',",
-                    f"          durationFrames: {ts_inline_literal(values['atk_duration'] * 30)},",
-                    f"          maxStacks: {ts_inline_literal(values['max_stack'])},",
-                    "          modifiers: [",
-                    f"            {{ kind: 'attackPercent', value: {ts_inline_literal(values['atk_up'])} }},",
-                    "          ],",
                     "        }),",
                     "      ),",
                     "    },",

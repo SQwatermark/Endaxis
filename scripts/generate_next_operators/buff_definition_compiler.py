@@ -324,6 +324,26 @@ def compile_inline_buff_definition(
                     f"  right: {_compile_scalar(comparison.right)},",
                     "}",
                 ])
+            for comparison in getattr(modifier, "healthComparisons", ()):
+                operator = COMPARISON_OPERATORS.get(comparison.comparison)
+                if operator is None:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported health comparison "
+                        f"{comparison.comparison!r}"
+                    )
+                if comparison.targetSource != "Target" or comparison.targetGroupKey:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported health target"
+                    )
+                conditions.append([
+                    "{",
+                    "  kind: 'targetHealthCompare',",
+                    "  target: 'enemy',",
+                    f"  valueType: {ts_inline_literal('ratio' if comparison.isRatio else 'current')},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {_compile_scalar(comparison.value)},",
+                    "}",
+                ])
             if len(conditions) == 1:
                 condition = conditions[0]
                 fields.append(f"    condition: {condition[0]}")

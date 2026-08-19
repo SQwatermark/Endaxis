@@ -146,7 +146,7 @@ Next 资源账本已按上述输入建立可执行闭环并生成逐成员 recei
 `atk_duration = 5`。
 
 正式配置不暴露 `OnOutputBuff`、标签整数和原始 Buff ID，而将这条已知链路归一化为
-`reactionApplied(electrification)` 事件处理器，并执行带攻击修正的 `applyStatus`。这是原始实现事件到
+`reactionApplied(electrification)` 事件处理器，并执行保留 `EnhanceAndRefresh`、5 秒持续时间和两层上限的内联 `applyBuff`。这是原始实现事件到
 Endaxis 业务事件的适配；原始事件名与标签仍保留在本文，便于版本更新时复核映射。
 
 ## 尚未闭环

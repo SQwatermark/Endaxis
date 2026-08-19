@@ -42,6 +42,13 @@ export type DamageModifierExternalCondition =
       readonly kind: 'eventDamageFeaturesMatch';
       readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly features: readonly DamageFeature[];
+    }
+  | {
+      readonly kind: 'targetHealthCompare';
+      readonly target: 'enemy';
+      readonly valueType: 'current' | 'ratio';
+      readonly operator: ComparisonOperator;
+      readonly value: DamageModifierNumber;
     };
 
 /** 伤害修正专用条件树；Buff 黑板只在持有该修正的实例内求值。 */
@@ -60,6 +67,7 @@ export type DamageModifierCondition =
 /** 战斗装配层只判断依赖场景或当前伤害包的叶子条件。 */
 export type DamageModifierConditionEvaluator = (
   condition: DamageModifierExternalCondition,
+  resolveNumber: (value: DamageModifierNumber) => number,
 ) => boolean;
 
 /** 在指定阶段向倍率区间或即时属性写入修正的处理器定义。 */
@@ -144,7 +152,7 @@ export class DamageModifier {
       case 'any':
         return condition.conditions.some(child => this.#evaluateCondition(child, evaluateExternal));
       default:
-        return evaluateExternal(condition);
+        return evaluateExternal(condition, this.resolveNumber);
     }
   }
 }

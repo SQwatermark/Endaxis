@@ -245,7 +245,7 @@
       "potentials": [
         {
           "key": "potential1",
-          "compile": "unmodeledPotential"
+          "compile": "attachedBuff"
         },
         {
           "key": "potential2",
@@ -260,7 +260,7 @@
         },
         {
           "key": "potential5",
-          "compile": "unmodeledPotential"
+          "compile": "skillCooldownAndBlackboardPatch"
         }
       ],
       "skillGroups": [
@@ -644,7 +644,7 @@
       "potentials": [
         {
           "key": "potential1",
-          "compile": "unmodeledPotential"
+          "compile": "skillBlackboardPatch"
         },
         {
           "key": "potential2",
@@ -652,7 +652,7 @@
         },
         {
           "key": "potential3",
-          "compile": "unmodeledPotential"
+          "compile": "skillCooldownAndBlackboardPatch"
         },
         {
           "key": "potential4"
@@ -1266,7 +1266,7 @@
         { "key": "potential2", "compile": "skillBlackboardPatch" },
         { "key": "potential3", "compile": "unmodeledPotential" },
         { "key": "potential4" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "skillCooldownAndBlackboardPatch" }
       ],
       "skillGroups": [
         {
@@ -1395,13 +1395,13 @@
       "exportName": "lifengGeneratedSource",
       "charId": "chr_0015_lifeng",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
+        { "index": 0, "key": "talent1", "compile": "attachedPassive" },
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },
         { "key": "potential2", "compile": "staticAttributes" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "passiveBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }
       ],
@@ -1657,11 +1657,11 @@
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2", "compile": "skillBlackboardPatch" },
         { "key": "potential3", "compile": "staticAttributes" },
         { "key": "potential4" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "skillBlackboardPatch" }
       ],
       "skillGroups": [
         {
@@ -1799,7 +1799,7 @@
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "skillSpGainAttackStack" },
         { "key": "potential2", "compile": "staticAttributes" },
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
@@ -1928,7 +1928,7 @@
       "exportName": "fluoriteGeneratedSource",
       "charId": "chr_0022_bounda",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
+        { "index": 0, "key": "talent1", "compile": "attachedPassive" },
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
@@ -2080,8 +2080,8 @@
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
       ],
       "potentials": [
-        { "key": "potential1", "compile": "unmodeledPotential" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential1", "compile": "attachedBuff" },
+        { "key": "potential2", "compile": "attachedBuff" },
         { "key": "potential3", "compile": "unmodeledPotential" },
         { "key": "potential4", "compile": "unmodeledPotential" },
         { "key": "potential5", "compile": "unmodeledPotential" }

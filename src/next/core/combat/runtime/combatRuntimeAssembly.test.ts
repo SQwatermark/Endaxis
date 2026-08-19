@@ -3,6 +3,7 @@ import type { CompiledSkillProgram, CompiledSkillSlotGroup } from '../../compile
 import { compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CompiledCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatStatusContainer } from '../status/combatStatuses';
@@ -1309,6 +1310,29 @@ describe('CombatRuntimeAssembly', () => {
           operatorId: 'operator',
           skills: [],
           buffRuntime,
+          initializationPrograms: [
+            {
+              key: 'potential:potential1',
+              sequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'potential-marker',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'unique',
+                        blackboard: { ratio: 0.5 },
+                      },
+                      blackboardAssignments: {
+                        ratio: { kind: 'constant', value: 0.5 },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
           passivePrograms: [
             {
               key: 'talent-aura',
@@ -1351,12 +1375,22 @@ describe('CombatRuntimeAssembly', () => {
       createOperationExecutor: () => rejectingExecutor,
     });
 
-    expect(buffs.buffs).toHaveLength(1);
-    expect(buffs.buffs[0]?.sourceActionId).toBe('passive:talent-aura');
-    expect(buffs.buffs[0]?.blackboard.getNumber('attackIncrease')).toBeCloseTo(0.2);
+    expect(buffs.buffs).toHaveLength(2);
+    expect(buffs.buffs[0]?.sourceActionId).toBe('upgrade-initialization:potential:potential1');
+    expect(buffs.buffs[0]?.blackboard.getNumber('ratio')).toBeCloseTo(0.5);
+    expect(buffs.buffs[1]?.sourceActionId).toBe('passive:talent-aura');
+    expect(buffs.buffs[1]?.blackboard.getNumber('attackIncrease')).toBeCloseTo(0.2);
     expect(assembly.resources.sp).toBe(20);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
+    );
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        frame: 0,
+        event: 'OperatorUpgradeInitialized',
+        sourceId: 'operator',
+        data: { key: 'potential:potential1' },
+      }),
     );
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
@@ -1366,6 +1400,183 @@ describe('CombatRuntimeAssembly', () => {
         data: { passiveKey: 'talent-aura' },
       }),
     );
+  });
+
+  it('executes operator upgrade reaction events through the shared Buff runtime', () => {
+    const attributes = new CombatAttributeSet<string>();
+    attributes.define('Atk', 500, { minimum: 0, maximum: 10000 });
+    const buffs = new CombatBuffContainer<string>('operator', attributes);
+    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+      get: () => undefined,
+      compile: entry =>
+        new CompiledCombatBuffDefinitions('test', [entry], {
+          emitElementalInflictionStarted: () => undefined,
+        }).get(entry.id)!,
+    });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [],
+          buffRuntime,
+          upgradeEventPrograms: [
+            {
+              key: 'potential:attackAfterElectrification:0',
+              event: { kind: 'reactionApplied', reaction: 'electrification' },
+              sequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'attack-up',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'enhanceAndRefresh',
+                        maxStackCount: 2,
+                        durationSeconds: 5,
+                        attributeModifiers: [
+                          { attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    const event = {
+      kind: 'reactionApplied' as const,
+      sourceOperatorId: 'operator',
+      reaction: 'electrification' as const,
+    };
+    assembly.semanticEvents.emit(event);
+    expect(attributes.get('Atk')).toBe(600);
+    assembly.semanticEvents.emit(event);
+    expect(attributes.get('Atk')).toBe(700);
+    expect(buffs.getCountByIds(['attack-up'])).toBe(2);
+  });
+
+  it('executes operator upgrade events only for actual skill-source SP gains', () => {
+    const attributes = new CombatAttributeSet<string>();
+    attributes.define('Atk', 500, { minimum: 0, maximum: 10000 });
+    const buffs = new CombatBuffContainer<string>('operator', attributes);
+    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+      get: () => undefined,
+      compile: entry =>
+        new CompiledCombatBuffDefinitions('test', [entry], {
+          emitElementalInflictionStarted: () => undefined,
+        }).get(entry.id)!,
+    });
+    const gainSkill = skill({
+      skillId: 'sp-skill',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource',
+                parameters: {
+                  resource: 'sp',
+                  amount: 20,
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [gainSkill],
+          buffRuntime,
+          upgradeEventPrograms: [
+            {
+              key: 'potential:skill-sp-attack:0',
+              event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+              sequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'skill-sp-attack',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'enhanceAndRefresh',
+                        maxStackCount: 5,
+                        durationSeconds: 10,
+                        attributeModifiers: [
+                          { attribute: 'Atk', slot: 'baseMultiplier', value: 0.1 },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(assembly.tryStartSkill('operator', 'sp-skill')).toBe(true);
+    assembly.advanceFrame();
+    expect(assembly.resources.sp).toBe(20);
+    expect(attributes.get('Atk')).toBe(550);
+    expect(buffs.getCountByIds(['skill-sp-attack'])).toBe(1);
   });
 
   it('opens and consumes the matching combo window without blocking other skills', () => {

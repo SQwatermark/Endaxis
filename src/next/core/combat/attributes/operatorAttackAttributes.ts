@@ -23,7 +23,7 @@ export const ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE = {
 export type AttackFactorAttribute =
   (typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[OperatorAttribute];
 export type OperatorRuntimeAttribute =
-  OperatorAttribute | AttackFactorAttribute | DamageScaleAttributeKey;
+  OperatorAttribute | AttackFactorAttribute | DamageScaleAttributeKey | 'Atk';
 
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
@@ -37,6 +37,8 @@ export function createOperatorAttackAttributes(
   input: OperatorAttackDerivationInput,
 ): CombatAttributeSet<OperatorRuntimeAttribute> {
   const result = new CombatAttributeSet<OperatorRuntimeAttribute>();
+  // 原生 Atk/BaseMultiplier Buff（例如佩丽卡潜能 3）修正的是属性换算前攻击基数。
+  result.define('Atk', input.attackBeforeAttributeScalar, { minimum: 0, maximum: 1000000 });
   for (const attribute of Object.keys(
     ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   ) as OperatorAttribute[]) {
@@ -66,5 +68,8 @@ export function resolveOperatorAttack(
       Math.floor(attributes.get(attribute)) *
       attributes.get(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
   }
-  return Math.floor(input.attackBeforeAttributeScalar * scalar);
+  const attackBase = attributes.has('Atk')
+    ? attributes.get('Atk')
+    : input.attackBeforeAttributeScalar;
+  return Math.floor(attackBase * scalar);
 }

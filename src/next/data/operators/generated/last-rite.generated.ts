@@ -455,7 +455,8 @@ export const lastRiteGeneratedSource = {
                 "levelValues": null
               }
             }
-          ]
+          ],
+          "healthComparisons": []
         }
       ],
       "directDamageHits": [],

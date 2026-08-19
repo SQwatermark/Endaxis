@@ -1552,6 +1552,40 @@ describe('CombatBuffContainer', () => {
     expect(lifecycle).toEqual(['start', 'enable', 'disable', 'enable']);
   });
 
+  it('registers one copy of each attribute modifier per enhance layer', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.attribute.enhance',
+      stackingType: 'enhanceAndRefresh',
+      maxStackCount: 2,
+      durationSeconds: 5,
+      attributeModifiers: [
+        {
+          attribute: 'attack',
+          values: attributeModifierValues('baseMultiplier', 0.2),
+          timing: 'runtime',
+        },
+      ],
+    };
+
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+    expect(attributes.get('attack')).toBe(120);
+    expect(buff.attributeModifiers).toHaveLength(1);
+
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(2);
+    expect(buff.attributeModifiers).toHaveLength(2);
+    expect(attributes.get('attack')).toBe(140);
+
+    // 达到上限后只刷新持续时间，不再重复注册修正。
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(2);
+    expect(attributes.modifierCount).toBe(2);
+    expect(attributes.get('attack')).toBe(140);
+  });
+
   it('keeps the previous modifier registered when refreshing an invalid blackboard value', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });

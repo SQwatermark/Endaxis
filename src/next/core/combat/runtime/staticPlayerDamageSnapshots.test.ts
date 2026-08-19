@@ -127,6 +127,40 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     });
   });
 
+  it('只把当前技能程序的暴击率修正加入该技能伤害快照', () => {
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext({
+        program: {
+          ...createContext().program,
+          skillGroupKey: 'ultimate',
+          skillType: 'ultimate',
+          statModifiers: { criticalRate: 0.3 },
+        },
+      }),
+      electricDamage,
+      createOperatorAttackAttributes(panel),
+    );
+
+    expect(snapshots.attacker.criticalRate).toBeCloseTo(0.45);
+    expect(panel.criticalRate).toBe(0.15);
+  });
+
+  it('把当前技能的失衡目标增伤写入既有实时条件伤害属性', () => {
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext({
+        program: {
+          ...createContext().program,
+          statModifiers: { damageToStaggeredEnemyIncrease: 0.3 },
+        },
+      }),
+      electricDamage,
+      createOperatorAttackAttributes(panel),
+    );
+
+    expect(snapshots.attacker.damageToStaggeredEnemyIncrease).toBeCloseTo(0.3);
+    expect(snapshots.defender.damageToStaggeredEnemyIncrease).toBe(0);
+  });
+
   it('按伤害类型和技能类型筛选静态伤害加成', () => {
     const snapshots = resolveStaticPlayerDamageSnapshots(
       createContext({
@@ -197,8 +231,15 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     ).toThrow("operator 'operator' has no resolved panel");
   });
 
-  it('可直接为标准伤害执行器提供同源静态快照', () => {
-    const context = createContext();
+  it('技能级暴击率修正穿过标准伤害执行器并改变暴击结果', () => {
+    const context = createContext({
+      program: {
+        ...createContext().program,
+        skillGroupKey: 'ultimate',
+        skillType: 'ultimate',
+        statModifiers: { criticalRate: 0.3 },
+      },
+    });
     const targetVitals = new CombatVitals({
       health: 10000,
       maxHealth: 10000,
@@ -221,7 +262,8 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       receipt: context.receipt,
       captureAttributeSnapshots: step =>
         resolveStaticPlayerDamageSnapshots(context, step, createOperatorAttackAttributes(panel)),
-      criticalSamples: { nextCriticalSample: () => 1 },
+      // 0.3 高于基础 0.15，但低于技能潜能修正后的 0.45。
+      criticalSamples: { nextCriticalSample: () => 0.3 },
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
@@ -240,11 +282,14 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     });
 
     expect(executor.execute(electricDamage)).toBe(true);
-    expect(targetVitals.health).toBe(9776);
+    // 面板中的 20% 电伤加成只筛选 battleSkill，终结技只取得本次暴击率修正。
+    expect(targetVitals.health).toBeCloseTo(9701.333333333333);
     expect((context.receipt as CombatReceiptCollector).entries.at(-1)).toMatchObject({
       event: 'DamageApplied',
       data: {
-        value: 224,
+        value: 298.6666666666667,
+        isCritical: true,
+        criticalMultiplier: 1.6,
         defenseMultiplier: 1 / 3,
         resistanceMultiplier: 0.8,
       },

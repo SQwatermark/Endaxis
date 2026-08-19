@@ -20,6 +20,7 @@ from source_models import (
     BuffDefinitionSource,
     BuffLifecycleSource,
     BuffSourceDeathFinishSource,
+    HealthConditionSource,
     ScalarSource,
     UnparsedBuffPayloadSource,
 )
@@ -217,6 +218,7 @@ def parse_buff_damage_modifiers(
         damage_feature_match = None
         damage_features: tuple[str, ...] = ()
         number_comparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
+        health_comparisons: tuple[HealthConditionSource, ...] = ()
         if condition_types == ("CheckTagMatch",):
             tag_path = f"{path}.condition.actionData[0]"
             tag_condition = require_dict(condition_actions[0], tag_path)
@@ -288,6 +290,35 @@ def parse_buff_damage_modifiers(
                     right=parse_scalar(comparison.get("valueB"), f"{compare_path}.valueB", blackboard),
                 ),
             )
+        elif condition_types == ("CheckHp",):
+            health_path = f"{path}.condition.actionData[0]"
+            health_condition = require_dict(condition_actions[0], health_path)
+            if set(health_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "hpOwner", "compare", "isRatio", "value",
+            } or health_condition.get("isEnable") is not True:
+                raise ValueError(f"{health_path}: unsupported health condition shape")
+            health_target = parse_target_reference(
+                health_condition.get("hpOwner"), f"{health_path}.hpOwner"
+            )
+            if (
+                health_target.targetSource != "Target"
+                or health_target.targetGroupKey
+                or not services.target_reference_is_plain(health_target)
+            ):
+                raise ValueError(f"{health_path}.hpOwner: expected plain damage Target")
+            comparison = health_condition.get("compare")
+            if comparison not in COMPARISON_OPERATOR_MAP:
+                raise ValueError(f"{health_path}.compare: unsupported value {comparison!r}")
+            health_comparisons = (
+                HealthConditionSource(
+                    targetSource="Target",
+                    targetGroupKey="",
+                    comparison=str(comparison),
+                    isRatio=require_bool(health_condition.get("isRatio"), f"{health_path}.isRatio"),
+                    value=parse_scalar(health_condition.get("value"), f"{health_path}.value", blackboard),
+                ),
+            )
         else:
             unsupported_count += 1
             continue
@@ -345,6 +376,7 @@ def parse_buff_damage_modifiers(
                 damageFeatureMatch=damage_feature_match,
                 damageFeatures=damage_features,
                 numberComparisons=number_comparisons,
+                healthComparisons=health_comparisons,
             )
         )
     return tuple(result), unsupported_count

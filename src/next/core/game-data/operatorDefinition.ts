@@ -1126,6 +1126,16 @@ export type UpgradeModifierDefinition =
        */
       kind: 'patchSkillBlackboard';
       skillGroupKey: string;
+      /** 多形态技能组只修改指定技能定义；省略时修改组内全部形态。 */
+      skillKey?: string;
+      blackboardKey: string;
+      operation: 'add' | 'multiply' | 'assign';
+      value: LevelValues;
+    }
+  | {
+      /** 修改已启用天赋安装的隐藏被动技能黑板；目标天赋关闭时不产生被动程序。 */
+      kind: 'patchPassiveBlackboard';
+      passiveSkillKey: string;
       blackboardKey: string;
       operation: 'add' | 'multiply' | 'assign';
       value: LevelValues;
@@ -1146,6 +1156,8 @@ export type UpgradeModifierDefinition =
   | {
       kind: 'addSkillCooldownFrames';
       skillGroupKey: string;
+      /** 多形态技能组只修改指定技能定义；省略时修改组内全部形态。 */
+      skillKey?: string;
       frames: number;
       condition?: CombatCondition;
     }
@@ -1178,6 +1190,7 @@ export const UPGRADE_MODIFIER_KINDS = [
   'setEffectiveness',
   'addSkillStat',
   'patchSkillBlackboard',
+  'patchPassiveBlackboard',
   'multiplySkillDamage',
   'multiplyStepDamage',
   'multiplySkillCooldown',
@@ -1192,6 +1205,7 @@ export type UpgradeModifierKind = (typeof UPGRADE_MODIFIER_KINDS)[number];
 
 export type UpgradeEvent =
   | { kind: 'reactionApplied'; reaction: ElementalReaction }
+  | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
   | Extract<CombatEventTrigger, { kind: 'skillHit' }>;
 
 export interface UpgradeEventHandlerDefinition {
@@ -1216,6 +1230,8 @@ export interface OperatorUpgradeDefinition {
   levels: number;
   modifiers?: readonly UpgradeModifierDefinition[];
   eventHandlers?: readonly UpgradeEventHandlerDefinition[];
+  /** 养成启用后直接安装的初始化行为；不是技能，也不进入可释放技能集合。 */
+  initializationSequence?: ActionSequenceDefinition;
   /** 仅在这个养成项启用时安装；每个被动在一场战斗中只启用一次。 */
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
 }

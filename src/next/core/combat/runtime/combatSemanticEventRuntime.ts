@@ -10,6 +10,9 @@ import type {
   DamageFeature,
   DamageElement,
   DamageTag,
+  SpGainKind,
+  SpGainSource,
+  UpgradeEvent,
 } from '../../game-data/operatorDefinition';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import { ActionBlackboard } from './actionBlackboard';
@@ -45,9 +48,21 @@ export type CombatSemanticEvent =
       readonly elements: readonly DamageElement[];
     }
   | {
+      readonly kind: 'reactionApplied';
+      readonly sourceOperatorId: string;
+      readonly reaction: import('../../game-data/operatorDefinition').ElementalReaction;
+    }
+  | {
       readonly kind: 'skillHit';
       readonly sourceOperatorId: string;
       readonly skillGroupKey: string;
+    }
+  | {
+      readonly kind: 'spGained';
+      readonly sourceOperatorId: string;
+      readonly source: SpGainSource;
+      readonly gainKind: SpGainKind;
+      readonly amount: number;
     }
   | {
       readonly kind: 'enemyDefeated';
@@ -76,7 +91,7 @@ export type CombatEventPhase = (typeof COMBAT_EVENT_PHASES)[number];
 
 interface CombatEventHandlerRegistrationBase {
   readonly ownerOperatorId: string;
-  readonly trigger: CombatEventTrigger;
+  readonly trigger: CombatEventTrigger | UpgradeEvent;
   readonly condition?: CombatCondition;
   /** 带条件的监听器必须提供与普通动作相同的条件执行链。 */
   readonly createOperations?: (context: CombatSemanticEventContext) => CombatOperationExecutor;
@@ -141,11 +156,24 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
         matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
         event.elements.some(element => includesValue(trigger.elements, element))
       );
+    case 'reactionApplied':
+      return (
+        event.kind === 'reactionApplied' &&
+        event.sourceOperatorId === ownerOperatorId &&
+        event.reaction === trigger.reaction
+      );
     case 'skillHit':
       return (
         event.kind === 'skillHit' &&
         matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
         event.skillGroupKey === trigger.skillGroupKey
+      );
+    case 'spGained':
+      return (
+        event.kind === 'spGained' &&
+        event.sourceOperatorId === ownerOperatorId &&
+        event.source === trigger.source &&
+        event.gainKind === trigger.gainKind
       );
     case 'enemyDefeated':
       return (

@@ -60,7 +60,7 @@ DamageAction
 
 `CombatBuffContainer` 已建立每个实体独立的 Buff 存储、StackingGroup 和 DamageModifier 注册表。每次施加都会创建带稳定实例编号的独立 Buff、DamageModifier 和属性 Modifier；启用阶段按“首次 Start -> 注册伤害修正 -> 挂载属性修正 -> Enable”执行，属性注册失败会回滚本次伤害与属性修正。Disable 在注销前执行动作，Finish 直接结束并卸载，不额外执行 Disable。有限时长使用 `1e-5` 容差结束，禁用实例仍会推进时长。
 
-当前已按原生规则开放 `Unlimited` 和 `EnhanceAndRefresh`。后者在同一 stacking key 下复用尚未结束的实例，依次执行 BeforeEnhance、受上限约束的层数增长与 EnhanceChanged、持续时间刷新、AfterEnhance；达到层数上限时仍会执行前后动作并刷新持续时间。任一侧为无限时长时刷新结果为无限，仅当新时长比剩余时长至少多 `1e-5` 才覆盖。其余十种已登记叠层策略继续明确拒绝，直到各自的 StackingGroup 规则接入。
+当前已按原生规则开放 `Unlimited` 和 `EnhanceAndRefresh`。后者在同一 stacking key 下复用尚未结束的实例，依次执行 BeforeEnhance、受上限约束的层数增长与 EnhanceChanged、持续时间刷新、AfterEnhance；每个强化层重复注册同一组属性修正，因此仍由八槽公式分别聚合加法槽与乘法槽；达到层数上限时仍会执行前后动作并刷新持续时间。任一侧为无限时长时刷新结果为无限，仅当新时长比剩余时长至少多 `1e-5` 才覆盖。其余十种已登记叠层策略继续明确拒绝，直到各自的 StackingGroup 规则接入。
 
 每个 Buff 实例持有独立 `ActionBlackboard`。构造时先装载 Buff 定义的默认值，再由本次 AddOptions 覆盖；读取明确区分数值和字符串，快照与恢复只作用于该实例。异类元素反应所需的 `consumed_type`、`consumed_layer` 和 `count` 因而可以按原生方式随施加请求进入状态 Buff，而不必改写静态定义。
 

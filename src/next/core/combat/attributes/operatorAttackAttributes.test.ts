@@ -51,4 +51,20 @@ describe('operator attack attributes', () => {
       ),
     );
   });
+
+  it('applies native Atk base-multiplier buffs before attribute scaling', () => {
+    const attributes = createOperatorAttackAttributes(input);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'Atk',
+        attributeModifierValues('baseMultiplier', 0.4),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(resolveOperatorAttack(input, attributes)).toBe(
+      Math.floor(500 * 1.4 * (1 + 120 * Math.fround(0.005) + 200 * Math.fround(0.002))),
+    );
+  });
 });

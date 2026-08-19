@@ -2233,12 +2233,46 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0003_endminf_potential1',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            blackboard: {
+              'atb_return': 50,
+            },
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'atb_return': { kind: 'constant', value: 50 },
+          },
+        }),
+      ),
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0003_endminf_potential2',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            blackboard: {
+              'ratio': 0.5,
+            },
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'ratio': { kind: 'constant', value: 0.5 },
+          },
+        }),
+      ),
     },
     {
       key: 'potential3',

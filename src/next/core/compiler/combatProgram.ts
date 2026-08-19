@@ -25,6 +25,7 @@ import type {
   SpGainSource,
   SkillType,
   StatusModifierDefinition,
+  UpgradeEvent,
 } from '../game-data/operatorDefinition';
 import type { GameplayTagId } from '../combat/tags/gameplayTags';
 
@@ -247,6 +248,12 @@ export interface CompiledOperatorPassiveProgram {
   readonly enableSequence: ResolvedActionSequence;
 }
 
+/** 构筑启用的养成初始化程序；由战斗装配层执行一次，不伪装成被动技能。 */
+export interface CompiledOperatorInitializationProgram {
+  readonly key: string;
+  readonly sequence: ResolvedActionSequence;
+}
+
 /** 技能释放时刻相对帧上的一个已编译调度项。 */
 export interface CompiledTimelineAction {
   readonly startFrame: number;
@@ -258,6 +265,19 @@ export interface CompiledTimelineAction {
 export interface CompiledSkillCost {
   readonly resource: CombatResource;
   readonly value: number;
+}
+
+/** 构筑启用后注册到整场战斗语义事件中心的养成事件程序。 */
+export interface CompiledOperatorUpgradeEventProgram {
+  readonly key: string;
+  readonly event: UpgradeEvent;
+  readonly sequence: ResolvedActionSequence;
+}
+
+/** 只在当前技能程序及其派生操作链中参与伤害快照的构筑期属性修正。 */
+export interface CompiledSkillStatModifiers {
+  readonly criticalRate?: number;
+  readonly damageToStaggeredEnemyIncrease?: number;
 }
 
 /** 供运行时技能实例使用的完整单等级程序。 */
@@ -276,6 +296,7 @@ export interface CompiledSkillProgram {
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];
+  readonly statModifiers?: CompiledSkillStatModifiers;
   readonly timelineActions: readonly CompiledTimelineAction[];
 }
 

@@ -728,7 +728,40 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      eventHandlers: [
+        {
+          event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+          sequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0019_karin_potential_1_1',
+              definition: {
+                stackingType: 'enhanceAndRefresh',
+                priority: 0,
+                maxStackCount: 5,
+                durationSeconds: { blackboardKey: 'duration' },
+                blackboard: {
+                  'atk_up': 0,
+                  'duration': 5,
+                  'max_stack': 1,
+                },
+                attributeModifiers: [
+                  {
+                    attribute: 'Atk',
+                    slot: 'baseMultiplier',
+                    value: { blackboardKey: 'atk_up' },
+                  },
+                ],
+              },
+              target: 'caster',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: {
+                'atk_up': { kind: 'constant', value: 0.1 },
+                'duration': { kind: 'constant', value: 10 },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'potential2',

@@ -960,7 +960,20 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addSkillCooldownFrames',
+          skillGroupKey: 'comboSkill',
+          frames: -60,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atk_scale',
+          operation: 'multiply',
+          value: 1.3,
+        },
+      ],
     },
   ],
   conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },

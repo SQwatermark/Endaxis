@@ -250,6 +250,22 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 新增 `simulationNoEffectBuffIds`，专门记录标准玩家输出模型中已证明不可观察的行为。当前只用于施加给干员或其能力实体的公共伤害免疫 Buff：敌人无主动攻击，免疫不会改变模拟输出，因此不计入技能转换缺口。它不同于表现型 `ignoreBuffIds`，也不同于会使 `conversionSupport` 变为部分支持的 `unmodeledBuffIds`。
 - 时间域待办：原始 BuffData 的 `useTimeDilationDt`、`onlyUseSelfTimeDilation` 尚未进入生成定义。运行时已经支持 `default/global/self` Buff 时钟，敌方 Buff runtime 也会取得敌人实体的时间膨胀增量；下一步必须从原始字段和反编译证据建立严格映射，并用敌方 Buff 持续时间/周期触发回归确认。洛茜停止敌人的 Buff 自身为 `false/false`，但这不能证明敌人身上的其他 Buff 不受影响。
 
+### 2026-08-19：养成转换与可模拟数量纳入审计
+
+- `audit_operator_progression.py` 现在同时读取 1.4.4 TableCfg 与正式 `operators.json`，按养成槽位而不是原始等级效果统计两层完成度：`definitionConverted` 表示严格来源效果已写入非占位 `OperatorDefinition`，`standardSimulationCompileReady` 进一步要求面板、技能补丁或常驻被动程序已有标准场景编译消费链。
+- 当前原始盘点为 30 名干员、268 个天赋/潜能等级效果；正式 manifest 为 13 名干员、26 个天赋槽、65 个潜能槽。天赋 9/26 已转换且 9/26 均可进入模拟编译；潜能 54/65 已转换且 54/65 均可进入模拟编译；尚无一名正式生成干员达到“技能主体、全部天赋、全部潜能同时完整”的整干员口径。秋栗（稳定 slug `akekuri`）潜能 1 已按原生 `OnObtainAtb + CheckObtainAtbType(Skill, Gain)` 接入：只在该干员实际通过技能增加共享技力时叠加 10 秒、每层 +10% Atk、最多 5 层并刷新的 Buff；自然回复、普攻/处决、返还技力和满技力时的零实际增量不触发。
+- 卡缪潜能 3 已作为首个“结构化冷却 + 多技能黑板”的组合潜能接入：原生 `CoolDown/Add -2s` 严格换算为 `comboSkill1` 的 `-60` 帧，两个连携形态的伤害与技力倍率按具体 `skillKey` 分流，不传播到兄弟形态。运行时只支持无条件整数帧冷却补丁；带条件冷却仍失败关闭。
+- 同一组合编译能力也已覆盖陈千语潜能 5（连携技 `-90` 帧并开启终结技 `potential5` 分支）与吉尔伯塔潜能 5（连携技 `-60` 帧并乘算 `atk_scale ×1.3`）；三项都有正式生成物集成测试。
+- 管理员潜能 1/2 已建立直接 `AddBuff` 的独立养成初始化入口：战斗 Buff 生命周期装配后分别给施放者安装 `buff_chr_0003_endminf_potential1/2`，供既有技能读取 `atb_return=50` 与 `ratio=0.5`。该入口与 `passiveSkills` 分离；带条件、事件、光环或未解析行为的 Buff 仍失败关闭。
+- 陈千语潜能 1 已复用该入口，并补齐伤害 Buff 的严格目标生命条件：每次伤害结算读取敌人实时生命比例，只有 `<0.5` 时才把攻击方 `normal` 区间增加 `0.2`；阈值与加值来自 Buff 黑板，不在初始化时烘焙判断结果。
+- 佩丽卡的 `multiplyReactionDuration` 与 `setReactionEffectiveness` 已通过稳定 step key 接入标准技能补丁编译，只接受唯一根 `applyElementalReaction`，并有真实生成定义回归。`addUltimateCriticalRate` 作为技能程序局部 `criticalRate` 修正进入标准伤害快照；`targetStaggeredDamage` 只在命中时敌人真实处于失衡状态时生效。`attackAfterReaction` 已接入独立的干员养成事件程序：反应状态与回执写入后同步报告 `reactionApplied`，监听器在数据动作阶段向同一干员 Buff runtime 施加原始 `EnhanceAndRefresh` 攻击 Buff。该 Buff 保留 5 秒、两层上限和 `Atk/BaseMultiplier +20%`，强化层会重复注册属性修正，实测两层得到 +40%。当前已经完整转换的养成槽位均有标准模拟消费链。
+- 纯 `skillBbModifier` 的养成效果继续走统一 `patchSkillBlackboard`：达坂潜能 1/2/5 已分别接入终结技增伤/持续时间、天赋层数/持续时间和战技间隔，卡缪潜能 1 已接入战技能力实体的虚弱、易伤与持续时间输入。生成器严格要求条目不混入其他载荷，目标原生技能必须唯一映射到稳定技能组。
+- 黎风潜能 3 的目标是天赋隐藏被动而非可释放技能，现由独立 `patchPassiveBlackboard` 在常驻被动编译后修改 `atk_up`。天赋启用时二级值从 0.0015 增至 0.002；天赋关闭时不会凭潜能伪造被动实例。吉尔伯塔、萤石、卡缪的类似来源因目标被动尚未生成，继续保持未转换。
+- 黎风天赋 1 与萤石天赋 1 的 `attachSkill` 已严格归类为 `attachedPassive`：只有隐藏被动、启动 Buff、黑板赋值及引用 Buff 定义全部成功解析时才计入完整转换。它们进入既有常驻被动启用链，不生成时间轴技能块；其余目标被动未形成完整程序的 attachSkill 天赋继续失败关闭。
+- 审计中的“可模拟”只表示定义能够进入标准场景编译，不保证某个触发条件一定会在具体时间轴发生；技能主体、Buff 闭包和敌人木桩行为边界仍须独立满足。
+- 本批最终门禁：生成器 Python 规则测试 331/331、manifest 全量生成及 `--check`、`type-check:next`、Next Vitest 179 文件 1118/1118、`git diff --check` 均通过。`tmp/` 仍为未跟踪目录，未进入生成、测试或提交范围。
+- 建议下一项先处理弧光潜能 5，但必须按一个完整槽位推进：来源同时包含战技 `count=2` 的 `skillBbModifier` 和直接附着 `buff_chr_0007_ikut_finish_count_p5`，不能只转换黑板补丁后把潜能计为完成。应先核对该 Buff 的事件触发、结束计数语义及其与战技分支的消费闭包；任一部分无法严格表达时继续保持未转换。
+
 ## 8. 恢复工作清单
 
 1. `git status --short`，确认没有把 `tmp/` 或用户文件带入提交；

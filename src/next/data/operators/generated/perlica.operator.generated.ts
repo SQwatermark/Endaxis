@@ -304,14 +304,21 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
         {
           event: { kind: 'reactionApplied', reaction: 'electrification' },
           sequence: sequence(
-            step('applyStatus', {
-              statusKey: 'attackAfterElectrification',
+            step('applyBuff', {
+              buffId: 'buff_chr_0004_pelica_potential_3_atkup',
+              definition: {
+                stackingType: 'enhanceAndRefresh',
+                maxStackCount: 2,
+                durationSeconds: 5,
+                attributeModifiers: [
+                  {
+                    attribute: 'Atk',
+                    slot: 'baseMultiplier',
+                    value: 0.2,
+                  },
+                ],
+              },
               target: 'caster',
-              durationFrames: 150,
-              maxStacks: 2,
-              modifiers: [
-                { kind: 'attackPercent', value: 0.2 },
-              ],
             }),
           ),
         },

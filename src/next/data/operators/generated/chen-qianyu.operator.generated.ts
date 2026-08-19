@@ -668,7 +668,46 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0005_chen_potential_1',
+          definition: {
+            stackingType: 'unique',
+            priority: 0,
+            maxStackCount: 1,
+            blackboard: {
+              'extra_dmg': 0,
+              'hp_remain': 0.5,
+            },
+            damageModifiers: [
+              {
+                enabledSide: 'attacker',
+                condition: {
+                  kind: 'targetHealthCompare',
+                  target: 'enemy',
+                  valueType: 'ratio',
+                  operator: 'less',
+                  value: { blackboardKey: 'hp_remain' },
+                },
+                processors: [
+                  {
+                    kind: 'damageScale',
+                    side: 'attacker',
+                    zone: 'normal',
+                    addition: { blackboardKey: 'extra_dmg' },
+                  },
+                ],
+              },
+            ],
+          },
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'extra_dmg': { kind: 'constant', value: 0.2 },
+            'hp_remain': { kind: 'constant', value: 0.5 },
+          },
+        }),
+      ),
     },
     {
       key: 'potential2',
@@ -731,8 +770,21 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addSkillCooldownFrames',
+          skillGroupKey: 'comboSkill',
+          frames: -90,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential5',
+          operation: 'assign',
+          value: 1,
+        },
+      ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
 };

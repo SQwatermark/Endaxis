@@ -78,7 +78,7 @@
 - `operator_definition_renderer.py`：渲染正式 `OperatorDefinition`、技能引用、技能组、养成、转换支持度和干员元数据；项目身份映射及技能关系由入口注入。
 - `generation_pipeline.py`：执行 manifest/table 加载后的逐干员阶段分流、Buff 依赖闭包、审计/正式产物输出和 `--check` 控制；不承载动作语义。
 - `progression_renderer.py`：将已解析的天赋、潜能来源事实转换为 `OperatorDefinition` 养成片段；后续全干员养成转换统一从这里扩展。
-- `audit_operator_progression.py`：盘点全干员天赋/潜能载荷，并单独审计潜能中的四维属性加点是否能够完整转换。
+- `audit_operator_progression.py`：盘点全干员天赋/潜能载荷，并对正式 manifest 分别统计“已完整写入定义”和“已接入标准模拟编译链”的槽位数量；前者不再被自动当作后者。
 - `audit_all_operators.py`：对全部干员入口执行严格解析与试编译，记录覆盖率和首个阻塞原因，不保存试编译产生的最终 DSL。
 - `operators.json`：只保存稳定身份映射与无法由原始数据唯一决定的项目语义，不充当数值数据库。
 
@@ -131,6 +131,29 @@ SkillData/BuffData。2026-08-15 的公共 JSON `sharedRevision` 与该 manifest 
 python scripts/generate_next_operators/audit_operator_progression.py `
   --json-output docs/research/all-operator-progression-audit.json
 ```
+
+报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出
+`definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
+被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
+和 Buff 闭包审计。当前基线为 13 名正式生成干员：天赋 9/26 已转换、9/26 可进入模拟编译；潜能
+54/65 已转换、54/65 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+后续重点转为扩大可无损转换的来源效果集合。
+
+`skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
+`CheckObtainAtbType(Skill, Gain)`，并保留“实际通过技能恢复技力后，施加 10 秒、每层 +10% Atk、
+最多 5 层且刷新”的子 Buff。运行时事件按产生技力的干员归属；自然回复、普攻/处决来源、返还技力、
+技力已满时实际增加为 0 的请求均不触发。`akekuri` 只是“秋栗”的稳定罗马音 slug，不是展示名。
+
+`skillCooldownAndBlackboardPatch` 用于同一潜能同时包含原生 `ChangeSkillParam/CoolDown/Add`
+与技能黑板补丁的严格组合。冷却秒数必须能精确换算为 30fps 整数帧；多形态技能组同时生成
+稳定 `skillGroupKey` 与具体 `skillKey`，避免把只属于一个原生技能的冷却或黑板值传播到兄弟形态。
+
+原生 `PotentialModifyType.AddBuff` 只有在无启用条件、单一 Buff 目标、黑板赋值完整且整个 Buff
+定义可由统一运行时表达时，才允许使用 `compile: "attachedBuff"`。生成结果进入独立
+`initializationSequence`，在 Buff 生命周期装配后执行一次；它不属于技能列表，也不伪装成
+`passiveSkills`。管理员潜能 1/2 是首批样本，分别安装供技能读取的 `atb_return=50` 与 `ratio=0.5`。
+伤害修正中的严格 `CheckHp(Target)` 也可保留为实时目标生命条件；陈千语潜能 1 会在敌人当前生命
+比例低于 `0.5` 时向攻击方 `normal` 伤害倍率区间增加 `0.2`，阈值和加值均从所属 Buff 黑板读取。
 
 潜能中的 `attrModifier` 只有在每条数据均为已确认的永久静态属性
 （条目 `modifyType = 4`、`modifyAttributeType = 0`，且属性与公式槽组合受支持）时，

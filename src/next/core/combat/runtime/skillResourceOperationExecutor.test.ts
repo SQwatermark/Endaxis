@@ -46,6 +46,7 @@ describe('SkillResourceOperationExecutor', () => {
     resources.sharedSpGainModifiers.add(
       new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
     );
+    const gains: unknown[] = [];
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: 'perlica',
       sourceActionId: 'finisher',
@@ -54,6 +55,7 @@ describe('SkillResourceOperationExecutor', () => {
       receipt,
       getNonReturnedSpCost: () => 0,
       finisherSpRecovery: 80,
+      onSpGained: event => gains.push(event),
       delegate: { execute: () => false, evaluate: () => false },
     });
 
@@ -77,8 +79,17 @@ describe('SkillResourceOperationExecutor', () => {
         previousValue: 20,
         currentValue: 80,
         gainKind: 'gain',
+        spGainSource: 'powerAttack',
       },
     });
+    expect(gains).toEqual([
+      {
+        sourceOperatorId: 'perlica',
+        source: 'powerAttack',
+        gainKind: 'gain',
+        amount: 60,
+      },
+    ]);
   });
 
   it('applies caster ultimate-energy gain through the native gain multiplier and cap', () => {

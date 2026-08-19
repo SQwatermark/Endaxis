@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "summary": {
     "operatorCount": 30,
     "effectCount": 268,
@@ -147,8 +147,37 @@
         "nextStatus": "implemented",
         "blockers": [],
         "implementationDecision": "generate"
+      },
+      {
+        "candidate": "skillCooldownFramesAdd",
+        "sourceEntryCount": 10,
+        "effectCount": 10,
+        "operatorCount": 9,
+        "generatedEffectCount": 0,
+        "priority": 2,
+        "nativeParameter": "CoolDown",
+        "nativeOperation": "Add",
+        "nextDefinitionKind": "addSkillCooldownFrames",
+        "nextStatus": "implemented",
+        "blockers": [],
+        "implementationDecision": "generate"
       }
-    ]
+    ],
+    "configuredProgression": {
+      "operatorCount": 13,
+      "talent": {
+        "totalCount": 26,
+        "definitionConvertedCount": 9,
+        "standardSimulationCompileReadyCount": 9
+      },
+      "potential": {
+        "totalCount": 65,
+        "definitionConvertedCount": 54,
+        "standardSimulationCompileReadyCount": 54
+      },
+      "definitionCompleteOperatorCount": 0,
+      "standardSimulationCompileReadyOperatorCount": 0
+    }
   },
   "operators": [
     {
@@ -271,7 +300,77 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0004_pelica",
+        "slug": "perlica",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "staggerDamageBonus",
+            "sourceEffectIds": ["chr_0004_pelica_talent_1_1", "chr_0004_pelica_talent_1_2"],
+            "compiler": "targetStaggeredDamage",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "comboRicochetAgainstBrokenEnemy",
+            "sourceEffectIds": ["chr_0004_pelica_talent_2_1"],
+            "compiler": "unmodeledMultiTarget",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "extendedElectrification",
+            "sourceEffectIds": ["chr_0004_pelica_potential_1"],
+            "compiler": "multiplyReactionDuration",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "reducedUltimateCost",
+            "sourceEffectIds": ["chr_0004_pelica_potential_2"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "attackAfterElectrification",
+            "sourceEffectIds": ["chr_0004_pelica_potential_3"],
+            "compiler": "attackAfterReaction",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "strongerElectrification",
+            "sourceEffectIds": ["chr_0004_pelica_potential_4"],
+            "compiler": "setReactionEffectiveness",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "ultimateCriticalRate",
+            "sourceEffectIds": ["chr_0004_pelica_potential_5"],
+            "compiler": "addUltimateCriticalRate",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0005_chen",
@@ -477,11 +576,92 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -3.0
+              "value": -3.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0005_chen",
+        "slug": "chen-qianyu",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 0,
+          "standardSimulationCompileReadyCount": 0
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0005_chen_talent_1_1", "chr_0005_chen_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0005_chen_talent_2_1", "chr_0005_chen_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0005_chen_potential_1"],
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0005_chen_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0005_chen_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0005_chen_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0005_chen_potential_5"],
+            "compiler": "skillCooldownAndBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0006_wolfgd",
@@ -891,7 +1071,78 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0007_ikut",
+        "slug": "arclight",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "electricDamageBonus",
+            "sourceEffectIds": ["chr_0007_ikut_talent_1_1", "chr_0007_ikut_talent_1_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "electricAdditionalHit",
+            "sourceEffectIds": ["chr_0007_ikut_talent_2_1", "chr_0007_ikut_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0007_ikut_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0007_ikut_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0007_ikut_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0007_ikut_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0007_ikut_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0009_azrila",
@@ -1742,11 +1993,92 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0013_aglina",
+        "slug": "gilberta",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0013_aglina_talent_1_1", "chr_0013_aglina_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0013_aglina_talent_2_1", "chr_0013_aglina_talent_2_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0013_aglina_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0013_aglina_potential_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0013_aglina_potential_3"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0013_aglina_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0013_aglina_potential_5"],
+            "compiler": "skillCooldownAndBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0014_aurora",
@@ -2134,7 +2466,78 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0015_lifeng",
+        "slug": "lifeng",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0015_lifeng_talent_1_1", "chr_0015_lifeng_talent_1_2"],
+            "compiler": "attachedPassive",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0015_lifeng_talent_2_1", "chr_0015_lifeng_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0015_lifeng_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0015_lifeng_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0015_lifeng_potential_3"],
+            "compiler": "passiveBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0015_lifeng_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0015_lifeng_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0016_laevat",
@@ -2773,7 +3176,78 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0018_dapan",
+        "slug": "da-pan",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 0,
+          "standardSimulationCompileReadyCount": 0
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0018_dapan_talent_1_1", "chr_0018_dapan_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0018_dapan_talent_2_1", "chr_0018_dapan_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0018_dapan_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0018_dapan_potential_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0018_dapan_potential_3"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0018_dapan_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0018_dapan_potential_5"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0019_karin",
@@ -2974,7 +3448,77 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0019_karin",
+        "slug": "akekuri",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0019_karin_talent_1_1", "chr_0019_karin_talent_1_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0019_karin_talent_2_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0019_karin_potential_1"],
+            "compiler": "skillSpGainAttackStack",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0019_karin_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0019_karin_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0019_karin_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0019_karin_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0020_meurs",
@@ -3358,7 +3902,79 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0021_whiten",
+        "slug": "estella",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 0,
+          "standardSimulationCompileReadyCount": 0
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0021_whiten_talent_1_1", "chr_0021_whiten_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0021_whiten_talent_2_1", "chr_0021_whiten_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0021_whiten_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0021_whiten_potential_2"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0021_whiten_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0021_whiten_potential_4"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0021_whiten_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0022_bounda",
@@ -3545,7 +4161,79 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0022_bounda",
+        "slug": "fluorite",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 3,
+          "standardSimulationCompileReadyCount": 3
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0022_bounda_talent_1_1", "chr_0022_bounda_talent_1_2"],
+            "compiler": "attachedPassive",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0022_bounda_talent_2_1", "chr_0022_bounda_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0022_bounda_potential_1"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0022_bounda_potential_2"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0022_bounda_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0022_bounda_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0022_bounda_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0023_antal",
@@ -4176,7 +4864,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         }
@@ -4399,7 +5097,77 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0026_lastrite",
+        "slug": "last-rite",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0026_lastrite_talent_1_1", "chr_0026_lastrite_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0026_lastrite_talent_2_1", "chr_0026_lastrite_talent_2_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0026_lastrite_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0026_lastrite_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0026_lastrite_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0026_lastrite_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0026_lastrite_potential_5"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -4532,7 +5300,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         },
@@ -4994,7 +5772,78 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0028_wulfa",
+        "slug": "rossi",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 0,
+          "standardSimulationCompileReadyCount": 0
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0028_wulfa_talent_1_1", "chr_0028_wulfa_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0028_wulfa_talent_2_1", "chr_0028_wulfa_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0028_wulfa_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0028_wulfa_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0028_wulfa_potential_3"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0028_wulfa_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0028_wulfa_potential_5"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0029_pograni",
@@ -5196,7 +6045,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         }
@@ -5520,7 +6379,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         },
@@ -5716,7 +6585,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -6.0
+              "value": -6.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             },
             {
               "entryIndex": 2,
@@ -5754,7 +6633,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -6.0
+              "value": -6.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             },
             {
               "entryIndex": 2,
@@ -6249,7 +7138,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -2.0
+              "value": -2.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         },
@@ -6307,7 +7206,78 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0033_camille",
+        "slug": "camille",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0033_camille_talent_1_1", "chr_0033_camille_talent_1_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0033_camille_talent_2_1", "chr_0033_camille_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0033_camille_potential_1"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0033_camille_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0033_camille_potential_3"],
+            "compiler": "skillCooldownAndBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0033_camille_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0033_camille_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0035_liino",
@@ -6552,7 +7522,17 @@
               "parameterType": 2,
               "parameterModifyType": 1,
               "effectModifyType": 2,
-              "value": -1.0
+              "value": -1.0,
+              "candidate": "skillCooldownFramesAdd",
+              "runtimeClosure": {
+                "priority": 2,
+                "nativeParameter": "CoolDown",
+                "nativeOperation": "Add",
+                "nextDefinitionKind": "addSkillCooldownFrames",
+                "nextStatus": "implemented",
+                "blockers": [],
+                "implementationDecision": "generate"
+              }
             }
           ]
         },
@@ -6824,7 +7804,81 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_9000_endmin",
+        "slug": "endministrator",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 0,
+          "standardSimulationCompileReadyCount": 0
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_9000_endmin_talent_1_1", "chr_9000_endmin_talent_1_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_9000_endmin_talent_2_1", "chr_9000_endmin_talent_2_2"],
+            "compiler": "unmodeledTalent",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_9000_endmin_potential_1"],
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_9000_endmin_potential_2"],
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_9000_endmin_potential_3"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_9000_endmin_potential_4"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_9000_endmin_potential_5"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          }
+        ]
+      }
     }
   ]
 }

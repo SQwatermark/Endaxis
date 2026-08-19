@@ -115,8 +115,36 @@ describe('DamageModifier', () => {
     modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);
 
     expect(evaluateCondition).toHaveBeenCalledTimes(2);
-    expect(evaluateCondition).toHaveBeenLastCalledWith(condition);
+    expect(evaluateCondition).toHaveBeenLastCalledWith(condition, expect.any(Function));
     expect(context.value).toBe(150);
+    expect(context.damageScales.getFinalValue()).toBeCloseTo(1.2);
+  });
+
+  it('passes target-health conditions and the owning Buff number resolver to the environment', () => {
+    const context = createContext();
+    const condition = {
+      kind: 'targetHealthCompare',
+      target: 'enemy',
+      valueType: 'ratio',
+      operator: 'less',
+      value: { blackboardKey: 'hp_remain' },
+    } as const;
+    const evaluateCondition = vi.fn(
+      (_condition, resolveNumber) => resolveNumber(condition.value) === 0.5,
+    );
+    const modifier = new DamageModifier(
+      'operator',
+      {
+        enabledSide: 'attacker',
+        condition,
+        processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.2 }],
+      },
+      value => (typeof value === 'number' ? value : 0.5),
+    );
+
+    modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);
+
+    expect(evaluateCondition).toHaveBeenCalledWith(condition, expect.any(Function));
     expect(context.damageScales.getFinalValue()).toBeCloseTo(1.2);
   });
 

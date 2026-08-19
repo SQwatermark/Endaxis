@@ -1165,12 +1165,42 @@ export const daPanGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential1',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_1_dmg_up',
+          operation: 'assign',
+          value: 0.3,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_1_duration',
+          operation: 'assign',
+          value: 15,
+        },
+      ],
     },
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1_stack',
+          operation: 'add',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1_duration',
+          operation: 'add',
+          value: 10,
+        },
+      ],
     },
     {
       key: 'potential3',
@@ -1199,8 +1229,16 @@ export const daPanGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_5_interval',
+          operation: 'assign',
+          value: 45,
+        },
+      ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
 };

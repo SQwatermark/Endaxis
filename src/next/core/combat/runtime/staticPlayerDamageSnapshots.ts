@@ -97,11 +97,13 @@ export function resolveStaticPlayerDamageSnapshots(
       staticDamageScales[key] + operatorAttributes.get(key),
     ]),
   ) as Record<DamageScaleAttributeKey, number>;
+  attackerDamageScales.damageToStaggeredEnemyIncrease +=
+    context.program.statModifiers?.damageToStaggeredEnemyIncrease ?? 0;
   return {
     attacker: {
       ...attackerDamageScales,
       attack: resolveOperatorAttack(panel, operatorAttributes),
-      criticalRate: panel.criticalRate,
+      criticalRate: panel.criticalRate + (context.program.statModifiers?.criticalRate ?? 0),
       criticalDamageIncrease: panel.criticalDamage,
       weaknessDamageMultiplier: 1,
       igniteDamageMultiplier: 1,

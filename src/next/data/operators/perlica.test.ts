@@ -153,13 +153,16 @@ describe('next Perlica definition', () => {
           sequence: {
             steps: [
               {
-                kind: 'applyStatus',
+                kind: 'applyBuff',
                 parameters: {
-                  statusKey: 'attackAfterElectrification',
+                  buffId: 'buff_chr_0004_pelica_potential_3_atkup',
                   target: 'caster',
-                  durationFrames: 150,
-                  maxStacks: 2,
-                  modifiers: [{ kind: 'attackPercent', value: 0.2 }],
+                  definition: {
+                    stackingType: 'enhanceAndRefresh',
+                    maxStackCount: 2,
+                    durationSeconds: 5,
+                    attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
+                  },
                 },
               },
             ],

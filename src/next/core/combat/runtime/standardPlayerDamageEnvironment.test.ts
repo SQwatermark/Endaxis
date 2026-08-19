@@ -256,6 +256,60 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(taggedDamage).toBeCloseTo(normalDamage * (1.4 / 1.2));
   });
 
+  it('evaluates attached-Buff damage bonuses against the enemy current health ratio', () => {
+    const environment = createEnvironment();
+    const context = createContext();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const operatorBuffs = environment.runtimeOptions.createOperatorBuffRuntime?.(
+      'operator',
+      context.panel,
+    );
+    if (!(operatorBuffs instanceof BuffDefinitionOperationTarget)) {
+      throw new Error('operator Buff runtime is unavailable');
+    }
+    operatorBuffs.apply({
+      buffId: 'buff.chen.potential-1',
+      sourceId: 'operator',
+      blackboardValues: { extra_dmg: 0.2, hp_remain: 0.5 },
+      definition: {
+        stackingType: 'unique',
+        blackboard: { extra_dmg: 0, hp_remain: 0.5 },
+        damageModifiers: [
+          {
+            enabledSide: 'attacker',
+            condition: {
+              kind: 'targetHealthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'less',
+              value: { blackboardKey: 'hp_remain' },
+            },
+            processors: [
+              {
+                kind: 'damageScale',
+                side: 'attacker',
+                zone: 'normal',
+                addition: { blackboardKey: 'extra_dmg' },
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    const healthBeforeHigh = environment.enemyVitals.health;
+    expect(executor.execute(damageStep)).toBe(true);
+    const highHealthDamage = healthBeforeHigh - environment.enemyVitals.health;
+    environment.enemyVitals.takeDamage(environment.enemyVitals.maxHealth);
+    environment.enemyVitals.heal(environment.enemyVitals.maxHealth * 0.49);
+    const healthBeforeLow = environment.enemyVitals.health;
+    expect(executor.execute(damageStep)).toBe(true);
+    const lowHealthDamage = healthBeforeLow - environment.enemyVitals.health;
+
+    expect(highHealthDamage).toBe(224);
+    expect(lowHealthDamage).toBeCloseTo(highHealthDamage * (1.4 / 1.2));
+  });
+
   it('shares the scene-injected vitals instance across damage writes and poise', () => {
     const vitals = createEnemyCombatVitals(testEnemy);
     const environment = new StandardPlayerDamageEnvironment({

@@ -767,7 +767,15 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0015_lifeng_talent_1',
+          blackboardKey: 'atk_up',
+          operation: 'add',
+          value: 0.0005,
+        },
+      ],
     },
     {
       key: 'potential4',

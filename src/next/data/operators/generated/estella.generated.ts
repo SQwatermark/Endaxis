@@ -86,7 +86,8 @@ export const estellaGeneratedSource = {
           "damageTags": [],
           "damageFeatureMatch": null,
           "damageFeatures": [],
-          "numberComparisons": []
+          "numberComparisons": [],
+          "healthComparisons": []
         }
       ],
       "directDamageHits": [],

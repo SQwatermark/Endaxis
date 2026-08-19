@@ -3,6 +3,122 @@
   "complete": false,
   "buffDefinitions": [
     {
+      "buffId": "buff_chr_0005_chen_potential_1",
+      "sourceFile": "buff_chr_0005_chen_potential_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": "duration",
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "extra_dmg",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "hp_remain",
+          "value": 0.5,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Attacker",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "extra_dmg",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "numberComparisons": [],
+          "healthComparisons": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "comparison": "LT",
+              "isRatio": true,
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "hp_remain",
+                "levelValues": [
+                  0.5
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,

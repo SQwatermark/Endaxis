@@ -403,6 +403,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "targetPostProcessorTypes",
         "validatorTagQueries",
         "skillReplacements",
+        "obtainAtbFilters",
     }
 )
 
@@ -1434,6 +1435,7 @@ def _make_generation_pipeline_services() -> GenerationPipelineServices:
         render_typescript=render_typescript,
         resolve_operator_buff_definitions_for_stage=resolve_operator_buff_definitions_for_stage,
         resolve_passive_buff_definitions=resolve_passive_buff_definitions,
+        resolve_progression_buff_definitions=resolve_progression_buff_definitions,
         write_or_check=write_or_check,
     )
 
@@ -2081,6 +2083,48 @@ def resolve_passive_buff_definitions(
         for definition in resolved:
             definitions[definition.buffId] = definition
     return tuple(definitions[key] for key in sorted(definitions)), issues
+
+
+def resolve_progression_buff_definitions(
+    operator: dict[str, Any],
+    potential_table: dict[str, Any],
+    effects: dict[str, Any],
+    buff_source_dir: Path,
+) -> tuple[BuffDefinitionSource, ...]:
+    """只解析 manifest 明确启用的直接 AddBuff 养成；复杂未建模 Buff 不污染正式生成。"""
+    if "potentials" not in operator:
+        return ()
+    char_id = str(operator["charId"])
+    potential = table_row(potential_table, char_id, "CharacterPotentialTable")
+    unlocks = require_list(
+        potential.get("potentialUnlockBundle"), f"CharacterPotentialTable.{char_id}.potentialUnlockBundle"
+    )
+    configs = require_list(operator.get("potentials"), f"{operator['slug']}.potentials")
+    if len(unlocks) != len(configs):
+        raise ValueError(f"{char_id}: potential config count does not match source")
+    buff_ids: set[str] = set()
+    for index, (raw_unlock, raw_config) in enumerate(zip(unlocks, configs, strict=True)):
+        config = require_dict(raw_config, f"{operator['slug']}.potentials[{index}]")
+        if config.get("compile") not in {"attachedBuff", "skillSpGainAttackStack"}:
+            continue
+        unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[{index}]")
+        effect_id = str(unlock["potentialEffectId"])
+        effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+        entries = require_list(effect.get("dataList"), f"{effect_id}.dataList")
+        if len(entries) != 1:
+            raise ValueError(f"{effect_id}: progression Buff compiler expects one effect entry")
+        entry = require_dict(entries[0], f"{effect_id}.dataList[0]")
+        attach = require_dict(entry.get("attachBuff"), f"{effect_id}.dataList[0].attachBuff")
+        buff_id = attach.get("buffId")
+        if not isinstance(buff_id, str) or not buff_id:
+            raise ValueError(f"{effect_id}.dataList[0].attachBuff.buffId: expected non-empty id")
+        buff_ids.add(buff_id)
+    if not buff_ids:
+        return ()
+    return resolve_buff_definitions(
+        tuple(sorted(buff_ids)),
+        (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+    )
 
 
 def collect_operator_passive_skills(

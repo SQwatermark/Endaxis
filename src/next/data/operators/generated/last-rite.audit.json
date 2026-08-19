@@ -452,7 +452,8 @@
                 "levelValues": null
               }
             }
-          ]
+          ],
+          "healthComparisons": []
         }
       ],
       "directDamageHits": [],

@@ -33,6 +33,7 @@ DEFAULT_TABLES = (
     / "artifacts"
     / "TableCfg-1.4.4-9433094-12"
 )
+DEFAULT_MANIFEST = SCRIPT_DIR / "operators.json"
 OBSOLETE_CHARACTER_IDS = {"chr_0002_endminm", "chr_0003_endminf"}
 
 EFFECT_PAYLOAD_KINDS = (
@@ -81,12 +82,53 @@ SKILL_PARAMETER_CONVERSION_CANDIDATES: dict[str, dict[str, Any]] = {
         "blockers": [],
         "implementationDecision": "generate",
     },
+    "skillCooldownFramesAdd": {
+        "priority": 2,
+        "nativeParameter": "CoolDown",
+        "nativeOperation": "Add",
+        "nextDefinitionKind": "addSkillCooldownFrames",
+        "nextStatus": "implemented",
+        "blockers": [],
+        "implementationDecision": "generate",
+    },
+}
+
+# “已转换”表示来源效果已完整进入 OperatorDefinition；“可模拟”还要求该定义类型
+# 已接入标准场景的面板、技能补丁或被动程序编译链。两者必须分开统计。
+TALENT_DEFINITION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage"}
+TALENT_SIMULATION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage"}
+POTENTIAL_DEFINITION_COMPILERS = {
+    "attachedBuff",
+    "skillSpGainAttackStack",
+    "addUltimateCriticalRate",
+    "attackAfterReaction",
+    "multiplyReactionDuration",
+    "multiplyUltimateCost",
+    "passiveBlackboardPatch",
+    "setReactionEffectiveness",
+    "skillBlackboardPatch",
+    "skillCooldownAndBlackboardPatch",
+    "staticAttributes",
+}
+POTENTIAL_SIMULATION_COMPILERS = {
+    "attachedBuff",
+    "skillSpGainAttackStack",
+    "addUltimateCriticalRate",
+    "attackAfterReaction",
+    "multiplyReactionDuration",
+    "multiplyUltimateCost",
+    "passiveBlackboardPatch",
+    "setReactionEffectiveness",
+    "skillBlackboardPatch",
+    "skillCooldownAndBlackboardPatch",
+    "staticAttributes",
 }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tables", type=Path, default=DEFAULT_TABLES)
+    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--json-output", type=Path)
     return parser.parse_args()
 
@@ -212,6 +254,16 @@ def audit_skill_parameter_candidates(
             fact["runtimeClosure"] = SKILL_PARAMETER_CONVERSION_CANDIDATES[
                 "ultimateCostMultiplier"
             ]
+        elif (
+            fact["effectModifyType"] == 2
+            and fact["parameterType"] == 2
+            and fact["parameterModifyType"] == 1
+            and fact["skillGroupType"] is not None
+        ):
+            fact["candidate"] = "skillCooldownFramesAdd"
+            fact["runtimeClosure"] = SKILL_PARAMETER_CONVERSION_CANDIDATES[
+                "skillCooldownFramesAdd"
+            ]
         candidates.append(fact)
     return candidates
 
@@ -251,6 +303,166 @@ def potential_effect_ids(potential: dict[str, Any], path: str) -> tuple[str, ...
             raise ValueError(f"{path}.potentialUnlockBundle[{index}]: invalid unlock")
         entries.append((level, effect_id))
     return tuple(effect_id for _, effect_id in sorted(entries))
+
+
+def talent_effect_ids_by_index(
+    growth: dict[str, Any], path: str
+) -> dict[int, tuple[str, ...]]:
+    """按天赋槽位聚合等级效果；审计数量按槽位而不是等级节点计算。"""
+    grouped: dict[int, list[tuple[int, str]]] = {}
+    nodes = require_dict(growth.get("talentNodeMap"), f"{path}.talentNodeMap")
+    for node_id, raw_node in nodes.items():
+        node_path = f"{path}.talentNodeMap.{node_id}"
+        node = require_dict(raw_node, node_path)
+        passive = require_dict(
+            node.get("passiveSkillNodeInfo"), f"{node_path}.passiveSkillNodeInfo"
+        )
+        effect_id = passive.get("talentEffectId")
+        if not effect_id:
+            continue
+        if not isinstance(effect_id, str):
+            raise ValueError(f"{node_path}: invalid talent effect id")
+        index = passive.get("index")
+        level = passive.get("level")
+        if not isinstance(index, int) or not isinstance(level, int):
+            raise ValueError(f"{node_path}: invalid talent position")
+        grouped.setdefault(index, []).append((level, effect_id))
+    return {
+        index: tuple(effect_id for _, effect_id in sorted(entries))
+        for index, entries in sorted(grouped.items())
+    }
+
+
+def progression_conversion_item(
+    *,
+    source: str,
+    key: str,
+    compiler: str | None,
+    effect_ids: tuple[str, ...],
+) -> dict[str, Any]:
+    """建立单个养成槽位的转换/标准模拟编译双层结论。"""
+    definition_compilers = (
+        TALENT_DEFINITION_COMPILERS
+        if source == "talent"
+        else POTENTIAL_DEFINITION_COMPILERS
+    )
+    simulation_compilers = (
+        TALENT_SIMULATION_COMPILERS
+        if source == "talent"
+        else POTENTIAL_SIMULATION_COMPILERS
+    )
+    explicitly_unmodeled = isinstance(compiler, str) and compiler.startswith("unmodeled")
+    converted = compiler in definition_compilers
+    simulation_ready = converted and compiler in simulation_compilers
+    if explicitly_unmodeled:
+        blocker = "unmodeled-source-effect"
+    elif not converted:
+        blocker = "unsupported-definition-compiler"
+    elif not simulation_ready:
+        blocker = "missing-standard-simulation-consumer"
+    else:
+        blocker = None
+    return {
+        "key": key,
+        "sourceEffectIds": list(effect_ids),
+        "compiler": compiler,
+        "definitionConverted": converted,
+        "standardSimulationCompileReady": simulation_ready,
+        **({"blocker": blocker} if blocker is not None else {}),
+    }
+
+
+def audit_configured_operator_progression(
+    operator: dict[str, Any],
+    growth: dict[str, Any],
+    potential: dict[str, Any],
+    effects: dict[str, Any],
+) -> dict[str, Any]:
+    """审计正式 manifest 的养成槽位，不把仅生成空定义计为已转换。"""
+    slug = str(operator["slug"])
+    talent_sources = talent_effect_ids_by_index(growth, f"{slug}.growth")
+    talents = []
+    for raw_config in require_list(operator.get("talents"), f"{slug}.talents"):
+        config = require_dict(raw_config, f"{slug}.talents[]")
+        index = config.get("index")
+        if not isinstance(index, int) or index not in talent_sources:
+            raise ValueError(f"{slug}.talents: invalid source index {index!r}")
+        compiler = config.get("compile")
+        talents.append(
+            progression_conversion_item(
+                source="talent",
+                key=str(config["key"]),
+                compiler=compiler if isinstance(compiler, str) else None,
+                effect_ids=talent_sources[index],
+            )
+        )
+
+    char_id = str(operator["charId"])
+    potential_sources = potential_effect_ids(potential, f"{slug}.potential")
+    potential_configs = require_list(operator.get("potentials"), f"{slug}.potentials")
+    if len(potential_configs) != len(potential_sources):
+        raise ValueError(f"{slug}.potentials: config count does not match source")
+    ultimate_skill_ids = {
+        skill_id
+        for skill_id, group_type in collect_skill_group_types(
+            growth, f"{slug}.growth"
+        ).items()
+        if group_type == 2
+    }
+    potentials = []
+    for raw_config, effect_id in zip(potential_configs, potential_sources, strict=True):
+        config = require_dict(raw_config, f"{slug}.potentials[]")
+        raw_compiler = config.get("compile")
+        compiler = raw_compiler if isinstance(raw_compiler, str) else None
+        data_list = require_list(
+            require_dict(effects.get(effect_id), f"effects.{effect_id}").get("dataList"),
+            f"effects.{effect_id}.dataList",
+        )
+        if compiler is None and parse_ultimate_cost_multiplier(
+            data_list,
+            ultimate_skill_ids,
+            f"effects.{effect_id}.dataList",
+        ) is not None:
+            compiler = "multiplyUltimateCost"
+        potentials.append(
+            progression_conversion_item(
+                source="potential",
+                key=str(config["key"]),
+                compiler=compiler,
+                effect_ids=(effect_id,),
+            )
+        )
+
+    def counts(items: list[dict[str, Any]]) -> dict[str, int]:
+        return {
+            "totalCount": len(items),
+            "definitionConvertedCount": sum(item["definitionConverted"] for item in items),
+            "standardSimulationCompileReadyCount": sum(
+                item["standardSimulationCompileReady"] for item in items
+            ),
+        }
+
+    talent_counts = counts(talents)
+    potential_counts = counts(potentials)
+    return {
+        "characterId": char_id,
+        "slug": slug,
+        "talent": talent_counts,
+        "potential": potential_counts,
+        "definitionComplete": (
+            talent_counts["definitionConvertedCount"] == talent_counts["totalCount"]
+            and potential_counts["definitionConvertedCount"]
+            == potential_counts["totalCount"]
+        ),
+        "standardSimulationCompileReady": (
+            talent_counts["standardSimulationCompileReadyCount"]
+            == talent_counts["totalCount"]
+            and potential_counts["standardSimulationCompileReadyCount"]
+            == potential_counts["totalCount"]
+        ),
+        "talents": talents,
+        "potentials": potentials,
+    }
 
 
 def audit_effect(
@@ -399,11 +611,30 @@ def audit_effect(
     return result
 
 
-def build_audit(tables: Path) -> dict[str, Any]:
+def build_audit(tables: Path, manifest: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
     characters = load_table(tables, "CharacterTable.json")
     growth_table = load_table(tables, "CharGrowthTable.json")
     potential_table = load_table(tables, "CharacterPotentialTable.json")
     effect_table = load_table(tables, "PotentialTalentEffectTable.json")
+    manifest_document = require_dict(
+        json.loads(manifest.read_text(encoding="utf-8")), str(manifest)
+    )
+    configured_progression: dict[str, dict[str, Any]] = {}
+    for index, raw_operator in enumerate(
+        require_list(manifest_document.get("operators"), f"{manifest}.operators")
+    ):
+        operator = require_dict(raw_operator, f"{manifest}.operators[{index}]")
+        if operator.get("outputStage") == "audit":
+            continue
+        char_id = str(operator["charId"])
+        configured_progression[char_id] = audit_configured_operator_progression(
+            operator,
+            require_dict(growth_table.get(char_id), f"CharGrowthTable.{char_id}"),
+            require_dict(
+                potential_table.get(char_id), f"CharacterPotentialTable.{char_id}"
+            ),
+            effect_table,
+        )
 
     operators = []
     entry_counts: Counter[tuple[str, str]] = Counter()
@@ -485,11 +716,28 @@ def build_audit(tables: Path) -> dict[str, Any]:
                 "talentEffectCount": sum(item["source"] == "talent" for item in effects),
                 "potentialEffectCount": sum(item["source"] == "potential" for item in effects),
                 "effects": effects,
+                **(
+                    {"configuredProgression": configured_progression[character_id]}
+                    if character_id in configured_progression
+                    else {}
+                ),
             }
         )
 
+    def configured_counts(source: str) -> dict[str, int]:
+        items = [item[source] for item in configured_progression.values()]
+        return {
+            "totalCount": sum(item["totalCount"] for item in items),
+            "definitionConvertedCount": sum(
+                item["definitionConvertedCount"] for item in items
+            ),
+            "standardSimulationCompileReadyCount": sum(
+                item["standardSimulationCompileReadyCount"] for item in items
+            ),
+        }
+
     return {
-        "schemaVersion": 6,
+        "schemaVersion": 7,
         "summary": {
             "operatorCount": len(operators),
             "effectCount": sum(len(operator["effects"]) for operator in operators),
@@ -529,6 +777,19 @@ def build_audit(tables: Path) -> dict[str, Any]:
                 )
                 if skill_parameter_candidate_entries[candidate]
             ],
+            "configuredProgression": {
+                "operatorCount": len(configured_progression),
+                "talent": configured_counts("talent"),
+                "potential": configured_counts("potential"),
+                "definitionCompleteOperatorCount": sum(
+                    item["definitionComplete"]
+                    for item in configured_progression.values()
+                ),
+                "standardSimulationCompileReadyOperatorCount": sum(
+                    item["standardSimulationCompileReady"]
+                    for item in configured_progression.values()
+                ),
+            },
         },
         "operators": operators,
     }
@@ -536,7 +797,7 @@ def build_audit(tables: Path) -> dict[str, Any]:
 
 def main() -> None:
     args = parse_args()
-    document = build_audit(args.tables)
+    document = build_audit(args.tables, args.manifest)
     summary = document["summary"]
     if args.json_output is not None:
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
@@ -547,6 +808,16 @@ def main() -> None:
     print(
         f"audited {summary['operatorCount']} operators / "
         f"{summary['effectCount']} talent and potential effects"
+    )
+    configured = summary["configuredProgression"]
+    print(
+        "configured progression: "
+        f"talents={configured['talent']['definitionConvertedCount']}/"
+        f"{configured['talent']['totalCount']} converted, "
+        f"{configured['talent']['standardSimulationCompileReadyCount']} simulation-ready; "
+        f"potentials={configured['potential']['definitionConvertedCount']}/"
+        f"{configured['potential']['totalCount']} converted, "
+        f"{configured['potential']['standardSimulationCompileReadyCount']} simulation-ready"
     )
     for item in summary["entryCounts"]:
         print(f"{item['source']}.{item['payloadKind']}: {item['count']}")

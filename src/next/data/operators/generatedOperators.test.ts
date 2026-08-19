@@ -36,7 +36,12 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
 function hasUpgradeBehavior(
   upgrade: OperatorDefinition['talents'][number] | OperatorDefinition['potentials'][number],
 ): boolean {
-  return (upgrade.modifiers?.length ?? 0) > 0 || (upgrade.eventHandlers?.length ?? 0) > 0;
+  return (
+    (upgrade.modifiers?.length ?? 0) > 0 ||
+    (upgrade.eventHandlers?.length ?? 0) > 0 ||
+    (upgrade.passiveSkills?.length ?? 0) > 0 ||
+    upgrade.initializationSequence !== undefined
+  );
 }
 
 describe('新增的完整技能转换干员', () => {

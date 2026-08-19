@@ -450,6 +450,14 @@ export interface GeneratedBuffDamageModifierSource {
     readonly comparison: string;
     readonly right: GeneratedScalarSource;
   }[];
+  readonly healthComparisons: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+    readonly comparison: string;
+    readonly isRatio: boolean;
+    readonly value: GeneratedScalarSource;
+    readonly characterTeamSelectionRole?: string | null;
+  }[];
 }
 
 /** 原始目标集合数量检查；在单敌人模型中仍需判断是否可以安全消去。 */
@@ -1072,6 +1080,12 @@ export interface GeneratedBuffEventActionSource {
   readonly sequences?: readonly GeneratedSkillEventActionSequenceSource[];
   readonly finishAfterIgnited?: boolean;
   readonly runtimeTargetGroupWrites?: readonly GeneratedTargetGroupWriteSource[];
+  readonly obtainAtbFilters?: readonly {
+    readonly checkObtainType: boolean;
+    readonly obtainTypes: readonly string[];
+    readonly checkObtainMethod: boolean;
+    readonly obtainMethods: readonly string[];
+  }[];
 }
 
 export interface GeneratedBuffEventTargetGroupWriteSource {

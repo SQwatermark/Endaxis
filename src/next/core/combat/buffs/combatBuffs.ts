@@ -424,6 +424,8 @@ export class CombatBuff<Key extends string> {
 
   enhance(sourceId: string): void {
     this.#enhanceCount += 1;
+    // 强化层等价于重复注册同一组属性修正；重复对象可保留八槽中加法与乘法槽各自的聚合公式。
+    this.replaceAttributeModifiers(this.createAttributeModifiers());
     this.definition.actions?.enhanceChanged?.(this, sourceId);
   }
 
@@ -488,19 +490,21 @@ export class CombatBuff<Key extends string> {
   }
 
   private createAttributeModifiers(): readonly CombatAttributeModifier<Key>[] {
-    return (this.definition.attributeModifiers ?? []).map(modifier => {
-      const values = resolveBuffAttributeModifierValues(
-        this.definition.id,
-        modifier.values,
-        this.blackboard,
-      );
-      return new CombatAttributeModifier(
-        modifier.attribute,
-        values,
-        modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
-        modifier.timing,
-      );
-    });
+    return (this.definition.attributeModifiers ?? []).flatMap(modifier =>
+      Array.from({ length: this.#enhanceCount }, () => {
+        const values = resolveBuffAttributeModifierValues(
+          this.definition.id,
+          modifier.values,
+          this.blackboard,
+        );
+        return new CombatAttributeModifier(
+          modifier.attribute,
+          values,
+          modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
+          modifier.timing,
+        );
+      }),
+    );
   }
 
   private replaceAttributeModifiers(replacements: readonly CombatAttributeModifier<Key>[]): void {
