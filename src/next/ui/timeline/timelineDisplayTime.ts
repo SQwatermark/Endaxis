@@ -9,6 +9,39 @@ export interface TimelineTimeDilationBand {
   readonly sourceCastId?: string;
 }
 
+export interface TimelineCastTimeDilationSegment {
+  readonly offsetFrames: number;
+  readonly durationFrames: number;
+}
+
+/**
+ * 把来源于某次施法的实际时间膨胀区间裁剪到该技能块，并转换为相对块起点的实际帧。
+ * 多个生命周期实例保持为多个区间，不能合并成从技能起点开始的定义时长预览。
+ */
+export function projectCastTimeDilationSegments(
+  bands: readonly TimelineTimeDilationBand[],
+  castId: string,
+  castStartFrame: number,
+  castDurationFrames: number,
+): readonly TimelineCastTimeDilationSegment[] {
+  if (castDurationFrames <= 0) return [];
+  const castEndFrame = castStartFrame + castDurationFrames;
+  return Object.freeze(
+    bands.flatMap(band => {
+      if (band.sourceCastId !== castId) return [];
+      const startFrame = Math.max(castStartFrame, band.startFrame);
+      const endFrame = Math.min(castEndFrame, band.endFrame);
+      if (endFrame <= startFrame) return [];
+      return [
+        Object.freeze({
+          offsetFrames: startFrame - castStartFrame,
+          durationFrames: endFrame - startFrame,
+        }),
+      ];
+    }),
+  );
+}
+
 /** 技能实际开始帧以运行时回执为准；被拒绝的放置输入不会伪造开始事实。 */
 export function projectSkillCastActualStartFrames(
   entries: readonly CombatReceiptEntry[],

@@ -54,6 +54,7 @@ import {
   timelineTotalWidth,
 } from './timelineGeometry';
 import {
+  projectCastTimeDilationSegments,
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
@@ -370,16 +371,19 @@ const timelineWidth = computed(() =>
 
 function castTimeDilationSegments(
   castId: string,
+  placementFrame: number,
   durationFrames: number,
 ): readonly { readonly left: number; readonly width: number }[] {
-  const blockWidth = durationFrames * pxPerFrame.value;
-  const overlayWidth = timeDilationBands.value
-    .filter(band => band.sourceCastId === castId)
-    .reduce(
-      (maximum, band) => Math.max(maximum, (band.endFrame - band.startFrame) * pxPerFrame.value),
-      0,
-    );
-  return overlayWidth > 0 ? [{ left: 0, width: Math.min(blockWidth, overlayWidth) }] : [];
+  const castStartFrame = castActualStartFrame(castId, placementFrame);
+  return projectCastTimeDilationSegments(
+    timeDilationBands.value,
+    castId,
+    castStartFrame,
+    durationFrames,
+  ).map(segment => ({
+    left: segment.offsetFrames * pxPerFrame.value,
+    width: segment.durationFrames * pxPerFrame.value,
+  }));
 }
 
 function setCastHovered(castId: string, hovered: boolean): void {
@@ -1719,6 +1723,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :time-dilation-segments="
                   castTimeDilationSegments(
                     cast.id,
+                    cast.startFrame,
                     castActualDurationFrame(cast.id, cast.durationFrames),
                   )
                 "

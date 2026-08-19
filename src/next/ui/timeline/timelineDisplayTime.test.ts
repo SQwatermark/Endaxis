@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import {
+  projectCastTimeDilationSegments,
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
@@ -79,6 +80,42 @@ describe('timeline display time', () => {
         endFrame: 30,
         targetId: 'track:1',
       },
+    ]);
+  });
+
+  it('keeps actual source intervals separate and clips them to the skill block', () => {
+    expect(
+      projectCastTimeDilationSegments(
+        [
+          {
+            instanceId: 1,
+            kind: 'global',
+            startFrame: 8,
+            endFrame: 14,
+            sourceCastId: 'cast:ultimate',
+          },
+          {
+            instanceId: 2,
+            kind: 'entity',
+            startFrame: 18,
+            endFrame: 24,
+            sourceCastId: 'cast:ultimate',
+          },
+          {
+            instanceId: 3,
+            kind: 'global',
+            startFrame: 12,
+            endFrame: 20,
+            sourceCastId: 'cast:other',
+          },
+        ],
+        'cast:ultimate',
+        10,
+        12,
+      ),
+    ).toEqual([
+      { offsetFrames: 0, durationFrames: 4 },
+      { offsetFrames: 8, durationFrames: 4 },
     ]);
   });
 

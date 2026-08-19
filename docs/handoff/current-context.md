@@ -159,7 +159,7 @@ step('spawnAbilityEntity', {
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前严格全量审计基线为 30 名、320 个入口、317 个可解析、281 个可编译，零专用声明直转 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
-- 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 177 个文件、1121 项全部通过。新增回归覆盖对象局部时间推导的技能实际宽度与命中点、未决宽度判定、零宽展示技能边界，以及既有 Buff、资源、状态、能力实体和干员转换链。
+- 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 177 个文件、1122 项全部通过。新增回归覆盖对象局部时间推导的技能实际宽度与命中点、未决宽度判定、零宽展示技能边界、时间膨胀实际区间裁剪，以及既有 Buff、资源、状态、能力实体和干员转换链。
 - 全仓 `npm test -- --run`：249 个文件中 244 个、1536 项中 1528 项通过。8 项失败均位于旧版：`TimelineEditor.structure` 3 项、`SimLogPanel.structure` 1 项、`statusOptions` 1 项、`patchSkillLeveledCap` 2 项、`simulator` 1 项；本轮没有为通过这些断言而修改旧版代码。Next 全量通过不能替代这条全仓结论。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。
@@ -271,6 +271,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 技能块实际宽度已接入实例级局部边界事实：场景块成功启动后，所属干员的 AbilitySystem 独立按 `selfScaledDelta` 累计定义中的 `timelineBlockFrames`，到达时发布 `SkillOperableBoundaryReached` 实际帧回执；动作序列自然结束、被下一技能中断或技能槽切形态都不改变这项 UI 边界累计。投影层用同一 `castId` 的 `SkillStarted` 与边界回执相减得到实际宽度，技能块和普通连线端点共同消费；未在模拟范围内到达边界时不猜测未来倍率，暂用定义宽度保底。离散帧边界已明确：第 N 帧启动不能在同一帧立即消费一整帧局部增量。0.5 倍速集成回归验证 2 个局部帧投影为 4 个实际帧；本轮门禁为 `type-check:next`、Next Vitest 177 文件 1116/1116、`git diff --check`，本地时间轴渲染无控制台告警。
 - 块内命中点已经迁移到实例实际帧。场景编译此前只有 `ResolvedCombatStep.hitId` 声明而没有赋值，现按 `deriveHitId(castId, stepKey)` 递归绑定根动作、条件/once/逐帧/Context 容器、技能事件响应与能力实体子技能；无稳定 key 的伤害继续不伪造命中身份。`DamageApplied` 投影保留 `castId/hitId`，每个标记采用首次实际伤害帧；附着与反应按相同 `castId` 和实际帧归组。技能块内标记、详情标题和命中连线端点共同消费该事实，未执行或被拒绝的技能才回退定义局部偏移。生产弧光终结技回归确认能力实体两次伤害带同一放置 `castId` 与独立 `hitId`，实际发生在第 63、119 帧。本轮门禁为 `type-check:next`、Next Vitest 177 文件 1119/1119、`git diff --check`；本地时间轴可渲染该终结技的两个子技能命中标记且无控制台告警。
 - 时间轴实际时间投影的宽度边界又收紧了一层：只有“定义宽度为正、该次施法已经实际启动、当前已发布快照仍没有 `SkillOperableBoundaryReached`”三项同时成立时，技能块才标记为宽度未决，并在定义宽度保底块右侧显示虚线边界与渐隐斜纹尾部。禁用、被拒绝、尚未进入模拟的技能块继续只是定义预览，不会被误标；`timelineBlockFrames = 0` 的展示技能不会进入正时长边界累计器。台式机 `/next/timeline` 实际交互已确认：启用并正常完成的 Arclight 终结技不出现未决尾部，浏览器控制台无警告或错误。本轮门禁为 `type-check:next`、Next Vitest 177 文件 1121/1121、`git diff --check`。下一项应沿同一证据边界审计块内剩余局部投影，缺少实例回执的持续区间、状态条或连线端点必须明确保持预览/未决，不能把定义局部帧当成实际战斗帧。
+- 技能块内现有局部投影审计已经完成：普通连线端点消费实例实际宽度，命中点消费 `DamageApplied` 实际帧；块内时间膨胀流光现按每个 `TimeDilationStarted/Ended` 生命周期实例相对技能实际起点投影，保留多段区间并裁剪到技能实际宽度，不再强制从块左端开始或合并成最大宽度。台式机真实弧光样本确认两个实例分别渲染，选中时纵向阴影与同一实际区间一致且控制台无告警；延迟开始和前后越界由纯投影测试覆盖。本轮门禁为 `type-check:next`、Next Vitest 177 文件 1122/1122。当前时间轴没有渲染其他定义局部持续条；新增此类展示必须先有实例回执及预览/未决语义。主线下一步回到横向贯通正常模拟与干员转换。
 
 ## 8. 恢复工作清单
 
