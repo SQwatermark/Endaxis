@@ -276,11 +276,35 @@ def compile_combat_condition(
         distance = source.distance
         if distance is None:
             raise ValueError(f"{path}: missing distance condition payload")
+        present_context_keys: set[str] = set()
+        if action is not None:
+            for sibling in action.conditions:
+                entity_count = getattr(sibling, "entityCount", None)
+                if (
+                    sibling.sourceType != "CheckEntityNum"
+                    or entity_count is None
+                    or entity_count.targetSource != "Context"
+                    or entity_count.comparison != "GE"
+                    or entity_count.minimumCount < 1
+                ):
+                    continue
+                write = resolve_latest_target_group_write(
+                    action,
+                    entity_count.targetGroupKey,
+                    target_group_writes,
+                )
+                if (
+                    write is not None
+                    and target_group_write_ability_entity_collection_identity(write)
+                    is not None
+                ):
+                    present_context_keys.add(entity_count.targetGroupKey)
         result = evaluate_zero_distance_condition(
             distance,
             root_skill_context=root_skill_context,
             input_target=input_target,
             ability_entity_current_target=ability_entity_current_target,
+            present_context_keys=frozenset(present_context_keys),
         )
         if result is True:
             return "{ kind: 'singleEnemyPresent' }"

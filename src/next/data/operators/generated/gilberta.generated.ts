@@ -11905,7 +11905,9 @@ export const gilbertaGeneratedSource = {
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             }
           ]
         }

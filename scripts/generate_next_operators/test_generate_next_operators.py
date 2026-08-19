@@ -36,6 +36,7 @@ from generate_next_operators import (
     compile_skill_entries,
     compile_buff_application_values,
     compile_aura_action,
+    compile_aura_exit_action,
     parse_skill_event_listeners,
     parse_buff_event_actions,
     parse_buff_start_vulnerability,
@@ -67,6 +68,7 @@ from generate_next_operators import (
     timeline_jump_can_compile,
     parse_timeline_jumps,
     compile_ability_entity_child_skill,
+    compile_skill_target_group_ability_entity_query,
     compile_damage_units_step,
     encode_damage_step_key,
     encode_step_key_parts,
@@ -1259,6 +1261,143 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             write,
         )
         self.assertTrue(target_group_write_guarantees_single_enemy(write))
+
+    def test_zero_distance_accepts_entity_context_only_with_sibling_existence_proof(self) -> None:
+        raw_write = {
+            "$type": "Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 1,
+            "targetGroupKey": "water_center",
+            "center": "ActionSource",
+            "centerContextKey": "",
+            "useCenterEntityMountPoint": False,
+            "centerMountPoint": "None",
+            "centerToGround": False,
+            "selectorOwner": "ActionOwner",
+            "selectorOwnerContextKey": "",
+            "selectorData": {
+                "finderData": {
+                    "$type": (
+                        "Beyond.Gameplay.Core.Selector+OwnerSpawnedEntityFinder+Data, "
+                        "Gameplay.Beyond"
+                    ),
+                    "spawnedObjectType": "AbilityEntity",
+                },
+                "validatorData": [
+                    {
+                        "$type": (
+                            "Beyond.Gameplay.Core.Selector+TagValidator+Data, "
+                            "Gameplay.Beyond"
+                        ),
+                        "query": {
+                            "queryType": "HasAny",
+                            "tags": [{"tagId": 27}],
+                        },
+                    }
+                ],
+                "postProcessorData": [],
+            },
+            "selectorDirection": "SourceForward",
+            "target": "ActionSource",
+            "contextKey": "",
+            "useAdvancedDirectionSetting": False,
+            "advancedSelectorDirection": {},
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 0,
+                        "_sequenceActionData": {"actionData": [raw_write]},
+                    }
+                ]
+            }
+        }
+        write = parse_target_group_writes(root, "fixture.json")[0]
+        count = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="water_center",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=False,
+                storeKey="",
+            ),
+        )
+        distance = ConditionSource(
+            sourceType="CheckDistanceCondition",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            distance=SimpleNamespace(
+                source=parse_target_reference(
+                    target_settings_fixture("MainCharacter"),
+                    "fixture.source",
+                ),
+                target=parse_target_reference(
+                    target_settings_fixture(
+                        "Context",
+                        target_group_key="water_center",
+                    ),
+                    "fixture.target",
+                ),
+                distance=8,
+                lessThan=True,
+            ),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=2,
+            actionPath=("condition",),
+            conditions=(count, distance),
+            succeedActions=(),
+            failActions=(),
+        )
+
+        compiled = compile_combat_condition_group(
+            action.conditions,
+            "fixture.conditions",
+            action=action,
+            target_group_writes=(write,),
+        )
+
+        self.assertIn("contextTargetCountCompare", compiled)
+        self.assertIn("singleEnemyPresent", compiled)
+        with self.assertRaisesRegex(ValueError, "zero-distance model"):
+            compile_combat_condition_group(
+                (distance,),
+                "fixture.distanceOnly",
+                action=replace(action, conditions=(distance,)),
+                target_group_writes=(write,),
+            )
+        action_source_write = replace(write, selectorOwner="ActionSource")
+        templates = {"water_entity": {"bornTagIds": [27]}}
+        with self.assertRaisesRegex(ValueError, "unsupported skill target-group producer"):
+            compile_skill_target_group_ability_entity_query(
+                action_source_write,
+                templates,
+                "fixture.rootQuery",
+            )
+        query = compile_skill_target_group_ability_entity_query(
+            action_source_write,
+            templates,
+            "fixture.childQuery",
+            allow_action_source_owner=True,
+        )
+        self.assertIn("abilityEntityIds: ['water_entity']", query)
 
     def test_target_group_non_empty_proof_covers_exhaustive_enemy_or_point_paths(
         self,
@@ -7303,6 +7442,172 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 ]
             ),
         )
+
+    def test_fixed_faction_aura_preserves_enter_finish_and_exit_application(self) -> None:
+        action = aura_action_fixture()
+        action["fixedWhenStart"] = True
+        action["targetObjectType"] = "Character"
+        action["targetFilter"].update(
+            {
+                "autoSetTargetFaction": False,
+                "factionTarget": "Anti",
+                "targetFactionType": "Good",
+            }
+        )
+        action["actionInAura"]["actionData"] = [
+            {
+                "$type": "Example.FinishBuffAdvanced+Data, Example",
+                "isEnable": True,
+                "serverActionIndex": 8,
+                "buffOwner": {"targetSource": "Target", "targetGroupKey": ""},
+                "buffSettings": {
+                    "checkType": "Id",
+                    "buffIdList": ["buff.fixture.out"],
+                    "tagQuery": {"queryType": "HasAny", "tags": []},
+                },
+                "finishAll": True,
+                "finishLayerCnt": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "limitSource": False,
+                "isFinishedEarly": True,
+                "isAbsorbed": False,
+            }
+        ]
+        action["actionWhenExitAura"]["actionData"] = [
+            {
+                "$type": "Example.CreateBuffAction+Data, Example",
+                "isEnable": True,
+                "serverActionIndex": 9,
+                "buffs": [
+                    {
+                        "buffId": "buff.fixture.out",
+                        "assignBlackboard": False,
+                        "assignItems": [],
+                    }
+                ],
+                "targetSettings": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                },
+                "count": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "buffSource": "ActionSource",
+                "contextKey": "",
+                "inheritSourceSkillCastInfo": True,
+            }
+        ]
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 10,
+                        "_endFrame": 40,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(aura.actionInAuraTypes, ("FinishBuffAdvanced",))
+        self.assertEqual(len(aura.actionInAuraBuffFinishes), 1)
+        self.assertEqual(
+            aura.actionInAuraBuffFinishes[0].buffIds,
+            ("buff.fixture.out",),
+        )
+        self.assertEqual(aura.actionWhenExitAuraTypes, ("CreateBuffAction",))
+        self.assertEqual(len(aura.actionWhenExitAuraBuffApplications), 1)
+        self.assertEqual(
+            aura.actionWhenExitAuraBuffApplications[0].buffs[0].buffId,
+            "buff.fixture.out",
+        )
+        compiled_enter = compile_aura_action(
+            aura,
+            "fixture.aura",
+            buff_definitions=None,
+        )
+        self.assertLess(
+            compiled_enter.index("step('finishBuffsById'"),
+            compiled_enter.index("step('applyBuff'"),
+        )
+        self.assertIn("target: 'partyExceptCaster'", compiled_enter)
+        self.assertIn("buffIds: ['buff.fixture.out']", compiled_enter)
+        self.assertIn("buffId: 'buff.fixture'", compiled_enter)
+
+        compiled_exit = compile_aura_exit_action(
+            aura,
+            "fixture.aura",
+            buff_definitions=None,
+        )
+        self.assertIsNotNone(compiled_exit)
+        assert compiled_exit is not None
+        self.assertIn("buffId: 'buff.fixture.out'", compiled_exit)
+        self.assertIn("target: 'partyExceptCaster'", compiled_exit)
+
+    def test_fixed_enemy_faction_aura_exit_targets_unique_enemy(self) -> None:
+        action = aura_action_fixture()
+        action["fixedWhenStart"] = True
+        action["targetFilter"].update(
+            {
+                "autoSetTargetFaction": False,
+                "factionTarget": "Anti",
+                "targetFactionType": "Bad",
+            }
+        )
+        action["actionInAura"]["actionData"] = []
+        action["actionWhenExitAura"]["actionData"] = [
+            {
+                "$type": "Example.CreateBuffAction+Data, Example",
+                "isEnable": True,
+                "serverActionIndex": 9,
+                "buffs": [
+                    {
+                        "buffId": "buff.fixture.out",
+                        "assignBlackboard": False,
+                        "assignItems": [],
+                    }
+                ],
+                "targetSettings": {"targetSource": "Target", "targetGroupKey": ""},
+                "count": {
+                    "useBlackboardKey": False,
+                    "value": 1,
+                    "blackboardKey": "",
+                },
+                "buffSource": "ActionSource",
+                "contextKey": "",
+                "inheritSourceSkillCastInfo": True,
+            }
+        ]
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 10,
+                        "_endFrame": 40,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        compiled = compile_aura_exit_action(
+            aura,
+            "fixture.aura",
+            buff_definitions=None,
+        )
+
+        self.assertIsNotNone(compiled)
+        assert compiled is not None
+        self.assertIn("buffId: 'buff.fixture.out'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
 
     def test_zero_space_enemy_aura_outputs_airborne_before_recursive_damage(self) -> None:
         action = aura_action_fixture()

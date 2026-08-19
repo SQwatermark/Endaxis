@@ -1153,6 +1153,8 @@ class AuraActionSource:
     actionWhenExitAuraTypes: tuple[str, ...]
     nestedCombatActions: tuple[str, ...]
     airborneOutputs: tuple[AirborneOutputSource, ...] = ()
+    actionInAuraBuffFinishes: tuple[BuffFinishPayload, ...] = ()
+    actionWhenExitAuraBuffApplications: tuple[BuffApplicationPayload, ...] = ()
 
 
 @dataclass(frozen=True)

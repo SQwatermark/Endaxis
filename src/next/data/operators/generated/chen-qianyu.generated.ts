@@ -7117,7 +7117,9 @@ export const chenQianyuGeneratedSource = {
               "deadOption": "AllValid",
               "returnTrueWhen": "Always"
             }
-          ]
+          ],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": []
         }
       ],
       "physicalInflictions": [],

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, cast
 
 from buff_definition_compiler import compile_inline_buff_definition
@@ -23,6 +23,7 @@ class BuffApplicationCompilerServices:
     compile_condition_operand: Callable[..., Any]
     compile_inline_buff_behaviors: Callable[..., Any]
     compile_inline_buff_scheduled_sequences: Callable[..., Any]
+    compile_buff_finish: Callable[..., Any]
     resolve_fixed_combat_target: Callable[..., Any]
 
 
@@ -283,7 +284,6 @@ def compile_aura_action(
         and not aura.root.postProcessorTypes
         and aura.excludeColliderOptions == 0
         and target_filter.checkAlive
-        and target_filter.autoSetTargetFaction
         and not target_filter.filterObjectType
         and not target_filter.filterSlot
         and not target_filter.filterGameplayTag
@@ -295,11 +295,28 @@ def compile_aura_action(
         and not aura.actionInAuraOnlyGuard
         and not aura.actionWhenExitAuraOnlyMainOperator
         and not aura.actionWhenExitAuraOnlyGuard
-        and not aura.actionWhenExitAuraTypes
+    )
+    enemy_faction = (
+        target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+    ) or (
+        not target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+        and target_filter.factionTargetType == "Bad"
+    )
+    ally_faction = (
+        target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Ally"
+    ) or (
+        not target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+        and target_filter.factionTargetType == "Good"
     )
     if (
         common_fixed_area
-        and target_filter.factionTarget == "Anti"
+        and target_filter.autoSetTargetFaction
+        and enemy_faction
+        and not aura.actionWhenExitAuraTypes
         and aura.excludeOwner
         and aura.targetObjectType == 0
         and aura.limitInfluenceCountPerTarget
@@ -337,13 +354,13 @@ def compile_aura_action(
     application_target: Literal["enemy", "party", "partyExceptCaster"] | None = None
     if (
         common_fixed_area
-        and target_filter.factionTarget == "Anti"
+        and enemy_faction
         and aura.targetObjectType in {0, "Enemy", "EnemyAll"}
     ):
         application_target = "enemy"
     elif (
         common_fixed_area
-        and target_filter.factionTarget == "Ally"
+        and ally_faction
         and aura.targetObjectType in {0, "Character"}
     ):
         application_target = "partyExceptCaster" if aura.excludeOwner else "party"
@@ -353,14 +370,52 @@ def compile_aura_action(
             not aura.limitInfluenceCountPerTarget
             or aura.maxInfluenceCountPerTarget == 1
         )
-        and not aura.actionInAuraTypes
-        and not aura.nestedCombatActions
+        and (
+            not aura.actionInAuraTypes
+            or (
+                aura.actionInAuraTypes == ("FinishBuffAdvanced",)
+                and len(aura.actionInAuraBuffFinishes) == 1
+            )
+        )
+        and (
+            not aura.actionWhenExitAuraTypes
+            or (
+                aura.actionWhenExitAuraTypes == ("CreateBuffAction",)
+                and len(aura.actionWhenExitAuraBuffApplications) == 1
+            )
+        )
+        and set(aura.nestedCombatActions).issubset(
+            set(aura.actionInAuraTypes) | set(aura.actionWhenExitAuraTypes)
+        )
         and not aura.airborneOutputs
     ):
-        raise ValueError(f"{path}: Aura target or lifecycle shape is not closed")
+        raise ValueError(
+            f"{path}: Aura target or lifecycle shape is not closed "
+            f"(autoFaction={target_filter.autoSetTargetFaction!r}, "
+            f"faction={target_filter.factionTarget!r}/"
+            f"{target_filter.factionTargetType!r}, target={application_target!r}, "
+            f"in={aura.actionInAuraTypes!r}/"
+            f"{len(aura.actionInAuraBuffFinishes)}, "
+            f"exit={aura.actionWhenExitAuraTypes!r}/"
+            f"{len(aura.actionWhenExitAuraBuffApplications)}, "
+            f"nested={aura.nestedCombatActions!r})"
+        )
     if not aura.buffs:
         raise ValueError(f"{path}: Aura has no Buff inputs")
-    compiled = [
+    compiled: list[str] = []
+    if aura.actionInAuraBuffFinishes:
+        compiled.append(
+            services.compile_buff_finish(
+                replace(
+                    aura.actionInAuraBuffFinishes[0],
+                    targetSource="Context",
+                    targetGroupKey="",
+                ),
+                f"{path}.actionInAura.buffFinishes[0]",
+                context_finish_target=application_target,
+            )
+        )
+    compiled.extend(
         compile_buff_application_values(
             buff_id=buff.buffId,
             blackboard_assignments=buff.blackboardAssignments,
@@ -383,7 +438,7 @@ def compile_aura_action(
             services=services,
         )
         for index, buff in enumerate(aura.buffs)
-    ]
+    )
     if len(compiled) == 1:
         return compiled[0]
     lines = ["sequence("]
@@ -391,5 +446,72 @@ def compile_aura_action(
         item_lines = indent_source(item, 2)
         item_lines[-1] += ","
         lines.extend(item_lines)
+    lines.append(")")
+    return "\n".join(lines)
+
+
+def compile_aura_exit_action(
+    aura: AuraActionSource,
+    path: str,
+    *,
+    buff_definitions: dict[str, BuffDefinitionSource] | None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    services: BuffApplicationCompilerServices,
+) -> str | None:
+    """编译零空间 Aura 在结束帧必然执行的离开区域 Buff 动作。"""
+    if not aura.actionWhenExitAuraBuffApplications:
+        return None
+    target_filter = aura.targetFilter
+    if (
+        not target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+        and target_filter.factionTargetType == "Bad"
+    ):
+        application_target: Literal["enemy", "partyExceptCaster"] = "enemy"
+    elif (
+        not target_filter.autoSetTargetFaction
+        and target_filter.factionTarget == "Anti"
+        and target_filter.factionTargetType == "Good"
+        and aura.excludeOwner
+    ):
+        application_target = "partyExceptCaster"
+    else:
+        raise ValueError(f"{path}: Aura exit target is not closed")
+    sources: list[str] = []
+    for application_index, application in enumerate(
+        aura.actionWhenExitAuraBuffApplications
+    ):
+        for buff_index, buff in enumerate(application.buffs):
+            sources.append(
+                compile_buff_application_values(
+                    buff_id=buff.buffId,
+                    blackboard_assignments=buff.blackboardAssignments,
+                    target_source=("Target" if application_target == "enemy" else "Context"),
+                    target_group_key="",
+                    count=application.count,
+                    buff_source=application.buffSource,
+                    buff_source_context_key=application.buffSourceContextKey,
+                    inherit_source_skill_cast_info=application.inheritSourceSkillCastInfo,
+                    root_skill_context=True,
+                    path=(
+                        f"{path}.actionWhenExitAura.buffApplications[{application_index}]"
+                        f".buffs[{buff_index}]"
+                    ),
+                    context_application_target=(
+                        application_target if application_target == "partyExceptCaster" else None
+                    ),
+                    input_target=("enemy" if application_target == "enemy" else None),
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=invoked_child_context,
+                    services=services,
+                )
+            )
+    if len(sources) == 1:
+        return sources[0]
+    lines = ["sequence("]
+    for source in sources:
+        source_lines = indent_source(source, 2)
+        source_lines[-1] += ","
+        lines.extend(source_lines)
     lines.append(")")
     return "\n".join(lines)

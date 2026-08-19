@@ -6,7 +6,12 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, cast
 
 from action_kinds import AUDITED_COMBAT_ACTION_NAMES
-from action_payload_parser import parse_buff_application_entries, parse_scalar
+from action_payload_parser import (
+    parse_buff_application_entries,
+    parse_buff_application_payload,
+    parse_buff_finish_payload,
+    parse_scalar,
+)
 from source_models import (
     AirborneOutputSource,
     AuraActionSource,
@@ -404,6 +409,24 @@ def parse_aura_actions(
                     actionWhenExitAuraTypes=exit_types,
                     nestedCombatActions=nested_combat_actions,
                     airborneOutputs=airborne_outputs,
+                    actionInAuraBuffFinishes=tuple(
+                        parse_buff_finish_payload(
+                            action,
+                            f"{action_path}.actionInAura.actionData[{index}]",
+                            inherited_blackboard,
+                        )
+                        for index, action in enumerate(in_actions)
+                        if action_name(str(action["$type"])) == "FinishBuffAdvanced"
+                    ),
+                    actionWhenExitAuraBuffApplications=tuple(
+                        parse_buff_application_payload(
+                            action,
+                            f"{action_path}.actionWhenExitAura.actionData[{index}]",
+                            inherited_blackboard,
+                        )
+                        for index, action in enumerate(_exit_actions)
+                        if action_name(str(action["$type"])) == "CreateBuffAction"
+                    ),
                 )
             )
 

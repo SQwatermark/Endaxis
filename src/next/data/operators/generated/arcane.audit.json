@@ -22758,7 +22758,9 @@
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             },
             {
               "startFrame": 0,
@@ -22888,7 +22890,9 @@
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             }
           ]
         }

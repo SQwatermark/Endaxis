@@ -9030,7 +9030,9 @@
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             }
           ]
         }

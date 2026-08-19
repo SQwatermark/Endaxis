@@ -11,7 +11,7 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：320 个。
-- 无角色专用声明即可进入通用 DSL：292 个。
+- 无角色专用声明即可进入通用 DSL：299 个。
 - 当前整名干员完整直转：14 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
 - 当前技能入口中已结构化的事件监听器：17 个。
@@ -29,7 +29,7 @@
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
 | Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
-| Tangtang       | `chr_0027_tangtang` |   11 |     11 |      9 | 否       |
+| Tangtang       | `chr_0027_tangtang` |   11 |     11 |     10 | 否       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
@@ -37,11 +37,11 @@
 | Alesh          | `chr_0024_deepfin`  |   10 |     10 |      9 | 否       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
-| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      6 | 否       |
+| Snowshine      | `chr_0014_aurora`   |    8 |      8 |      7 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |     12 |      7 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |     12 |      8 | 否       |
 | Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
-| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     14 | 否       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     15 | 否       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
@@ -50,7 +50,7 @@
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     11 | 是       |
-| Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     11 | 否       |
+| Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     14 | 否       |
 | Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 
@@ -61,11 +61,10 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `conditional-leaf`         |      6 |
-| `condition-other`          |      5 |
+| `condition-other`          |      6 |
 | `projectile-data`          |      5 |
-| `other`                    |      4 |
-| `buff-source-or-target`    |      3 |
+| `other`                    |      3 |
+| `buff-source-or-target`    |      2 |
 | `projectile-child-actions` |      2 |
 | `root-action-coverage`     |      2 |
 | `condition-entity-count`   |      1 |

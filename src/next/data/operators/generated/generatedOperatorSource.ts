@@ -585,7 +585,7 @@ export interface GeneratedAirborneOutputSource {
   readonly returnTrueWhen: string;
 }
 
-/** 区域持续动作的审计事实；生命周期闭环前不得直接近似成一次 Buff 应用。 */
+/** 区域持续动作的审计事实；仅严格闭合的目标与生命周期可进入运行时。 */
 export interface GeneratedAuraActionSource {
   readonly startFrame: number | null;
   readonly endFrame: number | null;
@@ -622,6 +622,8 @@ export interface GeneratedAuraActionSource {
   readonly actionWhenExitAuraTypes: readonly string[];
   readonly nestedCombatActions: readonly string[];
   readonly airborneOutputs: readonly GeneratedAirborneOutputSource[];
+  readonly actionInAuraBuffFinishes: readonly GeneratedBuffFinishPayload[];
+  readonly actionWhenExitAuraBuffApplications: readonly GeneratedBuffApplicationPayload[];
 }
 
 export interface GeneratedTargetIdentityConditionSource {

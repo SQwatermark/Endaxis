@@ -61,6 +61,7 @@ from damage_step_compiler import (
 from buff_application_compiler import (
     BuffApplicationCompilerServices,
     compile_aura_action as compile_aura_action_backend,
+    compile_aura_exit_action as compile_aura_exit_action_backend,
     compile_buff_application as compile_buff_application_backend,
     compile_buff_application_values as compile_buff_application_values_backend,
 )
@@ -1349,6 +1350,7 @@ def _make_buff_application_compiler_services() -> BuffApplicationCompilerService
         compile_condition_operand=compile_condition_operand,
         compile_inline_buff_behaviors=compile_inline_buff_behaviors,
         compile_inline_buff_scheduled_sequences=compile_inline_buff_scheduled_sequences,
+        compile_buff_finish=compile_buff_finish,
         resolve_fixed_combat_target=resolve_fixed_combat_target,
     )
 
@@ -4782,6 +4784,22 @@ def _compile_conditional_leaf_with_context(
     )
 
 
+def compile_aura_exit_action(
+    aura: AuraActionSource,
+    path: str,
+    *,
+    buff_definitions: dict[str, BuffDefinitionSource] | None,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+) -> str | None:
+    return compile_aura_exit_action_backend(
+        aura,
+        path,
+        buff_definitions=buff_definitions,
+        invoked_child_context=invoked_child_context,
+        services=_make_buff_application_compiler_services(),
+    )
+
+
 def _compile_conditional_condition_with_context(
     action: ConditionalActionSource,
     path: str,
@@ -5433,6 +5451,7 @@ def compile_skill_target_group_ability_entity_query(
     path: str,
     *,
     save_count_to_blackboard_key: str | None = None,
+    allow_action_source_owner: bool = False,
 ) -> str:
     """编译技能时间线中 owner-spawned 能力实体集合查询。"""
     identity = target_group_write_ability_entity_collection_identity(write)
@@ -5440,7 +5459,12 @@ def compile_skill_target_group_ability_entity_query(
         identity is None
         or write.center != "ActionSource"
         or write.centerContextKey
-        or write.selectorOwner != "ActionOwner"
+        or write.selectorOwner
+        not in (
+            {"ActionOwner", "ActionSource"}
+            if allow_action_source_owner
+            else {"ActionOwner"}
+        )
         or write.selectorOwnerContextKey
     ):
         raise ValueError(f"{path}: unsupported skill target-group producer")
@@ -6077,6 +6101,7 @@ def _make_ability_entity_child_services() -> AbilityEntityChildServices:
         compile_conditional_action_ir=_compile_conditional_action_ir,
         ability_entity_child_timeline_can_compile=ability_entity_child_timeline_can_compile,
         compile_aura_action=compile_aura_action,
+        compile_aura_exit_action=compile_aura_exit_action,
         compile_blackboard_mutation=compile_blackboard_mutation,
         compile_buff_application=compile_buff_application,
         compile_buff_finish=compile_buff_finish,
@@ -6142,6 +6167,7 @@ def evaluate_zero_distance_condition(
     root_skill_context: bool,
     input_target: Literal["enemy"] | None = None,
     ability_entity_current_target: bool = False,
+    present_context_keys: frozenset[str] = frozenset(),
 ) -> bool | None:
     """在已证明两端实体存在的执行上下文中按统一零距离模型折叠比较。"""
     if condition.distance < 0:
@@ -6152,10 +6178,11 @@ def evaluate_zero_distance_condition(
             return False
         if (
             reference.targetSource == "Context"
-            and reference.targetGroupKey == "smart_target"
             and reference.finderType is None
         ):
-            return root_skill_context
+            return (
+                reference.targetGroupKey == "smart_target" and root_skill_context
+            ) or reference.targetGroupKey in present_context_keys
         # 原生 Target 读取当前动作输入；序列化中的 targetGroupKey
         # 是无效残留，不能据此否定 ForEach 当前实体。
         if reference.targetSource == "Target":

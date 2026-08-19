@@ -25,6 +25,7 @@ class AbilityEntityChildServices:
     compile_conditional_action_ir: Callable[..., Any]
     ability_entity_child_timeline_can_compile: Callable[..., Any]
     compile_aura_action: Callable[..., Any]
+    compile_aura_exit_action: Callable[..., Any]
     compile_blackboard_mutation: Callable[..., Any]
     compile_buff_application: Callable[..., Any]
     compile_buff_finish: Callable[..., Any]
@@ -65,6 +66,7 @@ def compile_ability_entity_child_skill(
     _compile_conditional_action_ir = services.compile_conditional_action_ir
     ability_entity_child_timeline_can_compile = services.ability_entity_child_timeline_can_compile
     compile_aura_action = services.compile_aura_action
+    compile_aura_exit_action = services.compile_aura_exit_action
     compile_blackboard_mutation = services.compile_blackboard_mutation
     compile_buff_application = services.compile_buff_application
     compile_buff_finish = services.compile_buff_finish
@@ -259,6 +261,21 @@ def compile_ability_entity_child_skill(
                 ).splitlines(),
             )
         )
+        exit_source = compile_aura_exit_action(
+            aura,
+            f"{skill.key}.{hit.skillId}.auraAction",
+            buff_definitions=buff_definitions,
+            invoked_child_context=(skill, config),
+        )
+        if exit_source is not None:
+            compiled.append(
+                (
+                    aura.endFrame,
+                    sequence_order,
+                    (*hit.actionOrder, aura.actionIndex),
+                    exit_source.splitlines(),
+                )
+            )
 
     child_damage_frames = tuple(damage.frame - hit.spawnFrame for damage in child_damage_hits)
     projected_interval_frames = {
@@ -301,6 +318,7 @@ def compile_ability_entity_child_skill(
                         f"{skill.key}.{hit.skillId}.conditionalAction."
                         f"conditions[{condition_index}].targetGroupWrite",
                         save_count_to_blackboard_key=(entity_count.storeKey or None),
+                        allow_action_source_owner=True,
                     )
                 )
                 queried_context_keys.add(entity_count.targetGroupKey)

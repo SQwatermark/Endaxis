@@ -30633,7 +30633,9 @@ export const arcaneGeneratedSource = {
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             },
             {
               "startFrame": 0,
@@ -30763,7 +30765,9 @@ export const arcaneGeneratedSource = {
               "actionWhenExitAuraOnlyGuard": false,
               "actionWhenExitAuraTypes": [],
               "nestedCombatActions": [],
-              "airborneOutputs": []
+              "airborneOutputs": [],
+              "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffApplications": []
             }
           ]
         }
