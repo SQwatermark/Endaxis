@@ -1681,7 +1681,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack2",
@@ -2194,7 +2195,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack3",
@@ -3011,7 +3013,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack4",
@@ -4395,7 +4398,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack5",
@@ -5005,7 +5009,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisher",
@@ -5583,7 +5588,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttack",
@@ -6040,7 +6046,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -9411,7 +9418,8 @@ export const arclightGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkill",
@@ -10795,7 +10803,8 @@ export const arclightGeneratedSource = {
           "sequenceIndex": 7,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -11969,7 +11978,8 @@ export const arclightGeneratedSource = {
           "sequenceIndex": 5,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

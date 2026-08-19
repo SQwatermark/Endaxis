@@ -223,6 +223,7 @@ function inspectSequence(
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':
+      case 'createAbilityEntityTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
       case 'openComboWindow':

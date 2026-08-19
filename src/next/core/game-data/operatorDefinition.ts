@@ -268,7 +268,7 @@ export type CombatCondition =
   | {
       /** 按Buff 定义 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
       kind: 'buffIdStackCompare';
-      target: CombatTarget;
+      target: CombatTarget | 'currentAbilityEntity';
       buffIds: readonly string[];
       sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;

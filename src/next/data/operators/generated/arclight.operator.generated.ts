@@ -749,6 +749,14 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0007_ikut_ultimate_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
               skillId: 'chr_0007_ikut_ultimate_skill_abentity',
+              blackboard: {
+                'atk_scale1': 0.2,
+                'atk_scale2': 0,
+                'count': 0,
+                'duration': 12,
+                'poise1': 0,
+                'poise2': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   7,

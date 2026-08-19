@@ -17,3 +17,4 @@ export { lastRite } from './last-rite';
 export { chenQianyu } from './chen-qianyu';
 export { rossi } from './rossi';
 export { camille } from './camille';
+export { tangtang } from './tangtang';

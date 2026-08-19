@@ -164,16 +164,16 @@
       }
     ],
     "configuredProgression": {
-      "operatorCount": 13,
+      "operatorCount": 14,
       "talent": {
-        "totalCount": 26,
-        "definitionConvertedCount": 9,
-        "standardSimulationCompileReadyCount": 9
+        "totalCount": 28,
+        "definitionConvertedCount": 11,
+        "standardSimulationCompileReadyCount": 11
       },
       "potential": {
-        "totalCount": 65,
-        "definitionConvertedCount": 55,
-        "standardSimulationCompileReadyCount": 55
+        "totalCount": 70,
+        "definitionConvertedCount": 59,
+        "standardSimulationCompileReadyCount": 59
       },
       "definitionCompleteOperatorCount": 0,
       "standardSimulationCompileReadyOperatorCount": 0
@@ -5486,7 +5486,77 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0027_tangtang",
+        "slug": "tangtang",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
+        },
+        "definitionComplete": false,
+        "standardSimulationCompileReady": false,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0027_tangtang_talent_1_1", "chr_0027_tangtang_talent_1_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0027_tangtang_talent_2_1", "chr_0027_tangtang_talent_2_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0027_tangtang_potential_1"],
+            "compiler": "skillCooldownAndBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0027_tangtang_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0027_tangtang_potential_3"],
+            "compiler": "unmodeledPotential",
+            "definitionConverted": false,
+            "standardSimulationCompileReady": false,
+            "blocker": "unmodeled-source-effect"
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0027_tangtang_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0027_tangtang_potential_5"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_0028_wulfa",

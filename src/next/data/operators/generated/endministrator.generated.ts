@@ -5093,7 +5093,8 @@ export const endministratorGeneratedSource = {
           "sequenceIndex": 14,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkillFemale",
@@ -7313,7 +7314,8 @@ export const endministratorGeneratedSource = {
           "sequenceIndex": 12,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackMale1",
@@ -7834,7 +7836,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackMale2",
@@ -8362,7 +8365,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackMale3",
@@ -9269,7 +9273,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackMale4",
@@ -10627,7 +10632,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackMale5",
@@ -11471,7 +11477,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisherMale",
@@ -12203,7 +12210,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttackMale",
@@ -12667,7 +12675,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackFemale1",
@@ -13216,7 +13225,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackFemale2",
@@ -13758,7 +13768,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackFemale3",
@@ -14665,7 +14676,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackFemale4",
@@ -16044,7 +16056,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttackFemale5",
@@ -16888,7 +16901,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisherFemale",
@@ -17620,7 +17634,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttackFemale",
@@ -18085,7 +18100,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -20238,7 +20254,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkillFemale",
@@ -22386,7 +22403,8 @@ export const endministratorGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -23878,7 +23896,8 @@ export const endministratorGeneratedSource = {
           "sequenceIndex": 11,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimateFemale",
@@ -25377,7 +25396,8 @@ export const endministratorGeneratedSource = {
           "sequenceIndex": 11,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

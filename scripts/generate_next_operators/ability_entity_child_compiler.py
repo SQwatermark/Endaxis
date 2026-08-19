@@ -266,6 +266,7 @@ def compile_ability_entity_child_skill(
             f"{skill.key}.{hit.skillId}.auraAction",
             buff_definitions=buff_definitions,
             invoked_child_context=(skill, config),
+            ignored_buff_ids=ignored_buff_ids | unmodeled_buff_ids,
         )
         if exit_source is not None:
             compiled.append(
@@ -472,7 +473,20 @@ def compile_ability_entity_child_skill(
     # 条件调度，失败时才让原失败分支继续执行，避免失败分支写入影响重复求值。
     render_groups.extend(ordinary_render_groups)
 
-    lines = ["{", f"  skillId: {ts_inline_literal(hit.skillId)},", "  scheduledSequences: ["]
+    lines = ["{", f"  skillId: {ts_inline_literal(hit.skillId)},"]
+    numeric_blackboard = tuple(
+        item
+        for item in getattr(hit, "declaredBlackboard", ())
+        if isinstance(item.value, float)
+    )
+    if numeric_blackboard:
+        lines.append("  blackboard: {")
+        lines.extend(
+            f"    {ts_inline_literal(item.key)}: {ts_inline_literal(item.value)},"
+            for item in numeric_blackboard
+        )
+        lines.append("  },")
+    lines.append("  scheduledSequences: [")
     for frame, sequence_order, end_frame, actions in sorted(
         render_groups,
         key=lambda item: (item[0], item[1], -1 if item[2] is None else item[2]),

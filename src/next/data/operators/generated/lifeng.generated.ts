@@ -1474,7 +1474,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack2",
@@ -2023,7 +2024,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack3",
@@ -2595,7 +2597,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack4",
@@ -3815,7 +3818,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisher",
@@ -4313,7 +4317,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttack",
@@ -4770,7 +4775,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -5949,7 +5955,8 @@ export const lifengGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkill",
@@ -7627,7 +7634,8 @@ export const lifengGeneratedSource = {
           "sequenceIndex": 21,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -9975,7 +9983,8 @@ export const lifengGeneratedSource = {
           "sequenceIndex": 3,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

@@ -456,6 +456,7 @@ def compile_aura_exit_action(
     *,
     buff_definitions: dict[str, BuffDefinitionSource] | None,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    ignored_buff_ids: frozenset[str] = frozenset(),
     services: BuffApplicationCompilerServices,
 ) -> str | None:
     """编译零空间 Aura 在结束帧必然执行的离开区域 Buff 动作。"""
@@ -482,6 +483,8 @@ def compile_aura_exit_action(
         aura.actionWhenExitAuraBuffApplications
     ):
         for buff_index, buff in enumerate(application.buffs):
+            if buff.buffId in ignored_buff_ids:
+                continue
             sources.append(
                 compile_buff_application_values(
                     buff_id=buff.buffId,
@@ -506,6 +509,8 @@ def compile_aura_exit_action(
                     services=services,
                 )
             )
+    if not sources:
+        return None
     if len(sources) == 1:
         return sources[0]
     lines = ["sequence("]

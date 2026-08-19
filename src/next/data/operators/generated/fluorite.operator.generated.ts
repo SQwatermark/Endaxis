@@ -284,6 +284,16 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
               skillId: 'chr_0022_bounda_normal_skill_abilityrange',
+              blackboard: {
+                'atk_scale': 1,
+                'boom_up': 0,
+                'duration': 0,
+                'duration_potential': 0,
+                'move_speed_scalar': 0,
+                'poise': 20,
+                'potential_lv': 0,
+                'usp': 5,
+              },
               scheduledSequences: [
                 scheduled(
                   0,

@@ -33,6 +33,7 @@ class SkillSourceBuilderServices:
     parse_buff_hold_actions: Callable[..., Any]
     parse_declared_blackboard: Callable[..., Any]
     parse_direct_damage_hits: Callable[..., Any]
+    parse_interval_damage_hits: Callable[..., Any]
     parse_inflictions: Callable[..., Any]
     parse_physical_inflictions: Callable[..., Any]
     parse_projectile_launches: Callable[..., Any]
@@ -74,6 +75,7 @@ def parse_skill(
     parse_buff_hold_actions = services.parse_buff_hold_actions
     parse_declared_blackboard = services.parse_declared_blackboard
     parse_direct_damage_hits = services.parse_direct_damage_hits
+    parse_interval_damage_hits = services.parse_interval_damage_hits
     parse_inflictions = services.parse_inflictions
     parse_physical_inflictions = services.parse_physical_inflictions
     parse_projectile_launches = services.parse_projectile_launches
@@ -166,6 +168,7 @@ def parse_skill(
         inputCacheWindows=caches,
         timelineActions=timeline,
         directDamageHits=parse_direct_damage_hits(root, source_name, resolved_blackboard),
+        intervalDamageHits=parse_interval_damage_hits(root, source_name, resolved_blackboard),
         conditionalActions=conditional_actions,
         inflictions=parse_inflictions(root, source_name),
         auxiliaryActions=parse_auxiliary_actions(

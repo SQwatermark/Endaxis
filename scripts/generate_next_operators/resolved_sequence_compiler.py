@@ -789,12 +789,14 @@ def compile_resolved_sequence(
         unmodeled_buff_ids,
         f"{skill.key}.compile.unmodeledBuffIds",
         buff_definitions,
+        skill,
     )
     validate_unmodeled_buff_ids(
         resolved_schedule,
         simulation_no_effect_buff_ids,
         f"{skill.key}.compile.simulationNoEffectBuffIds",
         buff_definitions,
+        skill,
     )
     schedule = tuple(
         item

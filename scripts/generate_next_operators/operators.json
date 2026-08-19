@@ -575,7 +575,8 @@
               "buff_chr_0028_wulfa_normal_bleed",
               "buff_chr_0028_wulfa_normal_defup",
               "buff_chr_0028_wulfa_tut_normalskill_success"
-            ]
+            ],
+            "skipBuffDefinitionResolutionIds": ["buff_chr_0028_wulfa_normal_bleed"]
           }
         },
         {
@@ -1919,6 +1920,163 @@
               "buff_chr_0019_karin_talent_2",
               "buff_chr_0019_karin_talent_2_combo"
             ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "tangtang",
+      "exportName": "tangtangGeneratedSource",
+      "charId": "chr_0027_tangtang",
+      "basePassiveSkillIds": ["chr_0027_tangtang_passive_0"],
+      "talents": [
+        { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
+        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
+      ],
+      "potentials": [
+        { "key": "potential1", "compile": "skillCooldownAndBlackboardPatch" },
+        { "key": "potential2", "compile": "staticAttributes" },
+        { "key": "potential3", "compile": "unmodeledPotential" },
+        { "key": "potential4" },
+        { "key": "potential5", "compile": "skillBlackboardPatch" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
+      ],
+      "skills": [
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0027_tangtang_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0027_tangtang_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0027_tangtang_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0027_tangtang_attack4.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack5",
+          "skillType": "basicAttack",
+          "source": "chr_0027_tangtang_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0027_tangtang_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"],
+            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0027_tangtang_plunging_attack_end.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "plungingAttack"] }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0027_tangtang_normal_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"],
+            "costResource": "sp",
+            "simulationNoEffectBuffIds": [
+              "buff_chr_0027_tangtang_normalskill_abilityentity_1",
+              "buff_chr_0027_tangtang_normalskill_abilityentity_2"
+            ]
+          }
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0027_tangtang_combo_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill", "normalSkill"],
+            "usePatchCooldown": true,
+            "simulationNoEffectBuffIds": ["buff_chr_0027_tangtang_comboskill_waterbuff_outaura"]
+          }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0027_tangtang_ultimate_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["ultimateSkill"],
+            "costResource": "ultimateEnergy",
+            "usePatchCooldown": true,
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
+            "unmodeledBuffIds": ["buff_chr_0027_tangtang_ultskill_debuff"],
+            "skipBuffDefinitionResolutionIds": ["buff_chr_0027_tangtang_ultskill_debuff"]
           }
         }
       ]

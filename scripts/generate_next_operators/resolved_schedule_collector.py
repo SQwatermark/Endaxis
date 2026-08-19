@@ -84,6 +84,23 @@ def collect_resolved_damage_hits(
                 )
             )
 
+    for repeated in getattr(skill, "intervalDamageHits", ()):
+        for tick_index, tick_frame in enumerate(repeated.tickFrames):
+            append(
+                ResolvedDamageHitSource(
+                    tick_frame,
+                    (
+                        repeated.actionIndex,
+                        tick_index,
+                        repeated.damageActionIndex,
+                    ),
+                    "rootInterval",
+                    (skill.skillId,),
+                    repeated.damageUnits,
+                    native_sequence_order(repeated, (), skill.skillId),
+                )
+            )
+
     def collect_projectile(hit: ProjectileTriggeredSkillSource, path: tuple[str, ...]) -> None:
         if getattr(hit, "excludedByPrimaryTargetMarker", False):
             return

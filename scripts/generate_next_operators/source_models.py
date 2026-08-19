@@ -1514,3 +1514,4 @@ class SkillSource:
     timeDilations: tuple[TimedTimeDilationSource, ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
     skillReplacements: tuple[TimedSkillReplacementSource, ...] = ()
+    intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()

@@ -84,6 +84,7 @@ from generate_next_operators import (
     BuffHoldSource,
     BuffStackReadPayload,
     DamageUnitSource,
+    DeclaredBlackboardValueSource,
     ResolvedScheduleItemSource,
     EntityBlackboardAssignmentSource,
     ProjectileLaunchPayload,
@@ -9850,6 +9851,10 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             keywordActions=(),
             combatActions=("SpellInfliction", "CreateBuffAction"),
             localTargetGroupWrites=(),
+            declaredBlackboard=(
+                DeclaredBlackboardValueSource("ratio", 0.8, False),
+                DeclaredBlackboardValueSource("identity", "child_skill", False),
+            ),
         )
 
         source = compile_ability_entity_child_skill(
@@ -9866,6 +9871,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('gainSquadUltimateEnergyFromSkillCost'", source)
         self.assertEqual(source.count("step('finishCurrentAbilityEntity'"), 1)
         self.assertNotIn("ignored_for_source", source)
+        self.assertIn("'ratio': 0.8", source)
+        self.assertNotIn("'identity'", source)
 
     def test_ability_entity_child_owner_buff_uses_current_entity_target(self) -> None:
         application = AuxiliaryActionSource(
@@ -11722,6 +11729,63 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             (4, 6, 8, 10, 12),
         )
 
+    def test_interval_damage_projects_one_direct_tick_damage_action(self) -> None:
+        damage = {
+            "$type": "Example.DamageAction+Data, Example",
+            "serverActionIndex": 4,
+            "damageUnits": [
+                {
+                    "damageType": "Cryst",
+                    "damageAttributeType": "Hp",
+                    "damageDecorateMask": 0,
+                    "simpleCalculation": True,
+                    "atkScale": {
+                        "useBlackboardKey": True,
+                        "blackboardKey": "atk",
+                        "value": 0,
+                    },
+                }
+            ],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 3,
+                        "_endFrame": 11,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.TickIntervalAction+Data, Example",
+                                    "serverActionIndex": 3,
+                                    "executeEachFrame": False,
+                                    "tickInterval": 0.07,
+                                    "tickIntervalBlackboardKey": "",
+                                    "useTickIntervalBlackboardKey": False,
+                                    "actionOnTick": {
+                                        "actionData": [
+                                            damage,
+                                            {
+                                                "$type": "Example.IfElseAction+Data, Example",
+                                                "succeedActions": {"actionData": []},
+                                                "failActions": {"actionData": []},
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        hits = parse_interval_damage_hits(root, "skill.json", {"atk": (0.2, 0.45)})
+
+        self.assertEqual(hits[0].tickFrames, (3, 5, 7, 9, 11))
+        self.assertEqual(hits[0].damageActionIndex, 4)
+        self.assertEqual(hits[0].damageUnits[0].damageType, "Cryst")
+
     def test_conditional_inside_fixed_interval_preserves_every_execution_frame(self) -> None:
         root = {
             "actionGroupData": {
@@ -12809,6 +12873,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             sourceType="ActionSource",
             saveToContextKey="spawned",
         )
+
         assignment = AbilityEntityDurationAssignmentPayload(
             setMultipleTarget=False,
             actionTargetType="ContextTarget",

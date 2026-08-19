@@ -874,6 +874,21 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_normal_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
               skillId: 'chr_0032_lizhiyan_normal_skill_abilityrange2',
+              blackboard: {
+                'atb_return_dynamic': 20,
+                'atk_scale': 0,
+                'atk_scale_final': 0,
+                'atk_scale_will': 1,
+                'atk_scale_wisd': 1,
+                'atk_scale_wisd_ratio': 1.5,
+                'duration': 6,
+                'effect_count': 0,
+                'has_returned': 0,
+                'isJumped': 0,
+                'max_effect_count': 3,
+                'poise': 0,
+                'radius': 5,
+              },
               scheduledSequences: [
                 scheduled(
                   0,
@@ -1040,6 +1055,13 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
               skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
+              blackboard: {
+                'atk_scale_laser': 0.5,
+                'atk_scale_laser_will': 0.2,
+                'duration': 0,
+                'isWisd': 0,
+                'radius': 5,
+              },
               scheduledSequences: [
                 scheduled(
                   0,

@@ -2027,7 +2027,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack2",
@@ -2726,7 +2727,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack3",
@@ -3820,7 +3822,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack4",
@@ -5148,7 +5151,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisher",
@@ -6005,7 +6009,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttack",
@@ -6485,7 +6490,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -9162,7 +9168,8 @@ export const gilbertaGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkill",
@@ -11223,7 +11230,8 @@ export const gilbertaGeneratedSource = {
           "sequenceIndex": 12,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -12805,7 +12813,8 @@ export const gilbertaGeneratedSource = {
           "sequenceIndex": 5,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

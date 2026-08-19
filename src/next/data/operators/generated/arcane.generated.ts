@@ -11418,6 +11418,116 @@ export const arcaneGeneratedSource = {
       "onlyUseSelfTimeDilation": false
     },
     {
+      "buffId": "buff_common_obtain_ultimate_sp",
+      "sourceFile": "buff_common_obtain_ultimate_sp.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "ratio",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_everyone",
+          "value": 6.5,
+          "isDynamic": false
+        },
+        {
+          "key": "usp_self",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ObtainUspInNormalSkill"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ObtainUspInNormalSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false
+    },
+    {
       "buffId": "buff_common_power_attack_disable_cast_skill",
       "sourceFile": "buff_common_power_attack_disable_cast_skill.json",
       "sourceAvailable": true,
@@ -17269,7 +17379,8 @@ export const arcaneGeneratedSource = {
           "sequenceIndex": 18,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack1",
@@ -18359,7 +18470,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack2",
@@ -20478,7 +20590,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack3",
@@ -22062,7 +22175,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack4",
@@ -23557,7 +23671,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack5",
@@ -25008,7 +25123,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisher",
@@ -26361,7 +26477,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttack",
@@ -26939,7 +27056,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -28406,7 +28524,8 @@ export const arcaneGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -32704,7 +32823,8 @@ export const arcaneGeneratedSource = {
           "sequenceIndex": 10,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "arcana",
@@ -36834,7 +36954,8 @@ export const arcaneGeneratedSource = {
           "specificRevertedSkillId": false,
           "revertedSkillId": ""
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

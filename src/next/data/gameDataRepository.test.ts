@@ -14,6 +14,7 @@ import {
   lifeng,
   perlica,
   rossi,
+  tangtang,
   zhuangFangyi,
 } from './operators';
 import {
@@ -50,6 +51,7 @@ describe('gameDataRepository', () => {
       chenQianyu,
       rossi,
       camille,
+      tangtang,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -66,6 +68,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(chenQianyu.slug)).toBe(chenQianyu);
     expect(nextGameDataRepository.getOperator(rossi.slug)).toBe(rossi);
     expect(nextGameDataRepository.getOperator(camille.slug)).toBe(camille);
+    expect(nextGameDataRepository.getOperator(tangtang.slug)).toBe(tangtang);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

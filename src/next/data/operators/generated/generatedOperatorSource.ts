@@ -1220,6 +1220,7 @@ export interface GeneratedSkillSource {
   }[];
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly intervalDamageHits?: readonly GeneratedTimedIntervalDamageSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];

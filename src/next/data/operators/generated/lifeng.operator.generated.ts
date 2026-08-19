@@ -562,6 +562,15 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
               skillId: 'chr_0015_lifeng_ultimate_skill_abentity',
+              blackboard: {
+                'atk_scale1': 1,
+                'atk_scale2': 1.5,
+                'atk_scale3': 0,
+                'isCombo': 0,
+                'poise': 0,
+                'poise2': 0,
+                'poise3': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   6,

@@ -7,6 +7,7 @@ import { arclightGeneratedOperator } from '../data/operators/generated/arclight.
 import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.operator.generated';
 import { endministratorGeneratedOperator } from '../data/operators/generated/endministrator.operator.generated';
 import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
+import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -348,6 +349,34 @@ function createGeneratedLastRitePartyBuffScenario() {
   }).scenario;
 }
 
+function createGeneratedTangtangComboScenario() {
+  const scenario = createEmptyScenario('scenario:generated-tangtang', '唐棠连携水体样本');
+  scenario.tracks[0] = {
+    id: 'track:tangtang',
+    operator: {
+      operatorSlug: tangtangGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: tangtangGeneratedOperator,
+    skillGroupKey: 'comboSkill',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:tangtang` },
+  }).scenario;
+}
+
 function runGeneratedLifengScenario(talentLevel: number) {
   return runStandardPlayerDamageScenarioSimulation({
     scenario: createGeneratedLifengScenario(talentLevel),
@@ -372,6 +401,55 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('runs generated Tangtang combo damage and water entity lifecycle', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedTangtangComboScenario(),
+      endFrame: 930,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === tangtangGeneratedOperator.slug ? tangtangGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:tangtang',
+        data: expect.objectContaining({ skillId: 'comboSkill' }),
+      }),
+    );
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:tangtang',
+      ),
+    ).toBe(true);
+    const spawnedIds = new Set(
+      result.receiptEntries
+        .filter(entry => entry.event === 'AbilityEntitySpawned')
+        .map(entry => entry.targetId),
+    );
+    const finishedIds = new Set(
+      result.receiptEntries
+        .filter(entry => entry.event === 'AbilityEntityFinished')
+        .map(entry => entry.targetId),
+    );
+    expect(spawnedIds.size).toBeGreaterThan(0);
+    expect([...spawnedIds].some(id => finishedIds.has(id))).toBe(true);
+  });
+
   it('runs generated Last Rite party Buff events relative to the controlled owner', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedLastRitePartyBuffScenario(),

@@ -54,6 +54,7 @@ BUFF_ATTRIBUTE_MODIFIER_SLOTS = {
     "BaseFinalAddition",
     "BaseFinalMultiplier",
 }
+SLOW_GAMEPLAY_TAG_ID = 1925762097
 
 
 @dataclass(frozen=True)
@@ -110,6 +111,75 @@ def parse_buff_extend_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[i
             raise ValueError(f"{path}.tagId: expected integer")
         result.append(tag_id)
     return tuple(result)
+
+
+def parse_buff_child_slow_tag_ids(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+    *,
+    services: BuffDefinitionParserServices,
+) -> tuple[int, ...]:
+    """在定点模型中把与宿主同生命周期的 Slow 子效果折叠为宿主减速标签。"""
+    found = 0
+    projected = 0
+    lifecycle_duration = parse_scalar(
+        buff.get("duration"), f"{source_name}.duration", blackboard
+    )
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    ):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        for sequence_index, raw_sequence in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            if "$type" in sequence:
+                raw_actions = [sequence]
+            elif isinstance(sequence.get("actionData"), list):
+                raw_actions = sequence["actionData"]
+            else:
+                continue
+            for action_index, raw_action in enumerate(
+                raw_actions
+            ):
+                action_path = f"{sequence_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(str(action.get("$type", ""))) != "SlowAction":
+                    continue
+                if action.get("isEnable") is False:
+                    continue
+                found += 1
+                source = parse_target_reference(action.get("source"), f"{action_path}.source")
+                target = parse_target_reference(action.get("target"), f"{action_path}.target")
+                duration = parse_scalar(action.get("duration"), f"{action_path}.duration", blackboard)
+                parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                child_buff_id = require_dict(
+                    action.get("childBuffId"), f"{action_path}.childBuffId"
+                )
+                duration_matches_lifecycle = (
+                    duration.blackboardKey is not None
+                    and duration.blackboardKey == lifecycle_duration.blackboardKey
+                    and duration.levelValues == lifecycle_duration.levelValues
+                )
+                if (
+                    event.get("buffEvent") == "DuringBuffEnable"
+                    and source.targetSource == "Source"
+                    and target.targetSource == "Owner"
+                    and services.target_reference_is_plain(source)
+                    and services.target_reference_is_plain(target)
+                    and duration_matches_lifecycle
+                    and action.get("overrideChildBuffId") is False
+                    and child_buff_id
+                    == {"useBlackboardKey": False, "value": "", "blackboardKey": ""}
+                    and action.get("asChildBuff") is True
+                    and action.get("enhancingList") == []
+                    and action.get("autoFinishByAction") is True
+                ):
+                    projected += 1
+    return (SLOW_GAMEPLAY_TAG_ID,) if found > 0 and projected == found else ()
 
 
 def parse_buff_attribute_modifiers(
@@ -603,7 +673,17 @@ def resolve_buff_definitions(
                 buff, source_file, blackboard, services=services
             ),
         )
-        event_actions = parse_buff_event_actions(buff, source_file, blackboard)
+        child_slow_tag_ids = parse_buff_child_slow_tag_ids(
+            buff, source_file, blackboard, services=services
+        )
+        event_actions = parse_buff_event_actions(
+            buff,
+            source_file,
+            blackboard,
+            projected_action_names=(
+                frozenset({"SlowAction"}) if child_slow_tag_ids else frozenset()
+            ),
+        )
         ignite_event_actions = parse_buff_ignite_event_actions(buff, source_file, blackboard)
         auxiliary_actions = parse_auxiliary_actions(
             adapted_root,
@@ -650,7 +730,11 @@ def resolve_buff_definitions(
             sourceAvailable=True,
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
             blackboard=declared_blackboard,
-            applyTagIds=parse_buff_apply_tag_ids(buff, source_file),
+            applyTagIds=tuple(
+                dict.fromkeys(
+                    (*parse_buff_apply_tag_ids(buff, source_file), *child_slow_tag_ids)
+                )
+            ),
             extendTagIds=parse_buff_extend_tag_ids(buff, source_file),
             attributeModifiers=parse_buff_attribute_modifiers(
                 buff, source_file, blackboard

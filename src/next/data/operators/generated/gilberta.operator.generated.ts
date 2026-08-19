@@ -474,6 +474,14 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0013_aglina_normal_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
               skillId: 'chr_0013_aglina_normal_skill_abilityrange',
+              blackboard: {
+                'duration': 0,
+                'hasrecovered': 0,
+                'move_speed_scalar': 1,
+                'potential_lv': 0,
+                'radius': 0,
+                'recovercost': 5,
+              },
               scheduledSequences: [
                 scheduled(
                   0,
@@ -801,6 +809,23 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
               skillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
+              blackboard: {
+                'BuffStack': 0,
+                'FinalRate': 0,
+                'duration': 0,
+                'final_resistance_scalar': 0,
+                'final_resistance_scalar_inair': 0,
+                'move_speed_scalar': 1,
+                'potential2': 0,
+                'potential2_onceadd': 0,
+                'radius': 5,
+                'resistance_scalar': 0.3,
+                'resistance_scalar_inair': 0.6,
+                'spell_vulnerable_perstack': 0,
+                'spell_vulnerable_rate': 0,
+                'wisd_increase': 0,
+                'wisd_increase_inair': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   0,

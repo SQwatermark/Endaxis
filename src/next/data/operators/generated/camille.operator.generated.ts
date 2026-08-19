@@ -618,6 +618,12 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
             definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
               skillId: 'chr_0033_camille_normal_skill_abilityrange_first',
+              blackboard: {
+                'atk_scale': 0.1,
+                'obtain_count': 0,
+                'poise': 10,
+                'weak_scale': 0.2,
+              },
               scheduledSequences: [
                 scheduled(
                   0,

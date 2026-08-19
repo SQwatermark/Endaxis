@@ -1374,6 +1374,7 @@ def _make_skill_source_builder_services() -> SkillSourceBuilderServices:
         parse_buff_hold_actions=parse_buff_hold_actions,
         parse_declared_blackboard=parse_declared_blackboard,
         parse_direct_damage_hits=parse_direct_damage_hits,
+        parse_interval_damage_hits=parse_root_interval_damage_hits,
         parse_inflictions=parse_inflictions,
         parse_physical_inflictions=parse_physical_inflictions,
         parse_projectile_launches=parse_projectile_launches,
@@ -1658,6 +1659,8 @@ def parse_interval_damage_hits(
     root: dict[str, Any],
     source_name: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
+    *,
+    ignore_unsupported_direct_damage: bool = False,
 ) -> tuple[TimedIntervalDamageSource, ...]:
     """解析固定间隔内每次都由等价分支执行的伤害。"""
 
@@ -1698,6 +1701,8 @@ def parse_interval_damage_hits(
                 or action.get("useTickIntervalBlackboardKey") is not False
                 or action.get("tickIntervalBlackboardKey") != ""
             ):
+                if ignore_unsupported_direct_damage:
+                    continue
                 raise ValueError(f"{action_path}: only a fixed literal interval is supported")
             interval_seconds = action.get("tickInterval")
             if (
@@ -1705,6 +1710,8 @@ def parse_interval_damage_hits(
                 or isinstance(interval_seconds, bool)
                 or interval_seconds <= 0
             ):
+                if ignore_unsupported_direct_damage:
+                    continue
                 raise ValueError(f"{action_path}.tickInterval: expected positive number")
             tick_actions = enabled_actions(
                 action.get("actionOnTick"), f"{action_path}.actionOnTick"
@@ -1712,9 +1719,60 @@ def parse_interval_damage_hits(
             branches = [
                 item for item in tick_actions if action_name(item["$type"]) == "IfElseAction"
             ]
+            direct_damage_actions = [
+                item for item in tick_actions if action_name(item["$type"]) == "DamageAction"
+            ]
+            if direct_damage_actions:
+                if len(direct_damage_actions) != 1:
+                    if ignore_unsupported_direct_damage:
+                        continue
+                    raise ValueError(f"{action_path}: expected one direct tick damage action")
+                mixes_conditional_damage = any(
+                    action_name(item["$type"]) == "DamageAction"
+                    for branch in branches
+                    for branch_name in ("succeedActions", "failActions")
+                    for item in enabled_actions(
+                        branch.get(branch_name), f"{action_path}.{branch_name}"
+                    )
+                )
+                if mixes_conditional_damage:
+                    if ignore_unsupported_direct_damage:
+                        continue
+                    raise ValueError(
+                        f"{action_path}: direct and conditional tick damage cannot be mixed"
+                    )
+                damage = direct_damage_actions[0]
+                damage_action_index = require_server_action_index(
+                    damage, f"{action_path}.DamageAction"
+                )
+                damage_units = parse_damage_units(
+                    {"actionGroupData": {"action": damage}},
+                    action_path,
+                    inherited_blackboard,
+                )
+                if not damage_units:
+                    if ignore_unsupported_direct_damage:
+                        continue
+                    raise ValueError(f"{action_path}: direct tick damage has no DamageUnit")
+                tick_frames = project_tick_interval_frames(
+                    start_frame, end_frame, float(interval_seconds)
+                )
+                if not tick_frames:
+                    raise ValueError(f"{action_path}: interval produces no ticks")
+                result.append(
+                    TimedIntervalDamageSource(
+                        startFrame=start_frame,
+                        endFrame=end_frame,
+                        actionIndex=require_server_action_index(action, action_path),
+                        intervalSeconds=float(interval_seconds),
+                        tickFrames=tick_frames,
+                        damageActionIndex=damage_action_index,
+                        damageUnits=damage_units,
+                        sequenceIndex=timeline_index,
+                    )
+                )
+                continue
             if len(branches) != 1:
-                if any(action_name(item["$type"]) == "DamageAction" for item in tick_actions):
-                    raise ValueError(f"{action_path}: unsupported direct tick damage shape")
                 continue
             branch = branches[0]
             branch_damage_actions: list[list[dict[str, Any]]] = []
@@ -1763,6 +1821,20 @@ def parse_interval_damage_hits(
                 )
             )
     return tuple(result)
+
+
+def parse_root_interval_damage_hits(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> tuple[TimedIntervalDamageSource, ...]:
+    """提取根技能已证明的直接周期伤害，保留既有复杂 Tick 动作的独立审计路径。"""
+    return parse_interval_damage_hits(
+        root,
+        source_name,
+        inherited_blackboard,
+        ignore_unsupported_direct_damage=True,
+    )
 
 
 def parse_inflictions(root: dict[str, Any], source_name: str) -> tuple[TimedInflictionSource, ...]:
@@ -1937,6 +2009,8 @@ def parse_buff_event_actions(
     buff: dict[str, Any],
     source_name: str,
     blackboard: dict[str, tuple[float, ...]],
+    *,
+    projected_action_names: frozenset[str] = frozenset(),
 ) -> tuple[BuffEventActionSource, ...]:
     """兼容既有调用方的 Buff 事件解析入口。"""
 
@@ -1945,6 +2019,7 @@ def parse_buff_event_actions(
         source_name,
         blackboard,
         services=_make_buff_event_parser_services(),
+        projected_action_names=projected_action_names,
     )
 
 
@@ -2023,6 +2098,12 @@ def _nested_aura_buff_ids(node: Any) -> set[str]:
         for aura in getattr(node, "auraActions", ())
         for buff in aura.buffs
     }
+    result.update(
+        buff.buffId
+        for aura in getattr(node, "auraActions", ())
+        for application in getattr(aura, "actionWhenExitAuraBuffApplications", ())
+        for buff in application.buffs
+    )
     for field in (
         "abilityEntityHits",
         "nestedAbilityEntityHits",
@@ -2064,6 +2145,7 @@ def _operator_root_buff_ids(skills: tuple[SkillSource, ...]) -> set[str]:
     result = {buff_id for skill in skills for buff_id in skill.referencedBuffIds}
     for skill in skills:
         result.update(_nested_aura_buff_ids(skill))
+        result.update(collect_nested_conditional_buff_ids(skill))
     return result
 
 
@@ -2813,6 +2895,9 @@ def collect_conditional_buff_ids(condition: ConditionalActionSource) -> frozense
             once_actions = getattr(action, "onceActions", None)
             if once_actions is not None:
                 visit_actions(once_actions)
+            for field in ("projectileTriggeredSkills", "conditionalAbilityEntityHits"):
+                for child in getattr(action, field, ()) or ():
+                    result.update(collect_nested_conditional_buff_ids(child))
 
     def visit_condition(current: ConditionalActionSource) -> None:
         visit_actions(current.succeedActions)
@@ -2829,6 +2914,17 @@ def collect_nested_combat_node_buff_ids(node: Any) -> frozenset[str]:
         for action in getattr(node, "auxiliaryActions", ())
         if action.actionType == "CreateBuffAction"
     }
+    result.update(
+        buff.buffId
+        for aura in getattr(node, "auraActions", ())
+        for buff in aura.buffs
+    )
+    result.update(
+        buff.buffId
+        for aura in getattr(node, "auraActions", ())
+        for application in aura.actionWhenExitAuraBuffApplications
+        for buff in application.buffs
+    )
     for condition in getattr(node, "conditionalActions", ()):
         result.update(collect_conditional_buff_ids(condition))
     for field in (
@@ -2842,11 +2938,28 @@ def collect_nested_combat_node_buff_ids(node: Any) -> frozenset[str]:
     return frozenset(result)
 
 
+def collect_nested_conditional_buff_ids(node: Any) -> frozenset[str]:
+    """收集递归能力实体与投射物条件叶子中需要内联定义的 Buff。"""
+    result: set[str] = set()
+    for condition in getattr(node, "conditionalActions", ()):
+        result.update(collect_conditional_buff_ids(condition))
+    for field in (
+        "abilityEntityHits",
+        "nestedAbilityEntityHits",
+        "projectileTriggeredSkills",
+        "nestedProjectileTriggeredSkills",
+    ):
+        for child in getattr(node, field, ()):
+            result.update(collect_nested_conditional_buff_ids(child))
+    return frozenset(result)
+
+
 def validate_unmodeled_buff_ids(
     schedule: tuple[ResolvedScheduleItemSource, ...],
     unmodeled_buff_ids: frozenset[str],
     path: str,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    skill: SkillSource | None = None,
 ) -> None:
     """确保清单中的未建模 Buff 确实由当前技能施加，避免过期配置静默放行。"""
     scheduled_buff_ids = {
@@ -2871,6 +2984,9 @@ def validate_unmodeled_buff_ids(
     for definition in (buff_definitions or {}).values():
         for event in definition.eventActions:
             scheduled_buff_ids.update(event.createdBuffIds)
+    if skill is not None:
+        scheduled_buff_ids.update(collect_nested_combat_node_buff_ids(skill))
+        scheduled_buff_ids.update(_nested_aura_buff_ids(skill))
     unknown_ids = sorted(unmodeled_buff_ids - scheduled_buff_ids)
     if unknown_ids:
         raise ValueError(f"{path}: unmodeled Buff ids are not applied by this skill: {unknown_ids}")
@@ -4809,12 +4925,14 @@ def compile_aura_exit_action(
     *,
     buff_definitions: dict[str, BuffDefinitionSource] | None,
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    ignored_buff_ids: frozenset[str] = frozenset(),
 ) -> str | None:
     return compile_aura_exit_action_backend(
         aura,
         path,
         buff_definitions=buff_definitions,
         invoked_child_context=invoked_child_context,
+        ignored_buff_ids=ignored_buff_ids,
         services=_make_buff_application_compiler_services(),
     )
 
@@ -7455,7 +7573,20 @@ def validate_skill_groups(
             f"{operator['slug']}.routingOnlyNativeSkillIds: ids are absent from native groups: "
             f"{unknown_routing_ids}"
         )
-    routing_only = set(routing_only_ids)
+    base_passive_ids = set(parse_base_passive_skill_ids(operator))
+    passive_overlap = sorted(generated_ids.intersection(base_passive_ids))
+    if passive_overlap:
+        raise ValueError(
+            f"{operator['slug']}.basePassiveSkillIds: generated skills cannot be base passives: "
+            f"{passive_overlap}"
+        )
+    unknown_base_passive_ids = sorted(base_passive_ids.difference(actual_ids))
+    if unknown_base_passive_ids:
+        raise ValueError(
+            f"{operator['slug']}.basePassiveSkillIds: ids are absent from native groups: "
+            f"{unknown_base_passive_ids}"
+        )
+    routing_only = set(routing_only_ids) | base_passive_ids
     actual_by_type = {
         group_type: [skill_id for skill_id in skill_ids if skill_id not in routing_only]
         for group_type, skill_ids in actual_by_type.items()

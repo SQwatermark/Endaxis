@@ -83,6 +83,8 @@ def parse_buff_event_actions(
     source_name: str,
     blackboard: dict[str, tuple[float, ...]],
     services: BuffEventParserServices,
+    *,
+    projected_action_names: frozenset[str] = frozenset(),
 ) -> tuple[BuffEventActionSource, ...]:
     """保留 Buff 与宿主实体事件中的动作事实；子 Buff 定义由中央目录递归解析。"""
     collect_created_buff_ids = services.collect_created_buff_ids
@@ -104,11 +106,18 @@ def parse_buff_event_actions(
                 raise ValueError(f"{event_path}.{event_key}: expected string")
             actions = event.get("actions")
             action_root = {"actionGroupData": {"actions": actions}}
-            walked_actions = [
+            enabled_actions = [
                 item
                 for item in walk_unconditional_actions(actions)
                 if item.get("isEnable") is not False
             ]
+            walked_actions = [
+                item
+                for item in enabled_actions
+                if action_name(item["$type"]) not in projected_action_names
+            ]
+            if enabled_actions and not walked_actions:
+                continue
             ordered_action_types = tuple(
                 action_name(item["$type"]) for item in walked_actions
             )
@@ -293,6 +302,7 @@ def parse_buff_event_actions(
                     item
                     for item in walk_unconditional_actions(sequence.get("actionData"))
                     if item.get("isEnable") is not False
+                    and action_name(item["$type"]) not in projected_action_names
                 ]
                 # AbilityActionUtils.CreateSequenceAction 对没有启用动作的数据返回 null，
                 # ActionContainer 因而不会注册一个可执行响应。

@@ -17,6 +17,7 @@ import {
   lastRite,
   lifeng,
   rossi,
+  tangtang,
 } from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
@@ -31,6 +32,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [chenQianyu, 10],
   [rossi, 11],
   [camille, 11],
+  [tangtang, 10],
 ];
 
 function hasUpgradeBehavior(
@@ -103,7 +105,9 @@ describe('新增的完整技能转换干员', () => {
 
     expect(skills).toHaveLength(count);
     expect(new Set(skills.map(skill => skill.key)).size).toBe(count);
-    expect(skills.every(skill => skill.scheduledSequences.length > 0)).toBe(true);
+    expect(
+      skills.filter(skill => skill.scheduledSequences.length === 0).map(skill => skill.key),
+    ).toEqual([]);
   });
 
   it.each(generatedOperators)('养成缺口与尚无可执行行为的定义保持一致', operator => {

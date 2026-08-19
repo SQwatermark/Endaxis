@@ -29,6 +29,7 @@ import {
   lifeng,
   perlica,
   rossi,
+  tangtang,
   zhuangFangyi,
 } from './operators';
 import {
@@ -118,6 +119,7 @@ export const nextGameDataRepository = createGameDataRepository({
     chenQianyu,
     rossi,
     camille,
+    tangtang,
   ],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,

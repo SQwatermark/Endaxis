@@ -386,14 +386,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         .matchesEntityTags(condition.tagIds.map(gameplayTagId), condition.tagQueryType);
     }
     if (condition.kind === 'buffIdStackCompare') {
-      const count = this.dependencies
-        .resolveTarget(condition.target)
-        .getCountByIds(
-          condition.buffIds,
-          condition.sameSourceSkillCast
-            ? this.#requireSkillCastId(context, 'buffIdStackCompare')
-            : undefined,
-        );
+      const count = this.#resolveSingleTarget(condition.target, context).getCountByIds(
+        condition.buffIds,
+        condition.sameSourceSkillCast
+          ? this.#requireSkillCastId(context, 'buffIdStackCompare')
+          : undefined,
+      );
       if (typeof condition.value === 'number') {
         return compareCombatNumbers(count, condition.value, condition.operator);
       }

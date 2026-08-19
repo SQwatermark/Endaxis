@@ -292,6 +292,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 本批门禁：生成器 Python 规则测试 349/349、全量生成和 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1128/1128 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
 - Tangtang 的最后一条能力实体标记链已闭环。`createAbilityEntityTimedMarker` 现在要求 `timeDomain: 'self' | 'global'`：前者读取实体局部 elapsed time，后者读取场景共享 `CombatClock`；`TimedMarkerContainer` 为每个实例保存创建时钟，所以两类标记可在同一实体上共存且独立到期。单例 Context 创建在 `forEachContextTarget` 中执行；`abilityEntityTimedMarkerPresent` 可在有明确 owner-spawned AbilityEntity 来源时检查 Context 集合任一实例。
 - 取证过程中确认 Tangtang 的 `water_group` 并非能力实体子图本地写入，而属于递归条件投射物触发的 `chr_0027_tangtang_combo_skill_water_gene` 自身。此前 `ProjectileTriggeredSkillSource` 没有保留该 SkillData 的目标组写入，导致条件编译看不到原生第 4 号 `FindTargetAction`。现在调用图保存 `localTargetGroupWrites`，分支内联前按 born tag 生成实际 `findOwnerSpawnedAbilityEntities`，再执行水体阶段标记条件。Tangtang 已达到 11/11，严格全量基线更新为 320/320 可解析、300/320 可编译、15 名完整直转。下一步将其加入正式 manifest/注册链并做标准场景回执验证。
+
+### 2026-08-20：Tangtang 正式生成、周期下落伤害与水体标准模拟闭环
+
+- `tangtang` 已加入正式生成 manifest、默认数据仓库与全等级编译测试，注册 5 段普攻、终结技、下落攻击、战技、连携技和终结技共 10 个可放置技能。基础被动 `chr_0027_tangtang_passive_0` 只作为养成来源登记并从可放置原生技能组比较中单独排除；潜能 3 同时修改技能与尚未可执行的基础被动黑板，继续以单个 `unmodeledPotential` 暴露，未做半套转换。终结技空时间膨胀曲线仍显式未建模，没有猜倍率。
+- 能力实体子技能现在把递归 SkillData 自身声明的数值黑板内联进 `childSkill.blackboard`，运行时按现有“子技能初值 + 实体继承/显式赋值”链解析。Tangtang 水体的 `ratio_speedreduction`、持续时间和跳转参数因此有本地证据来源；标准场景已实际跑通连携伤害、能力实体生成、水体 Aura/Buff、全局/局部定时标记及局部第 900 帧实体结束回执。
+- 根技能新增严格的固定周期直接伤害投影。Tangtang 下落攻击原生 `TickIntervalAction` 在第 3–11 帧每 0.07 秒直接执行一个 DamageAction，按既有 30 Hz 单精度累计规则生成第 3/5/7/9/11 帧五段冰伤。只接受唯一直接伤害且不与条件伤害混合的形状；Liino 等复杂/逐帧 Tick 仍走原有独立解析链，不被本次规则吞掉或近似。
+- 水体 Buff 中 `SlowAction(asChildBuff=true)` 仅在 plain Source→Owner、持续时间与宿主相同、空子 Buff ID、无 enhancing、`autoFinishByAction=true` 全部成立时折叠为宿主 `slowed` 标签；Aura 离场 Buff、递归条件 Buff 和能力实体条件中的 Buff ID 也纳入定义闭包及省略声明校验。Rossi 已明确跳过其本就未建模的 `normal_bleed` 定义递归，避免把流血暴击附加伤害的未支持治疗载荷误报成已转换。
+- 当前严格横向审计保持 30 名、320/320 可解析、300/320 可编译、15 名无专用声明完整直转。正式生成定义增至 14 名，仓库显式入口增至 16 名；养成审计更新为天赋 11/28 已转换且 11/28 可进入标准模拟，潜能 59/70 已转换且 59/70 可进入标准模拟。验证基线：Python 351/351、manifest 全量生成与 `--check`、Next 类型检查、Next Vitest 178 文件 1133/1133。
 - 本批门禁：生成器 Python 规则测试 350/350、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1129/1129、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
 
 ## 8. 恢复工作清单

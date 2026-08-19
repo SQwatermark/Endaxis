@@ -5449,7 +5449,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack2",
@@ -5956,7 +5957,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack3",
@@ -6693,7 +6695,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack4",
@@ -9890,7 +9893,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "basicAttack5",
@@ -10836,7 +10840,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "finisher",
@@ -11893,7 +11898,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "plungingAttack",
@@ -12351,7 +12357,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "battleSkill",
@@ -37977,7 +37984,8 @@ export const rossiGeneratedSource = {
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],
-      "timeDilations": []
+      "timeDilations": [],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkill2",
@@ -40921,7 +40929,8 @@ export const rossiGeneratedSource = {
           "specificRevertedSkillId": true,
           "revertedSkillId": "chr_0028_wulfa_combo_2_skill"
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "comboSkill3",
@@ -50330,7 +50339,8 @@ export const rossiGeneratedSource = {
           "specificRevertedSkillId": true,
           "revertedSkillId": "chr_0028_wulfa_combo_1_skill"
         }
-      ]
+      ],
+      "intervalDamageHits": []
     },
     {
       "key": "ultimate",
@@ -95031,7 +95041,8 @@ export const rossiGeneratedSource = {
           "sequenceIndex": 36,
           "effectAbilityEntityTargets": []
         }
-      ]
+      ],
+      "intervalDamageHits": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

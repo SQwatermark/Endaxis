@@ -98,6 +98,15 @@ def render_report(
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
+                **(
+                    {
+                        "intervalDamageHits": [
+                            asdict(hit) for hit in skill.intervalDamageHits
+                        ]
+                    }
+                    if getattr(skill, "intervalDamageHits", ())
+                    else {}
+                ),
                 "conditionalActions": [
                     serialize_audit_value(action) for action in skill.conditionalActions
                 ],

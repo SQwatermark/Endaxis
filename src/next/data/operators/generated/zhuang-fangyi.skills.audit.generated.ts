@@ -95,6 +95,10 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
             definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+              blackboard: {
+                'atk_scale': 0.2,
+                'thunderPosIndex': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   0,
@@ -252,6 +256,10 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
             definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack2_abilityrange',
+              blackboard: {
+                'atk_scale': 0.2,
+                'thunderPosIndex': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   0,
@@ -326,6 +334,13 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
             definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack5_abilityrange',
+              blackboard: {
+                'atb': 20,
+                'atk_scale': 0.2,
+                'effectZ': 2,
+                'hasGainAtb': 0,
+                'poise': 15,
+              },
               scheduledSequences: [
                 scheduled(
                   0,
@@ -486,6 +501,13 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
             definition: { lifetime: { kind: 'limited', durationSeconds: 1 }, childSkill: {
               skillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
+              blackboard: {
+                'atb': 0,
+                'atk_scale': 0.2,
+                'poise': 0,
+                'randomRotate': 0,
+                'thunderPosIndex': 0,
+              },
               scheduledSequences: [
                 scheduled(
                   30,
