@@ -414,7 +414,11 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   border: 1px solid #333;
   transform: translateX(-50%) rotate(45deg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: auto;
   cursor: pointer;
 }

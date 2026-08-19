@@ -47,6 +47,9 @@ describe('Next timeline simulation projection retention', () => {
     expect(hitProjection).toContain('const current = simulationRun.value');
     expect(hitProjection).toContain('projectTimelineHitActualFrames');
     expect(hitProjection).not.toContain('simulationStale.value');
+    expect(actionBlockSource).not.toContain('transition: all');
+    expect(actionBlockSource).toContain('background-color 0.15s ease');
+    expect(actionBlockSource).toContain('transform 0.15s cubic-bezier');
   });
 
   it('writes cast movement directly in the actual-time domain', () => {
