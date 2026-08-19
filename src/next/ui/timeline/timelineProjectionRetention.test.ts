@@ -17,6 +17,7 @@ describe('Next timeline simulation projection retention', () => {
     );
 
     expect(projections).toContain('projectSkillCastActualStartFrames');
+    expect(projections).toContain('projectSkillCastActualDurationFrames');
     expect(projections).toContain('projectTimelineTimeDilationBands');
     expect(projections).not.toContain('timelineTimeMapping');
     expect(projections).not.toContain('simulationStale.value');

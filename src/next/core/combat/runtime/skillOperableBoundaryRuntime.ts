@@ -13,6 +13,7 @@
 /** 一次释放到达可操作边界后返回给调用方的不可变事实。 */
 export interface SkillOperableBoundaryFact {
   readonly castId: string;
+  readonly durationFrames: number;
   /** end-exclusive 实际帧；由调用方按当前帧序约定显式给出。 */
   readonly actualEndFrame: number;
 }
@@ -20,6 +21,7 @@ export interface SkillOperableBoundaryFact {
 interface PendingSkillOperableBoundary {
   readonly castId: string;
   readonly durationFrames: number;
+  readonly actualStartFrame: number;
   accumulatedFrames: number;
 }
 
@@ -38,12 +40,15 @@ export class SkillOperableBoundaryRuntime {
    * 登记一次成功释放的可操作边界。
    * `durationFrames` 必须为正有限数；稳定 castId 一旦登记过，无论 pending 或已完成都不能再次登记。
    */
-  begin(castId: string, durationFrames: number): void {
+  begin(castId: string, durationFrames: number, actualStartFrame: number): void {
     if (typeof castId !== 'string' || castId.length === 0) {
       throw new TypeError('castId must be a non-empty string');
     }
     if (!Number.isFinite(durationFrames) || durationFrames <= 0) {
       throw new RangeError('durationFrames must be a positive finite number');
+    }
+    if (!Number.isInteger(actualStartFrame) || actualStartFrame < 0) {
+      throw new RangeError('actualStartFrame must be a non-negative integer');
     }
     if (this.#registeredCastIds.has(castId)) {
       throw new Error(`duplicate skill operable boundary registration for cast '${castId}'`);
@@ -52,6 +57,7 @@ export class SkillOperableBoundaryRuntime {
     this.#pendingByCastId.set(castId, {
       castId,
       durationFrames,
+      actualStartFrame,
       accumulatedFrames: 0,
     });
   }
@@ -72,9 +78,17 @@ export class SkillOperableBoundaryRuntime {
 
     const reached: SkillOperableBoundaryFact[] = [];
     for (const [castId, pending] of this.#pendingByCastId) {
+      // 输入发生在本帧 AbilitySystem 推进之前；本帧启动的技能从下一实际帧区间开始累计。
+      if (pending.actualStartFrame >= frameEndExclusive) continue;
       pending.accumulatedFrames += deltaFrames;
       if (pending.accumulatedFrames + BOUNDARY_EPSILON_FRAMES < pending.durationFrames) continue;
-      reached.push(Object.freeze({ castId, actualEndFrame: frameEndExclusive }));
+      reached.push(
+        Object.freeze({
+          castId,
+          durationFrames: pending.durationFrames,
+          actualEndFrame: frameEndExclusive,
+        }),
+      );
       this.#pendingByCastId.delete(castId);
     }
     return reached;

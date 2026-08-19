@@ -39,6 +39,7 @@ const props = withDefaults(
     pxPerFrame: number;
     trackHeaderWidth: number;
     castActualStartFrames: ReadonlyMap<string, number>;
+    castActualDurationFrames: ReadonlyMap<string, number>;
     rulerHeight?: number;
     trackHeight?: number;
     actionTop?: number;
@@ -113,7 +114,9 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
       props.scenario.battle.prepFrames,
       props.pxPerFrame,
     );
-  const width = found.skillCast.durationFrames * props.pxPerFrame;
+  const width =
+    (props.castActualDurationFrames.get(found.skillCast.id) ?? found.skillCast.durationFrames) *
+    props.pxPerFrame;
   const top = props.rulerHeight + found.trackIndex * props.trackHeight + props.actionTop;
   const ratio = ports[port];
   return {

@@ -23,6 +23,37 @@ export function projectSkillCastActualStartFrames(
   return result;
 }
 
+/**
+ * 把技能局部可操作边界配对为实际宽度。没有到达边界的释放不返回猜测值，
+ * UI 继续使用定义宽度作为未完成模拟的保底展示。
+ */
+export function projectSkillCastActualDurationFrames(
+  entries: readonly CombatReceiptEntry[],
+): ReadonlyMap<string, number> {
+  const starts = projectSkillCastActualStartFrames(entries);
+  const result = new Map<string, number>();
+  for (const entry of entries) {
+    if (entry.event !== 'SkillOperableBoundaryReached') continue;
+    const castId = entry.data?.castId;
+    if (typeof castId !== 'string') {
+      throw new Error(`skill operable boundary receipt ${entry.sequence} has invalid castId`);
+    }
+    if (result.has(castId)) {
+      throw new Error(`skill cast '${castId}' reached its operable boundary more than once`);
+    }
+    const startFrame = starts.get(castId);
+    if (startFrame === undefined) {
+      throw new Error(`skill cast '${castId}' reached its operable boundary without starting`);
+    }
+    const durationFrames = entry.frame - startFrame;
+    if (durationFrames <= 0) {
+      throw new Error(`skill cast '${castId}' has a non-positive actual duration`);
+    }
+    result.set(castId, durationFrames);
+  }
+  return result;
+}
+
 /** 把时间实例生命周期回执配对为实际帧区间，不解释倍率和槽位竞争。 */
 export function projectTimelineTimeDilationBands(
   entries: readonly CombatReceiptEntry[],

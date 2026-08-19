@@ -792,6 +792,7 @@ describe('CombatRuntimeAssembly', () => {
     const freeze = skill({
       operatorId: 'caster',
       skillId: 'freeze',
+      castId: 'freeze-cast',
       costs: [],
       costFrame: undefined,
       timelineActions: [
@@ -859,7 +860,7 @@ describe('CombatRuntimeAssembly', () => {
       createOperationExecutor: () => rejectingExecutor,
     });
 
-    expect(assembly.tryStartSkill('caster', 'freeze')).toBe(true);
+    expect(assembly.tryStartSkill('caster', 'freeze', 'freeze-cast')).toBe(true);
     expect(
       assembly.receipt.entries.find(entry => entry.event === 'TimeDilationStarted'),
     ).toMatchObject({
@@ -876,6 +877,16 @@ describe('CombatRuntimeAssembly', () => {
     ).toMatchObject({
       frame: 1,
       data: { scheduledActualFrame: 1 },
+    });
+
+    assembly.advanceFrames(3);
+
+    expect(
+      assembly.receipt.entries.find(entry => entry.event === 'SkillOperableBoundaryReached'),
+    ).toMatchObject({
+      frame: 4,
+      sourceId: 'caster',
+      data: { castId: 'freeze-cast', durationFrames: 2 },
     });
   });
 

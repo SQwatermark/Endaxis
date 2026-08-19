@@ -6,7 +6,11 @@ import type { FrameRuntime } from './combatSimulation';
 import type { SkillType } from '../../game-data/operatorDefinition';
 import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
-import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
+import {
+  SkillOperableBoundaryRuntime,
+  type SkillOperableBoundaryFact,
+} from './skillOperableBoundaryRuntime';
 
 /** AbilitySystem 编排技能所需的最小生命周期端口。 */
 export interface AbilitySkillRuntime extends FrameRuntime {
@@ -14,6 +18,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   /** 文档中的技能释放身份；同技能多次放置时用于唯一寻址。 */
   readonly castId?: string;
   readonly skillType: SkillType;
+  /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
+  readonly timelineBlockFrames?: number;
   readonly state: RuntimeSkillState;
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
@@ -59,6 +65,9 @@ export interface AbilitySystemRuntimeOptions {
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
   /** 帧末延迟施放在真正启动前回到装配根，复用施放前事件与运行时参数准备。 */
   readonly beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
+  /** 提供后才发布场景技能块的实例级实际结束边界。 */
+  readonly resolveActualFrame?: () => number;
+  readonly onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
 }
 
 /** 按原生 PreLateTick 主干顺序推进一个实体的战斗能力。 */
@@ -78,6 +87,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
+  readonly #operableBoundaries: SkillOperableBoundaryRuntime | null;
+  readonly #resolveActualFrame?: () => number;
+  readonly #onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
+  readonly #registeredOperableBoundaryCastIds = new Set<string>();
   #currentSkill: AbilitySkillRuntime | null = null;
   #postSkillCastRequest: PostSkillCastRequest | null = null;
 
@@ -86,6 +99,18 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
+    if (
+      (options.resolveActualFrame === undefined) !==
+      (options.onSkillOperableBoundaryReached === undefined)
+    ) {
+      throw new Error(
+        'ability skill operable boundary projection requires both actual frame and observer',
+      );
+    }
+    this.#resolveActualFrame = options.resolveActualFrame;
+    this.#onSkillOperableBoundaryReached = options.onSkillOperableBoundaryReached;
+    this.#operableBoundaries =
+      options.resolveActualFrame === undefined ? null : new SkillOperableBoundaryRuntime();
     this.#resolveTickDeltas =
       options.resolveTickDeltas ?? (() => uniformAbilityTickDeltas(COMBAT_FRAME_INTERVAL));
     for (const skill of this.#skills) {
@@ -162,6 +187,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (!skill.tryStart()) {
       throw new Error(`skill '${skillId}' became unavailable during synchronous cast start`);
     }
+    this.#beginSkillOperableBoundary(skill);
     return true;
   }
 
@@ -185,6 +211,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
         skill.advanceFrame();
       }
     }
+    if (this.#operableBoundaries !== null) {
+      const actualFrame = this.#resolveActualFrame!();
+      for (const fact of this.#operableBoundaries.advance(
+        deltas.selfScaledDeltaSeconds * COMBAT_FRAMES_PER_SECOND,
+        actualFrame,
+      )) {
+        this.#onSkillOperableBoundaryReached!(fact);
+      }
+    }
     if (this.#currentSkill?.state !== 'casting') this.#currentSkill = null;
     this.#flushPostSkillCastRequest();
     this.#actionRuntime?.advanceFrame();
@@ -199,7 +234,28 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#currentSkill = null;
     const nextSkill = this.#requireSkill(request.skillId, request.castId);
     this.#beforePostSkillCastStart?.(request);
-    if (nextSkill.tryStart()) this.#currentSkill = nextSkill;
+    if (nextSkill.tryStart()) {
+      this.#currentSkill = nextSkill;
+      this.#beginSkillOperableBoundary(nextSkill);
+    }
+  }
+
+  #beginSkillOperableBoundary(skill: AbilitySkillRuntime): void {
+    if (
+      this.#operableBoundaries === null ||
+      skill.castId === undefined ||
+      skill.timelineBlockFrames === undefined
+    ) {
+      return;
+    }
+    // 一个场景放置身份只发布一次 UI 边界；技能槽替换或测试侧重复启动不伪造第二个块。
+    if (this.#registeredOperableBoundaryCastIds.has(skill.castId)) return;
+    this.#registeredOperableBoundaryCastIds.add(skill.castId);
+    this.#operableBoundaries.begin(
+      skill.castId,
+      skill.timelineBlockFrames,
+      this.#resolveActualFrame!(),
+    );
   }
 
   #requireSkill(skillId: string, castId?: string): AbilitySkillRuntime {

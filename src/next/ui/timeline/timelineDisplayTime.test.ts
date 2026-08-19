@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import {
+  projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
@@ -25,6 +26,26 @@ describe('timeline display time', () => {
     expect([...starts]).toEqual([
       ['cast:1', 12],
       ['cast:2', 20],
+    ]);
+  });
+
+  it('projects block width from the cast instance local boundary in actual frames', () => {
+    const durations = projectSkillCastActualDurationFrames([
+      receipt(0, 10, 'SkillStarted', { castId: 'cast:normal' }),
+      receipt(1, 40, 'SkillOperableBoundaryReached', {
+        castId: 'cast:normal',
+        durationFrames: 30,
+      }),
+      receipt(2, 50, 'SkillStarted', { castId: 'cast:slowed' }),
+      receipt(3, 110, 'SkillOperableBoundaryReached', {
+        castId: 'cast:slowed',
+        durationFrames: 30,
+      }),
+    ]);
+
+    expect([...durations]).toEqual([
+      ['cast:normal', 30],
+      ['cast:slowed', 60],
     ]);
   });
 

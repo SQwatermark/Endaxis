@@ -268,6 +268,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - Buff 时间域公共机制已闭环并进入洛茜正式生成物：`normal_smarttarget` 的内联定义现显式使用 `global`，敌方 Buff 的持续时间与周期触发已通过标准装配回归。洛茜 `stopenemy_elite` 仍保持未建模，但阻塞已收窄为其 Entity `TimeDilationAction` 的内联曲线没有关键帧；下一步回到洛茜 `normal_defup` 周期输出、裸 `Target` Buff 事件归因和流血相关修正，不能用时间域完成度掩盖这些独立缺口。
 - 时间轴时间语义已纠正：项目不再存储或调度统一逻辑帧，`placement.startFrame`、外部标记和模拟终点均为实际战斗帧；每个技能、Buff、能力实体、冷却与失衡运行时独立消费自己的时间增量。原先用于输入推迟和双标尺的 `CombatTimelineClock` / `TimelineTimeMapping` 已删除，编辑器只显示实际时间标尺。装配回归证明 0.5 全局倍率期间声明在实际第 1 帧的后续技能仍于第 1 帧处理。
 - 本次时间语义修复门禁：`type-check:next`、Next Vitest 177 文件 1114/1114、`git diff --check` 均通过；本地 `/next/timeline` 验收只出现单一 `TIME` 标尺且无控制台告警。测试文件数减少来自删除两组建立在伪全局逻辑时钟上的测试，不是覆盖失败。
+- 技能块实际宽度已接入实例级局部边界事实：场景块成功启动后，所属干员的 AbilitySystem 独立按 `selfScaledDelta` 累计定义中的 `timelineBlockFrames`，到达时发布 `SkillOperableBoundaryReached` 实际帧回执；动作序列自然结束、被下一技能中断或技能槽切形态都不改变这项 UI 边界累计。投影层用同一 `castId` 的 `SkillStarted` 与边界回执相减得到实际宽度，技能块和普通连线端点共同消费；未在模拟范围内到达边界时不猜测未来倍率，暂用定义宽度保底。离散帧边界已明确：第 N 帧启动不能在同一帧立即消费一整帧局部增量。0.5 倍速集成回归验证 2 个局部帧投影为 4 个实际帧；本轮门禁为 `type-check:next`、Next Vitest 177 文件 1116/1116、`git diff --check`，本地时间轴渲染无控制台告警。下一项对应工作是把块内命中点与命中连线从静态局部偏移迁移到实例动作回执的实际帧。
 
 ## 8. 恢复工作清单
 

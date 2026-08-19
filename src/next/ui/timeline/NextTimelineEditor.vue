@@ -54,6 +54,7 @@ import {
   timelineTotalWidth,
 } from './timelineGeometry';
 import {
+  projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
@@ -323,6 +324,11 @@ const skillCastActualStartFrames = computed(() =>
     ? new Map<string, number>()
     : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
 );
+const skillCastActualDurationFrames = computed(() =>
+  simulationRun.value === null
+    ? new Map<string, number>()
+    : projectSkillCastActualDurationFrames(simulationRun.value.receiptEntries),
+);
 const timeDilationBands = computed(() => {
   if (simulationRun.value === null) return [];
   const bands = projectTimelineTimeDilationBands(
@@ -383,6 +389,10 @@ function castActualStartFrame(castId: string, placementFrame: number): number {
     return gesture.previewActualFrame;
   }
   return skillCastActualStartFrames.value.get(castId) ?? placementFrame;
+}
+
+function castActualDurationFrame(castId: string, definitionDurationFrames: number): number {
+  return skillCastActualDurationFrames.value.get(castId) ?? definitionDurationFrames;
 }
 
 function timelinePointerActualFrame(pointerPx: number): number {
@@ -1567,6 +1577,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :cast-actual-start-frames="skillCastActualStartFrames"
+            :cast-actual-duration-frames="skillCastActualDurationFrames"
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />
@@ -1666,7 +1677,7 @@ function setPanelDialogVisible(visible: boolean): void {
                     pxPerFrame,
                   )
                 "
-                :width="cast.durationFrames * pxPerFrame"
+                :width="castActualDurationFrame(cast.id, cast.durationFrames) * pxPerFrame"
                 :selected="actionSelection.selectedIds.has(cast.id)"
                 :moving="
                   !castMoveGesture?.committed && castMoveGesture?.skillCastIds.includes(cast.id)
@@ -1678,7 +1689,12 @@ function setPanelDialogVisible(visible: boolean): void {
                 :connection-tool-enabled="connectionToolEnabled"
                 :warning="diagnosticsByCastId.has(cast.id)"
                 :hits="castHitMarkers(track.trackIndex, cast.id)"
-                :time-dilation-segments="castTimeDilationSegments(cast.id, cast.durationFrames)"
+                :time-dilation-segments="
+                  castTimeDilationSegments(
+                    cast.id,
+                    castActualDurationFrame(cast.id, cast.durationFrames),
+                  )
+                "
                 :title="
                   [timelineCastLabel(cast, track), castWarningTitle(cast.id)]
                     .filter(Boolean)

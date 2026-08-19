@@ -161,6 +161,10 @@ export class SkillRuntime {
     return this.#program.skillType;
   }
 
+  get timelineBlockFrames(): number {
+    return this.#program.timelineBlockFrames;
+  }
+
   get passedFrames(): number {
     return this.#passedFrames;
   }

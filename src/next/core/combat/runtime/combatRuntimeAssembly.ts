@@ -24,7 +24,7 @@ import {
   type BuffLifecycleOperationSource,
   type BuffOperationTarget,
 } from './buffOperationExecutor';
-import { CombatClock } from './combatClock';
+import { CombatClock, COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
@@ -60,7 +60,6 @@ import {
   type TimeDilationRuntimeConfig,
 } from './timeDilationRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
-import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
@@ -455,6 +454,18 @@ export class CombatRuntimeAssembly {
           actionRuntime: operator.actionRuntime,
           beforePostSkillCastStart: request =>
             this.#prepareSkillStart(operator.operatorId, request.skillId, request.castId),
+          resolveActualFrame: () => this.clock.frame,
+          onSkillOperableBoundaryReached: fact =>
+            this.receipt.record({
+              frame: fact.actualEndFrame,
+              time: fact.actualEndFrame / COMBAT_FRAMES_PER_SECOND,
+              event: 'SkillOperableBoundaryReached',
+              sourceId: operator.operatorId,
+              data: {
+                castId: fact.castId,
+                durationFrames: fact.durationFrames,
+              },
+            }),
           ...(this.timeDilation === null
             ? {}
             : {
