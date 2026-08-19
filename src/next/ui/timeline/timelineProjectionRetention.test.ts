@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import source from './NextTimelineEditor.vue?raw';
+import actionBlockSource from './components/TimelineActionBlock.vue?raw';
 
 function projectionSource(startMarker: string, endMarker: string): string {
   const start = source.indexOf(startMarker);
@@ -21,6 +22,20 @@ describe('Next timeline simulation projection retention', () => {
     expect(projections).toContain('projectTimelineTimeDilationBands');
     expect(projections).not.toContain('timelineTimeMapping');
     expect(projections).not.toContain('simulationStale.value');
+  });
+
+  it('marks only started casts without a published local boundary as duration-pending', () => {
+    const projection = projectionSource(
+      'function castActualDurationPending',
+      '\nfunction timelinePointerActualFrame',
+    );
+
+    expect(projection).toContain('definitionDurationFrames > 0');
+    expect(projection).toContain('skillCastActualStartFrames.value.has(castId)');
+    expect(projection).toContain('!skillCastActualDurationFrames.value.has(castId)');
+    expect(source).toContain(':duration-pending="castActualDurationPending');
+    expect(actionBlockSource).toContain("'is-duration-pending': durationPending");
+    expect(actionBlockSource).toContain('class="duration-pending-tail"');
   });
 
   it('does not independently clear hit projections while the published snapshot is stale', () => {

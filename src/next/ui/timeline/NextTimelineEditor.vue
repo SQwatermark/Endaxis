@@ -399,6 +399,14 @@ function castActualDurationFrame(castId: string, definitionDurationFrames: numbe
   return skillCastActualDurationFrames.value.get(castId) ?? definitionDurationFrames;
 }
 
+function castActualDurationPending(castId: string, definitionDurationFrames: number): boolean {
+  return (
+    definitionDurationFrames > 0 &&
+    skillCastActualStartFrames.value.has(castId) &&
+    !skillCastActualDurationFrames.value.has(castId)
+  );
+}
+
 function timelinePointerActualFrame(pointerPx: number): number {
   return Math.round(Math.max(0, pointerPx / pxPerFrame.value - scenario.value.battle.prepFrames));
 }
@@ -1696,6 +1704,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   )
                 "
                 :width="castActualDurationFrame(cast.id, cast.durationFrames) * pxPerFrame"
+                :duration-pending="castActualDurationPending(cast.id, cast.durationFrames)"
                 :selected="actionSelection.selectedIds.has(cast.id)"
                 :moving="
                   !castMoveGesture?.committed && castMoveGesture?.skillCastIds.includes(cast.id)

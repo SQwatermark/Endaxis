@@ -9,6 +9,8 @@ class FixtureRuntime implements AbilitySkillRuntime {
     readonly skillId: string,
     readonly events: string[],
     readonly skillType: AbilitySkillRuntime['skillType'] = 'battleSkill',
+    readonly castId?: string,
+    readonly timelineBlockFrames?: number,
   ) {}
 
   canStart(): boolean {
@@ -116,6 +118,23 @@ describe('AbilitySystemRuntime', () => {
       'interrupt:equal:castNextSkill',
       'start:ultimate',
     ]);
+  });
+
+  it('does not register a positive-duration boundary for a zero-width presentation skill', () => {
+    const events: string[] = [];
+    const reached: unknown[] = [];
+    let actualFrame = 0;
+    const skill = new FixtureRuntime('zero', events, 'battleSkill', 'cast:zero', 0);
+    const ability = new AbilitySystemRuntime({
+      skills: [skill],
+      resolveActualFrame: () => actualFrame,
+      onSkillOperableBoundaryReached: fact => reached.push(fact),
+    });
+
+    expect(ability.tryStartSkill('zero', 'cast:zero')).toBe(true);
+    actualFrame = 1;
+    ability.advanceFrame();
+    expect(reached).toEqual([]);
   });
 
   it('snapshots the active slot variant at release start and applies changes to later releases', () => {

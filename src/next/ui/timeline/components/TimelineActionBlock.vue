@@ -22,6 +22,8 @@ const props = defineProps<{
   locked?: boolean;
   edited?: boolean;
   moving?: boolean;
+  /** 已启动但在当前模拟终点前尚未到达实例局部可操作边界。 */
+  durationPending?: boolean;
   color?: string | null;
   connectionToolEnabled?: boolean;
   /** 合法性诊断归约到该技能块的警告标记。 */
@@ -71,6 +73,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       'is-disabled': disabled,
       'is-locked': locked,
       'is-moving': moving,
+      'is-duration-pending': durationPending,
       'is-connection-tool': connectionToolEnabled,
     }"
     :data-skill-type="skillType"
@@ -93,6 +96,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       <span class="time-dilation-shimmer"></span>
     </span>
     <span class="action-label">{{ label }}</span>
+    <span v-if="durationPending" class="duration-pending-tail" aria-hidden="true"></span>
     <span
       v-for="hit in hits ?? []"
       :key="hit.hitId"
@@ -168,6 +172,27 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   cursor: grabbing;
   filter: brightness(1.25);
   box-shadow: 0 0 14px color-mix(in srgb, var(--action-accent) 65%, transparent);
+}
+
+.timeline-action-block.is-duration-pending {
+  border-right-style: dashed;
+}
+
+.duration-pending-tail {
+  position: absolute;
+  z-index: 1;
+  top: -1.5px;
+  bottom: -1.5px;
+  left: 100%;
+  width: 18px;
+  border-left: 1px dashed color-mix(in srgb, var(--action-accent) 70%, transparent);
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--action-accent) 28%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+  mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .timeline-action-block.is-disabled {

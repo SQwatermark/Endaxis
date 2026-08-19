@@ -244,7 +244,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (
       this.#operableBoundaries === null ||
       skill.castId === undefined ||
-      skill.timelineBlockFrames === undefined
+      skill.timelineBlockFrames === undefined ||
+      skill.timelineBlockFrames === 0
     ) {
       return;
     }
