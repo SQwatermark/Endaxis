@@ -604,6 +604,9 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
     'atk_scale2': [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
     'poise1': 5,
     'poise2': 5,
+    'count': 0,
+    'duration': 0,
+    'pulse_up': 0,
   },
 );
 

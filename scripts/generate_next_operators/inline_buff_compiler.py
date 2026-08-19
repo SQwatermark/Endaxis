@@ -674,7 +674,12 @@ def compile_inline_buff_scheduled_sequences(
                 ).splitlines(),
             )
         )
+    projected_interval_frames = {
+        interval.tickFrames for interval in getattr(source, "intervalDamageHits", ())
+    }
     for index, condition in enumerate(source.conditionalActions):
+        if getattr(condition, "executionFrames", ()) in projected_interval_frames:
+            continue
         compiled_condition = _compile_conditional_action_ir(
             condition,
             f"{path}.conditionalActions[{index}]",
@@ -722,6 +727,32 @@ def compile_inline_buff_scheduled_sequences(
                 ),
             )
         )
+    for index, repeated in enumerate(getattr(source, "intervalDamageHits", ())):
+        for tick_index, tick_frame in enumerate(repeated.tickFrames):
+            compiled.append(
+                (
+                    tick_frame,
+                    repeated.sequenceIndex,
+                    repeated.damageActionIndex,
+                    compile_damage_units_step(
+                        repeated.damageUnits,
+                        damage_tags,
+                        f"{path}.intervalDamageHits[{index}]",
+                        runtime_blackboard_keys,
+                        encode_damage_step_key(
+                            source.buffId,
+                            "buffInterval",
+                            (source.buffId,),
+                            (
+                                repeated.actionIndex,
+                                tick_index,
+                                repeated.damageActionIndex,
+                            ),
+                        ),
+                        validate_declared_tags=False,
+                    ),
+                )
+            )
     for infliction in getattr(source, "inflictions", ()):
         compiled.append(
             (
@@ -739,6 +770,8 @@ def compile_inline_buff_scheduled_sequences(
         covered_actions.add("CreateBuffAction")
     if source.directDamageHits:
         covered_actions.add("DamageAction")
+    if getattr(source, "intervalDamageHits", ()):
+        covered_actions.update({"TickIntervalAction", "DamageAction"})
     if getattr(source, "inflictions", ()):
         covered_actions.add("SpellInfliction")
     if source.blackboardCalculations:

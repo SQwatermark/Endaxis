@@ -479,6 +479,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
     'count': 0,
     'atk_scale': [1.2, 1.32, 1.44, 1.56, 1.68, 1.8, 1.92, 2.04, 2.16, 2.31, 2.49, 2.7],
     'usp': 10,
+    'cd_reduction': 0,
   },
 );
 

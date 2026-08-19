@@ -160,6 +160,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     'atk_scale': [1.02, 1.12, 1.22, 1.33, 1.43, 1.53, 1.63, 1.73, 1.84, 1.96, 2.12, 2.3],
     'poise': 10,
     'usp': 10,
+    'extratime': 0,
   },
 );
 
@@ -534,6 +535,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
     'displaypoise': 10,
     'extrapoise': 10,
     'poise': 10,
+    'extratime': 0,
   },
 );
 

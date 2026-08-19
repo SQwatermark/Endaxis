@@ -574,6 +574,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
   {
     'atk_scale': [4.89, 5.38, 5.86, 6.35, 6.84, 7.33, 7.82, 8.31, 8.8, 9.41, 10.14, 11],
     'poise': [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
+    'dmg_up_total': 0,
   },
 );
 

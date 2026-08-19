@@ -345,6 +345,7 @@ export interface GeneratedBuffDefinitionSource {
   /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
   readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
+  readonly intervalDamageHits?: readonly GeneratedTimedIntervalDamageSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly blackboardCalculations: readonly GeneratedBlackboardCalculationSource[];

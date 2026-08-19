@@ -642,6 +642,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     'atk_scale_pull': [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
     'display_atk_scale_pull': [0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19],
     'poise': 10,
+    'heal_scale': 0,
   },
 );
 
@@ -765,6 +766,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
     'atk_scale': [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
     'poise': 5,
     'usp': 10,
+    'heal_scale': 0,
   },
 );
 
@@ -1021,6 +1023,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     'spell_vulnerable_4stack': [0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42],
     'spell_vulnerable_perstack': 0.1,
     'spell_vulnerable_rate': [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
+    'potential2': 0,
   },
 );
 

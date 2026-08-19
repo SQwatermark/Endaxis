@@ -64,6 +64,7 @@ COMPARISON_OPERATORS = {
 
 BEHAVIOR_FIELDS = (
     "directDamageHits",
+    "intervalDamageHits",
     "inflictions",
     "conditionalActions",
     "blackboardCalculations",
@@ -82,6 +83,7 @@ BEHAVIOR_FIELDS = (
 SCHEDULE_BEHAVIOR_FIELDS = frozenset(
     {
         "directDamageHits",
+        "intervalDamageHits",
         "inflictions",
         "conditionalActions",
         "blackboardCalculations",

@@ -362,6 +362,8 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     'duration_wisd': 2,
     'poise_laser': 0,
     'spell_vul_per_will': 0.000125,
+    'duration_pre': 0.633,
+    'will': 0,
   },
 );
 
@@ -986,6 +988,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     'atk_scale_will': [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     'atk_scale_wisd': [2.22, 2.45, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
     'poise': 10,
+    'radius': 5,
   },
 );
 
@@ -1362,6 +1365,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     'duration2': 15,
     'laser_count': 8,
     'poise': 10,
+    'count': 1,
+    'duration_aura': 60,
+    'will': 0,
   },
 );
 
@@ -1682,6 +1688,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     'atk_scale': [6.4, 7.04, 7.68, 8.32, 8.96, 9.6, 10.24, 10.88, 11.52, 12.32, 13.28, 14.4],
     'atk_scale_will': [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     'poise': 10,
+    'will': 0,
   },
 );
 

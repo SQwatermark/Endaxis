@@ -334,3 +334,13 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - [证据与研究方法](./03-evidence-and-research-method.md)
 - [战斗系统研究结论](./04-combat-system-findings.md)
 - [操作手册](./07-operations-playbook.md)
+
+### 2026-08-20：洛茜爪印 Buff 的周期伤害闭环
+
+- `buff_chr_0028_wulfa_normal_defup` 已按 BuffData 原始结构内联：挂在洛茜自身、持续时间使用全局时间域，根 `DamageScaleProcessor(Defender/ProdCalcZone, defup=-0.5)` 原样保留。敌人仍是不会主动攻击的木桩，所以该玩家侧减伤目前没有标准场景伤害输入可观察，但不能据此删除定义。
+- Buff 局部 `TickIntervalAction(0.1s, frames 10..20)` 复用固定间隔单精度投影，生成本地第 10/12/15/18 帧四次物理伤害。生产模拟中，战技从现实帧 1 开始时，四次爪印伤害记录在 225/227/230/233 帧，来源均为洛茜；没有引入敌方主动行为。
+- 生成器此前只扫描 Buff 直接伤害，导致周期容器内的 `DamageAction` 虽出现在 `combatActions` 审计中，却可能因没有开启 Buff 调度编译而静默遗漏。本轮把 `intervalDamageHits` 纳入 Buff 定义事实、严格拒绝边界和实例级 `scheduledSequences`，并让残余 `combatActions` 强制进入覆盖检查；同类遗漏以后会失败关闭。
+- 无条件 `damageModifier` 现在作为合法的空条件形状解析；它不同于条件丢失，仍完整保留启用侧、处理侧、乘区和黑板加值。
+- 最终调度表达式会再次收集实际动作黑板引用，只给来源中已声明、确实使用，且没有补丁/本地计算/变异/Buff 读取/外部输入生产者的纯数值键注入默认值。该修复补回洛茜零潜能时会读取的 `potential_upgrade=0`；唐堂 `tornado_atk_scale*` 等外部动态输入仍不会使用序列化零值兜底。
+- manifest 已从战技、二段连携和三段连携的未建模清单移除 `normal_defup`；洛茜 `comboSkill3` 不再属于 `skillBehavior` 缺口，战技和二段连携仍有其他明确未建模 Buff，终结技缺口不变。
+- 收尾门禁：Python 规则测试 355/355、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1146/1146 均通过。本机旧 `__pycache__` 曾残留错误字段布局，验证改用 `tmp/python-cache` 独立缓存后全绿；`tmp/` 仍只作为未跟踪目录，不得提交。

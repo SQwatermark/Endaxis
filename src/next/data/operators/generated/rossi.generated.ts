@@ -225,7 +225,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 4,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 5,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_combo_2_damagewait",
@@ -1950,7 +2004,36 @@ export const rossiGeneratedSource = {
       "applyTagIds": [],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "ProdCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "defup",
+                "levelValues": [
+                  -0.5
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
       "directDamageHits": [],
       "inflictions": [],
       "conditionalActions": [],
@@ -1965,19 +2048,68 @@ export const rossiGeneratedSource = {
       "combatActions": [
         "DamageAction"
       ],
-      "unparsedPayloads": [
-        {
-          "field": "damageModifier",
-          "entryCount": 1
-        }
-      ],
+      "unparsedPayloads": [],
       "auraActions": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": true,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_normal_smarttarget",
@@ -2087,7 +2219,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": true,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_normal_wolf_timer",
@@ -2333,7 +2519,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_tut_comboskill_finish",
@@ -2428,7 +2668,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_tut_comboskill_success",
@@ -2523,7 +2817,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_tut_normalskill_failure",
@@ -2618,7 +2966,61 @@ export const rossiGeneratedSource = {
       "targetGroupWrites": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "intervalDamageHits": [
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "actionIndex": 0,
+          "intervalSeconds": 0.1,
+          "tickFrames": [
+            10,
+            12,
+            15,
+            18
+          ],
+          "damageActionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.3
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 20.0,
+                "blackboardKey": "posie",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0028_wulfa_ult_addtional_battleshape",

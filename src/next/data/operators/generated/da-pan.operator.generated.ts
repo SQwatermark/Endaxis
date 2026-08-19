@@ -1126,6 +1126,11 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     'talent_1': 0,
     'atk_scale_end': [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     'atk_scale_loop': [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
+    'potential_1_dmg_up': 0,
+    'potential_1_duration': 0,
+    'talent_1_cd_reduce': 0,
+    'talent_1_duration': 0,
+    'talent_1_stack': 0,
   },
 );
 

@@ -9524,6 +9524,9 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     'duration_water': 30,
     'poise': 10,
     'usp': 10,
+    'duration_talent1buff': 0,
+    'ratio_speed': 0,
+    'ratio_speedreduction': 0,
   },
 );
 

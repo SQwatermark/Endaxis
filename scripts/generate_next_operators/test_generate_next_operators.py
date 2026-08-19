@@ -15,6 +15,7 @@ from generate_next_operators import (
     ELEMENT_TYPE_MAP,
     collect_blackboard_keys,
     collect_conditional_blackboard_keys,
+    collect_compiled_blackboard_keys,
     collect_unresolved_combat_actions,
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
@@ -134,6 +135,7 @@ from generate_next_operators import (
     parse_aura_actions,
     parse_auxiliary_actions,
     parse_buff_attribute_modifiers,
+    parse_buff_damage_modifiers,
     parse_buff_application_payload,
     parse_buff_find_settings,
     parse_buff_lifecycle,
@@ -4417,6 +4419,20 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(keys, {"sword_dist"})
 
+    def test_compiled_blackboard_collection_keeps_final_schedule_reads(self) -> None:
+        expression = """
+        branch(
+          { kind: 'actionValueCompare', left: { kind: 'blackboard', key: 'potential_upgrade' } },
+          sequence(),
+        )
+        step('applyBuff', { definition: { blackboard: { 'presentation_only': 1 } } })
+        """
+
+        self.assertEqual(
+            collect_compiled_blackboard_keys(expression),
+            {"potential_upgrade"},
+        )
+
     def test_compile_buff_blackboard_read_emits_strict_runtime_step(self) -> None:
         read = BuffBlackboardReadSource(
             startFrame=11,
@@ -6014,6 +6030,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'buffIdStackCompare'", result)
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
+
+    def test_unconditional_buff_damage_modifier_is_preserved(self) -> None:
+        modifiers, unsupported = parse_buff_damage_modifiers(
+            {
+                "damageModifier": [
+                    {
+                        "enableSide": "Defender",
+                        "condition": {
+                            "actionData": [],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "damageProcessors": [
+                            {
+                                "$type": "Example.DamageScaleProcessor, Example",
+                                "side": "Defender",
+                                "zoneName": "ProdCalcZone",
+                                "addition": {
+                                    "useBlackboardKey": True,
+                                    "value": 0,
+                                    "blackboardKey": "defup",
+                                },
+                            }
+                        ],
+                    }
+                ]
+            },
+            "buff.test",
+            {"defup": (-0.5,)},
+        )
+
+        self.assertEqual(unsupported, 0)
+        self.assertEqual(len(modifiers), 1)
+        self.assertEqual(modifiers[0].enabledSide, "Defender")
+        self.assertEqual(modifiers[0].processors[0].zone, "ProdCalcZone")
+        self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "defup")
 
     def test_buff_owner_query_uses_the_actual_buff_host(self) -> None:
         condition = SimpleNamespace(

@@ -74,6 +74,7 @@ class BuffDefinitionParserServices:
     parse_buff_skill_replacements: Callable[..., Any]
     parse_declared_blackboard: Callable[..., Any]
     parse_direct_damage_hits: Callable[..., Any]
+    parse_interval_damage_hits: Callable[..., Any]
     parse_inflictions: Callable[..., Any]
     parse_resource_gains: Callable[..., Any]
     parse_target_group_writes: Callable[..., Any]
@@ -289,7 +290,9 @@ def parse_buff_damage_modifiers(
         damage_features: tuple[str, ...] = ()
         number_comparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
         health_comparisons: tuple[HealthConditionSource, ...] = ()
-        if condition_types == ("CheckTagMatch",):
+        if not condition_types:
+            pass
+        elif condition_types == ("CheckTagMatch",):
             tag_path = f"{path}.condition.actionData[0]"
             tag_condition = require_dict(condition_actions[0], tag_path)
             if set(tag_condition) != {
@@ -628,6 +631,7 @@ def resolve_buff_definitions(
     parse_buff_skill_replacements = services.parse_buff_skill_replacements
     parse_declared_blackboard = services.parse_declared_blackboard
     parse_direct_damage_hits = services.parse_direct_damage_hits
+    parse_interval_damage_hits = services.parse_interval_damage_hits
     parse_inflictions = services.parse_inflictions
     parse_resource_gains = services.parse_resource_gains
     parse_target_group_writes = services.parse_target_group_writes
@@ -766,6 +770,9 @@ def resolve_buff_definitions(
             ),
             damageModifiers=damage_modifiers,
             directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
+            intervalDamageHits=parse_interval_damage_hits(
+                adapted_root, source_file, blackboard
+            ),
             inflictions=parse_inflictions(adapted_root, source_file),
             conditionalActions=parse_conditional_actions(adapted_root, source_file, blackboard),
             blackboardCalculations=parse_blackboard_calculations(

@@ -793,6 +793,8 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     'display_atk_scale': [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
     'poise': 10,
     'usp': 10,
+    'heal_base': 0,
+    'heal_sub_multi': 0,
   },
 );
 
@@ -965,6 +967,8 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     'poise': 10,
     'poise_2': 10,
     'usp': 10,
+    'heal_base': 0,
+    'heal_sub_multi': 0,
   },
 );
 

@@ -8,6 +8,7 @@ import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.oper
 import { endministratorGeneratedOperator } from '../data/operators/generated/endministrator.operator.generated';
 import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
 import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
+import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -401,6 +402,71 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('runs Rossi claw-mark Buff interval damage through production simulation', () => {
+    const scenario = createEmptyScenario('scenario:generated-rossi-claw-mark', '洛茜爪印样本');
+    scenario.battle.durationFrames = 300;
+    scenario.battle.resourceRules = {
+      ...scenario.battle.resourceRules,
+      initialSp: 100,
+      spRecoveryPerSecond: 0,
+    };
+    scenario.tracks[0] = {
+      id: 'track:rossi',
+      operator: {
+        operatorSlug: rossiGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: rossiGeneratedOperator,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:rossi` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 250,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    const clawMarkDamage = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_normal_defup') &&
+        String(entry.data?.stepKey).includes('buffInterval'),
+    );
+    expect(clawMarkDamage).toHaveLength(4);
+    expect(clawMarkDamage.every(entry => entry.sourceId === 'track:rossi')).toBe(true);
+    expect(clawMarkDamage.map(entry => entry.frame)).toEqual([225, 227, 230, 233]);
+  });
+
   it('runs generated Tangtang combo damage and water entity lifecycle', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedTangtangComboScenario(),

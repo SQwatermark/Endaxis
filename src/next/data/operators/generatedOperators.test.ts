@@ -5,6 +5,7 @@ import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
 import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
 import { lifengUltimate } from './generated/lifeng.operator.generated';
+import { rossiBattleSkill } from './generated/rossi.operator.generated';
 import {
   akekuri,
   camille,
@@ -54,12 +55,7 @@ describe('新增的完整技能转换干员', () => {
       )?.skillGroupKeys ?? [];
 
     expect(skillBehaviorGaps(chenQianyu)).toEqual([]);
-    expect(skillBehaviorGaps(rossi)).toEqual([
-      'battleSkill',
-      'comboSkill2',
-      'comboSkill3',
-      'ultimate',
-    ]);
+    expect(skillBehaviorGaps(rossi)).toEqual(['battleSkill', 'comboSkill2', 'ultimate']);
     expect(skillBehaviorGaps(camille)).toEqual(['battleSkill', 'ultimate']);
   });
 
@@ -96,6 +92,19 @@ describe('新增的完整技能转换干员', () => {
     const jumpIndex = serialized.indexOf('"destinationFrame":150');
     expect(jumpIndex).toBeLessThan(serialized.indexOf('"key":"EntityBB_isCombo"', jumpIndex));
     expect(frames).not.toEqual(expect.arrayContaining([64, 124, 179]));
+  });
+
+  it('Rossi 爪印 Buff 同时保留固定周期伤害与无条件防守侧减伤', () => {
+    const serialized = JSON.stringify(rossiBattleSkill);
+
+    expect(serialized).toContain('buff_chr_0028_wulfa_normal_defup');
+    expect(serialized).toContain('buffInterval');
+    expect(serialized).toContain('"enabledSide":"defender"');
+    expect(serialized).toContain('"zone":"product"');
+    expect(serialized).toContain('"blackboardKey":"defup"');
+    expect(serialized.split('32:buff_chr_0028_wulfa_normal_defup12:buffInterval').length - 1).toBe(
+      4,
+    );
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {

@@ -555,6 +555,7 @@ class BuffDefinitionSource:
     # Buff.OnTick(deltaTime, allScaledDeltaTime, selfScaledDeltaTime) 的原始判别字段。
     useTimeDilationDt: bool = False
     onlyUseSelfTimeDilation: bool = False
+    intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()
 
 
 @dataclass(frozen=True)

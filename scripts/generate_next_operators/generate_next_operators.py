@@ -445,6 +445,14 @@ def serialize_audit_value(value: Any) -> Any:
                 if key not in TARGET_GROUP_WRITE_INTERNAL_KEYS
             }
         )
+    if isinstance(value, BuffDefinitionSource):
+        return serialize_audit_value(
+            {
+                field.name: getattr(value, field.name)
+                for field in fields(value)
+                if field.name != "intervalDamageHits" or value.intervalDamageHits
+            }
+        )
     if hasattr(value, "__dataclass_fields__"):
         return serialize_audit_value(
             {field.name: getattr(value, field.name) for field in fields(value)}
@@ -1966,6 +1974,7 @@ def _make_buff_definition_parser_services() -> BuffDefinitionParserServices:
         parse_buff_skill_replacements=parse_buff_skill_replacements,
         parse_declared_blackboard=parse_declared_blackboard,
         parse_direct_damage_hits=parse_direct_damage_hits,
+        parse_interval_damage_hits=parse_interval_damage_hits,
         parse_inflictions=parse_inflictions,
         parse_resource_gains=parse_resource_gains,
         parse_target_group_writes=parse_target_group_writes,
@@ -7192,6 +7201,24 @@ def render_named_skills(
         }
         blackboard.update(collect_buff_application_blackboard_inputs(skill))
         blackboard.update(skill.patch.blackboard)
+        compiled_blackboard_keys = collect_compiled_blackboard_keys(value)
+        compiled_default_keys = {
+            provenance.key
+            for provenance in skill.blackboardProvenance
+            if provenance.declaredInSkill
+            and not provenance.suppliedByPatch
+            and not provenance.calculatedLocally
+            and not provenance.mutatedLocally
+            and not provenance.readFromBuff
+            and not provenance.externalRuntimeInput
+        }
+        for item in skill.declaredBlackboard:
+            if (
+                item.key in compiled_blackboard_keys & compiled_default_keys
+                and isinstance(item.value, float)
+                and item.key not in blackboard
+            ):
+                blackboard[item.key] = item.value
         if blackboard:
             blackboard_lines: list[str] = []
             for key, values in blackboard.items():
@@ -7227,6 +7254,11 @@ def render_named_skills(
             ]
         )
     return result
+
+
+def collect_compiled_blackboard_keys(expression: str) -> set[str]:
+    """收集最终 DSL 中确实作为动作黑板键出现的声明引用。"""
+    return set(re.findall(r"\b(?:key|blackboardKey): '([^']+)'", expression))
 
 
 def collect_conditional_blackboard_keys(

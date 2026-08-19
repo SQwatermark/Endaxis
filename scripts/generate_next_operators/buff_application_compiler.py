@@ -143,6 +143,7 @@ def compile_buff_application_values(
             getattr(definition, field, ())
             for field in (
                 "directDamageHits",
+                "intervalDamageHits",
                 "conditionalActions",
                 "blackboardCalculations",
                 "blackboardMutations",
@@ -150,6 +151,7 @@ def compile_buff_application_values(
                 "buffFinishes",
                 "resourceGains",
                 "auxiliaryActions",
+                "combatActions",
             )
         )
         def compile_event_behaviors(

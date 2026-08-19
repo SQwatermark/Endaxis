@@ -573,7 +573,6 @@
             "costResource": "sp",
             "unmodeledBuffIds": [
               "buff_chr_0028_wulfa_normal_bleed",
-              "buff_chr_0028_wulfa_normal_defup",
               "buff_chr_0028_wulfa_tut_normalskill_success"
             ],
             "skipBuffDefinitionResolutionIds": ["buff_chr_0028_wulfa_normal_bleed"]
@@ -590,8 +589,7 @@
             "unmodeledBuffIds": [
               "buff_chr_0028_wulfa_combo_2_damagewait",
               "buff_chr_0028_wulfa_combo_2_qte_timerlistening",
-              "buff_chr_0028_wulfa_combo_usetimer",
-              "buff_chr_0028_wulfa_normal_defup"
+              "buff_chr_0028_wulfa_combo_usetimer"
             ]
           }
         },
@@ -602,7 +600,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["comboSkill"],
-            "unmodeledBuffIds": ["buff_chr_0028_wulfa_normal_defup"]
+            "unmodeledBuffIds": []
           }
         },
         {

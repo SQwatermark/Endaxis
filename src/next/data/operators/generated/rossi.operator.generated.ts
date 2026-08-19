@@ -747,6 +747,56 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     'poise': 0,
                     'posie': 0,
                   },
+                  scheduledSequences: [
+                    scheduled(
+                      10,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:01:1'),
+                      ),
+                    ),
+                    scheduled(
+                      12,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:11:1'),
+                      ),
+                    ),
+                    scheduled(
+                      15,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:21:1'),
+                      ),
+                    ),
+                    scheduled(
+                      18,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:31:1'),
+                      ),
+                    ),
+                  ],
                 },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
@@ -762,6 +812,100 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             target: 'caster',
             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
             reason: 'early',
+          }),
+        ),
+      ),
+      scheduled(
+        215,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            definition: {
+              stackingType: 'refresh',
+              timeClock: 'global',
+              priority: 0,
+              maxStackCount: 3,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: {
+                'atk_scale': 0.3,
+                'damage_cd': 1.5,
+                'damage_interval': 1,
+                'damage_up': 0.12,
+                'defup': -0.5,
+                'duration': 5,
+                'extra_atk_scale': 1.5,
+                'heal_scale': 0.2,
+                'poise': 0,
+                'posie': 0,
+                'talent2_burning_damage_scale': 1.5,
+                'talent_2': 0,
+              },
+              damageModifiers: [
+                {
+                  enabledSide: 'defender',
+                  processors: [
+                    {
+                      kind: 'damageScale',
+                      side: 'defender',
+                      zone: 'product',
+                      addition: { blackboardKey: 'defup' },
+                    },
+                  ],
+                },
+              ],
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
           }),
         ),
       ),
@@ -786,6 +930,56 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 'posie': 0,
                 'talent_2': 0,
               },
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
             },
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
@@ -1025,6 +1219,8 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     'poise_2': [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
     'usp_1': 15,
     'usp_2': 10,
+    'atb_return': 10,
+    'potential_upgrade': 0,
   },
 );
 
@@ -1104,6 +1300,100 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
           }),
         ),
         16,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            definition: {
+              stackingType: 'refresh',
+              timeClock: 'global',
+              priority: 0,
+              maxStackCount: 3,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: {
+                'atk_scale': 0.3,
+                'damage_cd': 1.5,
+                'damage_interval': 1,
+                'damage_up': 0.12,
+                'defup': -0.5,
+                'duration': 5,
+                'extra_atk_scale': 1.5,
+                'heal_scale': 0.2,
+                'poise': 0,
+                'posie': 0,
+                'talent2_burning_damage_scale': 1.5,
+                'talent_2': 0,
+              },
+              damageModifiers: [
+                {
+                  enabledSide: 'defender',
+                  processors: [
+                    {
+                      kind: 'damageScale',
+                      side: 'defender',
+                      zone: 'product',
+                      addition: { blackboardKey: 'defup' },
+                    },
+                  ],
+                },
+              ],
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
       ),
       scheduled(
         13,
@@ -1259,6 +1549,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     'display_usp_2_s': 10,
     'poise': 0,
     'usp': 10,
+    'cam_shoulderoffset_X': 0,
   },
 );
 
@@ -1432,6 +1723,100 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           }),
         ),
         16,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            definition: {
+              stackingType: 'refresh',
+              timeClock: 'global',
+              priority: 0,
+              maxStackCount: 3,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: {
+                'atk_scale': 0.3,
+                'damage_cd': 1.5,
+                'damage_interval': 1,
+                'damage_up': 0.12,
+                'defup': -0.5,
+                'duration': 5,
+                'extra_atk_scale': 1.5,
+                'heal_scale': 0.2,
+                'poise': 0,
+                'posie': 0,
+                'talent2_burning_damage_scale': 1.5,
+                'talent_2': 0,
+              },
+              damageModifiers: [
+                {
+                  enabledSide: 'defender',
+                  processors: [
+                    {
+                      kind: 'damageScale',
+                      side: 'defender',
+                      zone: 'product',
+                      addition: { blackboardKey: 'defup' },
+                    },
+                  ],
+                },
+              ],
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
       ),
       scheduled(
         29,
@@ -2214,6 +2599,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     'poise': 0,
                     'posie': 0,
                   },
+                  scheduledSequences: [
+                    scheduled(
+                      10,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:01:1'),
+                      ),
+                    ),
+                    scheduled(
+                      12,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:11:1'),
+                      ),
+                    ),
+                    scheduled(
+                      15,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:21:1'),
+                      ),
+                    ),
+                    scheduled(
+                      18,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:31:1'),
+                      ),
+                    ),
+                  ],
                 },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
@@ -2234,6 +2669,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     'poise': 0,
                     'posie': 0,
                   },
+                  scheduledSequences: [
+                    scheduled(
+                      10,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
+                      ),
+                    ),
+                    scheduled(
+                      12,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
+                      ),
+                    ),
+                    scheduled(
+                      15,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
+                      ),
+                    ),
+                    scheduled(
+                      18,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
+                      ),
+                    ),
+                  ],
                 },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
@@ -2268,6 +2753,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     'poise': 0,
                     'posie': 0,
                   },
+                  scheduledSequences: [
+                    scheduled(
+                      10,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
+                      ),
+                    ),
+                    scheduled(
+                      12,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
+                      ),
+                    ),
+                    scheduled(
+                      15,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
+                      ),
+                    ),
+                    scheduled(
+                      18,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
+                      ),
+                    ),
+                  ],
                 },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
@@ -2288,6 +2823,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 'poise': 0,
                 'posie': 0,
               },
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
             },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
@@ -2350,6 +2935,100 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           }),
         ),
         222,
+      ),
+      scheduled(
+        212,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            definition: {
+              stackingType: 'refresh',
+              timeClock: 'global',
+              priority: 0,
+              maxStackCount: 3,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: {
+                'atk_scale': 0.3,
+                'damage_cd': 1.5,
+                'damage_interval': 1,
+                'damage_up': 0.12,
+                'defup': -0.5,
+                'duration': 5,
+                'extra_atk_scale': 1.5,
+                'heal_scale': 0.2,
+                'poise': 0,
+                'posie': 0,
+                'talent2_burning_damage_scale': 1.5,
+                'talent_2': 0,
+              },
+              damageModifiers: [
+                {
+                  enabledSide: 'defender',
+                  processors: [
+                    {
+                      kind: 'damageScale',
+                      side: 'defender',
+                      zone: 'product',
+                      addition: { blackboardKey: 'defup' },
+                    },
+                  ],
+                },
+              ],
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
+            },
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
       ),
       scheduled(
         227,
@@ -2711,6 +3390,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     'poise': 0,
                     'posie': 0,
                   },
+                  scheduledSequences: [
+                    scheduled(
+                      10,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
+                      ),
+                    ),
+                    scheduled(
+                      12,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
+                      ),
+                    ),
+                    scheduled(
+                      15,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
+                      ),
+                    ),
+                    scheduled(
+                      18,
+                      sequence(
+                        step('dealDamage', {
+                          damageType: 'physical',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['comboSkill'],
+                          features: ['canBreakWeakness'],
+                          stagger: { kind: 'blackboard', key: 'posie' },
+                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
+                      ),
+                    ),
+                  ],
                 },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
@@ -2731,6 +3460,56 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 'poise': 0,
                 'posie': 0,
               },
+              scheduledSequences: [
+                scheduled(
+                  10,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:01:1'),
+                  ),
+                ),
+                scheduled(
+                  12,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:11:1'),
+                  ),
+                ),
+                scheduled(
+                  15,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:21:1'),
+                  ),
+                ),
+                scheduled(
+                  18,
+                  sequence(
+                    step('dealDamage', {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['comboSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'posie' },
+                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:31:1'),
+                  ),
+                ),
+              ],
             },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
@@ -2756,6 +3535,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     'poise_s': 5,
     'usp_f': 10,
     'usp_s': 10,
+    'potential_atk_multiply': 1,
   },
 );
 
@@ -3361,6 +4141,8 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     'display_atk_scale_1_max': [2.75, 3, 3.25, 3.5, 3.75, 4, 4.25, 4.5, 4.75, 5.25, 5.5, 6],
     'display_atk_scale_1_min': [1.28, 1.41, 1.54, 1.66, 1.79, 1.92, 2.05, 2.18, 2.3, 2.46, 2.66, 2.88],
     'poise': 25,
+    'potential_5_critical_damage': 0,
+    'potential_5_damage_scale': 1.2,
   },
 );
 
@@ -3547,5 +4329,5 @@ export const rossiGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'comboSkill2', 'comboSkill3', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'comboSkill2', 'ultimate'] }] },
 };

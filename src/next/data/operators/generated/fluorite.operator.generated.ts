@@ -469,6 +469,8 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     'duration': 3,
     'move_speed_scalar': 0.3,
     'poise': 10,
+    'duration_potential': 0,
+    'potential_lv': 0,
   },
 );
 
