@@ -532,6 +532,30 @@ describe('operator upgrade compilation', () => {
     expect(battleSkill.initialBlackboard.potential_5_interval).toBe(45);
   });
 
+  it('resolves both levels of Da Pan talent 2 into its ultimate Buff chain inputs', () => {
+    const compileUltimate = (level: 1 | 2) =>
+      compileOperatorDefinitionSkills(
+        'track:da-pan',
+        build({ operatorSlug: daPanGeneratedOperator.slug, talentStates: { 1: level } }),
+        daPanGeneratedOperator,
+      ).find(program => program.skillGroupKey === 'ultimate')!;
+
+    const firstLevel = compileUltimate(1).initialBlackboard;
+    const secondLevel = compileUltimate(2).initialBlackboard;
+    expect(firstLevel).toMatchObject({
+      talent_1: 1,
+      talent_1_stack: 1,
+      talent_1_duration: 20,
+    });
+    expect(secondLevel).toMatchObject({
+      talent_1: 1,
+      talent_1_stack: 2,
+      talent_1_duration: 20,
+    });
+    expect(firstLevel.talent_1_cd_reduce).toBeCloseTo(0.4);
+    expect(secondLevel.talent_1_cd_reduce).toBeCloseTo(0.4);
+  });
+
   it('connects Camille potential 1 to the battle-skill ability-entity inputs', () => {
     const programs = compileOperatorDefinitionSkills(
       'track:camille',

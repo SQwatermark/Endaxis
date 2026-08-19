@@ -167,8 +167,8 @@
       "operatorCount": 14,
       "talent": {
         "totalCount": 28,
-        "definitionConvertedCount": 12,
-        "standardSimulationCompileReadyCount": 12
+        "definitionConvertedCount": 13,
+        "standardSimulationCompileReadyCount": 13
       },
       "potential": {
         "totalCount": 70,
@@ -3181,8 +3181,8 @@
         "slug": "da-pan",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 0,
-          "standardSimulationCompileReadyCount": 0
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
         },
         "potential": {
           "totalCount": 5,
@@ -3203,10 +3203,9 @@
           {
             "key": "talent2",
             "sourceEffectIds": ["chr_0018_dapan_talent_2_1", "chr_0018_dapan_talent_2_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ],
         "potentials": [

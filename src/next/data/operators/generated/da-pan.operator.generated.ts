@@ -1158,7 +1158,36 @@ export const daPanGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent2',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1_stack',
+          operation: 'assign',
+          value: [1, 2],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1_duration',
+          operation: 'assign',
+          value: [20, 20],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'talent_1_cd_reduce',
+          operation: 'assign',
+          value: [0.4, 0.4],
+        },
+      ],
     },
   ],
   potentials: [
