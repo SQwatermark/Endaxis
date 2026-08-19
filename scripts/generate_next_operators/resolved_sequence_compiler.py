@@ -904,6 +904,12 @@ def compile_resolved_sequence(
                     compiled_conditional_projectile_launches
                 ),
             )
+            singleton_ability_entity_context_keys.update(
+                projected.saveToContextKey
+                for projected in getattr(payload, "projectedAbilityEntitySpawns", ())
+                if projected.saveToContextKey is not None
+                and projected.saveToContextKey not in target_group_context_keys
+            )
             if compiled_condition == COMPILED_EMPTY_SEQUENCE:
                 continue
             step_lines = [

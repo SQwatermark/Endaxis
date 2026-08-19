@@ -3683,6 +3683,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'caster'", source)
 
+    def test_ignored_conditional_buff_does_not_require_target_provenance(self) -> None:
+        application = SimpleNamespace(
+            buffs=(SimpleNamespace(buffId="buff.presentation", blackboardAssignments={}),),
+            targetSource="Context",
+            targetGroupKey="presentation_entity",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
+        )
+        action = UnconditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionPath=("root",),
+            conditions=(),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="CreateBuffAction",
+                    actionIndex=1,
+                    buffApplication=application,
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertEqual(
+            compile_conditional_action(
+                action,
+                "fixture.condition",
+                ignored_buff_ids=frozenset({"buff.presentation"}),
+            ),
+            "sequence()",
+        )
+
     def test_buff_reference_inventory_includes_conditional_branches(self) -> None:
         root = {
             "actionGroupData": {

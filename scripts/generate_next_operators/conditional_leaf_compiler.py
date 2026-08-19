@@ -579,6 +579,11 @@ def compile_conditional_branch_action(
         )
     if getattr(action, "buffApplication", None) is not None:
         buff_application = action.buffApplication
+        if all(
+            buff.buffId in ignored_buff_ids
+            for buff in buff_application.buffs
+        ):
+            return "sequence()"
         context_application_target = None
         ability_entity_collection_key = None
         if buff_application.targetSource == "Context":
