@@ -1290,6 +1290,7 @@ def _make_ability_entity_graph_parser_services() -> AbilityEntityGraphParserServ
         parse_target_group_writes=parse_target_group_writes,
         parse_timeline_jumps=parse_timeline_jumps,
         resolve_ability_entity_payload=resolve_ability_entity_payload,
+        resolve_conditional_projectile_triggers=resolve_conditional_projectile_triggers,
         resolve_projectile_triggered_skills=resolve_projectile_triggered_skills,
         walk_actions=walk_actions,
         walk_unconditional_actions=walk_unconditional_actions,
@@ -4424,6 +4425,46 @@ def projectile_children_are_immediate(
     return bool(expected_actions) and set(hit.combatActions) == expected_actions
 
 
+def projectile_children_are_inline_conditional(
+    triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
+) -> bool:
+    """确认零飞行时间的投射物子技能可在所在条件分支内同步展开。"""
+
+    if not triggered_skills:
+        return False
+    for hit in triggered_skills:
+        if (
+            hit.assumedTravelFrames != 0
+            or hit.cycleTruncated
+            or hit.damageUnits
+            or hit.directDamageHits
+            or hit.auxiliaryActions
+            or hit.resourceGains
+            or hit.inflictions
+            or hit.nestedProjectileTriggeredSkills
+            or hit.abilityEntityHits
+            or hit.auraActions
+            or hit.keywordActions
+            or not hit.conditionalActions
+            or any(
+                condition.startFrame != 0
+                or any(frame != 0 for frame in condition.executionFrames)
+                for condition in hit.conditionalActions
+            )
+        ):
+            return False
+        covered_actions = collect_compilable_conditional_action_types(
+            hit.conditionalActions
+        )
+        if any(
+            action_type not in covered_actions
+            and action_type != "SpawnAbilityEntity"
+            for action_type in hit.combatActions
+        ):
+            return False
+    return True
+
+
 def compile_immediate_projectile_children(
     triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
     damage_tags: tuple[str, ...],
@@ -4527,6 +4568,7 @@ def compile_conditional_branch_action(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
 ) -> str:
     """兼容既有调用方的条件分支叶子编译入口。"""
 
@@ -4553,6 +4595,7 @@ def compile_conditional_branch_action(
         unmodeled_action_types,
         aura_actions,
         compiled_ability_entity_spawns,
+        compiled_projectile_launches,
         services=_make_conditional_leaf_services(),
     )
 
@@ -4727,6 +4770,7 @@ def _compile_conditional_leaf_with_context(
         unmodeled_action_types=context.unmodeled_action_types,
         aura_actions=context.aura_actions,
         compiled_ability_entity_spawns=context.compiled_ability_entity_spawns,
+        compiled_projectile_launches=context.compiled_projectile_launches,
     )
 
 
@@ -4832,6 +4876,7 @@ def _compile_conditional_action_ir(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
 ) -> CompiledNode:
     """把既有宽参数入口适配到独立条件编译模块。"""
 
@@ -4859,6 +4904,7 @@ def _compile_conditional_action_ir(
             unmodeled_action_types=unmodeled_action_types,
             aura_actions=aura_actions,
             compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+            compiled_projectile_launches=compiled_projectile_launches,
         ),
     )
 
@@ -4885,6 +4931,7 @@ def compile_conditional_action(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
 ) -> str:
     """兼容既有调用方的条件控制流 TypeScript 渲染边界。"""
 
@@ -4909,6 +4956,7 @@ def compile_conditional_action(
             invoked_child_context=invoked_child_context,
             unmodeled_action_types=unmodeled_action_types,
             compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+            compiled_projectile_launches=compiled_projectile_launches,
         )
     )
 
@@ -5713,9 +5761,11 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
 
     destinations = tuple(sorted({jump.destFrame for jump in jumps}))
     finish_frames = tuple(sorted({finish.startFrame for finish in finishes}))
-    if not destinations or any(
-        jump.startFrame > first_finish_frame or jump.endFrame >= first_finish_frame
-        for jump in jumps
+    if not destinations or any(jump.startFrame > first_finish_frame for jump in jumps):
+        return False
+    first_destination = destinations[0]
+    if any(
+        frame > first_finish_frame for frame in action_frames if frame < first_destination
     ):
         return False
     # 每个可跳入区段必须在下一个目的帧前显式结束；区段内的战斗动作也必须位于
@@ -5793,6 +5843,7 @@ def timeline_jump_can_compile(
                 "timelineJump.condition",
                 root_skill_context=False,
                 input_target=input_target,
+                ability_entity_current_target=hit is not None,
             )
         except ValueError:
             return False
@@ -5806,6 +5857,7 @@ def timeline_jump_can_compile(
             target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
             root_skill_context=False,
             input_target=input_target,
+            ability_entity_current_target=True,
         )
     except ValueError:
         return False
@@ -5831,6 +5883,12 @@ def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource)
     if conditional_actions:
         allowed.add("IfElseAction")
         allowed.update(collect_compilable_conditional_action_types(conditional_actions))
+    if getattr(hit, "projectileTriggeredSkills", ()) and all(
+        projectile_children_are_immediate((projectile,))
+        or projectile_children_are_inline_conditional((projectile,))
+        for projectile in hit.projectileTriggeredSkills
+    ):
+        allowed.add("LaunchProjectile")
     return set(getattr(hit, "combatActions", ())) <= allowed
 
 
@@ -5877,7 +5935,11 @@ def ability_entity_child_timeline_can_compile(
         )
         and ability_entity_child_finishes_are_terminal(hit)
         and not getattr(hit, "projectileLaunches", ())
-        and not getattr(hit, "projectileTriggeredSkills", ())
+        and all(
+            projectile_children_are_immediate((projectile,))
+            or projectile_children_are_inline_conditional((projectile,))
+            for projectile in getattr(hit, "projectileTriggeredSkills", ())
+        )
         and not getattr(hit, "nestedAbilityEntityHits", ())
         and not getattr(hit, "blackboardCalculations", ())
         and not getattr(hit, "buffBlackboardReads", ())
@@ -6037,6 +6099,7 @@ def compile_ability_entity_child_skill(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
 ) -> str:
     """兼容既有调用方的能力实体子技能编译入口。"""
 
@@ -6052,6 +6115,7 @@ def compile_ability_entity_child_skill(
         unmodeled_buff_ids=unmodeled_buff_ids,
         buff_definitions=buff_definitions,
         compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+        compiled_projectile_launches=compiled_projectile_launches,
         services=_make_ability_entity_child_services(),
     )
 
@@ -6676,6 +6740,7 @@ def _make_resolved_sequence_services() -> ResolvedSequenceServices:
             ability_entity_child_timeline_can_compile=ability_entity_child_timeline_can_compile,
             ability_entity_time_dilation_targets_are_closed=ability_entity_time_dilation_targets_are_closed,
             collect_compilable_conditional_action_types=collect_compilable_conditional_action_types,
+            contains_equivalent_projectile_projection=contains_equivalent_projectile_projection,
             collect_resolved_damage_hits=collect_resolved_damage_hits,
             collect_resolved_schedule=collect_resolved_schedule,
             collect_runtime_blackboard_output_keys=collect_runtime_blackboard_output_keys,

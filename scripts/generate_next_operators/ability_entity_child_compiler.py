@@ -58,6 +58,7 @@ def compile_ability_entity_child_skill(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
     services: AbilityEntityChildServices,
 ) -> str:
     """Render a proven child graph in entity-local frames without a second action protocol."""
@@ -339,12 +340,13 @@ def compile_ability_entity_child_skill(
                 target_group_writes=hit.localTargetGroupWrites,
                 root_skill_context=False,
                 input_target=input_target,
+                ability_entity_current_target=True,
                 skill_has_output_damage=any(
                     damage_frame < frame for damage_frame in child_damage_frames
                 ),
                 step_key_prefix=skill.key,
-                ability_entity_current_target=True,
                 compiled_ability_entity_spawns=compiled_ability_entity_spawns,
+                compiled_projectile_launches=compiled_projectile_launches,
                 aura_actions=hit.auraActions,
                 invoked_child_context=(skill, config),
             )
@@ -404,6 +406,7 @@ def compile_ability_entity_child_skill(
                 f"{skill.key}.{hit.skillId}.timelineJump.condition",
                 root_skill_context=False,
                 input_target=input_target,
+                ability_entity_current_target=True,
             )
             condition_lines = condition.splitlines()
             condition_lines[0] = f"  condition: {condition_lines[0]}"
@@ -423,6 +426,7 @@ def compile_ability_entity_child_skill(
                 target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
                 root_skill_context=False,
                 input_target=input_target,
+                ability_entity_current_target=True,
             )
             condition_lines = [f"  {line}" for line in condition.splitlines()]
             condition_lines[-1] += ","

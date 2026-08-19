@@ -300,4 +300,4 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - `CheckBuffStackNumAdvanced` / `SaveBuffStackNumAdvanced` 保留 `limitSkillCastId`。启用时生成 `sameSourceSkillCast: true`，运行时只累计与当前技能或继承 Buff 施法序号相同的实例；缺少施法身份立即失败。
 - 条件分支内 `SpawnAbilityEntity(saveToContext)` 的单例来源只沿同一分支的后续兄弟动作传播；它可以支撑紧随其后的 Context Buff、定时标记或时长操作，但不会从 key 名、另一分支或未成功编译的生成动作推断来源。
 - 根技能与能力实体子技能中的 `OwnerSpawnedEntityFinder + AbilityEntity + TagValidator` 会先按版本化模板 born tag 解析为明确实体 ID，再生成 `findOwnerSpawnedAbilityEntities`。可选 `SkillCastIdValidator` 映射为 `sameSourceSkillCast`；`CheckEntityNum.storeKey` 非空时复用查询计数写入动作黑板，否则用 `contextTargetCountCompare` 读取 Context 实际集合长度。查询和后续 `ForEach` 都保留完整多实例集合。
-- 无标签 owner-spawned 能力实体时间膨胀查询以运行时逻辑实体目录为闭包，可跨技能命中当前干员此前生成且仍存活的已建模实例；带标签查询仍要求模板证据和现有严格闭包。条件分支里的递归投射物子图尚未因此放宽，只有同步、完整命中子技能可以走即时投射物编译路径。
+- 无标签 owner-spawned 能力实体时间膨胀查询以运行时逻辑实体目录为闭包，可跨技能命中当前干员此前生成且仍存活的已建模实例；带标签查询仍要求模板证据和现有严格闭包。条件分支里的零飞行时间投射物只有在触发子技能全部动作位于局部第 0 帧、完整动作集可编译且无递归环时，才会按精确 `actionPath` 留在原分支同步展开；其中继续生成的能力实体仍递归携带自己的局部时间轴。能力实体内的条件投射物复用同一路径，不提升为父技能无条件命中。Tangtang 连携已越过这层结构阻塞，并保留水体局部 900/1500/1515 三条结束路径及两个可重试 Buff 条件跳转；当前下一阻塞是命中子技能引用的动态 `tornado_atk_scale01` 在该连携调用链中没有可证明的来源值，不能把序列化字面量擅自当回退。

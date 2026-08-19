@@ -51,6 +51,7 @@ class AbilityEntityGraphParserServices:
     parse_target_group_writes: Callable[..., Any]
     parse_timeline_jumps: Callable[..., Any]
     resolve_ability_entity_payload: Callable[..., Any]
+    resolve_conditional_projectile_triggers: Callable[..., Any]
     resolve_projectile_triggered_skills: Callable[..., Any]
     walk_actions: Callable[..., Any]
     walk_unconditional_actions: Callable[..., Any]
@@ -241,6 +242,9 @@ def resolve_ability_entity_payload(
     parse_auxiliary_actions = services.parse_auxiliary_actions
     parse_resource_gains = services.parse_resource_gains
     parse_projectile_launches = services.parse_projectile_launches
+    resolve_conditional_projectile_triggers = (
+        services.resolve_conditional_projectile_triggers
+    )
     resolve_projectile_triggered_skills = services.resolve_projectile_triggered_skills
     parse_aura_actions = services.parse_aura_actions
     parse_target_group_writes = services.parse_target_group_writes
@@ -276,6 +280,16 @@ def resolve_ability_entity_payload(
     nested = ()
     if not cycle_truncated:
         child_stack = (*stack, skill_id)
+        child_conditions = resolve_conditional_projectile_triggers(
+            child_conditions,
+            child,
+            child_name,
+            source_dir,
+            spawn_frame,
+            child_stack,
+            child_blackboard,
+            action_order,
+        )
         child_conditions = mark_projected_conditional_children(
             resolve_conditional_aura_ability_entity_children(
                 child_conditions,

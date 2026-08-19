@@ -21,6 +21,7 @@ from source_models import (
     BuffHoldSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
+    ConditionalProjectileProjection,
     EveryFrameActionSource,
     ProjectileTriggeredSkillSource,
     ResolvedDamageHitSource,
@@ -32,7 +33,7 @@ from source_models import (
     TimedResourceGainSource,
     TimedTimeDilationSource,
 )
-from source_utils import require_list, ts_inline_literal
+from source_utils import indent_source, require_list, ts_inline_literal
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,7 @@ class ResolvedSequenceAnalysisServices:
     ability_entity_child_timeline_can_compile: Callable[..., Any]
     ability_entity_time_dilation_targets_are_closed: Callable[..., Any]
     collect_compilable_conditional_action_types: Callable[..., Any]
+    contains_equivalent_projectile_projection: Callable[..., Any]
     collect_resolved_damage_hits: Callable[..., Any]
     collect_resolved_schedule: Callable[..., Any]
     collect_runtime_blackboard_output_keys: Callable[..., Any]
@@ -118,6 +120,9 @@ def compile_resolved_sequence(
     ability_entity_child_timeline_can_compile = analysis.ability_entity_child_timeline_can_compile
     ability_entity_time_dilation_targets_are_closed = analysis.ability_entity_time_dilation_targets_are_closed
     collect_compilable_conditional_action_types = analysis.collect_compilable_conditional_action_types
+    contains_equivalent_projectile_projection = (
+        analysis.contains_equivalent_projectile_projection
+    )
     collect_resolved_damage_hits = analysis.collect_resolved_damage_hits
     collect_resolved_schedule = analysis.collect_resolved_schedule
     collect_runtime_blackboard_output_keys = analysis.collect_runtime_blackboard_output_keys
@@ -418,6 +423,9 @@ def compile_resolved_sequence(
         ):
             return None
         nested_spawns = collect_compiled_conditional_spawns(entity.conditionalActions)
+        nested_projectiles = collect_compiled_conditional_projectiles(
+            entity.conditionalActions
+        )
         child_damage_hits = collect_resolved_damage_hits(
             replace(
                 skill,
@@ -440,6 +448,7 @@ def compile_resolved_sequence(
             unmodeled_buff_ids=unmodeled_buff_ids,
             buff_definitions=buff_definitions,
             compiled_ability_entity_spawns=tuple(nested_spawns),
+            compiled_projectile_launches=tuple(nested_projectiles),
         )
         return compile_logical_ability_entity_spawn(
             payload,
@@ -477,7 +486,120 @@ def compile_resolved_sequence(
         visit_conditions(conditions)
         return result
 
-    compiled_conditional_ability_entity_spawns = (
+    def compile_branch_local_projectile(
+        action: ConditionalBranchActionSource,
+    ) -> str | None:
+        triggers = getattr(action, "projectileTriggeredSkills", None) or ()
+        active_triggers = tuple(
+            trigger
+            for trigger in triggers
+            if not getattr(trigger, "excludedByPrimaryTargetMarker", False)
+        )
+        if not active_triggers:
+            return None
+        compiled_sources: list[str] = []
+        for trigger in active_triggers:
+            if (
+                trigger.assumedTravelFrames != 0
+                or trigger.cycleTruncated
+                or trigger.damageUnits
+                or trigger.directDamageHits
+                or trigger.auxiliaryActions
+                or trigger.resourceGains
+                or trigger.inflictions
+                or trigger.nestedProjectileTriggeredSkills
+                or trigger.abilityEntityHits
+                or trigger.auraActions
+                or trigger.keywordActions
+                or any(
+                    condition.startFrame != 0
+                    or any(frame != 0 for frame in condition.executionFrames)
+                    for condition in trigger.conditionalActions
+                )
+            ):
+                return None
+            compiled_spawns = tuple(
+                collect_compiled_conditional_spawns(trigger.conditionalActions)
+            )
+            compiled_projectiles = tuple(
+                collect_compiled_conditional_projectiles(trigger.conditionalActions)
+            )
+            covered_actions = set(
+                collect_compilable_conditional_action_types(
+                    trigger.conditionalActions
+                )
+            )
+            if compiled_spawns:
+                covered_actions.add("SpawnAbilityEntity")
+            if any(action_type not in covered_actions for action_type in trigger.combatActions):
+                return None
+            for condition in trigger.conditionalActions:
+                node = _compile_conditional_action_ir(
+                    condition,
+                    f"{skill.key}.{trigger.triggerSkillId}.conditionalAction",
+                    ignored_buff_ids | unmodeled_buff_ids | simulation_no_effect_buff_ids,
+                    damage_tags,
+                    runtime_blackboard_keys,
+                    root_skill_context=False,
+                    input_target="enemy",
+                    step_key_prefix=skill.key,
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=(skill, config),
+                    compiled_ability_entity_spawns=compiled_spawns,
+                    compiled_projectile_launches=compiled_projectiles,
+                )
+                compiled_sources.extend(render_compiled_sequence_children(node))
+        if not compiled_sources:
+            return None
+        lines = ["sequence("]
+        for source in compiled_sources:
+            nested = indent_source(source, 2)
+            nested[-1] += ","
+            lines.extend(nested)
+        lines.append(")")
+        return "\n".join(lines)
+
+    def collect_compiled_conditional_projectiles(
+        conditions: tuple[ConditionalActionSource, ...],
+    ) -> list[tuple[tuple[str, ...], str]]:
+        result: list[tuple[tuple[str, ...], str]] = []
+
+        def visit_actions(
+            actions: tuple[ConditionalBranchActionSource, ...],
+            projected: tuple[ConditionalProjectileProjection, ...],
+        ) -> None:
+            for action in actions:
+                launch = getattr(action, "projectileLaunch", None)
+                triggers = getattr(action, "projectileTriggeredSkills", None) or ()
+                if launch is not None and triggers:
+                    projection = ConditionalProjectileProjection(launch, triggers)
+                    already_projected = contains_equivalent_projectile_projection(
+                        projected, projection
+                    )
+                    if not already_projected:
+                        source = compile_branch_local_projectile(action)
+                        if source is not None:
+                            result.append((action.actionPath, source))
+                nested = getattr(action, "nestedCondition", None)
+                if nested is not None:
+                    visit_conditions((nested,))
+                once_actions = getattr(action, "onceActions", None)
+                if once_actions is not None:
+                    visit_actions(once_actions, projected)
+
+        def visit_conditions(items: tuple[ConditionalActionSource, ...]) -> None:
+            for condition in items:
+                projected = getattr(condition, "projectedProjectileLaunches", ())
+                visit_actions(condition.succeedActions, projected)
+                visit_actions(condition.failActions, projected)
+
+        visit_conditions(conditions)
+        return result
+
+    compiled_conditional_projectile_launches = tuple(
+        collect_compiled_conditional_projectiles(skill.conditionalActions)
+    )
+    compiled_conditional_ability_entity_spawns = tuple(
         collect_compiled_conditional_spawns(skill.conditionalActions)
     )
     scheduled_entity_ids = {
@@ -701,6 +823,9 @@ def compile_resolved_sequence(
                 invoked_child_context=(skill, config),
                 compiled_ability_entity_spawns=tuple(
                     compiled_conditional_ability_entity_spawns
+                ),
+                compiled_projectile_launches=(
+                    compiled_conditional_projectile_launches
                 ),
             )
             if compiled_condition == COMPILED_EMPTY_SEQUENCE:

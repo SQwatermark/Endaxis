@@ -2000,6 +2000,47 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             {},
         )
 
+    def test_precompiled_conditional_projectile_stays_on_its_exact_branch(self) -> None:
+        launch = ProjectileLaunchPayload(
+            "projectile_fixture",
+            (ProjectileSkillTriggerSource("hit", "fixture_child"),),
+        )
+        branch_path = ("condition", "succeedActions", "actionData", "[0]")
+        branch = ConditionalBranchActionSource(
+            "LaunchProjectile",
+            7,
+            actionPath=branch_path,
+            projectileLaunch=launch,
+        )
+        condition = ConditionalActionSource(
+            0,
+            1,
+            3,
+            ("condition",),
+            (
+                ConditionSource(
+                    "CompareFloat",
+                    True,
+                    "GE",
+                    ScalarSource(1, None, (1,)),
+                    ScalarSource(1, None, (1,)),
+                    (),
+                ),
+            ),
+            (branch,),
+            (),
+        )
+
+        compiled = compile_conditional_action(
+            condition,
+            "fixture.condition",
+            compiled_projectile_launches=(
+                (branch_path, "step('projectBranchLocalChild', {})"),
+            ),
+        )
+
+        self.assertIn("step('projectBranchLocalChild', {})", compiled)
+
     def test_explicit_unmodeled_action_can_remove_an_otherwise_blocked_condition(self) -> None:
         action = ConditionalActionSource(
             0,
@@ -9721,6 +9762,65 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             keywordActions=(),
         )
         self.assertTrue(ability_entity_child_finishes_are_terminal(control_flow))
+
+    def test_timeline_jump_parses_advanced_owner_buff_condition_for_entity(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1500,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 26,
+                                    "isEnable": True,
+                                    "destFrame": 1500,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckBuffStackNumAdvanced+Data, Example",
+                                                "serverActionIndex": 27,
+                                                "isEnable": True,
+                                                "checkTarget": {
+                                                    "targetSource": "Owner",
+                                                    "targetGroupKey": "",
+                                                },
+                                                "buffSettings": {
+                                                    "checkType": "Id",
+                                                    "buffIdList": ["buff.example.wake"],
+                                                    "tagQuery": {"queryType": "HasAny", "tags": []},
+                                                },
+                                                "buffStackNumType": "BuffCount",
+                                                "compareType": "GE",
+                                                "value": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                                "limitSkillCastId": False,
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        jump = parse_timeline_jumps(root, "fixture.json")[0]
+        compiled = compile_combat_condition_group(
+            jump.directConditions,
+            "fixture.jump",
+            ability_entity_current_target=True,
+        )
+
+        self.assertTrue(jump.directConditionsSupported)
+        self.assertTrue(timeline_jump_can_compile(jump, SimpleNamespace()))
+        self.assertIn("target: 'currentAbilityEntity'", compiled)
 
     def test_outer_if_else_jump_is_one_shot_only_for_the_exact_success_path(self) -> None:
         condition_path = (

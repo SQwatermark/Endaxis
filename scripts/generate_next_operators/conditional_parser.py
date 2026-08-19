@@ -223,6 +223,49 @@ def _parse_buff_stack_num_condition(
     )
 
 
+def _parse_buff_stack_num_advanced_condition(
+    condition: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+) -> ConditionSource:
+    target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+    check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
+        condition.get("buffSettings"), f"{path}.buffSettings"
+    )
+    count_type = condition.get("buffStackNumType")
+    limit_skill_cast_id = condition.get("limitSkillCastId")
+    if not isinstance(count_type, str) or not count_type:
+        raise ValueError(f"{path}.buffStackNumType: expected string")
+    if not isinstance(limit_skill_cast_id, bool):
+        raise ValueError(f"{path}.limitSkillCastId: expected boolean")
+    return ConditionSource(
+        sourceType="CheckBuffStackNumAdvanced",
+        supported=(
+            count_type == "BuffCount"
+            and not limit_skill_cast_id
+            and check_type in {"Id", "Tag"}
+        ),
+        comparison=None,
+        left=None,
+        right=None,
+        skillTypes=(),
+        buffStack=BuffStackConditionSource(
+            targetSource=str(target.get("targetSource", "")),
+            targetGroupKey=str(target.get("targetGroupKey", "")),
+            buffCheckType=check_type,
+            buffIds=buff_ids,
+            tagQueryType=query_type,
+            buffTagIds=tag_ids,
+            countType=count_type,
+            comparison=str(condition.get("compareType", "")),
+            value=parse_scalar(
+                condition.get("value"), f"{path}.value", inherited_blackboard
+            ),
+            limitSkillCastId=limit_skill_cast_id,
+        ),
+    )
+
+
 def _parse_hp_condition(
     condition: dict[str, Any],
     path: str,
@@ -273,6 +316,10 @@ def parse_timeline_jump_condition(
     condition_type = action_name(str(condition.get("$type", "")))
     if condition_type == "CheckBuffStackNum":
         return _parse_buff_stack_num_condition(condition, path, inherited_blackboard)
+    if condition_type == "CheckBuffStackNumAdvanced":
+        return _parse_buff_stack_num_advanced_condition(
+            condition, path, inherited_blackboard
+        )
     if condition_type == "CheckHp":
         return _parse_hp_condition(condition, path, inherited_blackboard)
     raise ValueError(f"{path}: unsupported timeline jump condition {condition_type!r}")
@@ -482,39 +529,8 @@ def parse_conditional_actions(
         if condition_type == "CheckBuffStackNum":
             return _parse_buff_stack_num_condition(condition, path, inherited_blackboard)
         if condition_type == "CheckBuffStackNumAdvanced":
-            target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
-            check_type, buff_ids, query_type, tag_ids = parse_buff_find_settings(
-                condition.get("buffSettings"), f"{path}.buffSettings"
-            )
-            count_type = condition.get("buffStackNumType")
-            limit_skill_cast_id = condition.get("limitSkillCastId")
-            if not isinstance(count_type, str) or not count_type:
-                raise ValueError(f"{path}.buffStackNumType: expected string")
-            if not isinstance(limit_skill_cast_id, bool):
-                raise ValueError(f"{path}.limitSkillCastId: expected boolean")
-            return ConditionSource(
-                sourceType=condition_type,
-                supported=(
-                    count_type == "BuffCount"
-                    and not limit_skill_cast_id
-                    and check_type in {"Id", "Tag"}
-                ),
-                comparison=None,
-                left=None,
-                right=None,
-                skillTypes=(),
-                buffStack=BuffStackConditionSource(
-                    targetSource=str(target.get("targetSource", "")),
-                    targetGroupKey=str(target.get("targetGroupKey", "")),
-                    buffCheckType=check_type,
-                    buffIds=buff_ids,
-                    tagQueryType=query_type,
-                    buffTagIds=tag_ids,
-                    countType=count_type,
-                    comparison=str(condition.get("compareType", "")),
-                    value=parse_scalar(condition.get("value"), f"{path}.value", inherited_blackboard),
-                    limitSkillCastId=limit_skill_cast_id,
-                ),
+            return _parse_buff_stack_num_advanced_condition(
+                condition, path, inherited_blackboard
             )
         if condition_type == "CheckBuffStackNumByTag":
             target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")

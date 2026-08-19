@@ -395,7 +395,7 @@ def parse_timeline_jumps(
             direct_conditions_supported = False
             if raw_conditions and all(
                 action_name(str(item.get("$type", "")))
-                in {"CheckHp", "CheckBuffStackNum"}
+                in {"CheckHp", "CheckBuffStackNum", "CheckBuffStackNumAdvanced"}
                 for item in raw_conditions
             ):
                 direct_conditions = tuple(

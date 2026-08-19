@@ -73,6 +73,7 @@ def compile_conditional_branch_action(
     compiled_ability_entity_spawns: tuple[
         tuple[tuple[str, ...], str], ...
     ] = (),
+    compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
     *,
     services: ConditionalLeafServices,
 ) -> str:
@@ -226,6 +227,13 @@ def compile_conditional_branch_action(
         )
     projectile_launch = getattr(action, "projectileLaunch", None)
     if projectile_launch is not None:
+        compiled_matches = tuple(
+            source
+            for action_path, source in compiled_projectile_launches
+            if action_path == action.actionPath
+        )
+        if len(compiled_matches) == 1:
+            return compiled_matches[0]
         projection = ConditionalProjectileProjection(
             projectile_launch,
             getattr(action, "projectileTriggeredSkills", None) or (),

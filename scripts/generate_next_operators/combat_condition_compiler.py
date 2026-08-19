@@ -427,7 +427,7 @@ def compile_combat_condition(
             raise ValueError(f"{path}: timed marker ID is empty")
         if (
             ability_entity_current_target
-            and marker.targetSource == "Target"
+            and marker.targetSource in {"Owner", "Target"}
             and not marker.targetGroupKey
         ):
             condition = (
@@ -498,13 +498,21 @@ def compile_combat_condition(
         if operator is None:
             raise ValueError(f"{path}: unsupported comparison {buff.comparison!r}")
         value_source = compile_condition_operand(buff.value, f"{path}.value")
-        target = resolve_fixed_combat_target(
-            buff.targetSource,
-            buff.targetGroupKey,
-            action=action,
-            target_group_writes=target_group_writes,
-            root_skill_context=root_skill_context,
-            input_target=input_target,
+        target = (
+            "currentAbilityEntity"
+            if (
+                ability_entity_current_target
+                and buff.targetSource == "Owner"
+                and not buff.targetGroupKey
+            )
+            else resolve_fixed_combat_target(
+                buff.targetSource,
+                buff.targetGroupKey,
+                action=action,
+                target_group_writes=target_group_writes,
+                root_skill_context=root_skill_context,
+                input_target=input_target,
+            )
         )
         if (
             target is not None
