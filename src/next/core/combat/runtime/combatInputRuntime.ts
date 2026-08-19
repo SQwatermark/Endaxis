@@ -6,7 +6,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 
-/** 用户操作序列中一次确定到逻辑帧的技能施放请求。 */
+/** 用户操作序列中一次确定到实际战斗帧的技能施放请求。 */
 export interface ScheduledSkillInput {
   readonly frame: number;
   readonly operatorId: string;
@@ -19,8 +19,6 @@ export interface CombatInputRuntimeOptions {
   readonly clock: CombatClock;
   readonly inputs: readonly ScheduledSkillInput[];
   readonly receipt: CombatReceiptSink;
-  /** 项目逻辑帧；未提供时与战斗实际帧相同。 */
-  readonly resolveTimelineFrame?: () => number;
   readonly tryStartSkill: (operatorId: string, skillId: string, castId?: string) => boolean;
 }
 
@@ -29,7 +27,6 @@ export class CombatInputRuntime implements FrameRuntime {
   readonly #clock: CombatClock;
   readonly #inputs: readonly ScheduledSkillInput[];
   readonly #receipt: CombatReceiptSink;
-  readonly #resolveTimelineFrame: () => number;
   readonly #tryStartSkill: CombatInputRuntimeOptions['tryStartSkill'];
   #nextInputIndex = 0;
 
@@ -37,7 +34,6 @@ export class CombatInputRuntime implements FrameRuntime {
     this.#clock = options.clock;
     this.#inputs = [...options.inputs];
     this.#receipt = options.receipt;
-    this.#resolveTimelineFrame = options.resolveTimelineFrame ?? (() => this.#clock.frame);
     this.#tryStartSkill = options.tryStartSkill;
     let previousFrame = -1;
     for (const [index, input] of this.#inputs.entries()) {
@@ -57,13 +53,10 @@ export class CombatInputRuntime implements FrameRuntime {
 
   /** 装配完成后调用一次可消费发生在初始第 0 帧的输入。 */
   applyCurrentFrame(): void {
-    const timelineFrame = this.#resolveTimelineFrame();
-    if (!Number.isFinite(timelineFrame) || timelineFrame < 0) {
-      throw new RangeError('timeline frame must be a non-negative finite number');
-    }
+    const actualFrame = this.#clock.frame;
     while (true) {
       const input = this.#inputs[this.#nextInputIndex];
-      if (input === undefined || input.frame > timelineFrame + Number.EPSILON) break;
+      if (input === undefined || input.frame > actualFrame) break;
       this.#nextInputIndex += 1;
       const accepted = this.#tryStartSkill(input.operatorId, input.skillId, input.castId);
       this.#receipt.record({
@@ -75,7 +68,7 @@ export class CombatInputRuntime implements FrameRuntime {
           skillId: input.skillId,
           ...(input.castId === undefined ? {} : { castId: input.castId }),
           accepted,
-          timelineFrame,
+          scheduledActualFrame: input.frame,
         },
       });
     }

@@ -85,7 +85,7 @@ export interface SkillCastDocument {
   /** 用于找到游戏数据中的技能模板。 */
   source: SkillCastSource;
   placement: {
-    /** 用户编辑的逻辑位置；运行时位移属于派生结果。 */
+    /** 用户编辑的实际战斗帧；时间膨胀只改变各对象在该帧消费的局部增量。 */
     startFrame: number;
   };
   /** 纯展示覆盖（颜色、锁定、自定义展示条等），不包含技能逻辑。 */

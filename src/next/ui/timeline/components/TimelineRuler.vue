@@ -1,82 +1,56 @@
 <script setup lang="ts">
 /**
- * Next 时间轴的双层标尺与准备区边界。
- * GAME 行显示项目逻辑帧，REAL 行显示实际战斗帧；点击位置会换算回逻辑帧。
+ * Next 时间轴的实际战斗时间标尺与准备区边界。
  */
 import { computed } from 'vue';
 import { frameToTimelinePx, timelineTotalWidth } from '../timelineGeometry';
-import type { TimelineDisplayTime } from '../timelineDisplayTime';
 
 const props = defineProps<{
   prepFrames: number;
   durationFrames: number;
   cursorFrame: number;
   pxPerFrame: number;
-  displayTime: TimelineDisplayTime;
 }>();
 
 const emit = defineEmits<{ seek: [frame: number] }>();
 const totalWidth = computed(() =>
-  timelineTotalWidth(props.prepFrames, props.displayTime.actualDurationFrames, props.pxPerFrame),
+  timelineTotalWidth(props.prepFrames, props.durationFrames, props.pxPerFrame),
 );
 const prepWidth = computed(() => props.prepFrames * props.pxPerFrame);
 const cursorLeft = computed(() =>
-  frameToTimelinePx(
-    props.displayTime.toActualFrame(props.cursorFrame),
-    props.prepFrames,
-    props.pxPerFrame,
-  ),
+  frameToTimelinePx(props.cursorFrame, props.prepFrames, props.pxPerFrame),
 );
 interface RulerTick {
   readonly key: string;
   readonly left: number;
   readonly major: boolean;
   readonly label: string;
-  readonly row: 'game' | 'real';
 }
 
-function createTicks(
-  row: RulerTick['row'],
-  durationFrames: number,
-  projectFrame: (frame: number) => number,
-): RulerTick[] {
+function createTicks(durationFrames: number): RulerTick[] {
   const interval = 30;
   const first = -Math.ceil(props.prepFrames / interval) * interval;
   const result: RulerTick[] = [];
   for (let frame = first; frame <= durationFrames; frame += interval) {
     if (frame < -props.prepFrames) continue;
     const major = frame % 150 === 0;
-    const displayFrame = frame < 0 ? frame : projectFrame(frame);
     result.push({
-      key: `${row}:${frame}`,
-      left: frameToTimelinePx(displayFrame, props.prepFrames, props.pxPerFrame),
+      key: `time:${frame}`,
+      left: frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame),
       major,
       label: major ? `${frame / 30}s` : '',
-      row,
     });
   }
   return result;
 }
 
-const ticks = computed(() => {
-  const gameTicks = createTicks('game', props.durationFrames, frame =>
-    props.displayTime.toActualFrame(frame),
-  );
-  const realTicks = createTicks('real', props.displayTime.actualDurationFrames, frame => frame);
-  return [...gameTicks, ...realTicks];
-});
+const ticks = computed(() => createTicks(props.durationFrames));
 
 function seek(event: MouseEvent): void {
   const element = event.currentTarget as HTMLElement;
   const px = event.clientX - element.getBoundingClientRect().left;
   const actualFrame = Math.max(0, px / props.pxPerFrame - props.prepFrames);
-  emit(
-    'seek',
-    Math.max(
-      0,
-      Math.min(props.durationFrames, Math.round(props.displayTime.toLogicalFrame(actualFrame))),
-    ),
-  );
+  emit('seek', Math.max(0, Math.min(props.durationFrames, Math.round(actualFrame))));
 }
 </script>
 
@@ -85,17 +59,14 @@ function seek(event: MouseEvent): void {
     <div class="ruler-content" :style="{ width: `${totalWidth}px` }" @click="seek">
       <div class="prep-zone" :style="{ width: `${prepWidth}px` }"></div>
       <div class="key-row"></div>
-      <div class="time-row time-row--game">
-        <span class="row-label">GAME</span>
-      </div>
-      <div class="time-row time-row--real">
-        <span class="row-label">REAL</span>
+      <div class="time-row time-row--actual">
+        <span class="row-label">TIME</span>
       </div>
       <span
         v-for="tick in ticks"
         :key="tick.key"
         class="tick"
-        :class="[`tick--${tick.row}`, { 'tick--major': tick.major }]"
+        :class="{ 'tick--major': tick.major }"
         :style="{ left: `${tick.left}px` }"
       >
         <span v-if="tick.label" class="tick-label">{{ tick.label }}</span>
@@ -143,12 +114,8 @@ function seek(event: MouseEvent): void {
   border-bottom: 1px solid var(--ea-border-soft);
 }
 
-.time-row--game {
-  top: 24px;
-}
-
-.time-row--real {
-  top: 49px;
+.time-row--actual {
+  top: 36px;
 }
 
 .row-label {
@@ -168,12 +135,8 @@ function seek(event: MouseEvent): void {
   pointer-events: none;
 }
 
-.tick--game {
-  top: 39px;
-}
-
-.tick--real {
-  top: 64px;
+.tick {
+  top: 54px;
 }
 
 .tick--major {
@@ -181,12 +144,8 @@ function seek(event: MouseEvent): void {
   background: var(--ea-mark-major);
 }
 
-.tick--game.tick--major {
-  top: 24px;
-}
-
-.tick--real.tick--major {
-  top: 49px;
+.tick.tick--major {
+  top: 36px;
 }
 
 .tick-label {

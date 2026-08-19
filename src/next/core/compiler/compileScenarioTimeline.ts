@@ -241,7 +241,7 @@ export function compileResolvedScenarioTimeline(
 }
 
 /**
- * 按轨道序号和轨道内声明顺序收集输入，再稳定地按帧排序。
+ * 按轨道序号和轨道内声明顺序收集实际帧输入，再稳定地按帧排序。
  * 同帧顺序会影响资源扣费和事件处理，因此不得按干员或技能身份二次排序。
  */
 export function compileScenarioTimeline(

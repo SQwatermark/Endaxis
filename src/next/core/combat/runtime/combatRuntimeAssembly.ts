@@ -61,7 +61,6 @@ import {
 } from './timeDilationRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
-import { CombatTimelineClock } from './combatTimelineClock';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
@@ -263,8 +262,7 @@ export class CombatRuntimeAssembly {
   /** 配装、连携和养成监听器共用的语义事件中心。 */
   readonly semanticEvents = new CombatSemanticEventRuntime();
   readonly timeDilation: TimeDilationRuntime | null;
-  /** 项目逻辑时间；没有全局变速时与实际战斗帧保持一致。 */
-  readonly timelineClock: CombatTimelineClock;
+  /** 按实际战斗帧驱动各个运行时；每个对象自行消费对应的局部 delta。 */
   readonly simulation = new CombatSimulation(this.clock);
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
@@ -364,11 +362,6 @@ export class CombatRuntimeAssembly {
           });
         },
       },
-    });
-    this.timelineClock = new CombatTimelineClock({
-      clock: this.clock,
-      receipt: this.receipt,
-      resolveGlobalScale: () => this.timeDilation?.currentGlobalScale ?? 1,
     });
     this.comboWindows = new ComboWindowRuntime(
       this.clock,
@@ -603,8 +596,6 @@ export class CombatRuntimeAssembly {
     }
 
     if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
-    // 先由时间膨胀更新本帧倍率，再推进项目逻辑时间；后续输入读取同一结果。
-    this.simulation.add(this.timelineClock);
     this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
     // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
     this.simulation.add(this.abilityEntities);
@@ -672,7 +663,6 @@ export class CombatRuntimeAssembly {
       clock: this.clock,
       inputs: options.inputs ?? [],
       receipt: this.receipt,
-      resolveTimelineFrame: () => this.timelineClock.frame,
       tryStartSkill: (operatorId, skillId, castId) =>
         this.tryStartSkill(operatorId, skillId, castId),
     });
@@ -685,7 +675,6 @@ export class CombatRuntimeAssembly {
       events: options.externalEvents ?? [],
       semanticEvents: this.semanticEvents,
       receipt: this.receipt,
-      resolveTimelineFrame: () => this.timelineClock.frame,
     });
     // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
     this.simulation.add(externalEvents);

@@ -14,7 +14,6 @@ import type {
 import type { TimelineConnectionPort } from '../timelineConnections';
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import { frameToTimelinePx } from '../timelineGeometry';
-import type { TimelineDisplayTime } from '../timelineDisplayTime';
 
 interface Point {
   readonly x: number;
@@ -39,7 +38,6 @@ const props = withDefaults(
     tracks: readonly TimelineTrackViewModel[];
     pxPerFrame: number;
     trackHeaderWidth: number;
-    displayTime: TimelineDisplayTime;
     castActualStartFrames: ReadonlyMap<string, number>;
     rulerHeight?: number;
     trackHeight?: number;
@@ -124,10 +122,8 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   };
 }
 
-function resolveCastActualStartFrame(castId: string, logicalStartFrame: number): number {
-  return (
-    props.castActualStartFrames.get(castId) ?? props.displayTime.toActualFrame(logicalStartFrame)
-  );
+function resolveCastActualStartFrame(castId: string, placementFrame: number): number {
+  return props.castActualStartFrames.get(castId) ?? placementFrame;
 }
 
 function pathData(

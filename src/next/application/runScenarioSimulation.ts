@@ -19,16 +19,11 @@ import {
 import type { ScenarioDocument } from '../core/project/schema';
 import type { ResolvedOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import type { CombatRuntimeAssemblyOptions } from '../core/combat/runtime/combatRuntimeAssembly';
-import { COMBAT_FRAMES_PER_SECOND } from '../core/combat/runtime/combatClock';
-import {
-  projectTimelineTimeMapping,
-  type TimelineTimeMapping,
-} from '../core/projection/timelineTimeMapping';
 
 export interface RunScenarioSimulationInput {
   readonly scenario: ScenarioDocument;
   readonly options: CompileScenarioRuntimeAssemblyOptions;
-  /** 项目时间轴应模拟到的逻辑帧；全局变速可能使实际战斗帧超过此值。 */
+  /** 项目时间轴应模拟到的实际战斗帧。 */
   readonly endFrame: number;
 }
 
@@ -41,8 +36,6 @@ export interface ScenarioSimulationResult {
   /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
   readonly initialResources: CombatResourceSnapshot;
   readonly receiptEntries: readonly CombatReceiptEntry[];
-  /** 项目逻辑帧与实际战斗帧的模拟后投影。 */
-  readonly timelineTimeMapping: TimelineTimeMapping;
   /** 由正式回执投影端口生成的稀疏资源曲线，应用层不重复解释事件。 */
   readonly resourceCurves: CombatResourceCurves;
   readonly finalResources: CombatResourceSnapshot;
@@ -51,11 +44,9 @@ export interface ScenarioSimulationResult {
 /** 已完成场景编译、可以直接交给运行时装配根的一次执行输入。 */
 export interface ExecuteCompiledScenarioSimulationInput {
   readonly compiled: CombatRuntimeAssemblyOptions;
-  /** 项目逻辑终点，不是需要固定推进的实际帧数。 */
+  /** 项目实际战斗终点。 */
   readonly endFrame: number;
 }
-
-const MAX_STALLED_TIMELINE_FRAMES = COMBAT_FRAMES_PER_SECOND * 60 * 10;
 
 function freezeReceiptEntries(
   entries: readonly CombatReceiptEntry[],
@@ -123,7 +114,7 @@ export function executeCompiledScenarioSimulation(
   );
   const assembly = new CombatRuntimeAssembly(compiled);
   const initialResources = assembly.resources.snapshot();
-  advanceToTimelineFrame(assembly, input.endFrame);
+  advanceToActualFrame(assembly, input.endFrame);
   const receiptEntries = freezeReceiptEntries(assembly.receipt.entries);
 
   return Object.freeze({
@@ -134,26 +125,14 @@ export function executeCompiledScenarioSimulation(
     finalResources: assembly.resources.snapshot(),
     // 脱离收集器并冻结，避免调用方改写本次模拟已经发生的事实。
     receiptEntries,
-    timelineTimeMapping: projectTimelineTimeMapping(receiptEntries, assembly.clock.frame),
     resourceCurves: freezeResourceCurves(
       projectResourceCurvesFromReceipt(initialResources, receiptEntries),
     ),
   });
 }
 
-function advanceToTimelineFrame(assembly: CombatRuntimeAssembly, endFrame: number): void {
-  let stalledFrames = 0;
-  while (assembly.timelineClock.frame + Number.EPSILON < endFrame) {
-    const previousFrame = assembly.timelineClock.frame;
+function advanceToActualFrame(assembly: CombatRuntimeAssembly, endFrame: number): void {
+  while (assembly.clock.frame < endFrame) {
     assembly.advanceFrame();
-    if (assembly.timelineClock.frame > previousFrame) {
-      stalledFrames = 0;
-      continue;
-    }
-    stalledFrames += 1;
-    // 这是防止损坏数据让应用永久挂起的执行保护，不是战斗时间规则。
-    if (stalledFrames > MAX_STALLED_TIMELINE_FRAMES) {
-      throw new Error(`timeline did not advance for ${MAX_STALLED_TIMELINE_FRAMES} actual frames`);
-    }
   }
 }

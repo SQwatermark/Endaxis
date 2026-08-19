@@ -24,8 +24,6 @@ export interface ExternalCombatEventRuntimeOptions {
   readonly events: readonly ScheduledExternalCombatEventInput[];
   readonly semanticEvents: CombatSemanticEventRuntime;
   readonly receipt: CombatReceiptSink;
-  /** 项目逻辑帧；未提供时与实际战斗帧一致。 */
-  readonly resolveTimelineFrame?: () => number;
 }
 
 export class ExternalCombatEventRuntime implements FrameRuntime {
@@ -33,7 +31,6 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   readonly #events: readonly ScheduledExternalCombatEventInput[];
   readonly #semanticEvents: CombatSemanticEventRuntime;
   readonly #receipt: CombatReceiptSink;
-  readonly #resolveTimelineFrame: () => number;
   #nextEventIndex = 0;
 
   constructor(options: ExternalCombatEventRuntimeOptions) {
@@ -41,7 +38,6 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
     this.#events = [...options.events];
     this.#semanticEvents = options.semanticEvents;
     this.#receipt = options.receipt;
-    this.#resolveTimelineFrame = options.resolveTimelineFrame ?? (() => this.#clock.frame);
     let previousFrame = -1;
     for (const [index, input] of this.#events.entries()) {
       if (!Number.isInteger(input.frame) || input.frame < 0) {
@@ -65,13 +61,10 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   }
 
   applyCurrentFrame(): void {
-    const timelineFrame = this.#resolveTimelineFrame();
-    if (!Number.isFinite(timelineFrame) || timelineFrame < 0) {
-      throw new RangeError('timeline frame must be a non-negative finite number');
-    }
+    const actualFrame = this.#clock.frame;
     while (true) {
       const input = this.#events[this.#nextEventIndex];
-      if (input === undefined || input.frame > timelineFrame + Number.EPSILON) break;
+      if (input === undefined || input.frame > actualFrame) break;
       this.#nextEventIndex += 1;
       for (const operatorId of input.targetOperatorIds) {
         this.#semanticEvents.emit({
@@ -86,7 +79,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
           event: 'ExternalOperatorHitProcessed',
           sourceId: 'enemy',
           targetId: operatorId,
-          data: { timelineFrame },
+          data: { scheduledActualFrame: input.frame },
         });
       }
     }

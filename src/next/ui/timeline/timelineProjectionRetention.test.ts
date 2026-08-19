@@ -10,15 +10,15 @@ function projectionSource(startMarker: string, endMarker: string): string {
 }
 
 describe('Next timeline simulation projection retention', () => {
-  it('keeps the last successful time mapping and cast starts while a drag simulation is pending', () => {
+  it('keeps cast starts and time-dilation bands while a drag simulation is pending', () => {
     const projections = projectionSource(
-      'const displayTime = computed',
+      'const skillCastActualStartFrames = computed',
       '\nconst timelineWidth = computed',
     );
 
-    expect(projections).toContain('simulationRun.value?.timelineTimeMapping ?? null');
     expect(projections).toContain('projectSkillCastActualStartFrames');
     expect(projections).toContain('projectTimelineTimeDilationBands');
+    expect(projections).not.toContain('timelineTimeMapping');
     expect(projections).not.toContain('simulationStale.value');
   });
 
@@ -32,7 +32,7 @@ describe('Next timeline simulation projection retention', () => {
     expect(hitProjection).not.toContain('simulationStale.value');
   });
 
-  it('freezes the display-time mapping for the full cast-move gesture', () => {
+  it('writes cast movement directly in the actual-time domain', () => {
     const gesture = projectionSource(
       'interface TimelineCastMoveGesture',
       '\nconst castMoveGesture',
@@ -43,11 +43,12 @@ describe('Next timeline simulation projection retention', () => {
     );
     const movement = projectionSource('function beginCastMove', '\nasync function finishCastMove');
 
-    expect(gesture).toContain('readonly displayTime: TimelineDisplayTime');
-    expect(movement).toContain('displayTime: displayTime.value');
+    expect(gesture).not.toContain('TimelineDisplayTime');
+    expect(movement).not.toContain('toLogicalFrame');
     expect(projection).toContain('return gesture.previewActualFrame');
     expect(movement).toContain('pointerOffsetActualFrames');
     expect(movement).toContain('resolveTimelineCastMoveFrame');
+    expect(movement).toContain('frame.placementFrame');
   });
 
   it('updates drag-dependent simulation projections at interactive frequency', () => {

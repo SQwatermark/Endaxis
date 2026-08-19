@@ -54,10 +54,8 @@ import {
   timelineTotalWidth,
 } from './timelineGeometry';
 import {
-  createTimelineDisplayTime,
   projectSkillCastActualStartFrames,
   projectTimelineTimeDilationBands,
-  type TimelineDisplayTime,
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
@@ -130,7 +128,7 @@ const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineA
 const hoveredCastId = ref<string | null>(null);
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const cursorFrame = ref(30);
-const cursorGuide = ref<{ leftPx: number; sampleFrame: number; logicalFrame: number } | null>(null);
+const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
@@ -151,9 +149,7 @@ interface TimelineCastMoveGesture {
   readonly skillCastId: string;
   readonly skillCastIds: readonly string[];
   readonly pointerOffsetActualFrames: number;
-  /** 按下瞬间的实际帧映射；拖动期间冻结，避免模拟结果反向扰动手势。 */
-  readonly displayTime: TimelineDisplayTime;
-  readonly anchorLogicalFrame: number;
+  /** 按下时已发布的实际开始帧，只用于平移该技能自己的时间膨胀预览。 */
   readonly anchorActualFrame: number;
   readonly baseScenario: ScenarioDocument;
   previewFrame: number;
@@ -322,14 +318,6 @@ const selectedCastModel = computed(() => {
   }
   return null;
 });
-const displayTime = computed(() =>
-  createTimelineDisplayTime(
-    scenario.value.battle.durationFrames,
-    // 拖动预览会把当前运行结果标记为过期，但不能在等待新结果时退回恒等映射；
-    // 否则时间膨胀后的技能块会先跳回逻辑帧，再在模拟完成后跳回实际帧。
-    simulationRun.value?.timelineTimeMapping ?? null,
-  ),
-);
 const skillCastActualStartFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
@@ -365,7 +353,7 @@ const highlightedTimeDilationSourceIds = computed<ReadonlySet<string>>(() => {
 const timelineWidth = computed(() =>
   timelineTotalWidth(
     scenario.value.battle.prepFrames,
-    displayTime.value.actualDurationFrames,
+    scenario.value.battle.durationFrames,
     pxPerFrame.value,
   ),
 );
@@ -389,24 +377,16 @@ function setCastHovered(castId: string, hovered: boolean): void {
   else if (hoveredCastId.value === castId) hoveredCastId.value = null;
 }
 
-function castActualStartFrame(castId: string, logicalStartFrame: number): number {
+function castActualStartFrame(castId: string, placementFrame: number): number {
   const gesture = castMoveGesture.value;
   if (gesture?.skillCastId === castId) {
-    // 当前手势的主块直接跟随鼠标所在的实际帧，不能再经过由它自身产生的时间映射。
     return gesture.previewActualFrame;
   }
-  if (gesture?.skillCastIds.includes(castId)) {
-    return gesture.displayTime.toActualFrame(logicalStartFrame);
-  }
-  return (
-    skillCastActualStartFrames.value.get(castId) ??
-    displayTime.value.toActualFrame(logicalStartFrame)
-  );
+  return skillCastActualStartFrames.value.get(castId) ?? placementFrame;
 }
 
-function timelinePointerLogicalFrame(pointerPx: number): number {
-  const actualFrame = pointerPx / pxPerFrame.value - scenario.value.battle.prepFrames;
-  return Math.round(displayTime.value.toLogicalFrame(Math.max(0, actualFrame)));
+function timelinePointerActualFrame(pointerPx: number): number {
+  return Math.round(Math.max(0, pointerPx / pxPerFrame.value - scenario.value.battle.prepFrames));
 }
 function formatGuideNumber(value: number | null): string {
   if (value === null) return '--';
@@ -575,10 +555,7 @@ const hitDetailTitle = computed(() => {
 
 const cursorGuideLines = computed(() => {
   const frame = cursorGuide.value?.sampleFrame ?? 0;
-  const logicalFrame = cursorGuide.value?.logicalFrame ?? frame;
-  const lines = [
-    `GAME ${Number((logicalFrame / PROJECT_FPS).toFixed(2))}s · REAL ${Number((frame / PROJECT_FPS).toFixed(2))}s`,
-  ];
+  const lines = [`TIME ${Number((frame / PROJECT_FPS).toFixed(2))}s`];
   const current = simulationRun.value;
   if (current !== null) {
     const sp = sampleStepCurve(current.resourceCurves.sp.points, frame);
@@ -812,7 +789,7 @@ function selectTimelinePosition(event: MouseEvent): void {
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      timelinePointerLogicalFrame(event.clientX - lane.getBoundingClientRect().left),
+      timelinePointerActualFrame(event.clientX - lane.getBoundingClientRect().left),
     ),
   );
   clearTimelineSelection();
@@ -850,12 +827,11 @@ function updateCursorGuide(event: MouseEvent): void {
   const guide = resolveTimelineCursorGuidePosition(
     pointerPx,
     scenario.value.battle.prepFrames,
-    displayTime.value.actualDurationFrames,
+    scenario.value.battle.durationFrames,
     pxPerFrame.value,
   );
   cursorGuide.value = {
     ...guide,
-    logicalFrame: displayTime.value.toLogicalFrame(guide.sampleFrame),
   };
 }
 
@@ -940,16 +916,13 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   );
   if (cast === undefined) return;
   const initialActualFrame =
-    skillCastActualStartFrames.value.get(skillCastId) ??
-    displayTime.value.toActualFrame(cast.placement.startFrame);
+    skillCastActualStartFrames.value.get(skillCastId) ?? cast.placement.startFrame;
   castMoveGesture.value = {
     pointerId: event.pointerId,
     trackIndex,
     skillCastId,
     skillCastIds: [...selection.selectedIds],
     pointerOffsetActualFrames,
-    displayTime: displayTime.value,
-    anchorLogicalFrame: cast.placement.startFrame,
     anchorActualFrame: initialActualFrame,
     baseScenario: scenario.value,
     previewFrame: cast.placement.startFrame,
@@ -983,26 +956,23 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
 function castMoveFrame(
   event: PointerEvent,
   gesture: TimelineCastMoveGesture,
-): { readonly logicalFrame: number; readonly actualFrame: number } | null {
+): { readonly placementFrame: number; readonly actualFrame: number } | null {
   const pointed = document.elementFromPoint(event.clientX, event.clientY);
   const lane = pointed instanceof Element ? pointed.closest<HTMLElement>('.track-lane') : null;
   if (lane?.dataset.trackIndex !== String(gesture.trackIndex)) return null;
   const pointerActualFrame = Math.max(
     0,
     Math.min(
-      gesture.displayTime.actualDurationFrames,
+      scenario.value.battle.durationFrames,
       (event.clientX - lane.getBoundingClientRect().left) / pxPerFrame.value -
         scenario.value.battle.prepFrames,
     ),
   );
   return resolveTimelineCastMoveFrame({
-    displayTime: gesture.displayTime,
     pointerActualFrame,
     pointerOffsetActualFrames: gesture.pointerOffsetActualFrames,
-    anchorLogicalFrame: gesture.anchorLogicalFrame,
-    anchorActualFrame: gesture.anchorActualFrame,
     snapFrames: snapFrames.value,
-    logicalMaximumFrame: scenario.value.battle.durationFrames,
+    actualMaximumFrame: scenario.value.battle.durationFrames,
   });
 }
 
@@ -1012,7 +982,7 @@ function updateCastMove(event: PointerEvent): void {
   const frame = castMoveFrame(event, gesture);
   if (frame === null) return;
   if (
-    frame.logicalFrame === gesture.previewFrame &&
+    frame.placementFrame === gesture.previewFrame &&
     frame.actualFrame === gesture.previewActualFrame
   ) {
     return;
@@ -1026,19 +996,19 @@ function updateCastMove(event: PointerEvent): void {
   }
   castMoveGesture.value = {
     ...gesture,
-    previewFrame: frame.logicalFrame,
+    previewFrame: frame.placementFrame,
     previewActualFrame: frame.actualFrame,
   };
-  if (frame.logicalFrame !== gesture.previewFrame) {
+  if (frame.placementFrame !== gesture.previewFrame) {
     scenario.value = moveSkillCasts(
       gesture.baseScenario,
       new Set(gesture.skillCastIds),
       gesture.trackIndex,
       gesture.skillCastId,
-      frame.logicalFrame,
+      frame.placementFrame,
     );
   }
-  cursorFrame.value = frame.logicalFrame;
+  cursorFrame.value = frame.placementFrame;
 
   // 连续拖动时节流而不是防抖：鼠标不停移动，模拟也会持续得到中间位置。
   const now = performance.now();
@@ -1115,7 +1085,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      timelinePointerLogicalFrame(event.clientX - lane.getBoundingClientRect().left),
+      timelinePointerActualFrame(event.clientX - lane.getBoundingClientRect().left),
     ),
   );
   const frame = snapTimelineFrame(
@@ -1589,7 +1559,6 @@ function setPanelDialogVisible(visible: boolean): void {
             :duration-frames="scenario.battle.durationFrames"
             :cursor-frame="cursorFrame"
             :px-per-frame="pxPerFrame"
-            :display-time="displayTime"
             @seek="cursorFrame = $event"
           />
           <TimelineConnectionLayer
@@ -1597,7 +1566,6 @@ function setPanelDialogVisible(visible: boolean): void {
             :tracks="viewModel.tracks"
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
-            :display-time="displayTime"
             :cast-actual-start-frames="skillCastActualStartFrames"
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
@@ -1674,7 +1642,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :curve="gaugeCurveFor(track.trackIndex)"
                 :color="gaugeColorFor(track.trackIndex)"
                 :prep-frames="scenario.battle.prepFrames"
-                :duration-frames="displayTime.actualDurationFrames"
+                :duration-frames="scenario.battle.durationFrames"
                 :px-per-frame="pxPerFrame"
               />
               <div
@@ -1810,7 +1778,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :enemy-health-label="t('nextTimeline.simGuide.enemyHp')"
             :poise-label="t('nextTimeline.simGuide.poise')"
             :timeline-width="timelineWidth"
-            :duration-frames="displayTime.actualDurationFrames"
+            :duration-frames="scenario.battle.durationFrames"
             :prep-frames="scenario.battle.prepFrames"
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"

@@ -459,7 +459,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
   });
 
-  it('ends generated Arclight ultimate time freeze and advances the scenario timeline', () => {
+  it('ends generated Arclight ultimate time freeze within the fixed actual-time range', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedArclightUltimateScenario(),
       endFrame: 150,
@@ -482,7 +482,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       },
     });
 
-    expect(result.frame).toBeGreaterThanOrEqual(150);
+    expect(result.frame).toBe(150);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'TimeDilationEnded',

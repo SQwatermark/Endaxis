@@ -781,7 +781,7 @@ describe('CombatRuntimeAssembly', () => {
     ).toThrow("skill 'skill' of 'operator' has inconsistent cooldown configuration");
   });
 
-  it('routes time-dilation clocks through the assembled ability systems', () => {
+  it('routes time-dilation clocks without moving later actual-frame inputs', () => {
     const casterDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
     const otherDeltas: Array<{ selfScaledDeltaSeconds: number }> = [];
     const makeBuffRuntime = (ownerId: string, sink: Array<{ selfScaledDeltaSeconds: number }>) => ({
@@ -871,15 +871,12 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(casterDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 60);
     expect(otherDeltas[0]?.selfScaledDeltaSeconds).toBeCloseTo(1 / 30);
-    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillInputProcessed')).toBe(
-      false,
-    );
-
-    assembly.advanceFrame();
-
     expect(
       assembly.receipt.entries.find(entry => entry.event === 'SkillInputProcessed'),
-    ).toMatchObject({ frame: 2, data: { timelineFrame: 1 } });
+    ).toMatchObject({
+      frame: 1,
+      data: { scheduledActualFrame: 1 },
+    });
   });
 
   it('advances enemy Buff lifetime and periodic triggers with each native clock domain', () => {
