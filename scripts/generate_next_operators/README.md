@@ -56,12 +56,33 @@
 - `action_payload_parser.py`：解析标量、伤害、Buff、资源、投射物和能力实体等可复用动作载荷。
 - `conditional_parser.py`：保留条件动作及其有序成功、失败分支，生成可审计控制流中间层。
 - `keyword_action_parser.py`：严格解析减速等关键词动作；当前只转换战斗模型能够精确表达的减速子集。
+- `compiler_ir.py`：正式 DSL 编译后的结构化控制流 IR、叶到根规范化和 TypeScript 渲染；只处理 `sequence/branch/once/repeat/foreach` 结构，不读取来源数据或解释游戏规则。语义编译器不得绕过该层直接用字符串比较控制流。
+- `conditional_compiler.py`：条件动作树的递归编译骨架；负责分支顺序、作用域传播和叶到根规范化，具体条件证明与叶子动作语义由入口注入，避免反向依赖和规则复制。
+- `combat_condition_compiler.py`：把原生条件事实编译为 Next `CombatCondition`；目标身份、零距离模型和伤害位定义通过服务接口注入。
+- `conditional_leaf_compiler.py`：编译条件分支中的具体动作载荷；按动作载荷聚合在一个中等模块中，不为每种 Action 建文件。
+- `resolved_sequence_compiler.py`：把已解析的根技能 schedule 编排为 `scheduledSequences`，统一处理原生顺序、技能替换、条件 IR、投射物与能力实体迁移；分析证明和具体步骤编译分成两组服务注入。
+- `inline_buff_compiler.py`：聚合内联 Buff 的事件响应、生命周期和实例本地定时序列，复用条件 IR、目标证明与能力实体子技能服务。
+- `ability_entity_child_compiler.py`：把已证明可编译的能力实体子图渲染为实体本地 `SkillDefinition`，不引入第二套动作协议。
+- `buff_event_parser.py`：集中解析 Sequence 优先级、Buff/Ability 事件、点燃响应、技能替换和技能时间线事件监听器；递归动作遍历与目标组写入解析由入口注入。
+- `buff_definition_parser.py`：集中解析 Buff 标签、属性/伤害修正、易伤投影、生命周期、来源死亡结束、未解析载荷审计及传递依赖定义；目标证明、伤害位映射和其他动作族解析通过服务注入。
+- `projectile_graph_parser.py`：集中解析投射物发射、命中子 SkillData、条件分支投影及递归调用图；能力实体解析、来源加载和动作遍历由入口注入，避免与能力实体图形成循环依赖。
+- `ability_entity_graph_parser.py`：集中解析能力实体生成、子 SkillData 黑板继承、递归实体图及条件分支确定性投影；投射物解析和其他动作族通过入口服务协作，不保存单次解析状态。
+- `resolved_schedule_collector.py`：把根技能、投射物和能力实体子图中的伤害与非伤害事实投影到统一绝对帧、Sequence 和动作顺序；可编译性与值域证明由入口注入，不在收集阶段生成 DSL。
+- `aura_action_parser.py`：严格解析技能时间线与 Buff 事件中的 Aura、形状、目标过滤、内部动作和浮空输出；共享动作树遍历由入口注入。
+- `target_group_parser.py`：严格解析 Finder、Continuous Finder、Merge、选择器身份及 owner-spawned 标签查询证据，不提前归约成单敌人结果。
+- `skill_action_fact_parser.py`：聚合辅助 Buff/能力实体动作、运行时黑板读写/结束 Buff，以及带直接条件和容器路径证据的时间线跳转；共享遍历、来源加载和目标证明由入口注入。
+- `damage_step_compiler.py`：统一编译旧式直伤、单投射物伤害、结构化 `DamageUnit`、固定伤害/失衡、稳定伤害步骤 key，以及显式单目标递归投射物省略校验；数值、资源和 Buff 辅助规则由入口注入。
+- `buff_application_compiler.py`：统一编译单 Buff 应用、集合目标实例生命周期、内联事件/定时行为，以及固定单敌人模型可严格归约的 Aura；目标和动态操作数证明由入口注入。
+- `skill_source_builder.py`：按固定顺序把单个 manifest 技能入口、SkillData、SkillPatch 和各来源解析器装配为完整 `SkillSource`；只编排事实，不解释新的游戏语义。
+- `audit_report_renderer.py`：把完整来源事实、递归子图、resolved schedule、替换关系和支持度问题投影为稳定 JSON 审计报告。
+- `operator_definition_renderer.py`：渲染正式 `OperatorDefinition`、技能引用、技能组、养成、转换支持度和干员元数据；项目身份映射及技能关系由入口注入。
+- `generation_pipeline.py`：执行 manifest/table 加载后的逐干员阶段分流、Buff 依赖闭包、审计/正式产物输出和 `--check` 控制；不承载动作语义。
 - `progression_renderer.py`：将已解析的天赋、潜能来源事实转换为 `OperatorDefinition` 养成片段；后续全干员养成转换统一从这里扩展。
 - `audit_operator_progression.py`：盘点全干员天赋/潜能载荷，并单独审计潜能中的四维属性加点是否能够完整转换。
 - `audit_all_operators.py`：对全部干员入口执行严格解析与试编译，记录覆盖率和首个阻塞原因，不保存试编译产生的最终 DSL。
 - `operators.json`：只保存稳定身份映射与无法由原始数据唯一决定的项目语义，不充当数值数据库。
 
-后续拆分以依赖方向为准：严格数据读取和通用字面量工具先独立，技能解析与 DSL 编译分别依赖数据模型，面板、天赋和潜能转换再作为独立的干员养成模块接入。禁止为了缩短文件而在模块间建立循环导入，或复制一套解析规则。
+后续拆分以依赖方向为准：严格数据读取和通用字面量工具先独立，技能解析与 DSL 编译分别依赖数据模型，面板、天赋和潜能转换再作为独立的干员养成模块接入。结构化控制流、条件语义、调度、动作步骤、生命周期、来源解析、调用图、技能/干员装配、审计及输出流水线已经形成单向依赖的中等模块。当前 45 个 Python 模块的 163 条内部依赖边不存在循环；已提取后端不反向导入兼容入口，两个新装配服务也没有未使用回调。当前不再以缩短主文件为目标继续机械拆分；只有出现新的高内聚职责时再迁移。禁止建立循环导入、复制规则，或按 Action 类型拆成大量碎文件。
 
 ## 使用
 
@@ -159,6 +180,12 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 技能即使原生存在换技动作，仍可保持不同的稳定技能组供用户直接拖放；不能仅凭动作名称推断
 编辑器放置语义。已声明运行时替换、但未被闭环关系覆盖的 `ChangeSkillAction` 会阻止生成。
 
+原生技能组中若包含只负责 `switchToBuffConfig` 路由、时间轴没有战斗动作的包装 SkillData，可用
+`routingOnlyNativeSkillIds` 明确排除出可放置技能组。生成器会校验该 ID 确实存在于原生组、没有
+同时生成正式技能，并在排除后继续要求其余技能与原生组精确一致。当前唯一实例是卡缪
+`chr_0033_camille_normal_skill_2`：它只在变身状态把输入路由到真实强化连携
+`chr_0033_camille_combo_skill_2`；后者由用户直接拖放，前者不生成空技能块。
+
 ## 当前边界
 
 能力实体生成点输出自包含的 `abilityEntityId + definition`，将默认生命周期和已证明的子技能直接内联。born tags 只保留在 VFS 模板证据中；原生 owner-spawned 标签查询在生成期严格求值并输出明确的 `abilityEntityIds`，编译器和运行时不携带标签或共享模板注册表。尚无替换规则证据的 `maxStackingCount` 不进入可执行定义。
@@ -204,7 +231,7 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - 带 `TagValidator` 的敌方 `HitBoxFinder` 查找即使在零距离模型下空间上覆盖唯一敌人，其标签查询仍可能过滤掉当前敌人，不能归约为唯一敌人；技能自身在搜索为空时的回退合并分支证明空结果是设计内可达状态，相关实体数量条件继续严格阻塞。分析与后续方案见 [标签过滤目标搜索审计](../../docs/research/tag-filtered-target-search-audit.md)。
 - 条件分支中的 Buff 读取、层数读取、结束、黑板计算和黑板修改只属于对应成功/失败分支。生成器报告存在尚未编译的条件时，`complete` 必须为 `false`，不得把这些子动作提升为无条件步骤。
 - 根时间轴解析只展开动作列表容器，遇到具体 Action 后停止；`IfElseAction` 两侧的伤害、投射物和能力实体只归条件树所有，不再被通用递归遍历重复投影。佩丽卡连携的自递归投射物会保留为投射物子技能条件，并仅在清单显式声明单敌人省略且分支形状严格匹配时忽略。
-- 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。重复动作不会排序或去重。
+- 条件分支以递归 ordered tree 保存。每个条件节点保留原始路径，成功/失败分支中的直接子动作保留原始下标；嵌套 `IfElseAction` 留在父分支中的实际位置，不会被提升为并列条件。审计中间层不会排序或去重；正式 DSL 会先过滤已证明无模拟效果的叶子，若成功与失败侧剩余执行序列完全相同，则删除无意义的 `branch` 并只保留成功侧序列及其稳定伤害步骤 key。除此之外不合并重复动作。
 - 顶层时间轴同时保留 `timelineActions` 中的原生 Sequence 序号和动作的 `serverActionIndex`。递归子技能使用各层触发动作与子 Sequence 组成 `sequenceOrder`，并用 `actionOrder` 保存 Sequence 内的动作顺序。统一调度先按 `(frame, sequenceOrder)` 恢复原生 Sequence 边界，再在组内按 `actionOrder` 排序；不能先把动作铺平后仅凭同帧重新合并，否则原本分属不同 Sequence 的动作会被错误合并。
 - SkillData 声明的动作黑板默认值会保留在审计层。正式 DSL 只注入已编译条件树实际读写的声明值，随后由 SkillPatch 的逐等级同名值覆盖；相机、输入方向等表现变量不会因为存在于原生黑板就进入战斗运行时。
 - 运行时黑板写入键沿根技能、投射物触发子技能和能力实体调用图递归收集。伤害或资源步骤引用这些键时保留为运行时操作数；只有没有任何动作写入的键才允许回到 SkillPatch 等级值解析，不能因载体位于子技能中而错误静态化。
@@ -227,6 +254,8 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - `CreateBuffAction` 审计层现已保留原生目标来源、目标组、创建次数、Buff 来源和是否继承施法信息。正式 DSL 支持单 Buff 动作从动作黑板读取创建次数，并按原生 `int counter < float count` 规则执行；动态次数的多 Buff 动作在引入保持整组循环顺序的结构前仍会拒绝。目标只接受已闭环的单敌人/施法者身份，来源只接受当前已证明的 `ActionSource` 分支。技能运行时会为每次实际启动分配单场唯一施法序号，并在步骤执行时连同来源技能和当时已产生的未返还技力消耗复制给 Buff；该身份不进入项目存档。
 - `ExtendBuffAction` 会在区间开始时固定当时匹配到的 Buff 实例，并调用不可结束状态；区间结束或技能中断时只释放这些固定实例，不会包含区间内后来创建的同 ID Buff。有限时长仍持续递减，结束请求被阻止后才把 `tagsAfterTriggerExtendBuffAction` 临时挂到所属实体；恢复可结束时仅在剩余时长严格小于零时立即补结束。生成器当前只编译证据已闭环的施法者 `Id` 查询，其他目标或标签查询继续报错。
 - `ignoreBuffIds` 是逐技能的显式审计豁免，只用于已确认的表现 Buff，不是按命名或分类自动猜测。除此之外，生成器只会自动剔除定义结构已经证明“唯一行为是非空 `EffectAction` stack effect”的 Buff：它必须没有黑板、标签、修正、事件、时间线、Aura、能力实体、技能替换或未解析载荷；stack effect 的动作类别会保留在审计中，出现其他类别立即失败。被省略的依赖仍保留在生成审计数据中。证据见 [Buff stack effect 与达坂第一天赋证据](../../docs/research/buff-stack-effect-and-dapan-talent-evidence.md)。
+- `simulationNoEffectBuffIds` 与表现豁免、真实缺口分开：它只允许声明在标准玩家输出模型中已证明不可观察的 Buff，仍校验该 Buff 确实由当前技能或其能力实体子程序施加，但不把它计入 `conversionSupport.skillBehavior`。当前首批实例是施加给干员或其能力实体的伤害免疫；敌人没有主动攻击，因而这些保护不会改变伤害、资源、状态或时间轴结果。敌方实体时间膨胀不得套用此分类：它虽然不影响敌方主动行为，却可能改变选择宿主自身时钟的敌方 Buff 生命周期。
+- `skipBuffDefinitionResolutionIds` 只处理“已经明确省略、但定义解析本身会先失败”的窄边界。每个 ID 必须同时出现在同技能的 `ignoreBuffIds`、`simulationNoEffectBuffIds` 或 `unmodeledBuffIds` 中，否则 manifest 立即失败；审计阶段仍尝试解析并记录原始失败，只有正式生成阶段跳过。条件分支与能力实体/投射物子程序中的省略身份仍参与过期配置校验，不能用不存在的 ID 绕过失败关闭。当前实例是洛茜停止精英敌人的空时间曲线，以及卡缪能力实体目标查找链。
 - `unmodeledActionTypes` 是逐技能、临时且公开的转换缺口，不是动作类别白名单。声明值必须确实出现在该技能的 `unresolvedCombatActions` 中，否则生成立即失败；命中的条件叶子只允许从正式 DSL 省略，原始条件树和 `*.audit.json` 的 `unmodeledCombatActions` 仍会保留该事实。若过滤后整棵条件树为空，才可连同无副作用条件省略。`HealAction` 已进入正常 DSL、标准场景和审计链，Ember/Gilberta 不再使用这项豁免；以后只有取得明确来源事实、又暂时无法进入正常模拟的动作才可逐技能声明。
 - `HealAction` 当前严格接受 `Normal + ActionSource` 下的 `MultiplyAttributeCalculation(AttackerOrHealer)` 与关闭 `applyScale` 的 `DefiniteValueCalculation`。前者保留四维属性、倍率与加值；后者生成不读取属性的直接治疗量，并可在执行时读取动作黑板。两者都保留原生治疗标签。队伍目标只接受 plain `MainCharacter`、已证明的 `MainCharacterValidator`、按当前生命比例升序取一个目标，以及在该排序前精确排除主控的结构，分别生成 `controlledOperator`、`lowestHealthRatioOperator` 与 `lowestHealthRatioOperatorExceptControlled`。标准场景按执行帧解析主控，并以场景干员顺序作为相同比例时的确定性投影；这只是 Endaxis 简化模型的稳定选择，不宣称是原生同值排序规则。满血不会抑制治疗执行或原始治疗回执。Liino 连携的 `final_heal_value` 已能完整解析和进入直接治疗 DSL，但该技能仍被无标签 owner-spawned 能力实体时间膨胀闭包阻塞。
 - `SkillPatchTable` 同一等级内的黑板重复键只有在数值完全相同时才按幂等序列化重复去重；异值重复继续立即失败。当前全表唯一形状是 Liino 强化战技 12 个等级各重复两次的 `music_trigger=3`。去重后，该技能与普通战技共同暴露出 `TickIntervalAction.executeEachFrame=true -> StoreCurSkillExecuteFrame -> SimpleCalcBBAction`：结果会传入后续 Buff 黑板，不能当表现动作省略，也不能静态展开成上千个步骤。在统一的技能/实体局部帧读取操作接入前，两项继续停在解析边界。

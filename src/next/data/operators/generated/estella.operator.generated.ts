@@ -484,13 +484,11 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
               }, '10:comboSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:34'),
             ),
           ),
-          sequence(
-            step('changeResourceByActionValue', {
-              resource: 'ultimateEnergy',
-              amount: { kind: 'blackboard', key: 'usp' },
-              recipient: 'caster',
-            }),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            recipient: 'caster',
+          }),
         ),
       ),
     ],

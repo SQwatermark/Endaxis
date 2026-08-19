@@ -1,0 +1,853 @@
+"""已解析技能调度到 Next scheduledSequences 的编排编译器。"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Callable, Iterable, cast
+
+from compiler_ir import (
+    EMPTY_SEQUENCE as COMPILED_EMPTY_SEQUENCE,
+    render_sequence_children as render_compiled_sequence_children,
+)
+from source_models import (
+    AbilityEntityHitSource,
+    AuraActionSource,
+    AuxiliaryActionSource,
+    BlackboardCalculationSource,
+    BlackboardMutationSource,
+    BuffBlackboardReadSource,
+    BuffDefinitionSource,
+    BuffFinishSource,
+    BuffHoldSource,
+    ConditionalActionSource,
+    EveryFrameActionSource,
+    ProjectileTriggeredSkillSource,
+    ResolvedDamageHitSource,
+    ResolvedScheduleItemSource,
+    SkillEventListenerSource,
+    SkillSource,
+    TimedInflictionSource,
+    TimedKeywordActionSource,
+    TimedResourceGainSource,
+    TimedTimeDilationSource,
+)
+from source_utils import require_list, ts_inline_literal
+
+
+@dataclass(frozen=True)
+class ResolvedSequenceAnalysisServices:
+    """来源证明、调度收集和配置解析服务。"""
+
+    ability_entity_child_timeline_can_compile: Callable[..., Any]
+    ability_entity_time_dilation_targets_are_closed: Callable[..., Any]
+    collect_compilable_conditional_action_types: Callable[..., Any]
+    collect_resolved_damage_hits: Callable[..., Any]
+    collect_resolved_schedule: Callable[..., Any]
+    collect_runtime_blackboard_output_keys: Callable[..., Any]
+    compact_level_values: Callable[..., Any]
+    is_single_enemy_ability_entity_projection: Callable[..., Any]
+    is_strictly_presentation_only_buff: Callable[..., Any]
+    load_ability_entity_template_evidence: Callable[..., Any]
+    logical_ability_entity_spawn_payload_for_compile: Callable[..., Any]
+    native_sequence_order: Callable[..., Any]
+    resolve_latest_target_group_write_at: Callable[..., Any]
+    resolve_skill_cooldown_frames: Callable[..., Any]
+    resolve_skill_cost_resource: Callable[..., Any]
+    root_skill_has_output_damage_before: Callable[..., Any]
+    root_target_group_writes_for_condition: Callable[..., Any]
+    target_group_write_ability_entity_collection_identity: Callable[..., Any]
+    target_group_write_buff_application_target: Callable[..., Any]
+    target_group_write_guarantees_single_enemy: Callable[..., Any]
+    validate_unmodeled_buff_ids: Callable[..., Any]
+
+
+@dataclass(frozen=True)
+class ResolvedSequenceStepServices:
+    """具体 DSL 步骤编译服务。"""
+
+    compile_conditional_action_ir: Callable[..., Any]
+    compile_ability_entity_child_skill: Callable[..., Any]
+    compile_aura_action: Callable[..., Any]
+    compile_blackboard_calculation: Callable[..., Any]
+    compile_blackboard_mutation: Callable[..., Any]
+    compile_buff_application: Callable[..., Any]
+    compile_buff_blackboard_read: Callable[..., Any]
+    compile_buff_finish: Callable[..., Any]
+    compile_buff_hold: Callable[..., Any]
+    compile_infliction: Callable[..., Any]
+    compile_keyword_action: Callable[..., Any]
+    compile_logical_ability_entity_spawn: Callable[..., Any]
+    compile_resolved_damage_steps: Callable[..., Any]
+    compile_resource_gain: Callable[..., Any]
+    compile_skill_event_listener: Callable[..., Any]
+    compile_time_dilation: Callable[..., Any]
+
+
+@dataclass(frozen=True)
+class ResolvedSequenceServices:
+    analysis: ResolvedSequenceAnalysisServices
+    steps: ResolvedSequenceStepServices
+
+
+def compile_resolved_sequence(
+    skill: SkillSource,
+    config: dict[str, Any],
+    *,
+    require_damage: bool,
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
+    services: ResolvedSequenceServices,
+) -> str:
+    """将已闭环根动作统一编译为按原生顺序调度的序列。"""
+    analysis = services.analysis
+    steps = services.steps
+    ability_entity_child_timeline_can_compile = analysis.ability_entity_child_timeline_can_compile
+    ability_entity_time_dilation_targets_are_closed = analysis.ability_entity_time_dilation_targets_are_closed
+    collect_compilable_conditional_action_types = analysis.collect_compilable_conditional_action_types
+    collect_resolved_damage_hits = analysis.collect_resolved_damage_hits
+    collect_resolved_schedule = analysis.collect_resolved_schedule
+    collect_runtime_blackboard_output_keys = analysis.collect_runtime_blackboard_output_keys
+    compact_level_values = analysis.compact_level_values
+    is_single_enemy_ability_entity_projection = analysis.is_single_enemy_ability_entity_projection
+    is_strictly_presentation_only_buff = analysis.is_strictly_presentation_only_buff
+    load_ability_entity_template_evidence = analysis.load_ability_entity_template_evidence
+    logical_ability_entity_spawn_payload_for_compile = analysis.logical_ability_entity_spawn_payload_for_compile
+    native_sequence_order = analysis.native_sequence_order
+    resolve_latest_target_group_write_at = analysis.resolve_latest_target_group_write_at
+    resolve_skill_cooldown_frames = analysis.resolve_skill_cooldown_frames
+    resolve_skill_cost_resource = analysis.resolve_skill_cost_resource
+    root_skill_has_output_damage_before = analysis.root_skill_has_output_damage_before
+    root_target_group_writes_for_condition = analysis.root_target_group_writes_for_condition
+    target_group_write_ability_entity_collection_identity = analysis.target_group_write_ability_entity_collection_identity
+    target_group_write_buff_application_target = analysis.target_group_write_buff_application_target
+    target_group_write_guarantees_single_enemy = analysis.target_group_write_guarantees_single_enemy
+    validate_unmodeled_buff_ids = analysis.validate_unmodeled_buff_ids
+    _compile_conditional_action_ir = steps.compile_conditional_action_ir
+    compile_ability_entity_child_skill = steps.compile_ability_entity_child_skill
+    compile_aura_action = steps.compile_aura_action
+    compile_blackboard_calculation = steps.compile_blackboard_calculation
+    compile_blackboard_mutation = steps.compile_blackboard_mutation
+    compile_buff_application = steps.compile_buff_application
+    compile_buff_blackboard_read = steps.compile_buff_blackboard_read
+    compile_buff_finish = steps.compile_buff_finish
+    compile_buff_hold = steps.compile_buff_hold
+    compile_infliction = steps.compile_infliction
+    compile_keyword_action = steps.compile_keyword_action
+    compile_logical_ability_entity_spawn = steps.compile_logical_ability_entity_spawn
+    compile_resolved_damage_steps = steps.compile_resolved_damage_steps
+    compile_resource_gain = steps.compile_resource_gain
+    compile_skill_event_listener = steps.compile_skill_event_listener
+    compile_time_dilation = steps.compile_time_dilation
+    ignored_auxiliary_classifications = set(
+        require_list(
+            config.get("ignoreAuxiliaryClassifications", []),
+            f"{skill.key}.compile.ignoreAuxiliaryClassifications",
+        )
+    )
+    configured_ignored_buff_ids = frozenset(
+        require_list(config.get("ignoreBuffIds", []), f"{skill.key}.compile.ignoreBuffIds")
+    )
+    simulation_no_effect_buff_ids = frozenset(
+        require_list(
+            config.get("simulationNoEffectBuffIds", []),
+            f"{skill.key}.compile.simulationNoEffectBuffIds",
+        )
+    )
+    presentation_only_buff_ids = frozenset(
+        buff_id
+        for buff_id, definition in (buff_definitions or {}).items()
+        if is_strictly_presentation_only_buff(definition)
+    )
+    ignored_buff_ids = configured_ignored_buff_ids | presentation_only_buff_ids
+    unmodeled_buff_ids = frozenset(
+        require_list(
+            config.get("unmodeledBuffIds", []),
+            f"{skill.key}.compile.unmodeledBuffIds",
+        )
+    )
+    unmodeled_action_types = frozenset(
+        str(value)
+        for value in require_list(
+            config.get("unmodeledActionTypes", []),
+            f"{skill.key}.compile.unmodeledActionTypes",
+        )
+    )
+    unknown_unmodeled_actions = sorted(
+        unmodeled_action_types.difference(skill.unresolvedCombatActions)
+    )
+    if unknown_unmodeled_actions:
+        raise ValueError(
+            f"{skill.key}.compile.unmodeledActionTypes: actions are not present in the "
+            f"skill audit: {unknown_unmodeled_actions}"
+        )
+    damage_tags = tuple(require_list(config.get("tags", []), f"{skill.key}.compile.tags"))
+    runtime_blackboard_keys = collect_runtime_blackboard_output_keys(skill)
+    collapse_single_enemy_entity_branches = config.get(
+        "collapseSingleEnemyAbilityEntityBranches", False
+    )
+    if not isinstance(collapse_single_enemy_entity_branches, bool):
+        raise ValueError(
+            f"{skill.key}.compile.collapseSingleEnemyAbilityEntityBranches: expected boolean"
+        )
+    projected_condition_paths = frozenset(
+        condition.actionPath
+        for condition in skill.conditionalActions
+        if is_single_enemy_ability_entity_projection(condition)
+    )
+    if collapse_single_enemy_entity_branches and not projected_condition_paths:
+        raise ValueError(f"{skill.key}: no single-enemy ability entity branch can be projected")
+    combat_auxiliary_actions = [
+        action
+        for action in getattr(skill, "auxiliaryActions", [])
+        if action.actionType == "CreateBuffAction"
+    ]
+    if any(not launch.skillTriggers for launch in skill.projectileLaunches):
+        raise ValueError(f"{skill.key}: projectile without triggered SkillData remains unresolved")
+    unmodeled_projectile_actions: list[str] = []
+
+    def collect_unmodeled_projectile_actions(hit: ProjectileTriggeredSkillSource) -> None:
+        if getattr(hit, "excludedByPrimaryTargetMarker", False):
+            return
+        projected_actions = {"DamageAction"}
+        if hit.conditionalActions:
+            projected_actions.update(
+                collect_compilable_conditional_action_types(hit.conditionalActions)
+            )
+        if hit.resourceGains:
+            projected_actions.add("ObtainCostAction")
+        if any(
+            action.actionType == "CreateBuffAction"
+            for action in getattr(hit, "auxiliaryActions", ())
+        ):
+            projected_actions.add("CreateBuffAction")
+        if getattr(hit, "inflictions", ()):
+            projected_actions.add("SpellInfliction")
+        if getattr(hit, "keywordActions", ()):
+            projected_actions.add("SlowAction")
+        if hit.nestedProjectileTriggeredSkills:
+            projected_actions.add("LaunchProjectile")
+        if getattr(hit, "abilityEntityHits", ()):
+            projected_actions.add("SpawnAbilityEntity")
+        unmodeled_projectile_actions.extend(
+            action for action in hit.combatActions if action not in projected_actions
+        )
+        for nested in hit.nestedProjectileTriggeredSkills:
+            collect_unmodeled_projectile_actions(nested)
+
+    for projectile in skill.projectileTriggeredSkills:
+        collect_unmodeled_projectile_actions(projectile)
+    if unmodeled_projectile_actions:
+        raise ValueError(
+            f"{skill.key}: projectile child combat actions are not projected: "
+            f"{sorted(set(unmodeled_projectile_actions))}"
+        )
+    allowed_actions = {"DamageAction", "LaunchProjectile", "SpawnAbilityEntity"}
+    allowed_actions.update(collect_compilable_conditional_action_types(skill.conditionalActions))
+    if skill.blackboardCalculations:
+        allowed_actions.add("SimpleCalcBBAction")
+    if skill.blackboardMutations:
+        allowed_actions.add("ModifyDynamicBlackboard")
+    if skill.buffBlackboardReads:
+        allowed_actions.add("GetTargetBuffBBAdvanced")
+    if skill.buffFinishes:
+        allowed_actions.update(finish.sourceActionType for finish in skill.buffFinishes)
+    if skill.inflictions:
+        allowed_actions.add("SpellInfliction")
+    if combat_auxiliary_actions:
+        allowed_actions.add("CreateBuffAction")
+    if skill.resourceGains:
+        allowed_actions.add("ObtainCostAction")
+    if getattr(skill, "keywordActions", ()):
+        allowed_actions.add("SlowAction")
+    if getattr(skill, "auraActions", ()):
+        allowed_actions.add("AuraAction")
+    allowed_actions.update(unmodeled_action_types)
+    uncovered_actions = sorted(set(skill.unresolvedCombatActions) - allowed_actions)
+    if uncovered_actions:
+        raise ValueError(
+            f"{skill.key}: unresolved combat actions are not covered by resolved damage "
+            f"compiler: {uncovered_actions}"
+        )
+    hits = collect_resolved_damage_hits(skill)
+    if require_damage and not hits:
+        raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
+    resolved_schedule = collect_resolved_schedule(skill)
+    replacement_relations = tuple(skill_slot_replacement_relations)
+    activation_relations = tuple(
+        relation
+        for relation in replacement_relations
+        if relation["baseSkillKey"] == skill.key
+    )
+    revert_relations = tuple(
+        relation
+        for relation in replacement_relations
+        if relation["replacementSkillKey"] == skill.key
+    )
+    if len({relation["activatedByBuffId"] for relation in activation_relations}) != len(
+        activation_relations
+    ):
+        raise ValueError(f"{skill.key}: duplicate slot replacement activation Buff")
+    activation_actions = {
+        relation["activatedByBuffId"]: [
+            action
+            for action in skill.auxiliaryActions
+            if action.actionType == "CreateBuffAction"
+            and action.sourceId == relation["activatedByBuffId"]
+        ]
+        for relation in activation_relations
+    }
+    for buff_id, actions in activation_actions.items():
+        if len(actions) != 1:
+            raise ValueError(
+                f"{skill.key}: proven slot replacement Buff {buff_id!r} must have one "
+                f"direct application, got {len(actions)}"
+            )
+        if (
+            buff_id in ignored_buff_ids
+            or buff_id in unmodeled_buff_ids
+            or actions[0].classification in ignored_auxiliary_classifications
+        ):
+            raise ValueError(
+                f"{skill.key}: proven slot replacement Buff {buff_id!r} cannot be ignored"
+            )
+
+    matched_revert_actions: set[tuple[int, int]] = set()
+    replacement_schedule_items: list[ResolvedScheduleItemSource] = []
+    for relation in revert_relations:
+        matches = [
+            action
+            for action in getattr(skill, "skillReplacements", ())
+            if action.startFrame == relation["revertOnReplacementCastFrame"]
+            and action.actionIndex == relation["revertActionIndex"]
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"{skill.key}: proven slot replacement revert must match one native action, "
+                f"got {len(matches)}"
+            )
+        action = matches[0]
+        matched_revert_actions.add((action.startFrame, action.actionIndex))
+        replacement_schedule_items.append(
+            ResolvedScheduleItemSource(
+                frame=action.startFrame,
+                actionOrder=(action.actionIndex,),
+                itemType="skillSlotReplacement",
+                sourcePath=(skill.skillId,),
+                payload=action,
+                sequenceOrder=native_sequence_order(action, (), skill.skillId),
+            )
+        )
+    unmatched_reverts = [
+        action
+        for action in getattr(skill, "skillReplacements", ())
+        if (action.startFrame, action.actionIndex) not in matched_revert_actions
+    ]
+    if revert_relations and unmatched_reverts:
+        raise ValueError(
+            f"{skill.key}: ChangeSkillAction is not covered by a proven stable slot relation"
+        )
+    resolved_schedule = tuple(
+        sorted(
+            (*resolved_schedule, *replacement_schedule_items),
+            key=lambda item: (item.frame, item.sequenceOrder, item.actionOrder),
+        )
+    )
+
+    def collect_reachable_ability_entities() -> tuple[AbilityEntityHitSource, ...]:
+        result: list[AbilityEntityHitSource] = []
+
+        def visit_entities(entities: Iterable[AbilityEntityHitSource]) -> None:
+            for entity in entities:
+                result.append(entity)
+                visit_entities(entity.nestedAbilityEntityHits)
+                visit_projectiles(entity.projectileTriggeredSkills)
+
+        def visit_projectiles(projectiles: Iterable[ProjectileTriggeredSkillSource]) -> None:
+            for projectile in projectiles:
+                visit_entities(projectile.abilityEntityHits)
+                visit_projectiles(projectile.nestedProjectileTriggeredSkills)
+
+        visit_entities(skill.abilityEntityHits)
+        visit_projectiles(skill.projectileTriggeredSkills)
+        return tuple(result)
+
+    reachable_ability_entities = collect_reachable_ability_entities()
+    migrated_ability_entities = tuple(
+        entity
+        for entity in reachable_ability_entities
+        if logical_ability_entity_spawn_payload_for_compile(entity, skill) is not None
+        if ability_entity_child_timeline_can_compile(
+            entity,
+            ignored_auxiliary_classifications=frozenset(
+                ignored_auxiliary_classifications
+            ),
+            ignored_buff_ids=ignored_buff_ids,
+            unmodeled_buff_ids=unmodeled_buff_ids,
+            buff_definitions=buff_definitions,
+        )
+    )
+    ability_entity_templates = load_ability_entity_template_evidence()
+    scheduled_entity_ids = {
+        id(item.payload)
+        for item in resolved_schedule
+        if item.itemType == "abilityEntitySpawn"
+    }
+    resolved_schedule = tuple(
+        sorted(
+            (
+                *resolved_schedule,
+                *(
+                    ResolvedScheduleItemSource(
+                        frame=entity.spawnFrame,
+                        actionOrder=entity.actionOrder,
+                        itemType="abilityEntitySpawn",
+                        sourcePath=(skill.skillId,),
+                        payload=entity,
+                        inputTarget="enemy",
+                        sequenceOrder=entity.actionOrder[:-1],
+                    )
+                    for entity in migrated_ability_entities
+                    if id(entity) not in scheduled_entity_ids
+                ),
+            ),
+            key=lambda item: (item.frame, item.sequenceOrder, item.actionOrder),
+        )
+    )
+
+    def is_migrated_child_item(item: ResolvedScheduleItemSource) -> bool:
+        if item.itemType == "abilityEntitySpawn":
+            return False
+        return any(
+            len(item.actionOrder) > len(entity.actionOrder)
+            and item.actionOrder[: len(entity.actionOrder)] == entity.actionOrder
+            and entity.skillId in item.sourcePath
+            for entity in migrated_ability_entities
+        )
+    overlaps = sorted(
+        (ignored_buff_ids & unmodeled_buff_ids)
+        | (ignored_buff_ids & simulation_no_effect_buff_ids)
+        | (unmodeled_buff_ids & simulation_no_effect_buff_ids)
+    )
+    if overlaps:
+        raise ValueError(
+            f"{skill.key}.compile: Buff ids cannot use multiple omission categories: {overlaps}"
+        )
+    validate_unmodeled_buff_ids(
+        resolved_schedule,
+        unmodeled_buff_ids,
+        f"{skill.key}.compile.unmodeledBuffIds",
+        buff_definitions,
+    )
+    validate_unmodeled_buff_ids(
+        resolved_schedule,
+        simulation_no_effect_buff_ids,
+        f"{skill.key}.compile.simulationNoEffectBuffIds",
+        buff_definitions,
+    )
+    schedule = tuple(
+        item
+        for item in resolved_schedule
+        if not is_migrated_child_item(item)
+        if not (
+            item.itemType == "buffApplication"
+            and (
+                cast(AuxiliaryActionSource, item.payload).classification
+                in ignored_auxiliary_classifications
+                or cast(AuxiliaryActionSource, item.payload).sourceId in ignored_buff_ids
+                or cast(AuxiliaryActionSource, item.payload).sourceId in unmodeled_buff_ids
+                or cast(AuxiliaryActionSource, item.payload).sourceId
+                in simulation_no_effect_buff_ids
+            )
+        )
+        and not (
+            item.itemType == "condition"
+            and collapse_single_enemy_entity_branches
+            and cast(ConditionalActionSource, item.payload).actionPath
+            in projected_condition_paths
+        )
+    )
+    damage_indexes = {hit: index for index, hit in enumerate(hits)}
+    compiled_schedule: list[tuple[ResolvedScheduleItemSource, list[str]]] = []
+    singleton_ability_entity_context_keys: set[str] = set()
+    target_group_context_keys = {
+        write.targetGroupKey for write in getattr(skill, "targetGroupWrites", ())
+    }
+    for schedule_index, item in enumerate(schedule):
+        if item.itemType == "damage":
+            payload = cast(ResolvedDamageHitSource, item.payload)
+            index = damage_indexes[payload]
+            step_lines = compile_resolved_damage_steps(
+                skill,
+                config,
+                payload,
+                index,
+                index == len(hits) - 1,
+                runtime_blackboard_keys,
+            )
+        elif item.itemType == "abilityEntitySpawn":
+            entity = cast(AbilityEntityHitSource, item.payload)
+            payload = logical_ability_entity_spawn_payload_for_compile(entity, skill)
+            if payload is None:
+                raise ValueError(
+                    f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn: "
+                    "spawn target is outside the zero-space model"
+                )
+            child_skill = (
+                compile_ability_entity_child_skill(
+                    entity,
+                    skill,
+                    config,
+                    hits,
+                    runtime_blackboard_keys,
+                    ignored_auxiliary_classifications=frozenset(
+                        ignored_auxiliary_classifications
+                    ),
+                    ignored_buff_ids=ignored_buff_ids | simulation_no_effect_buff_ids,
+                    unmodeled_buff_ids=unmodeled_buff_ids,
+                    buff_definitions=buff_definitions,
+                )
+                if entity in migrated_ability_entities
+                else None
+            )
+            step_lines = compile_logical_ability_entity_spawn(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].abilityEntitySpawn",
+                ability_entity_templates,
+                child_skill,
+            ).splitlines()
+            if (
+                payload.saveToContextKey is not None
+                and payload.saveToContextKey not in target_group_context_keys
+            ):
+                singleton_ability_entity_context_keys.add(payload.saveToContextKey)
+        elif item.itemType == "condition":
+            payload = cast(ConditionalActionSource, item.payload)
+            target_group_writes = (
+                item.targetGroupWrites
+                or root_target_group_writes_for_condition(skill, item, payload)
+            )
+            compiled_condition = _compile_conditional_action_ir(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].conditionalAction",
+                ignored_buff_ids | unmodeled_buff_ids | simulation_no_effect_buff_ids,
+                damage_tags,
+                runtime_blackboard_keys,
+                target_group_writes=target_group_writes,
+                root_skill_context=item.sourcePath == payload.actionPath,
+                input_target=item.inputTarget,
+                skill_has_output_damage=root_skill_has_output_damage_before(
+                    schedule, schedule_index, skill.skillId
+                ),
+                step_key_prefix=skill.key,
+                buff_definitions=buff_definitions,
+                singleton_ability_entity_context_keys=frozenset(
+                    singleton_ability_entity_context_keys
+                ),
+                unmodeled_action_types=unmodeled_action_types,
+            )
+            if compiled_condition == COMPILED_EMPTY_SEQUENCE:
+                continue
+            step_lines = [
+                line
+                for source in render_compiled_sequence_children(compiled_condition)
+                for line in source.splitlines()
+            ]
+        elif item.itemType == "blackboardCalculation":
+            payload = cast(BlackboardCalculationSource, item.payload)
+            step_lines = compile_blackboard_calculation(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].blackboardCalculation",
+            ).splitlines()
+        elif item.itemType == "blackboardMutation":
+            payload = cast(BlackboardMutationSource, item.payload)
+            step_lines = compile_blackboard_mutation(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].blackboardMutation",
+            ).splitlines()
+        elif item.itemType == "buffBlackboardRead":
+            payload = cast(BuffBlackboardReadSource, item.payload)
+            context_target_is_enemy = False
+            if (
+                item.sourcePath == (skill.skillId,)
+                and payload.targetSource == "Context"
+                and payload.targetGroupKey != "smart_target"
+            ):
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=(),
+                    target_group_key=payload.targetGroupKey,
+                    writes=skill.targetGroupWrites,
+                    control_flow_actions=skill.targetGroupControlFlowActions,
+                    root_skill_context=True,
+                )
+                context_target_is_enemy = (
+                    write is not None
+                    and target_group_write_guarantees_single_enemy(write)
+                )
+            step_lines = compile_buff_blackboard_read(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffBlackboardRead",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
+                context_target_is_enemy=context_target_is_enemy,
+            ).splitlines()
+        elif item.itemType == "buffFinish":
+            payload = cast(BuffFinishSource, item.payload)
+            context_finish_target = None
+            if payload.targetSource == "Context":
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=(),
+                    target_group_key=payload.targetGroupKey,
+                    writes=getattr(skill, "targetGroupWrites", ()),
+                    control_flow_actions=getattr(skill, "targetGroupControlFlowActions", ()),
+                    root_skill_context=True,
+                )
+                context_finish_target = target_group_write_buff_application_target(write)
+            step_lines = compile_buff_finish(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffFinish",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
+                context_finish_target=context_finish_target,
+            ).splitlines()
+        elif item.itemType == "buffHold":
+            payload = cast(BuffHoldSource, item.payload)
+            step_lines = compile_buff_hold(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].buffHold",
+            ).splitlines()
+        elif item.itemType == "resourceGain":
+            payload = cast(TimedResourceGainSource, item.payload)
+            step_lines = compile_resource_gain(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].resourceGain",
+            ).splitlines()
+        elif item.itemType == "infliction":
+            payload = cast(TimedInflictionSource, item.payload)
+            step_lines = compile_infliction(payload).splitlines()
+        elif item.itemType == "buffApplication":
+            payload = cast(AuxiliaryActionSource, item.payload)
+            context_application_target = None
+            ability_entity_collection_key = None
+            if (
+                payload.targetSource == "Context"
+                and payload.targetGroupKey != "smart_target"
+            ):
+                write = (
+                    resolve_latest_target_group_write_at(
+                        read_frame=payload.startFrame,
+                        read_action_index=payload.actionIndex,
+                        read_action_path=(),
+                        target_group_key=payload.targetGroupKey,
+                        writes=skill.targetGroupWrites,
+                        control_flow_actions=skill.targetGroupControlFlowActions,
+                        root_skill_context=True,
+                    )
+                    if item.sourcePath == (skill.skillId,)
+                    else None
+                )
+                context_application_target = target_group_write_buff_application_target(write)
+                if (
+                    context_application_target is None
+                    and (
+                        payload.targetGroupKey
+                        in singleton_ability_entity_context_keys
+                        or (
+                            write is not None
+                            and target_group_write_ability_entity_collection_identity(write)
+                            is not None
+                        )
+                    )
+                ):
+                    context_application_target = "currentAbilityEntity"
+                    ability_entity_collection_key = payload.targetGroupKey
+            if payload.classification == "skillCostUltimateEnergyGain":
+                # buff_common_obtain_ultimate_sp 的 CreateBuffAction 是原生
+                # “按非返还技力消耗为全队回能”的载体；不展开为 Buff 实例。
+                step_lines = [
+                    "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })"
+                ]
+            else:
+                step_lines = compile_buff_application(
+                    payload,
+                    f"{skill.key}.schedule[{schedule_index}].buffApplication",
+                    root_skill_context=item.sourcePath == (skill.skillId,),
+                    context_application_target=context_application_target,
+                    input_target=item.inputTarget,
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=(skill, config),
+                    ignored_buff_ids=ignored_buff_ids,
+                ).splitlines()
+                if ability_entity_collection_key is not None:
+                    nested_lines = [f"    {line}" for line in step_lines]
+                    nested_lines[-1] += ","
+                    step_lines = [
+                        "forEachContextTarget(",
+                        f"  {ts_inline_literal(ability_entity_collection_key)},",
+                        "  sequence(",
+                        *nested_lines,
+                        "  ),",
+                        ")",
+                    ]
+                relation = next(
+                    (
+                        candidate
+                        for candidate in activation_relations
+                        if candidate["activatedByBuffId"] == payload.sourceId
+                    ),
+                    None,
+                )
+                if relation is not None:
+                    step_lines.extend(
+                        [
+                            "step('changeSkillSlot', {",
+                            f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                            f"  targetSkillKey: {ts_inline_literal(relation['replacementSkillKey'])},",
+                            "})",
+                        ]
+                    )
+        elif item.itemType == "skillSlotReplacement":
+            relation = next(
+                (
+                    candidate
+                    for candidate in revert_relations
+                    if candidate["revertOnReplacementCastFrame"] == item.frame
+                    and candidate["revertActionIndex"] == item.actionOrder[0]
+                ),
+                None,
+            )
+            if relation is None:
+                raise AssertionError(f"{skill.key}: missing proven slot replacement relation")
+            step_lines = [
+                "step('changeSkillSlot', {",
+                f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                f"  targetSkillKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                "})",
+            ]
+        elif item.itemType == "eventListener":
+            payload = cast(SkillEventListenerSource, item.payload)
+            compiled_listener = compile_skill_event_listener(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].eventListener",
+                runtime_blackboard_keys=runtime_blackboard_keys,
+                step_key_prefix=skill.key,
+                buff_definitions=buff_definitions,
+                ignored_buff_ids=ignored_buff_ids,
+            )
+            if compiled_listener is None:
+                continue
+            step_lines = compiled_listener.splitlines()
+        elif item.itemType == "timeDilation":
+            payload = cast(TimedTimeDilationSource, item.payload)
+            step_lines = compile_time_dilation(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].timeDilation",
+                effect_ability_entity_targets_proven=(
+                    ability_entity_time_dilation_targets_are_closed(
+                        payload,
+                        skill,
+                        reachable_ability_entities,
+                        migrated_ability_entities,
+                        ability_entity_templates,
+                    )
+                ),
+                ability_entity_templates=ability_entity_templates,
+            ).splitlines()
+        elif item.itemType == "keywordAction":
+            payload = cast(TimedKeywordActionSource, item.payload)
+            step_lines = compile_keyword_action(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].keywordAction",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
+            ).splitlines()
+        elif item.itemType == "auraAction":
+            payload = cast(AuraActionSource, item.payload)
+            step_lines = compile_aura_action(
+                payload,
+                f"{skill.key}.schedule[{schedule_index}].auraAction",
+                buff_definitions=buff_definitions,
+                invoked_child_context=(skill, config),
+            ).splitlines()
+        else:
+            raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
+        compiled_schedule.append((item, step_lines))
+
+    grouped_schedule: dict[
+        tuple[int, tuple[int, ...]],
+        list[tuple[ResolvedScheduleItemSource, list[str]]],
+    ] = {}
+    for item, step_lines in compiled_schedule:
+        grouped_schedule.setdefault((item.frame, item.sequenceOrder), []).append((item, step_lines))
+
+    scheduled_entries: list[str] = []
+    for frame, sequence_order in sorted(grouped_schedule):
+        entries = sorted(
+            grouped_schedule[(frame, sequence_order)],
+            key=lambda entry: entry[0].actionOrder,
+        )
+        entry_lines = ["      scheduled(", f"        {frame},", "        sequence("]
+        for _, step_lines in entries:
+            entry_lines.extend(
+                f"          {line}," if line.endswith(")") else f"          {line}"
+                for line in step_lines
+            )
+        entry_lines.append("        ),")
+        end_frames = {
+            cast(
+                BuffHoldSource
+                | SkillEventListenerSource
+                | TimedTimeDilationSource
+                | EveryFrameActionSource
+                | AuraActionSource,
+                item.payload,
+            ).endFrame
+            for item, _ in entries
+            if item.itemType in {"buffHold", "eventListener", "timeDilation"}
+            or (item.itemType == "condition" and isinstance(item.payload, EveryFrameActionSource))
+            or item.itemType == "auraAction"
+        }
+        if len(end_frames) > 1:
+            raise ValueError(
+                f"{skill.key}: one native sequence has conflicting end frames {sorted(end_frames)}"
+            )
+        if end_frames:
+            entry_lines.append(f"        {next(iter(end_frames))},")
+        entry_lines.append("      ),")
+        scheduled_entries.extend(entry_lines)
+    fields = [
+            "  {",
+            f"    key: {ts_inline_literal(skill.key)},",
+            f"    timelineBlockFrames: {skill.timelineBlockFrames},",
+    ]
+    availability = config.get("availability")
+    if availability == "targetStaggered":
+        fields.append("    availability: { kind: 'targetStaggered', target: 'enemy' },")
+    elif availability is not None:
+        raise ValueError(f"{skill.key}.compile.availability: unsupported value")
+    cooldown_frames = resolve_skill_cooldown_frames(skill, config)
+    if cooldown_frames is not None:
+        fields.append(
+            "    cooldownFrames: "
+            f"{ts_inline_literal(compact_level_values(cooldown_frames))},"
+        )
+    cost_resource = resolve_skill_cost_resource(skill, config)
+    if cost_resource is not None:
+        fields.append(
+            "    costs: [{ resource: "
+            f"{ts_inline_literal(cost_resource)}, value: "
+            f"{ts_inline_literal(compact_level_values(skill.patch.costValues))} }}],"
+        )
+        fields.append(f"    costFrame: {skill.costFrame},")
+    fields.extend(
+        [
+            "    scheduledSequences: [",
+            *scheduled_entries,
+            "    ],",
+            "  },",
+        ]
+    )
+    return "\n".join(fields)

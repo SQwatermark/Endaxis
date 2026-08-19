@@ -74,6 +74,28 @@ step('spawnAbilityEntity', {
 
 ## 4. 本轮已经完成
 
+### 生成器结构化编译后端
+
+- 2026-08-19 新增 `scripts/generate_next_operators/compiler_ir.py`，用不可变控制流节点保存 `sequence/branch/once/repeatEachTick/forEachContextTarget`；规范化严格自叶子向根执行，递归展平 Sequence、删除空序列，并在两侧规范化执行签名一致时折叠 Branch。
+- 新增 `conditional_compiler.py`，把条件树递归、分支作用域传播及 `DoOnce/EveryFrame/ForEach/Unconditional` 控制流从 1.3 万行主入口移出。它通过服务接口调用原有条件证明和叶子动作编译，不读取游戏数据、不另建规则副本；`generate_next_operators.py` 暂时保留兼容入口和语义服务适配层。
+- 条件语义进一步拆为 `combat_condition_compiler.py`（约 544 行）和 `conditional_leaf_compiler.py`（约 636 行）。前者统一编译 `CombatCondition`，后者按载荷聚合条件分支叶子动作；目标身份、距离归约、伤害位和复用动作编译均由显式服务接口注入。按 Python 物理行统计，主入口由约 14,270 行降到约 13,362 行，没有建立循环导入。
+- 最大的 `compile_resolved_sequence` 已整体迁入 `resolved_sequence_compiler.py`（约 853 行）。该模块内部仍保留一个完整的顺序编排流程，但把来源证明/调度分析与具体步骤编译拆成两组服务；主入口只保留兼容函数和装配，不持有单次编译状态。主入口进一步降至约 12,710 行，当前最大函数已从 722 行降为 385 行。
+- 内联生命周期编译已经按调用关系拆为 `inline_buff_compiler.py`（约 743 行）和 `ability_entity_child_compiler.py`（约 340 行）。前者包含 Buff 事件响应、生命周期与实例本地定时序列，后者包含能力实体子技能调度；两者不互相导入，能力实体编译通过入口服务注入。主入口进一步降至约 11,898 行，最大函数仍为 385 行。
+- 来源解析侧新增 `buff_event_parser.py`（约 732 行），集中 Sequence 优先级、Buff/Ability 事件、点燃响应、技能替换和技能事件监听器。`UNPARSED_BUFF_PAYLOAD_FIELDS` 仍留在 Buff 定义缺口审计边界，没有因为代码相邻而误归入事件模块。主入口进一步降至约 11,297 行。
+- 新增 `buff_definition_parser.py`（约 846 行），集中 Buff 标签、属性/伤害修正、易伤投影、生命周期、来源死亡结束、未解析载荷和中央递归定义解析。目标身份与伤害位仍由服务注入；干员阶段选择和 Aura 动作解析没有混入。主入口进一步降至约 10,663 行。
+- 新增 `projectile_graph_parser.py`（约 567 行），集中投射物载荷、命中子 SkillData、条件分支投影和递归投射物调用图。能力实体子图、来源读取和动作遍历继续由入口服务注入，测试替换入口也保留在兼容层，没有形成反向导入。主入口进一步降至约 10,306 行，当前最大函数仍为 385 行。
+- 新增 `ability_entity_graph_parser.py`（约 623 行），集中能力实体生成、子 SkillData 黑板继承、递归调用图、条件分支 Aura 子图和确定性生成投影。它与投射物图只通过入口服务互调，主入口仍保留测试与审计工具使用的兼容函数，不持有单次解析状态。主入口进一步降至约 9,919 行，当前最大函数仍为 385 行。
+- 新增 `resolved_schedule_collector.py`（约 574 行），集中根技能、投射物和能力实体子图的绝对帧投影、原生 Sequence/动作顺序、定时标记伤害去重、一次性回能过滤及非伤害调度事实。实体可编译性、动态数值和关键词证明由入口服务注入，收集器不渲染 DSL。主入口进一步降至约 9,468 行，当前最大函数仍为 385 行。
+- 新增 `aura_action_parser.py`（约 493 行）与 `target_group_parser.py`（约 238 行）。前者集中技能/Buff 事件 Aura、形状、过滤和内部动作，后者集中 Finder/Merge 与选择器身份；两者都只保留来源事实，不做单敌人近似。主入口进一步降至约 8,840 行，最大函数由 385 行降至 187 行；`TargetGroupInputSource` 仍由主入口再导出以兼容既有测试和审计工具。
+- 新增 `skill_action_fact_parser.py`（约 441 行），集中辅助 Buff/能力实体事实、运行时黑板读写与 Buff 结束，以及保留精确容器路径和直接条件的 `JumpToAction`。来源加载、动作遍历和目标引用证明继续由入口注入。主入口进一步降至约 8,520 行，当前最大函数仍为 187 行。
+- 新增 `damage_step_compiler.py`（约 612 行），集中旧式直伤/单投射物编译、通用 `DamageUnit` 顺序、动态黑板倍率、固定伤害、失衡、稳定步骤 key 和递归投射物省略校验。技能资源、Buff 和数值辅助编译仍由入口注入。主入口进一步降至约 8,095 行，当前最大函数仍为 187 行。
+- 新增 `buff_application_compiler.py`（约 377 行），集中单 Buff 应用、集合目标生命周期、内联事件/定时序列和固定单敌人 Aura 归约；浮空 Aura 特例仍保留原严格载荷校验。目标证明、动态操作数和内联行为由入口注入。主入口进一步降至约 7,875 行，当前最大函数仍为 187 行。
+- 新增 `skill_source_builder.py`（约 245 行）与 `audit_report_renderer.py`（约 166 行）。前者只按固定顺序装配 SkillData、SkillPatch 和各来源解析器，后者只投影递归审计事实、统一调度和完整性问题；两者均不新增语义规则。主入口进一步降至约 7,673 行，当前最大函数仍为 187 行。
+- 新增 `operator_definition_renderer.py`（约 177 行）与 `generation_pipeline.py`（约 235 行）。前者渲染正式干员定义，后者承载逐干员阶段分流、Buff 依赖闭包和文件输出；兼容入口的 `main` 只剩服务装配调用。主入口进一步降至约 7,441 行，当前最大函数为 131 行，已不存在巨型函数。
+- 伤害步骤来源 key 与执行签名分离：折叠后保留成功侧稳定 key，audit 仍保留原始双分支；不同参数、步骤或顺序的分支不会合并。
+- 全量重新生成后，正式/审计技能 TS 中直接 `sequence(sequence(...))` 从 99 处降为 0。Rossi 运行定义由上一轮 160.2 KB / 4,135 行 / 78 分支继续降到约 130.4 KiB / 3,534 行 / 58 分支。
+- 当前结构重构已达到 checkpoint：45 个 Python 模块之间共有 163 条内部依赖边，静态审计未发现循环；已提取后端均不反向导入兼容入口。仅 `audit_all_operators.py`、`audit_recursive_mechanisms.py` 两个命令行工具和 3 个兼容测试继续消费主入口再导出。`OperatorDefinitionRendererServices` 与 `GenerationPipelineServices` 合计 32 个回调均有实际调用，没有无意义接口。当前不再为行数机械拆分，下一步应形成重构 checkpoint 提交，再回到首个可闭环的真实动作缺口。
+
 ### 条件减速动作
 
 - `keyword_action_parser.py` 暴露可复用的 `parse_keyword_action`。
@@ -133,7 +155,7 @@ step('spawnAbilityEntity', {
 
 当前验证结果：
 
-- Python 生成器规则测试最近基线：301 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
+- Python 生成器规则测试最近基线：327 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前严格全量审计基线为 30 名、320 个入口、317 个可解析、281 个可编译，零专用声明直转 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
@@ -218,6 +240,15 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - `JumpToAction` 现只在事件有序序列入口作为 `jumpTimeline` 叶子解析，普通技能时间轴继续使用已有专用跳帧投影，避免重复调度。运行时回归证明事件同步回调能够改写宿主技能局部帧。
 - Catcher 普通战技的新首阻塞是主动技能分支里的 `CheckTargetAngle`。方向角不由零距离假设决定，继续失败关闭；全量统计保持 320/320 可解析、292/320 可编译。
 - 本地 AKEDB SkillData 一度出现多份截断 JSON，已重新下载并验证 2459 份文件全部可解析后才重跑审计。
+
+### 2026-08-19：陈千语、洛茜、卡缪正式样本接入与时间域边界
+
+- 生成 manifest 新增陈千语、洛茜、卡缪，分别生成 10、11、11 个技能并注册到默认 Next 数据仓库；正式生成定义现为 13 名，仓库显式干员入口共 15 名。三个样本都保留 `conversionSupport`，不能因“生成成功”写成整名干员完整转换。卡缪 `normal_skill_2` 原始时间轴只有语音，战斗职责是通过 `switchToBuffConfig` 路由到强化连携；它不作为空技能块注册，用户直接拖放真实的 `combo_skill_2`。
+- 陈千语技能主体 10/10 已闭环；当前缺口只有两个 `attachBuff` 天赋及潜能中的未闭环养成载荷，`skillBehavior` 不应因为玩家侧伤害免疫被误报。
+- 洛茜正式样本保留真实缺口：战技/两段连携共用的 `normal_defup` 同时含玩家侧防御修正和周期输出，不能整体按免伤无效果省略；战技条件流血、二段连携持续伤害的裸 `Target` 来源、QTE 计时监听、换槽计时、终结技流血暴伤/追加战斗形态仍未闭环。终结技 `stopenemy_elite` 的敌方实体时间膨胀也保持未建模，原因不是敌人会行动，而是敌方 Buff 可能选择宿主自身时间域。
+- 卡缪正式样本保留战技能力实体的弱化/目标死亡监听链，以及终结技效果与变身换槽状态缺口；强化连携形态继续作为可人工拖出的独立技能块，原生零冷却数据不再被强行套用基础连携冷却。
+- 新增 `simulationNoEffectBuffIds`，专门记录标准玩家输出模型中已证明不可观察的行为。当前只用于施加给干员或其能力实体的公共伤害免疫 Buff：敌人无主动攻击，免疫不会改变模拟输出，因此不计入技能转换缺口。它不同于表现型 `ignoreBuffIds`，也不同于会使 `conversionSupport` 变为部分支持的 `unmodeledBuffIds`。
+- 时间域待办：原始 BuffData 的 `useTimeDilationDt`、`onlyUseSelfTimeDilation` 尚未进入生成定义。运行时已经支持 `default/global/self` Buff 时钟，敌方 Buff runtime 也会取得敌人实体的时间膨胀增量；下一步必须从原始字段和反编译证据建立严格映射，并用敌方 Buff 持续时间/周期触发回归确认。洛茜停止敌人的 Buff 自身为 `false/false`，但这不能证明敌人身上的其他 Buff 不受影响。
 
 ## 8. 恢复工作清单
 

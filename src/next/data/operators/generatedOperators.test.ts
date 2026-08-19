@@ -7,6 +7,8 @@ import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
 import { lifengUltimate } from './generated/lifeng.operator.generated';
 import {
   akekuri,
+  camille,
+  chenQianyu,
   daPan,
   endministrator,
   estella,
@@ -14,6 +16,7 @@ import {
   gilberta,
   lastRite,
   lifeng,
+  rossi,
 } from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
@@ -25,6 +28,9 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [fluorite, 10],
   [endministrator, 20],
   [lastRite, 9],
+  [chenQianyu, 10],
+  [rossi, 11],
+  [camille, 11],
 ];
 
 function hasUpgradeBehavior(
@@ -34,6 +40,22 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('三个新样本只把真实转换缺口计入 skillBehavior', () => {
+    const skillBehaviorGaps = (operator: OperatorDefinition) =>
+      operator.conversionSupport?.missingCapabilities.find(
+        item => item.capability === 'skillBehavior',
+      )?.skillGroupKeys ?? [];
+
+    expect(skillBehaviorGaps(chenQianyu)).toEqual([]);
+    expect(skillBehaviorGaps(rossi)).toEqual([
+      'battleSkill',
+      'comboSkill2',
+      'comboSkill3',
+      'ultimate',
+    ]);
+    expect(skillBehaviorGaps(camille)).toEqual(['battleSkill', 'ultimate']);
+  });
+
   it('Gilberta 战技把来源死亡监视 Buff 留在能力实体局部时间轴', () => {
     const serialized = JSON.stringify(gilbertaBattleSkill);
 

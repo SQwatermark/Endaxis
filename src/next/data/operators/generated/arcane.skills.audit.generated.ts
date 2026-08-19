@@ -244,36 +244,28 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         9,
         sequence(
-          sequence(
-            forEachContextTarget(
-              'bunshin1',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
-              ),
+          forEachContextTarget(
+            'bunshin1',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
             ),
           ),
-          sequence(
-            forEachContextTarget(
-              'bunshin2',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
-              ),
+          forEachContextTarget(
+            'bunshin2',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
             ),
           ),
-          sequence(
-            forEachContextTarget(
-              'bunshin3',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
-              ),
+          forEachContextTarget(
+            'bunshin3',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
             ),
           ),
-          sequence(
-            forEachContextTarget(
-              'bunshin4',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
-              ),
+          forEachContextTarget(
+            'bunshin4',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 0.5 } }),
             ),
           ),
         ),
@@ -281,30 +273,28 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         9,
         sequence(
-          sequence(
-            forEachContextTarget(
-              'bunshin1',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
-              ),
+          forEachContextTarget(
+            'bunshin1',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
             ),
-            forEachContextTarget(
-              'bunshin2',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
-              ),
+          ),
+          forEachContextTarget(
+            'bunshin2',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
             ),
-            forEachContextTarget(
-              'bunshin3',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
-              ),
+          ),
+          forEachContextTarget(
+            'bunshin3',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
             ),
-            forEachContextTarget(
-              'bunshin4',
-              sequence(
-                step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
-              ),
+          ),
+          forEachContextTarget(
+            'bunshin4',
+            sequence(
+              step('setAbilityEntityRemainingDuration', { value: { kind: 'constant', value: 30 } }),
             ),
           ),
         ),
@@ -383,23 +373,11 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
       scheduled(
         10,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([6.2, 6.9, 7.5, 8.1, 8.7, 9.4, 10, 10.6, 11.2, 12, 12.9, 14]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([6.2, 6.9, 7.5, 8.1, 8.7, 9.4, 10, 10.6, 11.2, 12, 12.9, 14]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:19'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([6.2, 6.9, 7.5, 8.1, 8.7, 9.4, 10, 10.6, 11.2, 12, 12.9, 14]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
         ),
       ),
       scheduled(
@@ -439,45 +417,21 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         11,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[3]11:actionOrder2:17'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
         ),
       ),
       scheduled(
         12,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:29'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[3]11:actionOrder2:33'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:29'),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -496,23 +450,11 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         13,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:43'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[3]11:actionOrder2:47'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:43'),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -545,23 +487,11 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
       scheduled(
         5,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack311:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:17'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack311:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:18'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack311:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:17'),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -580,23 +510,11 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
       scheduled(
         13,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack311:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:28'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-                tags: ['normalAttack'],
-              }, '12:basicAttack311:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:32'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'nature',
+            attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack311:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:28'),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -649,14 +567,12 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         4,
         sequence(
-          sequence(
-            step('createTimedMarker', {
-              target: 'caster',
-              markerId: 'lizhiyan_attack4',
-              durationSeconds: { kind: 'constant', value: 0.1 },
-              autoFinishByAction: false,
-            }),
-          ),
+          step('createTimedMarker', {
+            target: 'caster',
+            markerId: 'lizhiyan_attack4',
+            durationSeconds: { kind: 'constant', value: 0.1 },
+            autoFinishByAction: false,
+          }),
         ),
       ),
       scheduled(
@@ -756,13 +672,11 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              sequence(
-                step('modifyActionValue', {
-                  key: 'isHitbyMain',
-                  operation: 'assign',
-                  value: { kind: 'constant', value: 1 },
-                }),
-              ),
+              step('modifyActionValue', {
+                key: 'isHitbyMain',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
@@ -777,25 +691,12 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
       scheduled(
         22,
         sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('createTimedMarker', {
-                target: 'caster',
-                markerId: 'lizhiyan_attack5',
-                durationSeconds: { kind: 'constant', value: 0.1 },
-                autoFinishByAction: false,
-              }),
-            ),
-            sequence(
-              step('createTimedMarker', {
-                target: 'caster',
-                markerId: 'lizhiyan_attack5',
-                durationSeconds: { kind: 'constant', value: 0.1 },
-                autoFinishByAction: false,
-              }),
-            ),
-          ),
+          step('createTimedMarker', {
+            target: 'caster',
+            markerId: 'lizhiyan_attack5',
+            durationSeconds: { kind: 'constant', value: 0.1 },
+            autoFinishByAction: false,
+          }),
         ),
       ),
     ],
@@ -849,14 +750,12 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
       scheduled(
         7,
         sequence(
-          sequence(
-            step('createTimedMarker', {
-              target: 'caster',
-              markerId: 'lizhiyan_power_attack_effect',
-              durationSeconds: { kind: 'constant', value: 1 },
-              autoFinishByAction: false,
-            }),
-          ),
+          step('createTimedMarker', {
+            target: 'caster',
+            markerId: 'lizhiyan_power_attack_effect',
+            durationSeconds: { kind: 'constant', value: 1 },
+            autoFinishByAction: false,
+          }),
         ),
       ),
       scheduled(
@@ -1043,9 +942,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
                 scheduled(
                   20,
                   sequence(
-                    sequence(
-                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                    ),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   ),
                 ),
                 scheduled(

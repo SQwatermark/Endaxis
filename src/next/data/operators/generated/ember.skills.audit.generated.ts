@@ -105,15 +105,13 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '10:comboSkill6:direct27:chr_0009_azrila_combo_skill11:actionOrder2:28'),
-          sequence(
-            step('heal', {
-              target: 'controlledOperator',
-              attribute: 'will',
-              multiplier: { kind: 'blackboard', key: 'will_additive' },
-              addition: { kind: 'blackboard', key: 'heal_base' },
-              tagIds: [-1517158118],
-            }),
-          ),
+          step('heal', {
+            target: 'controlledOperator',
+            attribute: 'will',
+            multiplier: { kind: 'blackboard', key: 'will_additive' },
+            addition: { kind: 'blackboard', key: 'heal_base' },
+            tagIds: [-1517158118],
+          }),
           branch(
             {
               kind: 'actionValueCompare',
@@ -141,13 +139,11 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
               }),
             ),
           ),
-          sequence(
-            step('changeResourceByActionValue', {
-              resource: 'ultimateEnergy',
-              amount: { kind: 'blackboard', key: 'usp' },
-              recipient: 'caster',
-            }),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            recipient: 'caster',
+          }),
         ),
       ),
     ],
@@ -521,9 +517,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
               }),
             ),
           ),
-          sequence(
-            step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-          ),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
       ),
     ],

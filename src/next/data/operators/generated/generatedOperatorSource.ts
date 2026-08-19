@@ -715,6 +715,8 @@ export interface GeneratedConditionalActionSource {
   readonly conditions: readonly GeneratedConditionSource[];
   readonly succeedActions: readonly GeneratedConditionalBranchActionSource[];
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
+  /** DoOnce 条件根在一次技能执行内共享的稳定作用域。 */
+  readonly onceScopeKey?: string;
   /** 固定间隔动作会在多个帧重复执行同一条件树；普通条件仅含 startFrame。 */
   readonly executionFrames?: readonly number[];
   /** 已由解析层提升为确定子技能并进入全局调度的生成动作。 */

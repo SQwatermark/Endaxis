@@ -3,6 +3,8 @@ import {
   akekuri,
   arcane,
   arclight,
+  camille,
+  chenQianyu,
   daPan,
   endministrator,
   estella,
@@ -11,6 +13,7 @@ import {
   lastRite,
   lifeng,
   perlica,
+  rossi,
   zhuangFangyi,
 } from './operators';
 import {
@@ -44,6 +47,9 @@ describe('gameDataRepository', () => {
       fluorite,
       endministrator,
       lastRite,
+      chenQianyu,
+      rossi,
+      camille,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -57,6 +63,9 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(fluorite.slug)).toBe(fluorite);
     expect(nextGameDataRepository.getOperator(endministrator.slug)).toBe(endministrator);
     expect(nextGameDataRepository.getOperator(lastRite.slug)).toBe(lastRite);
+    expect(nextGameDataRepository.getOperator(chenQianyu.slug)).toBe(chenQianyu);
+    expect(nextGameDataRepository.getOperator(rossi.slug)).toBe(rossi);
+    expect(nextGameDataRepository.getOperator(camille.slug)).toBe(camille);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

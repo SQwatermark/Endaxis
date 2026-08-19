@@ -820,7 +820,6 @@ def render_potentials(
     if len(unlocks) != len(configs):
         raise ValueError(f"{char_id}: potential config count does not match source")
     result: list[str] = []
-    combo_skill_id = skill_id_by_key(skills, "comboSkill")
     ultimate_skill_ids = skill_ids_by_group_key(operator, skills, "ultimate")
     ultimate_skill_id = next(iter(ultimate_skill_ids)) if len(ultimate_skill_ids) == 1 else None
     for raw_unlock, raw_config in zip(unlocks, configs, strict=True):
@@ -900,6 +899,7 @@ def render_potentials(
             modifier = require_dict(data.get("skillBbModifier"), f"{effect_id}.skillBbModifier")
             value = float(modifier["floatValue"])
             if kind == "multiplyReactionDuration":
+                combo_skill_id = skill_id_by_key(skills, "comboSkill")
                 if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "duration":
                     raise ValueError(f"{effect_id}: unexpected reaction duration modifier target")
                 body = "\n".join(
@@ -915,6 +915,7 @@ def render_potentials(
                     ]
                 )
             elif kind == "setReactionEffectiveness":
+                combo_skill_id = skill_id_by_key(skills, "comboSkill")
                 if modifier.get("skillId") != combo_skill_id or modifier.get("bbKey") != "extra_scaling":
                     raise ValueError(f"{effect_id}: unexpected reaction effectiveness modifier target")
                 body = "\n".join(

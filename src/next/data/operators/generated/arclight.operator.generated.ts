@@ -479,46 +479,44 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                           },
                           lifecycleSequences: {
                             enhanceChanged: sequence(
-                              sequence(
-                                step('calculateActionValue', {
-                                  key: 'final_pulse_up',
-                                  operation: 'multiply',
-                                  left: { kind: 'blackboard', key: 'intellect' },
-                                  right: { kind: 'blackboard', key: 'pulse_up' },
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0007_ikut_atk_buff_talent',
-                                  definition: {
-                                    stackingType: 'stack',
-                                    priority: 0,
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration' },
-                                    blackboard: {
-                                      'duration': 0,
-                                      'pulse_up': 0,
+                              step('calculateActionValue', {
+                                key: 'final_pulse_up',
+                                operation: 'multiply',
+                                left: { kind: 'blackboard', key: 'intellect' },
+                                right: { kind: 'blackboard', key: 'pulse_up' },
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0007_ikut_atk_buff_talent',
+                                definition: {
+                                  stackingType: 'stack',
+                                  priority: 0,
+                                  maxStackCount: 1,
+                                  durationSeconds: { blackboardKey: 'duration' },
+                                  blackboard: {
+                                    'duration': 0,
+                                    'pulse_up': 0,
+                                  },
+                                  attributeModifiers: [
+                                    {
+                                      attribute: 'electricDamageIncrease',
+                                      slot: 'baseAddition',
+                                      value: { blackboardKey: 'pulse_up' },
+                                      source: 'converted',
                                     },
-                                    attributeModifiers: [
-                                      {
-                                        attribute: 'electricDamageIncrease',
-                                        slot: 'baseAddition',
-                                        value: { blackboardKey: 'pulse_up' },
-                                        source: 'converted',
-                                      },
-                                    ],
-                                  },
-                                  target: 'party',
-                                  inheritSourceSkillCastInfo: true,
-                                  blackboardAssignments: {
-                                    'pulse_up': { kind: 'blackboard', key: 'final_pulse_up' },
-                                    'duration': { kind: 'blackboard', key: 'duration' },
-                                  },
-                                }),
-                                step('finishBuffsById', {
-                                  target: 'caster',
-                                  buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
-                                  reason: 'other',
-                                }),
-                              ),
+                                  ],
+                                },
+                                target: 'party',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'pulse_up': { kind: 'blackboard', key: 'final_pulse_up' },
+                                  'duration': { kind: 'blackboard', key: 'duration' },
+                                },
+                              }),
+                              step('finishBuffsById', {
+                                target: 'caster',
+                                buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+                                reason: 'other',
+                              }),
                             ),
                           },
                         },

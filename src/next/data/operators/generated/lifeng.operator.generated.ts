@@ -152,25 +152,12 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         24,
         sequence(
-          branch(
-            { kind: 'singleEnemyPresent' },
-            sequence(
-              step('dealDamage', {
-                damageType: 'physical',
-                attackScale: percentages([50, 55, 60, 65, 70, 75, 80, 85, 90, 96, 104, 113]),
-                tags: ['normalAttack', 'normalAttackLastCombo'],
-                stagger: 19,
-              }, '12:basicAttack411:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:25'),
-            ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'physical',
-                attackScale: percentages([50, 55, 60, 65, 70, 75, 80, 85, 90, 96, 104, 113]),
-                tags: ['normalAttack', 'normalAttackLastCombo'],
-                stagger: 19,
-              }, '12:basicAttack411:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:28'),
-            ),
-          ),
+          step('dealDamage', {
+            damageType: 'physical',
+            attackScale: percentages([50, 55, 60, 65, 70, 75, 80, 85, 90, 96, 104, 113]),
+            tags: ['normalAttack', 'normalAttackLastCombo'],
+            stagger: 19,
+          }, '12:basicAttack411:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:25'),
           step('dealDamage', {
             damageType: 'physical',
             attackScale: percentage(0),

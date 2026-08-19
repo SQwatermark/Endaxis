@@ -233,15 +233,13 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
             tags: ['normalAttack', 'plungingAttack'],
           }, '14:plungingAttack6:direct35:chr_0022_bounda_plunging_attack_end11:actionOrder1:5'),
-          sequence(
-            step('changeResourceByActionValue', {
-              resource: 'sp',
-              amount: { kind: 'blackboard', key: 'atb' },
-              recipient: 'team',
-              spGainKind: 'gain',
-              spGainSource: 'default',
-            }),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb' },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'default',
+          }),
         ),
       ),
     ],
@@ -362,9 +360,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                         }),
                       ),
                     ),
-                    sequence(
-                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                    ),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   ),
                 ),
                 scheduled(
@@ -416,9 +412,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                         }),
                       ),
                     ),
-                    sequence(
-                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                    ),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   ),
                 ),
                 scheduled(

@@ -3722,6 +3722,22 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertTrue(all(not definition.sourceAvailable for definition in definitions))
 
+    def test_operator_buff_definitions_skip_explicitly_omitted_references(self) -> None:
+        skills = (
+            SimpleNamespace(referencedBuffIds=("buff.kept", "buff.omitted")),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            definitions = resolve_operator_buff_definitions(
+                skills,
+                Path(directory),
+                excluded_buff_ids=("buff.omitted",),
+            )
+
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.kept",),
+        )
+
     def test_buff_definitions_fall_back_to_full_export_directory(self) -> None:
         buff = {
             "lifeType": "Limited",
@@ -7573,6 +7589,106 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("attackScale: { kind: 'blackboard', key: 'atk_scale_final' }", result)
         self.assertIn("tags: ['normalSkill']", result)
 
+    def test_conditional_action_compiler_folds_equal_filtered_branches(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        damage = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1.0,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=256,
+        )
+        succeed_damage = ConditionalBranchActionSource(
+            "DamageAction",
+            0,
+            actionPath=("succeedActions", "actionData", "[0]"),
+            serverActionIndex=11,
+            damageUnits=(damage,),
+        )
+        ignored_interrupt = ConditionalBranchActionSource(
+            "InterruptAction",
+            1,
+            actionPath=("succeedActions", "actionData", "[1]"),
+            serverActionIndex=12,
+            interrupt=SimpleNamespace(),
+        )
+        fail_damage = ConditionalBranchActionSource(
+            "DamageAction",
+            0,
+            actionPath=("failActions", "actionData", "[0]"),
+            serverActionIndex=21,
+            damageUnits=(damage,),
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(succeed_damage, ignored_interrupt),
+            failActions=(fail_damage,),
+        )
+
+        result = compile_conditional_action(
+            action,
+            "fixture.condition",
+            damage_tags=("normalSkill",),
+            step_key_prefix="fixture",
+        )
+
+        self.assertNotIn("branch(", result)
+        self.assertEqual(result.count("step('dealDamage'"), 1)
+        self.assertIn("succeedActions", result)
+        self.assertNotIn("failActions", result)
+
+    def test_conditional_action_compiler_keeps_distinct_filtered_branches(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CompareFloat",
+            comparison="GE",
+            left=ScalarSource(1, None, None),
+            right=ScalarSource(1, None, None),
+            buffStack=None,
+        )
+        first_damage = DamageUnitSource(
+            damageType="Physical",
+            attributeType="Hp",
+            calculation="standard",
+            attackScale=ScalarSource(1, None, (1.0,)),
+            calculationMultiplier=None,
+            poiseValue=None,
+            damageDecorateMask=256,
+        )
+        second_damage = replace(
+            first_damage,
+            attackScale=ScalarSource(2, None, (2.0,)),
+        )
+        action = SimpleNamespace(
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    "DamageAction", 0, damageUnits=(first_damage,)
+                ),
+            ),
+            failActions=(
+                ConditionalBranchActionSource(
+                    "DamageAction", 0, damageUnits=(second_damage,)
+                ),
+            ),
+        )
+
+        result = compile_conditional_action(
+            action,
+            "fixture.condition",
+            damage_tags=("normalSkill",),
+        )
+
+        self.assertIn("branch(", result)
+        self.assertEqual(result.count("step('dealDamage'"), 2)
+
     def test_runtime_blackboard_keys_include_projectile_child_writes(self) -> None:
         mutation = SimpleNamespace(
             blackboardCalculation=None,
@@ -9872,6 +9988,24 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "ultimate": {
                     "skillGroupType": 2,
                     "skillIdList": ["skill_ultimate", "skill_attack_1", "skill_attack_2"],
+                }
+            }
+        }
+
+        validate_skill_groups(operator, skills, growth, "growth")
+
+    def test_native_routing_only_skill_can_be_excluded_from_placeable_groups(self) -> None:
+        operator = {
+            "slug": "operator",
+            "routingOnlyNativeSkillIds": ["skill_router"],
+            "skillGroups": [{"nativeGroupType": 3, "skillKeys": ["comboSkill"]}],
+        }
+        skills = [SimpleNamespace(key="comboSkill", skillId="skill_combo")]
+        growth = {
+            "skillGroupMap": {
+                "combo": {
+                    "skillGroupType": 3,
+                    "skillIdList": ["skill_combo", "skill_router"],
                 }
             }
         }

@@ -18,6 +18,8 @@ import {
   akekuri,
   arcane,
   arclight,
+  camille,
+  chenQianyu,
   daPan,
   endministrator,
   estella,
@@ -26,6 +28,7 @@ import {
   lastRite,
   lifeng,
   perlica,
+  rossi,
   zhuangFangyi,
 } from './operators';
 import {
@@ -112,6 +115,9 @@ export const nextGameDataRepository = createGameDataRepository({
     fluorite,
     endministrator,
     lastRite,
+    chenQianyu,
+    rossi,
+    camille,
   ],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,

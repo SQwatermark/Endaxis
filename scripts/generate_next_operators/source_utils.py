@@ -13,6 +13,7 @@ from source_models import Vector3Source
 
 __all__ = [
     "action_name",
+    "indent_source",
     "parse_vector3",
     "project_tick_interval_frames",
     "require_bool",
@@ -25,6 +26,11 @@ __all__ = [
     "ts_inline_literal",
     "ts_literal",
 ]
+
+
+def indent_source(source: str, spaces: int) -> list[str]:
+    prefix = " " * spaces
+    return [f"{prefix}{line}" for line in source.splitlines()]
 
 
 def to_float32(value: float) -> float:

@@ -14,3 +14,6 @@ export { akekuri } from './akekuri';
 export { fluorite } from './fluorite';
 export { endministrator } from './endministrator';
 export { lastRite } from './last-rite';
+export { chenQianyu } from './chen-qianyu';
+export { rossi } from './rossi';
+export { camille } from './camille';
