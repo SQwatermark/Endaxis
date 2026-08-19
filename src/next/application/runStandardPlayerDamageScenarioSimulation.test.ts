@@ -490,11 +490,16 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         data: expect.objectContaining({ sourceActionId: 'ultimate', reason: 'stopped' }),
       }),
     );
+    const arclightDamage = result.receiptEntries.filter(
+      entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:next-sample:arclight',
+    );
+    expect(arclightDamage).toHaveLength(2);
     expect(
-      result.receiptEntries.filter(
-        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:next-sample:arclight',
+      arclightDamage.every(
+        entry => entry.data?.castId === 'skillCast:1' && typeof entry.data.hitId === 'string',
       ),
-    ).toHaveLength(2);
+    ).toBe(true);
+    expect(arclightDamage.map(entry => entry.frame)).toEqual([63, 119]);
   });
 
   it('accepts the generated Arclight battle skill Buff and entity-tag operations', () => {

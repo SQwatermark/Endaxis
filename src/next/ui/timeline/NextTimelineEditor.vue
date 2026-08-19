@@ -104,7 +104,11 @@ import {
   type TimelineConnectionPort,
 } from './timelineConnections';
 import { type TimelineHitMarkerView } from './timelineHitProjection';
-import { projectHitEffectsByCast, type TimelineHitEffectLabel } from './timelineHitEffects';
+import {
+  projectHitEffectsByCast,
+  projectTimelineHitActualFrames,
+  type TimelineHitEffectLabel,
+} from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
@@ -433,6 +437,11 @@ const castHitEffects = computed(() => {
   }
   return byCastId;
 });
+const hitActualFrames = computed(() =>
+  simulationRun.value === null
+    ? new Map<string, number>()
+    : projectTimelineHitActualFrames(simulationRun.value.receiptEntries),
+);
 
 /** 敌人效果面板数据：附着段与爆发/反应标记，全部来自同一份回执。 */
 const enemyEffectViz = computed(() => {
@@ -513,6 +522,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   );
   if (castModel === undefined) return [];
   const effects = castHitEffects.value.get(castId);
+  const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
   return (
     castModel.hitMarkers
       // 条件分支里的命中只在真的触发过时才显示，和旧版一致。
@@ -520,7 +530,10 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
       .map(marker => ({
         stepKey: marker.stepKey,
         hitId: marker.hitId,
-        leftPx: marker.frameOffset * pxPerFrame.value,
+        leftPx:
+          ((hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset) -
+            publishedStartFrame) *
+          pxPerFrame.value,
         ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
       }))
   );
@@ -560,7 +573,11 @@ const hitDetailTitle = computed(() => {
   if (trackModel === undefined || castModel === undefined) {
     return `${target.castId} · ${detail.marker.frameOffset}f`;
   }
-  return `${timelineCastLabel(castModel, trackModel)} · ${detail.marker.frameOffset}f`;
+  const actualStart = skillCastActualStartFrames.value.get(target.castId) ?? castModel.startFrame;
+  const actualOffset =
+    (hitActualFrames.value.get(detail.marker.hitId) ?? actualStart + detail.marker.frameOffset) -
+    actualStart;
+  return `${timelineCastLabel(castModel, trackModel)} · ${actualOffset}f`;
 });
 
 const cursorGuideLines = computed(() => {
@@ -1578,6 +1595,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :cast-actual-start-frames="skillCastActualStartFrames"
             :cast-actual-duration-frames="skillCastActualDurationFrames"
+            :hit-actual-frames="hitActualFrames"
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />

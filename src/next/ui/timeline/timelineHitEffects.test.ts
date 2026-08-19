@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import type { ScenarioDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
-import { projectHitEffectsByCast } from './timelineHitEffects';
+import { projectHitEffectsByCast, projectTimelineHitActualFrames } from './timelineHitEffects';
 import { projectCastHitMarkers } from './timelineHitProjection';
 
 function baseDamage(): Record<string, number | boolean | string | null> {
@@ -129,7 +129,12 @@ function markersForCast(scenario: ScenarioDocument, castId: string) {
   return projectCastHitMarkers(cast, cast.customDefinition);
 }
 
-function damageEntry(sequence: number, frame: number, stepKey?: string): CombatReceiptEntry {
+function damageEntry(
+  sequence: number,
+  frame: number,
+  stepKey = 'step:damage',
+  castId = 'cast:1',
+): CombatReceiptEntry {
   return {
     sequence,
     frame,
@@ -137,7 +142,12 @@ function damageEntry(sequence: number, frame: number, stepKey?: string): CombatR
     event: 'DamageApplied',
     sourceId: 'track:0',
     targetId: 'enemy',
-    data: { ...baseDamage(), ...(stepKey === undefined ? {} : { stepKey }) },
+    data: {
+      ...baseDamage(),
+      stepKey,
+      castId,
+      hitId: deriveHitId(castId, stepKey),
+    },
   };
 }
 
@@ -151,6 +161,7 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
     targetId: 'enemy',
     data: {
       skillId: 'battleSkill',
+      castId: 'cast:1',
       requestedElement: 'electric',
       isExtra: false,
       previousElement: null,
@@ -164,11 +175,15 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
 }
 
 describe('projectHitEffectsByCast', () => {
-  it('按帧与来源把伤害归因到命中标记，带步骤键时精确匹配', () => {
+  it('uses exact cast and hit identities instead of authored local-frame offsets', () => {
     const scenario = scenarioWithCast();
     const effects = projectHitEffectsByCast(
       scenario,
-      [damageEntry(1, 40, 'step:damage'), damageEntry(2, 40), damageEntry(3, 90)],
+      [
+        damageEntry(1, 60),
+        damageEntry(2, 60, 'step:unknown'),
+        damageEntry(3, 60, 'step:damage', 'cast:other'),
+      ],
       'cast:1',
       markersForCast(scenario, 'cast:1'),
     );
@@ -182,11 +197,27 @@ describe('projectHitEffectsByCast', () => {
     expect(effects.size).toBe(1);
   });
 
+  it('projects the first actual execution frame for each stable hit identity', () => {
+    const hitId = deriveHitId('cast:1', 'step:damage');
+    expect(
+      projectTimelineHitActualFrames([
+        damageEntry(1, 60),
+        damageEntry(2, 90),
+        damageEntry(3, 70, 'step:secondary'),
+      ]),
+    ).toEqual(
+      new Map([
+        [hitId, 60],
+        [deriveHitId('cast:1', 'step:secondary'), 70],
+      ]),
+    );
+  });
+
   it('把同帧附着归因到命中标记', () => {
     const scenario = scenarioWithCast();
     const effects = projectHitEffectsByCast(
       scenario,
-      [damageEntry(1, 40), inflictionEntry(2, 40)],
+      [damageEntry(1, 60), inflictionEntry(2, 60)],
       'cast:1',
       markersForCast(scenario, 'cast:1'),
     );
@@ -201,16 +232,17 @@ describe('projectHitEffectsByCast', () => {
     const effects = projectHitEffectsByCast(
       scenario,
       [
-        damageEntry(1, 40),
+        damageEntry(1, 60),
         {
           sequence: 2,
-          frame: 40,
-          time: 40 / 30,
+          frame: 60,
+          time: 2,
           event: 'ElementalReactionApplied',
           sourceId: 'track:0',
           targetId: 'enemy',
           data: {
             reaction: 'electrification',
+            castId: 'cast:1',
             previousLevel: 0,
             level: 1,
             durationSeconds: 5,
@@ -231,7 +263,7 @@ describe('projectHitEffectsByCast', () => {
     const scenario = scenarioWithCast();
     const effects = projectHitEffectsByCast(
       scenario,
-      [damageEntry(1, 999)],
+      [damageEntry(1, 999, 'step:unknown')],
       'cast:1',
       markersForCast(scenario, 'cast:1'),
     );

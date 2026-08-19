@@ -7,7 +7,10 @@
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
 import type {
+  CompiledAbilityEntityChildSkillProgram,
   CompiledComboSkillRegistration,
+  ResolvedActionSequence,
+  ResolvedCombatStep,
   CompiledSkillProgram,
   CompiledSkillSlotGroup,
 } from './combatProgram';
@@ -32,6 +35,91 @@ import {
   resolveEffectiveSkillDefinition,
   type ResolvedSkillDefinition,
 } from './resolveSkillDefinition';
+import { deriveHitId } from '../combat/timeline/deriveHitId';
+
+function bindChildSkillHitIds(
+  childSkill: CompiledAbilityEntityChildSkillProgram,
+  castId: string,
+): CompiledAbilityEntityChildSkillProgram {
+  return {
+    ...childSkill,
+    timelineActions: childSkill.timelineActions.map(action => ({
+      ...action,
+      sequence: bindSequenceHitIds(action.sequence, castId),
+    })),
+  };
+}
+
+function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedCombatStep {
+  switch (step.kind) {
+    case 'dealDamage':
+    case 'dealFixedDamage':
+      return step.key === undefined ? step : { ...step, hitId: deriveHitId(castId, step.key) };
+    case 'conditional':
+      return {
+        ...step,
+        whenTrue: bindSequenceHitIds(step.whenTrue, castId),
+        ...(step.whenFalse === undefined
+          ? {}
+          : { whenFalse: bindSequenceHitIds(step.whenFalse, castId) }),
+      };
+    case 'once':
+    case 'repeatEachTick':
+    case 'forEachContextTarget':
+      return { ...step, body: bindSequenceHitIds(step.body, castId) };
+    case 'spawnAbilityEntity': {
+      const childSkill = step.parameters.definition.childSkill;
+      if (childSkill === undefined) return step;
+      return {
+        ...step,
+        parameters: {
+          ...step.parameters,
+          definition: {
+            ...step.parameters.definition,
+            childSkill: bindChildSkillHitIds(childSkill, castId),
+          },
+        },
+      };
+    }
+    case 'startCurrentAbilityEntityChildSkill':
+      return {
+        ...step,
+        parameters: {
+          childSkill: bindChildSkillHitIds(step.parameters.childSkill, castId),
+        },
+      };
+    case 'listenForCombatEvents':
+      return {
+        ...step,
+        parameters: {
+          responses: step.parameters.responses.map(response => ({
+            ...response,
+            sequence: bindSequenceHitIds(response.sequence, castId),
+          })),
+        },
+      };
+    default:
+      return step;
+  }
+}
+
+function bindSequenceHitIds(
+  sequence: ResolvedActionSequence,
+  castId: string,
+): ResolvedActionSequence {
+  return { steps: sequence.steps.map(step => bindStepHitIds(step, castId)) };
+}
+
+function bindProgramHitIds(program: CompiledSkillProgram, castId: string): CompiledSkillProgram {
+  return {
+    ...program,
+    castId,
+    timelineActions: program.timelineActions.map(action => ({
+      ...action,
+      sequence: bindSequenceHitIds(action.sequence, castId),
+    })),
+  };
+}
 
 /** 场景时间轴进入运行时装配前的纯编译结果，不包含任何可变战斗状态。 */
 export interface CompiledScenarioTimeline {
@@ -114,16 +202,18 @@ function compileCastSkillPrograms(
 ): readonly CompiledSkillProgram[] {
   const definition = resolved.definition;
   const definitions = [definition, ...(resolved.group.replacementSkills ?? [])];
-  return definitions.map(skill => ({
-    ...compileSkill({
-      operatorId: trackId,
-      skillGroupKey: resolved.group.key,
-      skillType: resolved.group.skillType,
-      skillLevel: level,
-      skill,
-    }),
-    castId: cast.id,
-  }));
+  return definitions.map(skill =>
+    bindProgramHitIds(
+      compileSkill({
+        operatorId: trackId,
+        skillGroupKey: resolved.group.key,
+        skillType: resolved.group.skillType,
+        skillLevel: level,
+        skill,
+      }),
+      cast.id,
+    ),
+  );
 }
 
 function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {

@@ -96,6 +96,38 @@ describe('projectCastHitMarkers', () => {
     expect(findCastHitMarker(cast, 'hit:missing', fixtureDef(cast))).toBeNull();
   });
 
+  it('collects ability-entity child hits with a local fallback offset', () => {
+    const cast = createCast([
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          abilityEntityId: 'ability:test',
+          dieWhenSourceDies: false,
+          inheritActionBlackboard: true,
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 1 },
+            childSkill: {
+              skillId: 'child',
+              scheduledSequences: [
+                {
+                  startFrame: 7,
+                  sequence: { steps: [damageStep('child-hit', 'child-hit')] },
+                },
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    expect(projectCastHitMarkers(cast, fixtureDef(cast))).toContainEqual({
+      hitId: deriveHitId('cast:1', 'child-hit'),
+      frameOffset: 17,
+      stepKey: 'child-hit',
+      conditional: false,
+    });
+  });
+
   it('空技能释放不产生命中标记', () => {
     const emptyCast = createCast([]);
     expect(projectCastHitMarkers(emptyCast, fixtureDef(emptyCast))).toEqual([]);

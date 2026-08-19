@@ -5,6 +5,7 @@ import { perlica } from '../../data/operators/perlica';
 import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import { compileScenarioTimeline } from './compileScenarioTimeline';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
+import { deriveHitId } from '../combat/timeline/deriveHitId';
 
 function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡编译样本');
@@ -196,6 +197,67 @@ describe('compileScenarioTimeline', () => {
     expect(program.skillId).toBe('battleSkill');
     expect(program.timelineBlockFrames).toBe(99);
     expect(program.costs).toEqual([{ resource: 'sp', value: 123 }]);
+  });
+
+  it('binds stable hit identities through root and ability-entity child sequences', () => {
+    const scenario = place(createScenario(), 'battleSkill', 60);
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    cast.customDefinition = {
+      key: 'battleSkill',
+      timelineBlockFrames: 30,
+      scheduledSequences: [
+        {
+          startFrame: 5,
+          sequence: {
+            steps: [
+              {
+                key: 'root-hit',
+                kind: 'dealDamage',
+                parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+              },
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  abilityEntityId: 'ability:test',
+                  dieWhenSourceDies: false,
+                  inheritActionBlackboard: true,
+                  definition: {
+                    lifetime: { kind: 'limited', durationSeconds: 1 },
+                    childSkill: {
+                      skillId: 'child',
+                      scheduledSequences: [
+                        {
+                          startFrame: 3,
+                          sequence: {
+                            steps: [
+                              {
+                                key: 'child-hit',
+                                kind: 'dealFixedDamage',
+                                parameters: { damageType: 'physical', value: 1, tags: [] },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skills[0]!;
+    const root = program.timelineActions[0]!.sequence.steps[0]!;
+    const spawn = program.timelineActions[0]!.sequence.steps[1]!;
+    expect(root.hitId).toBe(deriveHitId(cast.id, 'root-hit'));
+    expect(spawn.kind).toBe('spawnAbilityEntity');
+    if (spawn.kind !== 'spawnAbilityEntity') throw new Error('expected spawn step');
+    expect(
+      spawn.parameters.definition.childSkill?.timelineActions[0]?.sequence.steps[0]?.hitId,
+    ).toBe(deriveHitId(cast.id, 'child-hit'));
   });
 
   it('applies active operator upgrades after compiling a custom definition', () => {

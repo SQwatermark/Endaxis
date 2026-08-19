@@ -1,8 +1,8 @@
 /**
  * 算出一个技能块上的命中点画在哪、对应哪个命中。
  *
- * 位置只由存档决定（技能放在第几帧 + 序列从第几帧开始），和模拟结果无关；
- * 条件分支里的命中点会标记出来，由页面决定怎么显示。
+ * 本模块只从定义收集稳定身份与无运行结果时的局部回退偏移；实际位置由页面消费
+ * `DamageApplied(castId, hitId)` 回执。条件分支里的命中点会标记出来，由页面决定怎么显示。
  * 命中点来自调用方提供的 SkillDefinition（目录或自定义），投影层不再从存档快照读取。
  */
 import type {
@@ -64,6 +64,33 @@ function collectDamageSteps(
   if (step.kind === 'once') {
     for (const nested of step.body.steps)
       collectDamageSteps(nested, conditional, markers, cast, frameOffset);
+    return;
+  }
+  if (step.kind === 'repeatEachTick' || step.kind === 'forEachContextTarget') {
+    for (const nested of step.body.steps)
+      collectDamageSteps(nested, conditional, markers, cast, frameOffset);
+    return;
+  }
+  if (step.kind === 'listenForCombatEvents') {
+    for (const response of step.parameters.responses) {
+      for (const nested of response.sequence.steps) {
+        collectDamageSteps(nested, true, markers, cast, frameOffset);
+      }
+    }
+    return;
+  }
+  const childSkill =
+    step.kind === 'spawnAbilityEntity'
+      ? step.parameters.definition.childSkill
+      : step.kind === 'startCurrentAbilityEntityChildSkill'
+        ? step.parameters.childSkill
+        : undefined;
+  if (childSkill !== undefined) {
+    for (const scheduled of childSkill.scheduledSequences) {
+      for (const nested of scheduled.sequence.steps) {
+        collectDamageSteps(nested, conditional, markers, cast, frameOffset + scheduled.startFrame);
+      }
+    }
   }
 }
 

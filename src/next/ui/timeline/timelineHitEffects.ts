@@ -42,6 +42,20 @@ export interface TimelineHitEffectLabel {
   readonly reactions: readonly TimelineHitReactionEffect[];
 }
 
+/** 每个稳定命中身份首次实际执行的战斗帧；周期重复执行仍只对应定义中的一个标记。 */
+export function projectTimelineHitActualFrames(
+  entries: readonly CombatReceiptEntry[],
+): ReadonlyMap<string, number> {
+  const result = new Map<string, number>();
+  for (const receipt of projectHitDamageReceipts(entries)) {
+    if (receipt.castId === undefined || receipt.hitId === undefined || result.has(receipt.hitId)) {
+      continue;
+    }
+    result.set(receipt.hitId, receipt.frame);
+  }
+  return result;
+}
+
 /** 把一次释放的命中标记与回执事实归因；键为 `hitId`。 */
 export function projectHitEffectsByCast(
   scenario: ScenarioDocument,
@@ -64,27 +78,22 @@ export function projectHitEffectsByCast(
   }
   const operatorId = targetTrack.id;
   const damages = projectHitDamageReceipts(entries).filter(
-    receipt => receipt.sourceId === operatorId,
+    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
   const inflictions = projectHitInflictionReceipts(entries).filter(
-    receipt =>
-      receipt.sourceId === operatorId &&
-      targetCast.source.kind === 'operatorSkill' &&
-      receipt.skillId === targetCast.source.skillKey,
+    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
   const reactions = projectHitReactionReceipts(entries).filter(
-    receipt => receipt.sourceId === operatorId,
+    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
 
   const byHitId = new Map<string, TimelineHitEffectLabel>();
   for (const marker of markers) {
-    const absoluteFrame = targetCast.placement.startFrame + marker.frameOffset;
+    const matchingDamage = damages.filter(receipt => receipt.hitId === marker.hitId);
+    const absoluteFrame = matchingDamage[0]?.frame;
+    if (absoluteFrame === undefined) continue;
     const damage = damages
-      .filter(
-        receipt =>
-          receipt.frame === absoluteFrame &&
-          (marker.stepKey === undefined || receipt.stepKey === marker.stepKey),
-      )
+      .filter(receipt => receipt.hitId === marker.hitId && receipt.frame === absoluteFrame)
       .map(receipt => ({
         value: receipt.value,
         damageType: receipt.damageType,

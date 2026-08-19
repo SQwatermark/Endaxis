@@ -3,7 +3,7 @@
  * 把已保存的连线画到时间轴上。
  *
  * 只负责画，不改数据；连到命中点的线，端点按命中点实际位置算，不用技能块位置顶替。
- * 技能块宽度与命中标记来自父级传入的轨道视图模型，本组件不再读取存档定义。
+ * 技能块宽度与命中实际帧来自父级模拟投影；定义偏移只用于尚无回执的展示。
  */
 import { computed } from 'vue';
 import type {
@@ -40,6 +40,7 @@ const props = withDefaults(
     trackHeaderWidth: number;
     castActualStartFrames: ReadonlyMap<string, number>;
     castActualDurationFrames: ReadonlyMap<string, number>;
+    hitActualFrames: ReadonlyMap<string, number>;
     rulerHeight?: number;
     trackHeight?: number;
     actionTop?: number;
@@ -86,13 +87,18 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   if (endpoint.kind === 'damageHit') {
     const hit = found.skillCast.hitMarkers.find(marker => marker.stepKey === endpoint.stepKey);
     if (hit === undefined) return null;
+    const publishedStartFrame =
+      props.castActualStartFrames.get(found.skillCast.id) ?? found.skillCast.startFrame;
+    const actualOffset =
+      (props.hitActualFrames.get(hit.hitId) ?? publishedStartFrame + hit.frameOffset) -
+      publishedStartFrame;
     return {
       point: {
         x:
           props.trackHeaderWidth +
           frameToTimelinePx(
             resolveCastActualStartFrame(found.skillCast.id, found.skillCast.startFrame) +
-              hit.frameOffset,
+              actualOffset,
             props.scenario.battle.prepFrames,
             props.pxPerFrame,
           ),

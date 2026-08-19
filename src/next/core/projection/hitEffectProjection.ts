@@ -18,6 +18,8 @@ export interface HitDamageReceipt {
   readonly isCritical: boolean;
   /** 定义步骤稳定键；缺失时只能按帧与来源归因。 */
   readonly stepKey?: string;
+  readonly castId?: string;
+  readonly hitId?: string;
 }
 
 /** 一次元素附着事实。 */
@@ -28,6 +30,7 @@ export interface HitInflictionReceipt {
   readonly sourceId: string;
   readonly targetId: string;
   readonly skillId: string;
+  readonly castId?: string;
   readonly element: string;
   readonly outcomeKind: string;
   readonly currentLayers: number;
@@ -41,6 +44,7 @@ export interface HitReactionReceipt {
   readonly sourceId: string;
   readonly targetId: string;
   readonly reaction: string;
+  readonly castId?: string;
   readonly applied: boolean;
   /** 消费回执中表示是否真的消费成功；施加回执恒为 true。 */
   readonly consumed: boolean;
@@ -110,6 +114,8 @@ function readDamagePoint(entry: CombatReceiptEntry): HitDamageReceipt {
     throw new Error(`receipt ${entry.sequence} 'DamageApplied' has no boolean isCritical`);
   }
   const stepKey = readOptionalString(entry, data, 'stepKey');
+  const castId = readOptionalString(entry, data, 'castId');
+  const hitId = readOptionalString(entry, data, 'hitId');
   return {
     frame: entry.frame,
     time: entry.time,
@@ -121,6 +127,8 @@ function readDamagePoint(entry: CombatReceiptEntry): HitDamageReceipt {
     actualDamage: requireNumber(entry, data, 'actualDamage'),
     isCritical: data.isCritical,
     ...(stepKey === undefined ? {} : { stepKey }),
+    ...(castId === undefined ? {} : { castId }),
+    ...(hitId === undefined ? {} : { hitId }),
   };
 }
 
@@ -128,6 +136,7 @@ function readInflictionPoint(entry: CombatReceiptEntry): HitInflictionReceipt {
   const data = requireData(entry);
   const element = data.requestedElement;
   const outcomeKind = data.outcomeKind;
+  const castId = readOptionalString(entry, data, 'castId');
   if (typeof element !== 'string' || element.length === 0) {
     throw new Error(`receipt ${entry.sequence} 'ElementalInflictionApplied' has no element`);
   }
@@ -141,6 +150,7 @@ function readInflictionPoint(entry: CombatReceiptEntry): HitInflictionReceipt {
     sourceId: requireIdentity(entry, 'sourceId'),
     targetId: requireIdentity(entry, 'targetId'),
     skillId: readOptionalString(entry, data, 'skillId') ?? '',
+    ...(castId === undefined ? {} : { castId }),
     element,
     outcomeKind,
     currentLayers: requireNumber(entry, data, 'currentLayers'),
@@ -155,6 +165,7 @@ function readReactionPoint(entry: CombatReceiptEntry): HitReactionReceipt {
   }
   const applied = entry.event === 'ElementalReactionApplied';
   const consumed = applied ? true : requireBoolean(entry, data, 'consumed');
+  const castId = readOptionalString(entry, data, 'castId');
   return {
     frame: entry.frame,
     time: entry.time,
@@ -162,6 +173,7 @@ function readReactionPoint(entry: CombatReceiptEntry): HitReactionReceipt {
     sourceId: requireIdentity(entry, 'sourceId'),
     targetId: requireIdentity(entry, 'targetId'),
     reaction,
+    ...(castId === undefined ? {} : { castId }),
     applied,
     consumed,
     level: requireNumber(entry, data, 'level'),

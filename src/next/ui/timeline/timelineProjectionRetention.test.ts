@@ -30,6 +30,7 @@ describe('Next timeline simulation projection retention', () => {
     );
 
     expect(hitProjection).toContain('const current = simulationRun.value');
+    expect(hitProjection).toContain('projectTimelineHitActualFrames');
     expect(hitProjection).not.toContain('simulationStale.value');
   });
 

@@ -31,7 +31,12 @@ describe('projectHitDamageReceipts', () => {
         event: 'DamageApplied',
         sourceId: 'perlica',
         targetId: 'enemy',
-        data: { ...baseDamage, stepKey: 'step:damage' },
+        data: {
+          ...baseDamage,
+          stepKey: 'step:damage',
+          castId: 'cast:1',
+          hitId: 'hit:1',
+        },
       },
       {
         sequence: 2,
@@ -55,6 +60,8 @@ describe('projectHitDamageReceipts', () => {
         actualDamage: 95,
         isCritical: false,
         stepKey: 'step:damage',
+        castId: 'cast:1',
+        hitId: 'hit:1',
       },
       {
         frame: 20,
@@ -99,6 +106,7 @@ describe('projectHitInflictionReceipts', () => {
         targetId: 'enemy',
         data: {
           skillId: 'battleSkill',
+          castId: 'cast:1',
           requestedElement: 'electric',
           isExtra: false,
           previousElement: null,
@@ -117,6 +125,7 @@ describe('projectHitInflictionReceipts', () => {
       element: 'electric',
       outcomeKind: 'attachmentOnly',
       currentLayers: 1,
+      castId: 'cast:1',
     });
   });
 });
@@ -146,6 +155,7 @@ describe('projectHitReactionReceipts', () => {
         targetId: 'enemy',
         data: {
           reaction: 'electrification',
+          castId: 'cast:1',
           previousLevel: 0,
           level: 1,
           durationSeconds: 5,
@@ -170,6 +180,7 @@ describe('projectHitReactionReceipts', () => {
         sourceId: 'perlica',
         targetId: 'enemy',
         reaction: 'electrification',
+        castId: 'cast:1',
         applied: true,
         consumed: true,
         level: 1,
