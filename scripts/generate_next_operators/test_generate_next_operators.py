@@ -6015,6 +6015,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'caster'", result)
         self.assertIn("buffIds: ['buff.example.sword']", result)
 
+    def test_buff_owner_query_uses_the_actual_buff_host(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckBuffStackNum",
+            buffStack=SimpleNamespace(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Id",
+                buffIds=("buff.example.potential",),
+                buffTagIds=(),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+                tagQueryType="hasAny",
+            ),
+        )
+
+        caster = compile_combat_condition_group(
+            (condition,),
+            "fixture.caster",
+            buff_owner_target="caster",
+        )
+        enemy = compile_combat_condition_group(
+            (condition,),
+            "fixture.enemy",
+            buff_owner_target="enemy",
+        )
+
+        self.assertIn("kind: 'buffIdStackCompare'", caster)
+        self.assertIn("target: 'caster'", caster)
+        self.assertIn("target: 'enemy'", enemy)
+
     def test_buff_query_kind_is_independent_from_the_resolved_target(self) -> None:
         caster_tag = SimpleNamespace(
             sourceType="CheckBuffStackNumAdvanced",

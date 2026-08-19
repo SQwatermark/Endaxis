@@ -591,6 +591,12 @@ def compile_combat_condition(
                 and buff.targetSource == "Owner"
                 and not buff.targetGroupKey
             )
+            else buff_owner_target
+            if (
+                buff.targetSource == "Owner"
+                and not buff.targetGroupKey
+                and buff_owner_target is not None
+            )
             else resolve_fixed_combat_target(
                 buff.targetSource,
                 buff.targetGroupKey,

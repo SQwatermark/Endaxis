@@ -306,6 +306,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - Endministrator 潜能 5 已按完整事件型附着 Buff 生成：战技/终结技施加 `buff_chr_0003_endminf_potential5_trigger` 后，常驻监听器用精确 Buff ID 条件命中，并分别对 `chr_0003_endminf_combo_skill` 与 `chr_0002_endminm_combo_skill` 的当前剩余冷却扣除 2 秒。运行时 `absoluteSeconds` 操作按 30fps 转成 60 帧并最低归零，不修改基础周期；该链不依赖敌方主动行为或外部事件。
 - Estella 潜能 5 已从未建模槽位转为常驻 Buff：`DuringBuffEnable` 的 GlobalAura 在固定零空间模型中给唯一敌人挂载 `buff_chr_0021_whiten_potential_5_inaura`，并用 `finishByAction` 句柄随父 Buff 停用/结束精确释放。子 Buff 监听敌人成功收到 Buff 的事件，按原生标签 `1535684437` 和 1 秒标记限频，给潜能来源干员回复 5 点终结技能量。事件回调里的直接 `CheckTimedMarkerCondition` 已纳入顺序守卫，Arcane、Da Pan、Last Rite 的同形状产物也随全量生成纠正；Buff 内 `Owner` 标记严格映射到实际宿主。`addedBuff` 负载现统一包含 Buff ID、applyTags、来源和宿主，元素附着适配器直接写容器时也不再绕过事件。AKEDB 证明 `buff_common_cryst_cryst_frozen_triggered_do` 携带该标签，但当前版本化元素定义尚未纳入这条冻结状态创建链，所以不能凭空构造生产场景的最后一跳；现有回归覆盖严格生成、Aura 句柄生命周期、标签条件和资源响应结构。
 - 本批门禁：生成器 Python 规则测试 352/352、manifest 全量生成与 `--check`、全干员审计、`npm run type-check:next`、Next Vitest 178 文件 1144/1144、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
+- 后续横向复核补齐了 Buff 层数条件的宿主解析：生命周期中的 `CheckBuffStackNum*` 遇到 plain `Owner` 时，与标签条件、定时标记和动作目标一致解析为实际 Buff 宿主，而不是退回根技能目标；施法者与敌方宿主均有生成器回归。秋栗潜能 5 的严格试编译证明其槽位形状是“终结技黑板补丁 + 常驻标记 Buff”，但实际收益继续依赖天赋 2 创建的全局 `global_buff_combo_trigger`（连击 / Link）及后续消费机制，不能误作 `openComboWindow`；洁尔佩塔天赋 1 还缺职业过滤全队 Aura 和动态终结技回能倍率，达坂天赋 1 还缺公共破防 Buff 消费事件与真实消费层数。三项试接均已撤回，正式生成物与完成度统计不变。本轮门禁为 Python 353/353、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1144/1144、`git diff --check`。
 
 ## 8. 恢复工作清单
 
