@@ -26,6 +26,8 @@ const props = defineProps<{
   visible: boolean;
   gears: GearSlotsViewModel;
   customDefinitionSlugs: readonly string[];
+  gearSetNames: Readonly<Record<string, string>>;
+  gearSetTextSlugs: Readonly<Record<string, string>>;
 }>();
 
 const emit = defineEmits<{
@@ -111,7 +113,10 @@ const slots = computed(() =>
       name:
         definition.displayName ??
         getGearPieceGameName(definition.assetSlug ?? definition.slug, locale.value),
-      setName: gearSetSlug === '' ? '' : getGearSetGameName(gearSetSlug, locale.value),
+      setName:
+        gearSetSlug === ''
+          ? ''
+          : (props.gearSetNames[gearSetSlug] ?? getGearSetGameName(gearSetSlug, locale.value)),
       slotTypeName: getGameSlotTypeName(definition.slotType, locale.value),
       levelColor: getEquipmentLevelColor(definition.levelRequirement),
       isArtificable: isEquipmentArtificable(definition.levelRequirement),
@@ -129,14 +134,17 @@ const activeSetBonuses = computed(() => {
   }
   return [...counts.entries()].flatMap(([setSlug, equippedCount]) => {
     if (equippedCount < SET_BONUS_REQUIRED_COUNT) return [];
-    const description = getGearSetGameDescription(setSlug, locale.value);
+    const description = getGearSetGameDescription(
+      props.gearSetTextSlugs[setSlug] ?? setSlug,
+      locale.value,
+    );
     if (description === null) return [];
     return [
       {
         setSlug,
         equippedCount,
         description,
-        setName: getGearSetGameName(setSlug, locale.value),
+        setName: props.gearSetNames[setSlug] ?? getGearSetGameName(setSlug, locale.value),
       },
     ];
   });

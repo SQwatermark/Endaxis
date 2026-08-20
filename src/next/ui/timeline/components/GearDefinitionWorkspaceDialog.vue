@@ -13,6 +13,7 @@ const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [definition: GearDefinition];
   reset: [];
+  'edit-gear-set': [definition: GearDefinition];
 }>();
 
 const draft = ref<GearDefinition>(clone(props.customDefinition));
@@ -72,6 +73,11 @@ function save(): void {
   if (issues.value.length > 0) return;
   emit('save', clone(draft.value));
   emit('update:visible', false);
+}
+
+function editGearSet(): void {
+  if (issues.value.length > 0 || draft.value.gearSetSlug === undefined) return;
+  emit('edit-gear-set', clone(draft.value));
 }
 </script>
 
@@ -152,6 +158,20 @@ function save(): void {
                 <option v-for="id in gearSetIds" :key="id" :value="id">{{ id }}</option>
               </select></label
             >
+          </div>
+          <div class="nested-action">
+            <button
+              class="ea-btn ea-btn--sm ea-btn--glass-rect"
+              :disabled="draft.gearSetSlug === undefined || issues.length > 0"
+              @click="editGearSet"
+            >
+              {{
+                draft.gearSetSlug?.startsWith('project:gearSet:')
+                  ? '编辑套装定义'
+                  : '自定义当前套装'
+              }}
+            </button>
+            <small>进入套装模板前会先保存当前装备草稿。</small>
           </div>
         </section>
 
@@ -324,6 +344,15 @@ select {
   gap: 8px;
   flex-wrap: wrap;
   padding: 14px;
+}
+.nested-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+.nested-action small {
+  color: var(--ea-fg-muted);
 }
 .contribution-summary > span {
   padding: 4px 7px;

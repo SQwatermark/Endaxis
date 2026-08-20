@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   getEnemyGameName,
   getGearPieceGameName,
+  getGearSetGameName,
   getOperatorCombatSkillName,
   getOperatorGameName,
   getWeaponGameName,
@@ -13,6 +14,7 @@ import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
 import GearDefinitionWorkspaceDialog from './components/GearDefinitionWorkspaceDialog.vue';
+import GearSetDefinitionWorkspaceDialog from './components/GearSetDefinitionWorkspaceDialog.vue';
 import NextOperatorPanelDialog from './components/NextOperatorPanelDialog.vue';
 import NextOperatorBuildDialog from './components/NextOperatorBuildDialog.vue';
 import OperatorDefinitionWorkspaceDialog from './components/OperatorDefinitionWorkspaceDialog.vue';
@@ -55,10 +57,12 @@ import {
 import {
   allocateProjectTemplateId,
   deriveProjectGearTemplate,
+  deriveProjectGearSetTemplate,
   deriveProjectOperatorTemplate,
   deriveProjectWeaponTemplate,
   getProjectDefinitionLibrary,
   replaceProjectGearTemplateDefinition,
+  replaceProjectGearSetTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleOperatorTemplate,
   switchTrackToCompatibleGearTemplate,
@@ -71,7 +75,11 @@ import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
-import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
+import type {
+  GearDefinition,
+  GearSetDefinition,
+  WeaponDefinition,
+} from '../../core/game-data/equipmentDefinition';
 import { placeSkillGroup } from './placeSkillGroup';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
@@ -168,6 +176,7 @@ const showSkillDefinitionEditor = ref(false);
 const showOperatorDefinitionWorkspace = ref(false);
 const showWeaponDefinitionWorkspace = ref(false);
 const gearDefinitionWorkspaceSlot = ref<TrackGearSlot | null>(null);
+const gearSetDefinitionWorkspaceId = ref<string | null>(null);
 const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
   operators: {},
   weapons: {},
@@ -334,6 +343,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     showOperatorDefinitionWorkspace.value = false;
     showWeaponDefinitionWorkspace.value = false;
     gearDefinitionWorkspaceSlot.value = null;
+    gearSetDefinitionWorkspaceId.value = null;
     projectSession.replaceProject(result.project);
     savedProjectSnapshot.value = result.project;
     projectDirty.value = false;
@@ -526,6 +536,34 @@ const selectedGearCustomDefinition = computed(() => {
 });
 const customGearDefinitionSlugs = computed(() => Object.keys(projectDefinitionLibrary.value.gears));
 const gearSetIds = computed(() => editorGameDataRepository.getGearSets().map(value => value.slug));
+const gearSetNames = computed<Readonly<Record<string, string>>>(() =>
+  Object.fromEntries(
+    editorGameDataRepository
+      .getGearSets()
+      .map(definition => [
+        definition.slug,
+        definition.displayName ?? getGearSetGameName(definition.slug, locale.value),
+      ]),
+  ),
+);
+const gearSetTextSlugs = computed<Readonly<Record<string, string>>>(() =>
+  Object.fromEntries(
+    Object.values(projectDefinitionLibrary.value.gearSets).map(template => [
+      template.id,
+      template.origin?.templateId ?? template.id,
+    ]),
+  ),
+);
+const selectedGearSetCustomDefinition = computed(() => {
+  const id = gearSetDefinitionWorkspaceId.value;
+  return id === null ? undefined : projectDefinitionLibrary.value.gearSets[id]?.definition;
+});
+const selectedGearSetBaseDefinition = computed(() => {
+  const id = gearSetDefinitionWorkspaceId.value;
+  if (id === null) return null;
+  const template = projectDefinitionLibrary.value.gearSets[id];
+  return nextGameDataRepository.getGearSet(template?.origin?.templateId ?? id);
+});
 
 function openOperatorDefinitionWorkspace(): void {
   const track = scenario.value.tracks[selectedTrack.value];
@@ -746,6 +784,79 @@ function resetGearDefinition(): void {
     replaceProjectGearTemplateDefinition(project, slug, definition),
   );
   gearDefinitionWorkspaceSlot.value = null;
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function openGearSetDefinitionWorkspace(gearDefinition: GearDefinition): void {
+  const sourceSetId = gearDefinition.gearSetSlug;
+  const gearTemplate = projectDefinitionLibrary.value.gears[gearDefinition.slug];
+  if (sourceSetId === undefined || gearTemplate === undefined) return;
+
+  const existingSet = projectDefinitionLibrary.value.gearSets[sourceSetId];
+  if (existingSet !== undefined) {
+    projectSession.commit('saveProjectGearBeforeEditingSet', project =>
+      replaceProjectGearTemplateDefinition(project, gearDefinition.slug, gearDefinition),
+    );
+    gearDefinitionWorkspaceSlot.value = null;
+    gearSetDefinitionWorkspaceId.value = sourceSetId;
+    simulationService.clearCache();
+    void simulateNow();
+    return;
+  }
+
+  const baseSet = nextGameDataRepository.getGearSet(sourceSetId);
+  if (baseSet === null) {
+    ElMessage.error(`找不到套装定义：${sourceSetId}`);
+    return;
+  }
+  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'gearSet');
+  const displayName = `${getGearSetGameName(sourceSetId, locale.value)}（自定义）`;
+  const changed = projectSession.commit('deriveProjectGearSetTemplate', project => {
+    let nextProject = replaceProjectGearTemplateDefinition(
+      project,
+      gearDefinition.slug,
+      gearDefinition,
+    );
+    nextProject = deriveProjectGearSetTemplate(nextProject, {
+      id: templateId,
+      name: displayName,
+      baseTemplateId: sourceSetId,
+      definition: baseSet,
+    });
+    return replaceProjectGearTemplateDefinition(nextProject, gearDefinition.slug, {
+      ...gearDefinition,
+      gearSetSlug: templateId,
+    });
+  });
+  if (!changed) return;
+  gearDefinitionWorkspaceSlot.value = null;
+  gearSetDefinitionWorkspaceId.value = templateId;
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function saveGearSetDefinition(definition: GearSetDefinition): void {
+  projectSession.commit('saveProjectGearSetTemplate', project =>
+    replaceProjectGearSetTemplateDefinition(project, definition.slug, definition),
+  );
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function resetGearSetDefinition(): void {
+  const id = gearSetDefinitionWorkspaceId.value;
+  const base = selectedGearSetBaseDefinition.value;
+  const template = id === null ? undefined : projectDefinitionLibrary.value.gearSets[id];
+  if (id === null || base === null || template === undefined) return;
+  projectSession.commit('resetProjectGearSetTemplate', project =>
+    replaceProjectGearSetTemplateDefinition(project, id, {
+      ...structuredClone(base),
+      slug: id,
+      displayName: template.name,
+    }),
+  );
+  gearSetDefinitionWorkspaceId.value = null;
   simulationService.clearCache();
   void simulateNow();
 }
@@ -1816,6 +1927,7 @@ const hasModalPanel = computed(
     showOperatorDefinitionWorkspace.value ||
     showWeaponDefinitionWorkspace.value ||
     gearDefinitionWorkspaceSlot.value !== null ||
+    gearSetDefinitionWorkspaceId.value !== null ||
     showSkillDefinitionEditor.value ||
     showWeaponBuildDialog.value ||
     showGearBuildDialog.value ||
@@ -2408,6 +2520,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :selected-slug="selectedGearSlug"
     :selected-artificing-levels="selectedGearBuild?.artificingLevels ?? []"
     :active-slot-key="gearDialogTarget?.slot ?? 'armor'"
+    :gear-set-names="gearSetNames"
     :labels="{
       title: t('timelineGrid.equipmentDialog.title', {
         slot: t(`timelineGrid.equipmentSlot.${gearDialogTarget?.slot ?? 'armor'}`),
@@ -2465,6 +2578,8 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="showGearBuildDialog"
     :gears="selectedLoadoutModel.gears"
     :custom-definition-slugs="customGearDefinitionSlugs"
+    :gear-set-names="gearSetNames"
+    :gear-set-text-slugs="gearSetTextSlugs"
     @update:visible="showGearBuildDialog = $event"
     @update="updateGearBuild"
     @edit-definition="openGearDefinitionWorkspace"
@@ -2478,6 +2593,16 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="gearDefinitionWorkspaceSlot = $event ? gearDefinitionWorkspaceSlot : null"
     @save="saveGearDefinition"
     @reset="resetGearDefinition"
+    @edit-gear-set="openGearSetDefinitionWorkspace"
+  />
+  <GearSetDefinitionWorkspaceDialog
+    v-if="selectedGearSetBaseDefinition && selectedGearSetCustomDefinition"
+    :visible="gearSetDefinitionWorkspaceId !== null"
+    :base-definition="selectedGearSetBaseDefinition"
+    :custom-definition="selectedGearSetCustomDefinition"
+    @update:visible="gearSetDefinitionWorkspaceId = $event ? gearSetDefinitionWorkspaceId : null"
+    @save="saveGearSetDefinition"
+    @reset="resetGearSetDefinition"
   />
   <NextOperatorPanelDialog
     :visible="panelDialogTrack !== null"

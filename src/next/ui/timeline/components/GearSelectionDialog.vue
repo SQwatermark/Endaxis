@@ -33,11 +33,13 @@ const props = withDefaults(
     selectedArtificingLevels?: readonly number[];
     /** 当前槽位由父层指定，两个配件槽仍保留各自的稳定身份。 */
     activeSlotKey?: string;
+    gearSetNames?: Readonly<Record<string, string>>;
     labels: GearSelectionDialogLabels;
   }>(),
   {
     selectedArtificingLevels: () => [],
     activeSlotKey: 'armor',
+    gearSetNames: () => ({}),
   },
 );
 
@@ -106,7 +108,9 @@ const gearItems = computed<readonly GearListItem[]>(() =>
       definition,
       name: definition.displayName ?? getGearPieceGameName(assetSlug, locale.value),
       gearSetSlug,
-      gearSetName: gearSetSlug ? getGearSetGameName(gearSetSlug, locale.value) : props.labels.noSet,
+      gearSetName: gearSetSlug
+        ? (props.gearSetNames[gearSetSlug] ?? getGearSetGameName(gearSetSlug, locale.value))
+        : props.labels.noSet,
       isPartial: gearSupport?.completeness === 'partial' || setSupport?.completeness === 'partial',
       supportSummary: [
         ...new Set(issues.map(issue => `${issue.sourceKind}.${issue.path}: ${issue.message}`)),

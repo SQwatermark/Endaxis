@@ -14,12 +14,14 @@ import {
   createProjectGameDataRepository,
   deriveProjectGearTemplate,
   deriveProjectGearSetTemplateInLibrary,
+  deriveProjectGearSetTemplate,
   deriveProjectGearTemplateInLibrary,
   deriveProjectOperatorTemplate,
   deriveProjectWeaponTemplate,
   deriveProjectWeaponTemplateInLibrary,
   getProjectDefinitionLibrary,
   replaceProjectGearTemplateDefinition,
+  replaceProjectGearSetTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleGearTemplate,
   switchTrackToCompatibleOperatorTemplate,
@@ -235,6 +237,30 @@ describe('projectDefinitionLibrary', () => {
     expect(replacedGear?.artificingLevels[0]).toBe(1);
     expect(replacedGear?.artificingLevels).toHaveLength(custom.traits.length);
     expect(getProjectDefinitionLibrary(replaced).gears[custom.slug]?.name).toBe('调整后的装备');
+  });
+
+  it('materializes and replaces a project gear set without rewriting gear references implicitly', () => {
+    const gearSet = sharedGearSetDefinitions[0]!;
+    const project = deriveProjectGearSetTemplate(
+      createEmptyProject({ createdWith: 'test', gameDataRevision: 'definitions:test' }),
+      {
+        id: 'project:gearSet:1',
+        name: '自定义套装',
+        baseTemplateId: gearSet.slug,
+        definition: gearSet,
+      },
+    );
+    const custom = getProjectDefinitionLibrary(project).gearSets['project:gearSet:1']!.definition;
+    const replaced = replaceProjectGearSetTemplateDefinition(project, custom.slug, {
+      ...custom,
+      displayName: '调整后的套装',
+    });
+
+    expect(getProjectDefinitionLibrary(replaced).gearSets[custom.slug]).toMatchObject({
+      name: '调整后的套装',
+      definition: { slug: custom.slug, displayName: '调整后的套装' },
+    });
+    expect(replaced.scenarios).toBe(project.scenarios);
   });
 
   it('switches a track to a freshly derived compatible template without changing casts', () => {

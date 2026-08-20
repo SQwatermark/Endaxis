@@ -226,6 +226,20 @@ export function deriveProjectGearTemplate(
   };
 }
 
+export function deriveProjectGearSetTemplate(
+  project: EndaxisProjectDocument,
+  input: DeriveEquipmentTemplateInput<GearSetDefinition>,
+): EndaxisProjectDocument {
+  return {
+    ...project,
+    definitionLibrary: deriveProjectGearSetTemplateInLibrary(
+      getProjectDefinitionLibrary(project),
+      project.gameDataRevision,
+      input,
+    ),
+  };
+}
+
 function collectSkillIdentities(definition: OperatorDefinition): ReadonlySet<string> {
   const identities = new Set<string>();
   for (const group of definition.skillGroups) {
@@ -410,6 +424,35 @@ export function replaceProjectGearTemplateDefinition(
         return changed ? { ...track, gears } : track;
       }) as ScenarioDocument['tracks'],
     })),
+  };
+}
+
+export function replaceProjectGearSetTemplateDefinition(
+  project: EndaxisProjectDocument,
+  templateId: string,
+  definition: GearSetDefinition,
+): EndaxisProjectDocument {
+  const library = getProjectDefinitionLibrary(project);
+  const template = library.gearSets[templateId];
+  if (template === undefined) throw new Error(`missing project gear set template '${templateId}'`);
+  if (definition.slug !== templateId) {
+    throw new Error(
+      `project gear set definition slug '${definition.slug}' does not match template '${templateId}'`,
+    );
+  }
+  return {
+    ...project,
+    definitionLibrary: {
+      ...library,
+      gearSets: {
+        ...library.gearSets,
+        [templateId]: {
+          ...template,
+          name: definition.displayName?.trim() || template.name,
+          definition: clone(definition),
+        },
+      },
+    },
   };
 }
 
