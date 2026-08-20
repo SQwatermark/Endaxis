@@ -299,6 +299,31 @@ function stepNode(
         ),
       ),
     );
+  } else if (step.kind === 'jumpTimeline') {
+    children.push(
+      step.parameters.condition === undefined
+        ? {
+            id: `${id}:condition`,
+            label: '跳转条件',
+            kind: '可选条件',
+            summary: '未设置',
+            sourcePath: `${sourcePath}.parameters.condition`,
+            details: {},
+            editorSection,
+            children: [],
+            canAddChild: 'combatCondition',
+            relationToParent: 'port',
+          }
+        : conditionNode(
+            step.parameters.condition,
+            `${id}:condition`,
+            `${sourcePath}.parameters.condition`,
+            '跳转条件',
+            editorSection,
+            true,
+            false,
+          ),
+    );
   }
 
   const parameters = step.parameters as Readonly<Record<string, unknown>>;

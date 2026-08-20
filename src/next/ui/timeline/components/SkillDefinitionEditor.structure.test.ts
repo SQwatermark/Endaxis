@@ -209,6 +209,19 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffGraphEditorSource).toContain("await selectPath('scheduledSequences')");
   });
 
+  it('Buff 内部条件与监听响应具备正式导图编辑操作', () => {
+    expect(buffGraphEditorSource).toContain('selectedCombatCondition');
+    expect(buffGraphEditorSource).toContain('selectedEventResponse');
+    expect(buffGraphEditorSource).toContain('CombatConditionTypePicker');
+    expect(buffGraphEditorSource).toContain('CombatConditionEditor');
+    expect(buffGraphEditorSource).toContain('CombatEventResponseInspector');
+    expect(buffGraphEditorSource).toContain('appendCondition');
+    expect(buffGraphEditorSource).toContain('appendEventResponse');
+    expect(buffGraphEditorSource).toContain("node.payloadKind === 'combatCondition'");
+    expect(buffGraphEditorSource).toContain("node.payloadKind === 'eventResponse'");
+    expect(buffGraphEditorSource).toContain('runtimeSequences');
+  });
+
   it('固定结构字段使用端口关系的连线与节点轮廓', () => {
     expect(structureMapSource).toContain("node.relationToParent === 'port'");
     expect(structureMapSource).toContain('固定字段端口');

@@ -69,6 +69,17 @@ describe('skillStructureMindMapModel', () => {
                   ],
                 },
               },
+              {
+                kind: 'jumpTimeline',
+                parameters: { destinationFrame: 18 },
+              },
+              {
+                kind: 'jumpTimeline',
+                parameters: {
+                  destinationFrame: 19,
+                  condition: { kind: 'casterControlled' },
+                },
+              },
             ],
           },
         },
@@ -120,6 +131,12 @@ describe('skillStructureMindMapModel', () => {
       'scheduledSequences[0].sequence.steps[1].parameters.responses[0].sequence.steps[0]',
     );
     expect(nodes.get('sequence:0:step:1:response:1')?.canAddChild).toBe('combatCondition');
+    expect(nodes.get('sequence:0:step:2:condition')?.canAddChild).toBe('combatCondition');
+    expect(nodes.get('sequence:0:step:2:condition')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[2].parameters.condition',
+    );
+    expect(nodes.get('sequence:0:step:3:condition')?.payloadKind).toBe('combatCondition');
+    expect(nodes.get('sequence:0:step:3:condition')?.canDelete).toBe(true);
     expect(nodes.get('skill:handlers')?.canAddChild).toBe('skillEventHandler');
     expect(nodes.get('skill:handler:0')?.sourcePath).toBe('eventHandlers[0]');
     expect(nodes.get('skill:handler:0:condition')?.sourcePath).toBe('eventHandlers[0].condition');
