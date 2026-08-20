@@ -44,7 +44,8 @@ type StructureOperationNode = {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -52,7 +53,8 @@ type StructureOperationNode = {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
 };
 
 const props = defineProps<{

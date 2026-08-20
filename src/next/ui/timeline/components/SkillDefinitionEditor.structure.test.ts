@@ -10,6 +10,7 @@ import stepTypePickerSource from './StepTypePicker.vue?raw';
 import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import responseInspectorSource from './CombatEventResponseInspector.vue?raw';
+import skillHandlerInspectorSource from './SkillEventHandlerInspector.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
@@ -143,6 +144,15 @@ describe('SkillDefinitionEditor structure', () => {
     expect(responseInspectorSource).not.toContain('ActionSequenceEditor');
     expect(stepEditorSource).toContain('v-if="!inspectorOnly"');
     expect(stepEditorSource).toContain('事件响应在左侧导图中添加和选择');
+  });
+
+  it('技能顶层事件处理器通过导图编辑条件与调度序列', () => {
+    expect(editorSource).toContain('selectedSkillEventHandler');
+    expect(editorSource).toContain('appendSkillEventHandler');
+    expect(editorSource).toContain('createSkillEventHandlerDraft');
+    expect(editorSource).toContain('SkillEventHandlerInspector');
+    expect(skillHandlerInspectorSource).toContain('CombatEventTriggerEditor');
+    expect(skillHandlerInspectorSource).not.toContain('ScheduledSequenceEditor');
   });
 
   it('顶层与递归步骤参数都提供统一折叠入口', () => {

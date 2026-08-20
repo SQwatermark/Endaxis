@@ -52,7 +52,8 @@ type ContributionPayloadKind =
   | 'equipmentModifier'
   | 'equipmentHandler'
   | 'combatCondition'
-  | 'eventResponse';
+  | 'eventResponse'
+  | 'skillEventHandler';
 interface ContributionOperationNode {
   readonly id: string;
   readonly sourcePath: string;
@@ -138,6 +139,7 @@ function beginAdd(
       | 'equipmentHandler'
       | 'combatCondition'
       | 'eventResponse'
+      | 'skillEventHandler'
       | 'sequence'
       | 'lifecycle'
       | 'childSkill';

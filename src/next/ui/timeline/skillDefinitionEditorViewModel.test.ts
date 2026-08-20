@@ -10,6 +10,7 @@ import {
   createSkillEditorDraft,
   createSkillEditorStep,
   createCombatEventResponseDraft,
+  createSkillEventHandlerDraft,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorStep,
   duplicateSkillEditorSequence,
@@ -179,6 +180,14 @@ describe('skillDefinitionEditorViewModel', () => {
       key: 'event-response-4',
       event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
       sequence: { steps: [] },
+    });
+  });
+
+  it('creates a valid skill event handler with a unique key and required sequence', () => {
+    expect(createSkillEventHandlerDraft(['skill-event-handler-2'])).toEqual({
+      key: 'skill-event-handler-3',
+      event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
     });
   });
   it('新建能力实体步骤只提供待选择的干员级蓝图引用', () => {

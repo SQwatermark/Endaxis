@@ -3,6 +3,7 @@ import type {
   AbilityEntityDefinition,
   CombatCondition,
   CombatEventResponseDefinition,
+  CombatEventHandlerDefinition,
   CombatStepDefinition,
   ScheduledSequenceDefinition,
   SkillBuffDefinition,
@@ -30,7 +31,8 @@ export interface SkillStructureNode {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -38,7 +40,8 @@ export interface SkillStructureNode {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -46,7 +49,8 @@ export interface SkillStructureNode {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
 }
@@ -320,27 +324,113 @@ function scheduledSequenceNode(
   index: number,
   sequenceLabel: string,
 ): SkillStructureNode {
+  return scheduledSequenceNodeAtPath(
+    sequence,
+    `sequence:${index}`,
+    `scheduledSequences[${index}]`,
+    `${sequenceLabel} ${index + 1}`,
+    index,
+  );
+}
+
+function scheduledSequenceNodeAtPath(
+  sequence: ScheduledSequenceDefinition,
+  id: string,
+  sourcePath: string,
+  label: string,
+  editorSection: number,
+  canDelete = true,
+  canMove = true,
+): SkillStructureNode {
   const range =
     sequence.endFrame === undefined
       ? `第 ${sequence.startFrame} 帧`
       : `第 ${sequence.startFrame}–${sequence.endFrame} 帧`;
   const node = sequenceNode(
     sequence.sequence,
-    `sequence:${index}`,
-    `${sequenceLabel} ${index + 1}`,
-    `scheduledSequences[${index}].sequence`,
+    id,
+    label,
+    `${sourcePath}.sequence`,
     `${range} · ${sequence.sequence.steps.length} 个直属步骤`,
-    index,
+    editorSection,
   );
   return {
     ...node,
-    sourcePath: `scheduledSequences[${index}]`,
+    sourcePath,
     payloadKind: 'scheduledSequence',
+    canDelete,
+    canMove,
     details: {
       开始帧: sequence.startFrame,
       结束帧: sequence.endFrame ?? '—',
       直属步骤数: sequence.sequence.steps.length,
     },
+  };
+}
+
+function skillEventHandlerNode(
+  handler: CombatEventHandlerDefinition,
+  index: number,
+  handlerCount: number,
+): SkillStructureNode {
+  const id = `skill:handler:${index}`;
+  const sourcePath = `eventHandlers[${index}]`;
+  return {
+    id,
+    label: handler.key,
+    kind: '技能事件响应',
+    summary: handler.event.kind,
+    sourcePath,
+    details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
+    editorSection: 'overview',
+    payloadKind: 'skillEventHandler',
+    canDelete: true,
+    canMove: handlerCount > 1,
+    children: [
+      handler.condition === undefined
+        ? {
+            id: `${id}:condition`,
+            label: '响应条件',
+            kind: '可选条件',
+            summary: '未设置',
+            sourcePath: `${sourcePath}.condition`,
+            details: {},
+            editorSection: 'overview',
+            children: [],
+            canAddChild: 'combatCondition',
+          }
+        : conditionNode(
+            handler.condition,
+            `${id}:condition`,
+            `${sourcePath}.condition`,
+            '响应条件',
+            'overview',
+            true,
+            false,
+          ),
+      {
+        id: `${id}:sequences`,
+        label: '响应调度序列',
+        kind: '序列分组',
+        summary: `${handler.scheduledSequences.length} 条`,
+        sourcePath: `${sourcePath}.scheduledSequences`,
+        details: { 数量: handler.scheduledSequences.length },
+        editorSection: 'overview',
+        canAddChild: 'sequence',
+        acceptsChildKind: 'scheduledSequence',
+        children: handler.scheduledSequences.map((sequence, sequenceIndex) =>
+          scheduledSequenceNodeAtPath(
+            sequence,
+            `${id}:sequence:${sequenceIndex}`,
+            `${sourcePath}.scheduledSequences[${sequenceIndex}]`,
+            `响应序列 ${sequenceIndex + 1}`,
+            0,
+            handler.scheduledSequences.length > 1,
+            handler.scheduledSequences.length > 1,
+          ),
+        ),
+      },
+    ],
   };
 }
 
@@ -355,11 +445,12 @@ export function buildSkillStructureMindMap(
   const sequences = skill.scheduledSequences.map((sequence, index) =>
     scheduledSequenceNode(sequence, index, labels.sequence),
   );
+  const handlers = skill.eventHandlers ?? [];
   return {
     id: 'skill',
     label: skill.key,
     kind: '技能定义',
-    summary: `${skill.timelineBlockFrames} 帧 · ${sequences.length} 条时间序列`,
+    summary: `${skill.timelineBlockFrames} 帧 · ${sequences.length} 条时间序列 · ${handlers.length} 个事件响应`,
     sourcePath: '',
     details: {
       时间轴宽度帧: skill.timelineBlockFrames,
@@ -399,6 +490,20 @@ export function buildSkillStructureMindMap(
             true,
             false,
           ),
+      {
+        id: 'skill:handlers',
+        label: '技能事件响应',
+        kind: '结构分组',
+        summary: `${handlers.length} 项`,
+        sourcePath: 'eventHandlers',
+        details: { 数量: handlers.length },
+        editorSection: 'overview',
+        canAddChild: 'skillEventHandler',
+        acceptsChildKind: 'skillEventHandler',
+        children: handlers.map((handler, index) =>
+          skillEventHandlerNode(handler, index, handlers.length),
+        ),
+      },
       ...sequences,
     ],
     canAddChild: 'sequence',

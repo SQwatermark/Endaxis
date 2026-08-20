@@ -25,7 +25,8 @@ interface MapNodeSource {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -33,7 +34,8 @@ interface MapNodeSource {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -41,7 +43,8 @@ interface MapNodeSource {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
 }
@@ -161,6 +164,7 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'equipmentHandler') return '事件响应';
   if (props.clipboardKind === 'combatCondition') return '战斗条件';
   if (props.clipboardKind === 'eventResponse') return '事件响应';
+  if (props.clipboardKind === 'skillEventHandler') return '技能事件响应';
   return '';
 });
 

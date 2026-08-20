@@ -11,6 +11,7 @@ import type {
   CombatStepDefinition,
   CombatStepKind,
   CombatEventResponseDefinition,
+  CombatEventHandlerDefinition,
   LevelValues,
   ScheduledSequenceDefinition,
   SkillDefinition,
@@ -27,6 +28,19 @@ export function createCombatEventResponseDraft(
     key,
     event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
     sequence: { steps: [] },
+  };
+}
+
+export function createSkillEventHandlerDraft(
+  existingKeys: readonly string[] = [],
+): CombatEventHandlerDefinition {
+  let index = existingKeys.length + 1;
+  let key = `skill-event-handler-${index}`;
+  while (existingKeys.includes(key)) key = `skill-event-handler-${++index}`;
+  return {
+    key,
+    event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+    scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
   };
 }
 

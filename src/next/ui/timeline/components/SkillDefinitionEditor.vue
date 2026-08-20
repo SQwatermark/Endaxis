@@ -14,6 +14,7 @@ import {
   COMBAT_RESOURCES,
   type CombatCondition,
   type CombatEventResponseDefinition,
+  type CombatEventHandlerDefinition,
   type CombatResource,
   type CombatStepDefinition,
   type ScheduledSequenceDefinition,
@@ -29,6 +30,7 @@ import {
   createSkillEditorDraft,
   createSkillEditorStep,
   createCombatEventResponseDraft,
+  createSkillEventHandlerDraft,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorSequence,
   moveSkillEditorSequence,
@@ -62,6 +64,7 @@ import CombatStepEditor from './CombatStepEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
+import SkillEventHandlerInspector from './SkillEventHandlerInspector.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
@@ -78,7 +81,8 @@ type StructureOperationNode = {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -86,7 +90,8 @@ type StructureOperationNode = {
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
-    | 'eventResponse';
+    | 'eventResponse'
+    | 'skillEventHandler';
 };
 
 const props = defineProps<{
@@ -145,6 +150,7 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
   | { readonly kind: 'eventResponse'; readonly value: CombatEventResponseDefinition }
+  | { readonly kind: 'skillEventHandler'; readonly value: CombatEventHandlerDefinition }
 >();
 const structureUndoStack = shallowRef<SkillDefinition[]>([]);
 const structureRedoStack = shallowRef<SkillDefinition[]>([]);
@@ -169,14 +175,18 @@ const selectedStructureNode = computed(() =>
   structureNodeIndex.value.get(selectedStructureNodeId.value),
 );
 const selectedScheduledSequenceIndex = computed(() => {
-  const match = /^sequence:(\d+)$/.exec(selectedStructureNodeId.value);
+  const match = /scheduledSequences\[(\d+)\]$/.exec(selectedStructureSourcePath.value);
   return match === null ? undefined : Number(match[1]);
 });
 const selectedScheduledSequence = computed(() =>
-  selectedScheduledSequenceIndex.value === undefined
-    ? undefined
-    : draft.value.scheduledSequences[selectedScheduledSequenceIndex.value],
+  selectedStructureNode.value?.payloadKind === 'scheduledSequence'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as ScheduledSequenceDefinition)
+    : undefined,
 );
+const selectedRootSequence = computed(() => /^sequence:\d+$/.test(selectedStructureNodeId.value));
 const selectedCombatStep = computed(() =>
   selectedStructureNode.value?.kind === '战斗步骤'
     ? (resolveSkillStructureValue(
@@ -196,6 +206,14 @@ const selectedEventResponse = computed(() =>
         draft.value,
         selectedStructureSourcePath.value,
       ) as CombatEventResponseDefinition)
+    : undefined,
+);
+const selectedSkillEventHandler = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'skillEventHandler'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as CombatEventHandlerDefinition)
     : undefined,
 );
 
@@ -306,13 +324,14 @@ function beginAddChild(
       | 'equipmentModifier'
       | 'equipmentHandler'
       | 'combatCondition'
-      | 'eventResponse';
+      | 'eventResponse'
+      | 'skillEventHandler';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {
   selectStructureNode(node);
   if (node.canAddChild === 'sequence') {
-    appendSequence();
+    void appendSequence(node.sourcePath);
     return;
   }
   if (node.canAddChild === 'combatCondition') {
@@ -325,10 +344,25 @@ function beginAddChild(
     void appendEventResponse(node.sourcePath);
     return;
   }
+  if (node.canAddChild === 'skillEventHandler') {
+    void appendSkillEventHandler();
+    return;
+  }
   if (node.canAddChild !== 'step') return;
   pendingStepTargetPath.value = node.sourcePath;
   insertAnchor.value = { ...anchor };
   stepPickerKey.value += 1;
+}
+
+async function appendSkillEventHandler(): Promise<void> {
+  const handlers = draft.value.eventHandlers ?? [];
+  const result = insertStructureArrayItem(
+    draft.value,
+    'eventHandlers',
+    createSkillEventHandlerDraft(handlers.map(handler => handler.key)),
+  );
+  commitStructureDraft(result.root);
+  await selectStructurePath(result.itemPath);
 }
 
 async function appendEventResponse(stepPath: string): Promise<void> {
@@ -350,7 +384,7 @@ async function appendConditionToPendingTarget(condition: CombatCondition): Promi
   const targetPath = pendingConditionTargetPath.value;
   if (targetPath === '') return;
   const target = resolveStructureValue(draft.value, targetPath) as
-    CombatCondition | CombatEventResponseDefinition | undefined;
+    CombatCondition | CombatEventResponseDefinition | CombatEventHandlerDefinition | undefined;
   if (
     target !== undefined &&
     'kind' in target &&
@@ -396,10 +430,10 @@ async function revealValidationIssue(issue: ValidationIssue): Promise<void> {
 function replaceSelectedSequence(
   sequence: NonNullable<SkillDefinition['scheduledSequences'][number]>,
 ): void {
-  if (typeof selectedSection.value !== 'number') return;
-  const scheduledSequences = [...draft.value.scheduledSequences];
-  scheduledSequences[selectedSection.value] = sequence;
-  draft.value = { ...draft.value, scheduledSequences };
+  if (selectedScheduledSequence.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, sequence),
+  );
 }
 
 function setSelectedSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): void {
@@ -435,6 +469,13 @@ function replaceSelectedEventResponse(response: CombatEventResponseDefinition): 
   );
 }
 
+function replaceSelectedSkillEventHandler(handler: CombatEventHandlerDefinition): void {
+  if (selectedSkillEventHandler.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, handler),
+  );
+}
+
 async function moveSelectedCombatStep(offset: -1 | 1): Promise<void> {
   if (selectedCombatStep.value === undefined) return;
   const result = moveCombatStepAtPath(draft.value, selectedStructureSourcePath.value, offset);
@@ -462,16 +503,24 @@ async function removeSelectedCombatStep(): Promise<void> {
 
 function childArrayPath(
   node: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse',
+  kind:
+    'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse' | 'skillEventHandler',
 ): string | undefined {
   if (kind === 'scheduledSequence') {
-    return node.acceptsChildKind === kind ? 'scheduledSequences' : undefined;
+    return node.acceptsChildKind === kind
+      ? node.sourcePath === ''
+        ? 'scheduledSequences'
+        : node.sourcePath
+      : undefined;
   }
   if (kind === 'combatCondition') {
     return node.acceptsChildKind === kind ? `${node.sourcePath}.conditions` : undefined;
   }
   if (kind === 'eventResponse') {
     return node.acceptsChildKind === kind ? `${node.sourcePath}.parameters.responses` : undefined;
+  }
+  if (kind === 'skillEventHandler') {
+    return node.acceptsChildKind === kind ? 'eventHandlers' : undefined;
   }
   if (node.acceptsChildKind !== kind) return undefined;
   return node.payloadKind === 'scheduledSequence'
@@ -481,7 +530,8 @@ function childArrayPath(
 
 function insertionTarget(
   target: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse',
+  kind:
+    'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse' | 'skillEventHandler',
   placement: 'inside' | 'before' | 'after',
 ): { readonly arrayPath: string; readonly index?: number } | undefined {
   if (placement === 'inside') {
@@ -506,7 +556,8 @@ async function moveStructureNode(operation: {
     kind !== 'combatStep' &&
     kind !== 'scheduledSequence' &&
     kind !== 'combatCondition' &&
-    kind !== 'eventResponse'
+    kind !== 'eventResponse' &&
+    kind !== 'skillEventHandler'
   )
     return;
   if (kind === 'combatCondition') {
@@ -569,6 +620,13 @@ async function runStructureNodeAction(
           resolveStructureValue(draft.value, node.sourcePath) as CombatEventResponseDefinition,
         ),
       };
+    } else if (node.payloadKind === 'skillEventHandler') {
+      structureClipboard.value = {
+        kind: 'skillEventHandler',
+        value: cloneStructureValue(
+          resolveStructureValue(draft.value, node.sourcePath) as CombatEventHandlerDefinition,
+        ),
+      };
     }
     return;
   }
@@ -584,7 +642,8 @@ async function runStructureNodeAction(
       }
       if (
         node.sourcePath !== 'availability' &&
-        !/\.parameters\.responses\[\d+\]\.condition$/.test(node.sourcePath)
+        !/\.parameters\.responses\[\d+\]\.condition$/.test(node.sourcePath) &&
+        !/^eventHandlers\[\d+\]\.condition$/.test(node.sourcePath)
       )
         return;
       commitStructureDraft(deleteStructureValueAtPath(draft.value, node.sourcePath));
@@ -598,6 +657,11 @@ async function runStructureNodeAction(
       if (siblings.length <= 1) return;
       commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
       await selectStructurePath(responses[1]!.replace(/\.parameters\.responses$/, ''));
+      return;
+    }
+    if (node.payloadKind === 'skillEventHandler') {
+      commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
+      await selectStructurePath('eventHandlers');
       return;
     }
     const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|scheduledSequences\[\d+\]$/, '');
@@ -632,17 +696,37 @@ async function runStructureNodeAction(
                 steps: clipboard.value.sequence.steps.map(duplicateNestedStep),
               },
             }
-          : cloneStructureValue(clipboard.value);
+          : clipboard.kind === 'skillEventHandler'
+            ? {
+                ...cloneStructureValue(clipboard.value),
+                key: createSkillEventHandlerDraft(
+                  (draft.value.eventHandlers ?? []).map(handler => handler.key),
+                ).key,
+                scheduledSequences: clipboard.value.scheduledSequences.map(sequence => ({
+                  ...sequence,
+                  sequence: { steps: sequence.sequence.steps.map(duplicateNestedStep) },
+                })),
+              }
+            : cloneStructureValue(clipboard.value);
   const result = insertStructureArrayItem(draft.value, arrayPath, value);
   commitStructureDraft(result.root);
   await selectStructurePath(result.itemPath);
 }
 
-function appendSequence(): void {
-  commitStructureDraft(appendSkillEditorSequence(draft.value));
-  selectedSection.value = draft.value.scheduledSequences.length - 1;
-  selectedStructureNodeId.value = `sequence:${selectedSection.value}`;
-  selectedStructureSourcePath.value = `scheduledSequences[${selectedSection.value}]`;
+async function appendSequence(targetPath = ''): Promise<void> {
+  if (targetPath === '') {
+    const next = appendSkillEditorSequence(draft.value);
+    const index = next.scheduledSequences.length - 1;
+    commitStructureDraft(next);
+    await selectStructurePath(`scheduledSequences[${index}]`);
+    return;
+  }
+  const result = insertStructureArrayItem(draft.value, targetPath, {
+    startFrame: 0,
+    sequence: { steps: [] },
+  } satisfies ScheduledSequenceDefinition);
+  commitStructureDraft(result.root);
+  await selectStructurePath(result.itemPath);
 }
 
 function moveSequence(offset: -1 | 1): void {
@@ -893,6 +977,12 @@ function reset(): void {
           @update="replaceSelectedEventResponse"
         />
 
+        <SkillEventHandlerInspector
+          v-else-if="selectedSkillEventHandler"
+          :handler="selectedSkillEventHandler"
+          @update="replaceSelectedSkillEventHandler"
+        />
+
         <section
           v-else-if="selectedSection === 'availability'"
           class="editor-section node-inspector"
@@ -912,7 +1002,7 @@ function reset(): void {
               <span>动作序列</span>
               <strong>{{ `${labels.sequence} ${selectedScheduledSequenceIndex! + 1}` }}</strong>
             </div>
-            <div class="node-inspector__toolbar">
+            <div v-if="selectedRootSequence" class="node-inspector__toolbar">
               <button
                 type="button"
                 class="icon-button"

@@ -18,6 +18,19 @@ describe('skillStructureMindMapModel', () => {
         kind: 'any',
         conditions: [{ kind: 'combatActive' }, { kind: 'casterControlled' }],
       },
+      eventHandlers: [
+        {
+          key: 'after-hit',
+          event: { kind: 'skillHit', skillGroupKey: 'battleSkill', scope: 'operator' },
+          condition: { kind: 'combatActive' },
+          scheduledSequences: [
+            {
+              startFrame: 2,
+              sequence: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+            },
+          ],
+        },
+      ],
       scheduledSequences: [
         {
           startFrame: 5,
@@ -72,6 +85,7 @@ describe('skillStructureMindMapModel', () => {
     expect(root.children.map(node => node.label)).toEqual([
       'Blackboard',
       'Availability',
+      '技能事件响应',
       'Sequence 1',
     ]);
     expect(nodes.get('sequence:0')?.editorSection).toBe(0);
@@ -106,6 +120,14 @@ describe('skillStructureMindMapModel', () => {
       'scheduledSequences[0].sequence.steps[1].parameters.responses[0].sequence.steps[0]',
     );
     expect(nodes.get('sequence:0:step:1:response:1')?.canAddChild).toBe('combatCondition');
+    expect(nodes.get('skill:handlers')?.canAddChild).toBe('skillEventHandler');
+    expect(nodes.get('skill:handler:0')?.sourcePath).toBe('eventHandlers[0]');
+    expect(nodes.get('skill:handler:0:condition')?.sourcePath).toBe('eventHandlers[0].condition');
+    expect(nodes.get('skill:handler:0:sequences')?.canAddChild).toBe('sequence');
+    expect(nodes.get('skill:handler:0:sequence:0')?.sourcePath).toBe(
+      'eventHandlers[0].scheduledSequences[0]',
+    );
+    expect(nodes.get('skill:handler:0:sequence:0')?.canDelete).toBe(false);
     expect(nodes.get('sequence:0:step:0:true:step:0')?.reference).toEqual({
       kind: 'entity',
       id: 'entity.test',
