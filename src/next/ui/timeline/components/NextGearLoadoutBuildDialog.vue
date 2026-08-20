@@ -25,11 +25,13 @@ import type {
 const props = defineProps<{
   visible: boolean;
   gears: GearSlotsViewModel;
+  customDefinitionSlugs: readonly string[];
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   update: [slot: LoadoutGearSlot, artificingLevels: readonly number[]];
+  'edit-definition': [slot: LoadoutGearSlot];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -106,7 +108,9 @@ const slots = computed(() =>
     return {
       ...config,
       build,
-      name: getGearPieceGameName(definition.slug, locale.value),
+      name:
+        definition.displayName ??
+        getGearPieceGameName(definition.assetSlug ?? definition.slug, locale.value),
       setName: gearSetSlug === '' ? '' : getGearSetGameName(gearSetSlug, locale.value),
       slotTypeName: getGameSlotTypeName(definition.slotType, locale.value),
       levelColor: getEquipmentLevelColor(definition.levelRequirement),
@@ -210,6 +214,15 @@ const activeSetBonuses = computed(() => {
               {{ t('actionLibrary.hints.noRefineNonGold') }}
             </span>
           </div>
+          <button
+            type="button"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect definition-button"
+            @click="emit('edit-definition', slot.slot)"
+          >
+            {{
+              customDefinitionSlugs.includes(slot.build.gearSlug) ? '编辑装备定义' : '自定义装备'
+            }}
+          </button>
         </template>
 
         <div v-else class="empty-slot">
@@ -285,6 +298,10 @@ const activeSetBonuses = computed(() => {
 .refine-row {
   display: flex;
   align-items: center;
+}
+
+.definition-button {
+  align-self: flex-end;
 }
 
 .slot-head {

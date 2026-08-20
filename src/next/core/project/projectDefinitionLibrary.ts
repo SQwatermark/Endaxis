@@ -10,6 +10,7 @@ import type {
   ProjectDefinitionLibraryDocument,
   ProjectOperatorTemplateDocument,
   ScenarioDocument,
+  TrackDocument,
   TrackIndex,
 } from './schema';
 
@@ -211,6 +212,20 @@ export function deriveProjectWeaponTemplate(
   };
 }
 
+export function deriveProjectGearTemplate(
+  project: EndaxisProjectDocument,
+  input: DeriveEquipmentTemplateInput<GearDefinition>,
+): EndaxisProjectDocument {
+  return {
+    ...project,
+    definitionLibrary: deriveProjectGearTemplateInLibrary(
+      getProjectDefinitionLibrary(project),
+      project.gameDataRevision,
+      input,
+    ),
+  };
+}
+
 function collectSkillIdentities(definition: OperatorDefinition): ReadonlySet<string> {
   const identities = new Set<string>();
   for (const group of definition.skillGroups) {
@@ -316,6 +331,83 @@ export function replaceProjectWeaponTemplateDefinition(
             ),
           },
         };
+      }) as ScenarioDocument['tracks'],
+    })),
+  };
+}
+
+/** A derived gear template preserves the selected slot and its artificing state. */
+export function switchTrackToCompatibleGearTemplate(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  slot: keyof TrackDocument['gears'],
+  nextTemplateId: string,
+  nextDefinition: GearDefinition,
+): ScenarioDocument {
+  const track = scenario.tracks[trackIndex];
+  const gear = track?.gears[slot];
+  if (track === null || gear == null)
+    throw new Error(`track ${trackIndex} slot '${slot}' has no gear`);
+  if (gear.artificingLevels.length !== nextDefinition.traits.length) {
+    throw new Error(
+      `gear template '${nextTemplateId}' cannot preserve ${gear.artificingLevels.length} artificing levels with ${nextDefinition.traits.length} traits`,
+    );
+  }
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = {
+    ...track,
+    gears: { ...track.gears, [slot]: { ...gear, gearSlug: nextTemplateId } },
+  };
+  return { ...scenario, tracks };
+}
+
+/** Replace one materialized gear definition and normalize every referencing slot. */
+export function replaceProjectGearTemplateDefinition(
+  project: EndaxisProjectDocument,
+  templateId: string,
+  definition: GearDefinition,
+): EndaxisProjectDocument {
+  const library = getProjectDefinitionLibrary(project);
+  const template = library.gears[templateId];
+  if (template === undefined) throw new Error(`missing project gear template '${templateId}'`);
+  if (definition.slug !== templateId) {
+    throw new Error(
+      `project gear definition slug '${definition.slug}' does not match template '${templateId}'`,
+    );
+  }
+  const nextDefinition = clone(definition);
+  const slots = ['armor', 'gloves', 'accessory1', 'accessory2'] as const;
+  return {
+    ...project,
+    definitionLibrary: {
+      ...library,
+      gears: {
+        ...library.gears,
+        [templateId]: {
+          ...template,
+          name: definition.displayName?.trim() || template.name,
+          definition: nextDefinition,
+        },
+      },
+    },
+    scenarios: project.scenarios.map(scenario => ({
+      ...scenario,
+      tracks: scenario.tracks.map(track => {
+        if (track === null) return track;
+        let changed = false;
+        const gears = { ...track.gears };
+        for (const slot of slots) {
+          const gear = track.gears[slot];
+          if (gear?.gearSlug !== templateId) continue;
+          changed = true;
+          gears[slot] = {
+            ...gear,
+            artificingLevels: nextDefinition.traits.map((trait, index) =>
+              Math.min(Math.max(gear.artificingLevels[index] ?? 0, 0), trait.levelCount - 1),
+            ),
+          };
+        }
+        return changed ? { ...track, gears } : track;
       }) as ScenarioDocument['tracks'],
     })),
   };

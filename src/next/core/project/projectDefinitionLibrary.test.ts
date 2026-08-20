@@ -12,13 +12,16 @@ import { parseProjectDocument, serializeProjectDocument } from './serialization'
 import {
   allocateProjectTemplateId,
   createProjectGameDataRepository,
+  deriveProjectGearTemplate,
   deriveProjectGearSetTemplateInLibrary,
   deriveProjectGearTemplateInLibrary,
   deriveProjectOperatorTemplate,
   deriveProjectWeaponTemplate,
   deriveProjectWeaponTemplateInLibrary,
   getProjectDefinitionLibrary,
+  replaceProjectGearTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
+  switchTrackToCompatibleGearTemplate,
   switchTrackToCompatibleOperatorTemplate,
   switchTrackToCompatibleWeaponTemplate,
 } from './projectDefinitionLibrary';
@@ -184,6 +187,54 @@ describe('projectDefinitionLibrary', () => {
 
     expect(getProjectDefinitionLibrary(replaced).weapons[custom.slug]?.name).toBe('调整后的武器');
     expect(replaced.scenarios[0]?.tracks[0]?.weapon?.traitLevels[0]).toBe(2);
+  });
+
+  it('derives, switches and replaces a project gear template across referencing slots', () => {
+    const gear = sharedGearDefinitions[0]!;
+    const project = deriveProjectGearTemplate(
+      createEmptyProject({ createdWith: 'test', gameDataRevision: 'definitions:test' }),
+      {
+        id: 'project:gear:1',
+        name: '自定义装备',
+        baseTemplateId: gear.slug,
+        definition: gear,
+      },
+    );
+    const scenario = createEmptyScenario('scenario', 'Scenario');
+    scenario.tracks[0] = {
+      id: 'track:gear',
+      operator: operatorInstance(perlica.slug),
+      weapon: null,
+      gears: {
+        armor: { gearSlug: gear.slug, artificingLevels: gear.traits.map(() => 3) },
+        gloves: null,
+        accessory1: null,
+        accessory2: null,
+      },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const custom = getProjectDefinitionLibrary(project).gears['project:gear:1']!.definition;
+    const switched = switchTrackToCompatibleGearTemplate(scenario, 0, 'armor', custom.slug, custom);
+    const replacement = {
+      ...custom,
+      displayName: '调整后的装备',
+      traits: custom.traits.map((trait, index) => ({
+        ...trait,
+        levelCount: index === 0 ? 2 : trait.levelCount,
+      })),
+    };
+    const replaced = replaceProjectGearTemplateDefinition(
+      { ...project, scenarios: [switched] },
+      custom.slug,
+      replacement,
+    );
+
+    const replacedGear = replaced.scenarios[0]?.tracks[0]?.gears.armor;
+    expect(replacedGear?.gearSlug).toBe(custom.slug);
+    expect(replacedGear?.artificingLevels[0]).toBe(1);
+    expect(replacedGear?.artificingLevels).toHaveLength(custom.traits.length);
+    expect(getProjectDefinitionLibrary(replaced).gears[custom.slug]?.name).toBe('调整后的装备');
   });
 
   it('switches a track to a freshly derived compatible template without changing casts', () => {
