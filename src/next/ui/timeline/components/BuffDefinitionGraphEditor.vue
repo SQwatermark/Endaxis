@@ -423,6 +423,7 @@ async function deleteCurrent(): Promise<void> {
   min-width: 0;
   padding: 14px;
   overflow: auto;
+  container-type: inline-size;
   border-left: 1px solid var(--ea-border-soft);
   background: var(--ea-workbench-panel);
 }
@@ -476,6 +477,13 @@ button {
   border: 1px solid var(--ea-border);
   background: var(--ea-fill-input);
   color: var(--ea-fg);
+}
+@container (max-width: 420px) {
+  .node-card header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-block: 8px;
+  }
 }
 @media (max-width: 980px) {
   .definition-graph-editor {

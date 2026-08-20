@@ -193,6 +193,11 @@ describe('SkillDefinitionEditor structure', () => {
     expect(stepEditorSource).toContain('@container (max-width: 560px)');
     expect(stepEditorSource).toContain('grid-template-columns: minmax(88px, 112px) minmax(0, 1fr)');
     expect(stepEditorSource).not.toContain('@media (max-width: 1120px)');
+    for (const source of [buffGraphEditorSource, abilityEntityGraphEditorSource]) {
+      expect(source).toContain('container-type: inline-size');
+      expect(source).toContain('@container (max-width: 420px)');
+    }
+    expect(editorSource).toContain('@media (max-width: 820px)');
   });
 
   it('高价值步骤编辑器使用的翻译在三种语言中齐全', () => {

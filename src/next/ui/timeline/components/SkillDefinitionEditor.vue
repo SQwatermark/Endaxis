@@ -885,12 +885,15 @@ function reset(): void {
   gap: 16px;
   padding: 0 16px;
   border-bottom: 1px solid var(--ea-border-soft);
+  flex-wrap: wrap;
 }
 
 .skill-editor__header > div:first-child {
+  min-width: 0;
   display: flex;
   align-items: baseline;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .skill-editor__header strong {
@@ -904,9 +907,12 @@ function reset(): void {
 }
 
 .skill-editor__status {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .skill-editor__status span:first-child {
@@ -1212,6 +1218,8 @@ function reset(): void {
   border-top: 1px solid var(--ea-border-soft);
   color: var(--ea-fg-muted);
   font-size: 11px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .skill-editor__footer-status {
@@ -1275,6 +1283,7 @@ function reset(): void {
 .skill-editor__actions {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .skill-editor__button {
@@ -1330,6 +1339,29 @@ function reset(): void {
     align-items: flex-start;
     flex-direction: column;
     padding: 9px 10px;
+  }
+}
+
+@media (max-width: 820px) {
+  .skill-editor__workspace {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .skill-editor__map {
+    min-height: 380px;
+    border-right: 0;
+    border-bottom: 1px solid var(--ea-border-soft);
+  }
+
+  .skill-editor__detail {
+    overflow: visible;
+  }
+
+  .validation-issues ul {
+    left: auto;
+    right: 0;
+    width: min(520px, calc(100vw - 48px));
   }
 }
 </style>
