@@ -5,9 +5,15 @@ import type {
   AbilityEntityDefinition,
   CombatStepDefinition,
   OperatorAbilityEntityDefinitions,
+  OperatorDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { validateAbilityEntityDefinition } from '../../../core/game-data/validateSkillDefinition';
 import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
+import {
+  collectOperatorDefinitionReferences,
+  referencesToDefinition,
+  type OperatorDefinitionReference,
+} from '../operatorDefinitionReferences';
 import AbilityEntityDefinitionGraphEditor from './AbilityEntityDefinitionGraphEditor.vue';
 
 type SpawnAbilityEntityStep = Extract<
@@ -22,10 +28,12 @@ const props = defineProps<{
   commonDefinitions?: OperatorAbilityEntityDefinitions;
   skillLevel: number;
   initialSelectedId?: string;
+  operatorDefinition?: OperatorDefinition;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [definitions: OperatorAbilityEntityDefinitions];
+  'reveal-reference': [reference: OperatorDefinitionReference];
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
@@ -72,6 +80,17 @@ const validationIssues = computed(() =>
   Object.entries(draft.value).flatMap(([id, definition]) =>
     validateAbilityEntityDefinition(definition, `abilityEntityDefinitions['${id}']`),
   ),
+);
+const definitionReferences = computed(() =>
+  props.operatorDefinition === undefined
+    ? []
+    : collectOperatorDefinitionReferences({
+        ...props.operatorDefinition,
+        abilityEntityDefinitions: mergedDefinitions.value,
+      }),
+);
+const selectedReferences = computed(() =>
+  referencesToDefinition(definitionReferences.value, 'entity', selectedId.value),
 );
 
 watch(
@@ -138,10 +157,20 @@ function duplicateDefinition(): void {
 function removeOrResetDefinition(): void {
   const id = selectedId.value;
   if (draft.value[id] === undefined) return;
+  if (props.baseDefinitions[id] === undefined && selectedReferences.value.length > 0) return;
   const next = { ...draft.value };
   delete next[id];
   draft.value = next;
   if (props.baseDefinitions[id] === undefined) selectedId.value = operatorIds.value[0] ?? '';
+}
+
+function revealReference(reference: OperatorDefinitionReference): void {
+  if (reference.ownerKind === 'entity') {
+    selectedId.value = reference.ownerId;
+    filterText.value = '';
+    return;
+  }
+  emit('reveal-reference', reference);
 }
 
 function save(): void {
@@ -234,6 +263,12 @@ function save(): void {
               v-if="selectedIsOverride"
               type="button"
               class="ea-btn ea-btn--sm"
+              :disabled="!selectedIsBase && selectedReferences.length > 0"
+              :title="
+                !selectedIsBase && selectedReferences.length > 0
+                  ? `仍有 ${selectedReferences.length} 处引用，不能删除`
+                  : undefined
+              "
               @click="removeOrResetDefinition"
             >
               {{
@@ -241,6 +276,19 @@ function save(): void {
                   ? t('nextTimeline.skillEditing.resetAbilityEntityObject')
                   : t('nextTimeline.skillEditing.deleteAbilityEntityObject')
               }}
+            </button>
+          </div>
+          <div v-if="!selectedIsBase && selectedReferences.length" class="entity-reference-guard">
+            <strong>仍有 {{ selectedReferences.length }} 处引用</strong>
+            <span>先修改这些使用点，能力实体定义才可以删除。</span>
+            <button
+              v-for="reference in selectedReferences"
+              :key="reference.path"
+              type="button"
+              @click="revealReference(reference)"
+            >
+              <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
+              <code>{{ reference.path }}</code>
             </button>
           </div>
           <div class="entity-workspace__scroll">
@@ -427,6 +475,37 @@ function save(): void {
 .entity-workspace__error {
   margin-right: auto;
   color: var(--el-color-danger);
+}
+.entity-reference-guard {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px 12px;
+  border-bottom: 1px solid color-mix(in srgb, #e5a43b 50%, var(--ea-border-soft));
+  background: color-mix(in srgb, #e5a43b 8%, var(--ea-workbench-panel));
+}
+.entity-reference-guard strong {
+  color: #e5b96d;
+  font-size: 12px;
+}
+.entity-reference-guard span,
+.entity-reference-guard code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ea-fg-muted);
+  font-size: 10px;
+}
+.entity-reference-guard button {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--ea-border-soft);
+  background: var(--ea-fill-input, #16161a);
+  color: var(--ea-fg);
+  text-align: left;
+  cursor: pointer;
 }
 @media (max-width: 760px) {
   .entity-workspace {

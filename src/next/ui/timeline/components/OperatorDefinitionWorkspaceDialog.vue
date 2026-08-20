@@ -12,6 +12,11 @@ import {
 } from '../../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
 import type { ValidationIssue } from '../../../core/project/validation';
+import {
+  collectOperatorDefinitionReferences,
+  referencesToDefinition,
+  type OperatorDefinitionReference,
+} from '../operatorDefinitionReferences';
 import AbilityEntityDefinitionsDialog from './AbilityEntityDefinitionsDialog.vue';
 import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 import SkillDefinitionEditorDialog from './SkillDefinitionEditorDialog.vue';
@@ -103,6 +108,10 @@ const draftIssues = computed<readonly ValidationIssue[]>(() =>
       validateSkillDefinition(skill, `skillGroups[${groupIndex}].skills[${skillIndex}]`),
     ),
   ),
+);
+const definitionReferences = computed(() => collectOperatorDefinitionReferences(draft.value));
+const selectedBuffReferences = computed(() =>
+  referencesToDefinition(definitionReferences.value, 'buff', selectedBuffId.value),
 );
 const isDirty = computed(
   () =>
@@ -197,7 +206,7 @@ function addBuff(): void {
 }
 
 function removeBuff(): void {
-  if (selectedBuffId.value === '') return;
+  if (selectedBuffId.value === '' || selectedBuffReferences.value.length > 0) return;
   const next = { ...(draft.value.buffDefinitions ?? {}) };
   delete next[selectedBuffId.value];
   draft.value = {
@@ -205,6 +214,33 @@ function removeBuff(): void {
     buffDefinitions: Object.keys(next).length === 0 ? undefined : next,
   };
   selectedBuffId.value = Object.keys(next).sort()[0] ?? '';
+}
+
+function revealDefinitionReference(reference: OperatorDefinitionReference): void {
+  if (reference.ownerKind === 'skill') {
+    const match = /^skillGroups\[(\d+)\]\.skills\[(\d+)\]/.exec(reference.path);
+    if (match === null) return;
+    section.value = 'skills';
+    selectedGroupIndex.value = Number(match[1]);
+    selectedSkillIndex.value = Number(match[2]);
+    objectSearch.value = '';
+    showSkillEditor.value = true;
+    return;
+  }
+  if (reference.ownerKind === 'buff') {
+    section.value = 'buffs';
+    selectedBuffId.value = reference.ownerId;
+    objectSearch.value = reference.ownerId;
+    return;
+  }
+  section.value = 'entities';
+  referencedEntityId.value = reference.ownerId;
+  showEntityEditor.value = true;
+}
+
+function revealEntityDefinitionReference(reference: OperatorDefinitionReference): void {
+  showEntityEditor.value = false;
+  revealDefinitionReference(reference);
 }
 
 function saveEntities(definitions: OperatorAbilityEntityDefinitions): void {
@@ -418,8 +454,32 @@ function openReferencedDefinition(reference: {
                 <h3>{{ selectedBuffId }}</h3>
                 <p>干员级 Buff 蓝图；技能只通过 ID 引用。</p>
               </div>
-              <button class="danger-button" @click="removeBuff">删除</button>
+              <button
+                class="danger-button"
+                :disabled="selectedBuffReferences.length > 0"
+                :title="
+                  selectedBuffReferences.length > 0
+                    ? `仍有 ${selectedBuffReferences.length} 处引用，不能删除`
+                    : '删除 Buff 定义'
+                "
+                @click="removeBuff"
+              >
+                删除
+              </button>
             </header>
+            <div v-if="selectedBuffReferences.length" class="reference-guard">
+              <strong>仍有 {{ selectedBuffReferences.length }} 处引用</strong>
+              <span>先修改这些使用点，定义才可以删除。</span>
+              <button
+                v-for="reference in selectedBuffReferences"
+                :key="reference.path"
+                type="button"
+                @click="revealDefinitionReference(reference)"
+              >
+                <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
+                <code>{{ reference.path }}</code>
+              </button>
+            </div>
             <BuffDefinitionGraphEditor
               :buff-id="selectedBuffId"
               :definition="selectedBuff!"
@@ -515,8 +575,10 @@ function openReferencedDefinition(reference: {
     :common-definitions="commonAbilityEntityDefinitions"
     :skill-level="skillLevel"
     :initial-selected-id="referencedEntityId"
+    :operator-definition="draft"
     @update:visible="showEntityEditor = $event"
     @save="saveEntities"
+    @reveal-reference="revealEntityDefinitionReference"
   />
 </template>
 
@@ -811,6 +873,44 @@ input:disabled {
 .workspace-problems code {
   color: #e3876e;
   overflow-wrap: anywhere;
+}
+.reference-guard {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, #e5a43b 50%, var(--ea-border-soft));
+  background: color-mix(in srgb, #e5a43b 8%, var(--ea-workbench-panel));
+}
+.reference-guard > strong {
+  color: #e5b96d;
+  font-size: 12px;
+}
+.reference-guard > span {
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+}
+.reference-guard > button {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid var(--ea-border-soft);
+  background: var(--ea-fill-input, #16161a);
+  color: var(--ea-fg);
+  text-align: left;
+  cursor: pointer;
+}
+.reference-guard code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ea-fg-muted);
+  font-size: 10px;
+}
+.danger-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
 }
 @media (max-width: 850px) {
   .workspace {
