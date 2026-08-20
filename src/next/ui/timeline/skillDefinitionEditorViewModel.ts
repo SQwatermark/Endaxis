@@ -14,6 +14,8 @@ import type {
   CombatEventHandlerDefinition,
   LevelValues,
   ScheduledSequenceDefinition,
+  SkillBuffAbilityEventResponse,
+  SkillBuffIgniteEventResponse,
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
@@ -42,6 +44,14 @@ export function createSkillEventHandlerDraft(
     event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
     scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
   };
+}
+
+export function createBuffAbilityEventResponseDraft(): SkillBuffAbilityEventResponse {
+  return { event: 'outputDamage', priority: 0, sequence: { steps: [] } };
+}
+
+export function createBuffIgniteEventResponseDraft(): SkillBuffIgniteEventResponse {
+  return { igniteType: 'custom-ignite', finishAfterIgnited: false, sequence: { steps: [] } };
 }
 
 /** 读取当前技能等级对应的数值；单值定义对所有等级生效。 */

@@ -45,7 +45,9 @@ type StructureOperationNode = {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -54,7 +56,9 @@ type StructureOperationNode = {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
 };
 
 const props = defineProps<{

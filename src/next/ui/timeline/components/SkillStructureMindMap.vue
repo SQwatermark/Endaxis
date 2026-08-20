@@ -26,7 +26,9 @@ interface MapNodeSource {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -35,7 +37,9 @@ interface MapNodeSource {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -44,9 +48,12 @@ interface MapNodeSource {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
+  readonly relationToParent?: 'port' | 'member';
 }
 
 interface PositionedNode {
@@ -60,7 +67,7 @@ interface MapEdge {
   readonly id: string;
   readonly from: PositionedNode;
   readonly to: PositionedNode;
-  readonly tone: 'normal' | 'true' | 'false' | 'body';
+  readonly tone: 'normal' | 'true' | 'false' | 'body' | 'port';
 }
 
 const props = withDefaults(
@@ -165,6 +172,8 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'combatCondition') return '战斗条件';
   if (props.clipboardKind === 'eventResponse') return '事件响应';
   if (props.clipboardKind === 'skillEventHandler') return '技能事件响应';
+  if (props.clipboardKind === 'buffAbilityResponse') return 'Buff Ability 事件响应';
+  if (props.clipboardKind === 'buffIgniteResponse') return 'Buff 点燃响应';
   return '';
 });
 
@@ -172,6 +181,7 @@ function edgeTone(node: MapNodeSource): MapEdge['tone'] {
   if (node.label.startsWith('TRUE')) return 'true';
   if (node.label.startsWith('FALSE')) return 'false';
   if (node.label === 'Body') return 'body';
+  if (node.relationToParent === 'port') return 'port';
   return 'normal';
 }
 
@@ -197,6 +207,7 @@ function nodeClass(node: MapNodeSource): Readonly<Record<string, boolean>> {
       node.details['步骤类型'] !== 'conditional' &&
       node.kind !== '动作序列',
     reference: node.reference !== undefined,
+    port: node.relationToParent === 'port',
     collapsed: collapsedIds.value.has(node.id),
     selected: node.id === props.selectedId,
     'drop-inside': dropHint.value?.id === node.id && dropHint.value.placement === 'inside',
@@ -545,6 +556,7 @@ watch(
       @pointercancel="endPan"
       @wheel="zoomAtPointer"
     >
+      <div class="map-legend"><i></i><span>固定字段端口</span></div>
       <div
         class="map-stage"
         :style="{ width: `${layout.width * zoom}px`, height: `${layout.height * zoom}px` }"
@@ -716,6 +728,7 @@ watch(
   color: #c8cbd0;
 }
 .map-viewport {
+  position: relative;
   min-width: 0;
   min-height: 0;
   overflow: auto;
@@ -724,6 +737,27 @@ watch(
   background-size: 18px 18px;
   cursor: grab;
   touch-action: none;
+}
+.map-legend {
+  position: sticky;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 1px solid #353941;
+  border-radius: 12px;
+  background: rgb(18 19 22 / 88%);
+  color: #8f96a1;
+  font-size: 9px;
+  pointer-events: none;
+}
+.map-legend i {
+  width: 20px;
+  border-top: 2px dotted #8b94a3;
 }
 .map-viewport.dragging {
   cursor: grabbing;
@@ -760,6 +794,11 @@ watch(
 .edge-layer path.body {
   stroke: #7099c6;
   stroke-dasharray: 5 4;
+}
+.edge-layer path.port {
+  stroke: #8b94a3;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
 }
 .map-node {
   width: 220px;
@@ -846,6 +885,12 @@ watch(
 .map-node.container {
   border-left-color: #7099c6;
   background: #19232e;
+}
+.map-node.port {
+  border-left-width: 2px;
+  border-left-style: dashed;
+  border-radius: 14px 3px 3px 14px;
+  background-image: linear-gradient(90deg, rgb(139 148 163 / 10%), transparent 36px);
 }
 .map-node.reference {
   border-right: 3px solid #6fa3d8;

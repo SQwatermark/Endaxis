@@ -32,7 +32,9 @@ export interface SkillStructureNode {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -41,7 +43,9 @@ export interface SkillStructureNode {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -50,9 +54,13 @@ export interface SkillStructureNode {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
+  /** 固定字段/结构槽位使用端口关系；数组成员使用普通成员关系。 */
+  readonly relationToParent?: 'port' | 'member';
 }
 
 export interface SkillStructureMindMapLabels {
@@ -101,6 +109,7 @@ function conditionNode(
   editorSection: SkillStructureEditorSection = 0,
   canDelete = true,
   canMove = true,
+  relationToParent: SkillStructureNode['relationToParent'] = 'port',
 ): SkillStructureNode {
   const children =
     condition.kind === 'not'
@@ -125,6 +134,7 @@ function conditionNode(
               editorSection,
               condition.conditions.length > 1,
               condition.conditions.length > 1,
+              'member',
             ),
           )
         : [];
@@ -141,6 +151,7 @@ function conditionNode(
     payloadKind: 'combatCondition',
     canDelete,
     canMove,
+    relationToParent,
     ...(composite
       ? { canAddChild: 'combatCondition' as const, acceptsChildKind: 'combatCondition' as const }
       : {}),
@@ -154,6 +165,7 @@ function sequenceNode(
   sourcePath: string,
   summary: string,
   editorSection: number,
+  relationToParent: SkillStructureNode['relationToParent'] = 'port',
 ): SkillStructureNode {
   return {
     id,
@@ -168,6 +180,7 @@ function sequenceNode(
     ),
     canAddChild: 'step',
     acceptsChildKind: 'combatStep',
+    relationToParent,
   };
 }
 
@@ -357,6 +370,7 @@ function scheduledSequenceNodeAtPath(
   return {
     ...node,
     sourcePath,
+    relationToParent: 'member',
     payloadKind: 'scheduledSequence',
     canDelete,
     canMove,
@@ -416,6 +430,7 @@ function skillEventHandlerNode(
         sourcePath: `${sourcePath}.scheduledSequences`,
         details: { 数量: handler.scheduledSequences.length },
         editorSection: 'overview',
+        relationToParent: 'port',
         canAddChild: 'sequence',
         acceptsChildKind: 'scheduledSequence',
         children: handler.scheduledSequences.map((sequence, sequenceIndex) =>
@@ -468,6 +483,7 @@ export function buildSkillStructureMindMap(
         details: skill.blackboard ?? {},
         editorSection: 'blackboard',
         children: [],
+        relationToParent: 'port',
       },
       skill.availability === undefined
         ? {
@@ -480,6 +496,7 @@ export function buildSkillStructureMindMap(
             editorSection: 'availability',
             children: [],
             canAddChild: 'combatCondition',
+            relationToParent: 'port',
           }
         : conditionNode(
             skill.availability,
@@ -503,6 +520,7 @@ export function buildSkillStructureMindMap(
         children: handlers.map((handler, index) =>
           skillEventHandlerNode(handler, index, handlers.length),
         ),
+        relationToParent: 'port',
       },
       ...sequences,
     ],
@@ -548,6 +566,7 @@ export function buildEquipmentContributionMindMap(
           children: [],
           payloadKind: 'equipmentModifier',
         })),
+        relationToParent: 'port',
       },
       {
         id: 'equipment:handlers',
@@ -596,6 +615,7 @@ export function buildEquipmentContributionMindMap(
             ],
           };
         }),
+        relationToParent: 'port',
       },
     ],
   };
@@ -631,19 +651,101 @@ export function buildBuffStructureMindMap(
       ];
     },
   );
+  const abilityResponses = definition.abilityEventResponses ?? [];
+  const igniteResponses = definition.igniteEventResponses ?? [];
   return {
     id: 'buff',
     label: buffId,
     kind: 'Buff 定义',
-    summary: `${lifecycleNodes.length} 个生命周期`,
+    summary: `${lifecycleNodes.length} 个生命周期 · ${abilityResponses.length + igniteResponses.length} 个事件响应`,
     sourcePath: '',
     details: {
       叠加类型: definition.stackingType,
       持续秒数: definition.durationSeconds ?? '—',
       生命周期数: lifecycleNodes.length,
+      事件响应数: abilityResponses.length + igniteResponses.length,
     },
     editorSection: 'overview',
-    children: lifecycleNodes,
+    children: [
+      ...lifecycleNodes,
+      {
+        id: 'buff:ability-responses',
+        label: 'Ability 事件响应',
+        kind: '响应集合',
+        summary: `${abilityResponses.length} 项`,
+        sourcePath: 'abilityEventResponses',
+        details: { 响应数: abilityResponses.length },
+        editorSection: 0,
+        children: abilityResponses.map((response, index) => {
+          const responsePath = `abilityEventResponses[${index}]`;
+          return {
+            id: `buff:ability-response:${index}`,
+            label: `${index + 1}. ${response.event}`,
+            kind: 'Ability 事件响应',
+            summary: `优先级 ${response.priority}`,
+            sourcePath: responsePath,
+            details: { 事件: response.event, 优先级: response.priority },
+            editorSection: index,
+            payloadKind: 'buffAbilityResponse' as const,
+            canDelete: true,
+            canMove: abilityResponses.length > 1,
+            children: [
+              sequenceNode(
+                response.sequence,
+                `buff:ability-response:${index}:sequence`,
+                '响应序列',
+                `${responsePath}.sequence`,
+                `${response.sequence.steps.length} 个直属步骤`,
+                index,
+              ),
+            ],
+          };
+        }),
+        canAddChild: 'buffAbilityResponse' as const,
+        acceptsChildKind: 'buffAbilityResponse' as const,
+        relationToParent: 'port' as const,
+      },
+      {
+        id: 'buff:ignite-responses',
+        label: '点燃响应',
+        kind: '响应集合',
+        summary: `${igniteResponses.length} 项`,
+        sourcePath: 'igniteEventResponses',
+        details: { 响应数: igniteResponses.length },
+        editorSection: 0,
+        children: igniteResponses.map((response, index) => {
+          const responsePath = `igniteEventResponses[${index}]`;
+          return {
+            id: `buff:ignite-response:${index}`,
+            label: `${index + 1}. ${response.igniteType}`,
+            kind: '点燃响应',
+            summary: response.finishAfterIgnited ? '触发后结束 Buff' : '触发后保留 Buff',
+            sourcePath: responsePath,
+            details: {
+              点燃类型: response.igniteType,
+              触发后结束: response.finishAfterIgnited,
+            },
+            editorSection: index,
+            payloadKind: 'buffIgniteResponse' as const,
+            canDelete: true,
+            canMove: igniteResponses.length > 1,
+            children: [
+              sequenceNode(
+                response.sequence,
+                `buff:ignite-response:${index}:sequence`,
+                '响应序列',
+                `${responsePath}.sequence`,
+                `${response.sequence.steps.length} 个直属步骤`,
+                index,
+              ),
+            ],
+          };
+        }),
+        canAddChild: 'buffIgniteResponse' as const,
+        acceptsChildKind: 'buffIgniteResponse' as const,
+        relationToParent: 'port' as const,
+      },
+    ],
     canAddChild: 'lifecycle',
   };
 }
@@ -693,6 +795,7 @@ export function buildAbilityEntityStructureMindMap(
         details: definition.lifetime,
         editorSection: 'overview',
         children: [],
+        relationToParent: 'port',
       },
       ...(childSkill === undefined
         ? []
@@ -708,6 +811,7 @@ export function buildAbilityEntityStructureMindMap(
               children: sequenceNodes,
               canAddChild: 'sequence' as const,
               acceptsChildKind: 'scheduledSequence' as const,
+              relationToParent: 'port' as const,
             },
           ]),
     ],

@@ -15,6 +15,7 @@ import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
 import buffGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw';
+import buffEventResponseInspectorSource from './BuffEventResponseInspector.vue?raw';
 import structureMapSource from './SkillStructureMindMap.vue?raw';
 import timelineEditorSource from '../NextTimelineEditor.vue?raw';
 import abilityEntityTargetQueryEditorSource from './AbilityEntityTargetQueryEditor.vue?raw';
@@ -187,6 +188,23 @@ describe('SkillDefinitionEditor structure', () => {
       expect(messages).toHaveProperty('enableBuffLifecycle');
       expect(messages).toHaveProperty('buffLifecycleKinds');
     }
+  });
+
+  it('Buff 事件响应在导图展开，右栏只编辑响应本层字段', () => {
+    expect(buffGraphEditorSource).toContain('selectedAbilityResponse');
+    expect(buffGraphEditorSource).toContain('selectedIgniteResponse');
+    expect(buffGraphEditorSource).toContain('createBuffAbilityEventResponseDraft');
+    expect(buffGraphEditorSource).toContain('createBuffIgniteEventResponseDraft');
+    expect(buffGraphEditorSource).toContain('BuffEventResponseInspector');
+    expect(buffEventResponseInspectorSource).toContain('ABILITY_EVENTS');
+    expect(buffEventResponseInspectorSource).not.toContain('ActionSequenceEditor');
+  });
+
+  it('固定结构字段使用端口关系的连线与节点轮廓', () => {
+    expect(structureMapSource).toContain("node.relationToParent === 'port'");
+    expect(structureMapSource).toContain('固定字段端口');
+    expect(structureMapSource).toContain('.edge-layer path.port');
+    expect(structureMapSource).toContain('.map-node.port');
   });
 
   it('能力实体使用内联定义表单并递归复用子技能时间轴编辑器', () => {

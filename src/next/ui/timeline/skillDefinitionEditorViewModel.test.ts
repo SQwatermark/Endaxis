@@ -10,6 +10,8 @@ import {
   createSkillEditorDraft,
   createSkillEditorStep,
   createCombatEventResponseDraft,
+  createBuffAbilityEventResponseDraft,
+  createBuffIgniteEventResponseDraft,
   createSkillEventHandlerDraft,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorStep,
@@ -188,6 +190,18 @@ describe('skillDefinitionEditorViewModel', () => {
       key: 'skill-event-handler-3',
       event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
       scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+    });
+  });
+  it('creates minimal Buff event-response drafts without inventing response steps', () => {
+    expect(createBuffAbilityEventResponseDraft()).toEqual({
+      event: 'outputDamage',
+      priority: 0,
+      sequence: { steps: [] },
+    });
+    expect(createBuffIgniteEventResponseDraft()).toEqual({
+      igniteType: 'custom-ignite',
+      finishAfterIgnited: false,
+      sequence: { steps: [] },
     });
   });
   it('新建能力实体步骤只提供待选择的干员级蓝图引用', () => {

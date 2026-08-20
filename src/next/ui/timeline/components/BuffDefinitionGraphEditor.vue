@@ -12,11 +12,15 @@ import {
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import type {
   CombatStepDefinition,
+  SkillBuffAbilityEventResponse,
   SkillBuffDefinition,
+  SkillBuffIgniteEventResponse,
   SkillDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import {
   createSkillEditorStep,
+  createBuffAbilityEventResponseDraft,
+  createBuffIgniteEventResponseDraft,
   duplicateSkillEditorDetachedStep,
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
@@ -33,10 +37,12 @@ import {
   moveStructureArrayItem,
   moveCombatStepInStructure,
   removeCombatStepInStructure,
+  removeStructureArrayItem,
   replaceStructureValueAtPath,
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
 import BuffStepEditor from './BuffStepEditor.vue';
+import BuffEventResponseInspector from './BuffEventResponseInspector.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
@@ -62,7 +68,9 @@ type StructureOperationNode = {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -71,7 +79,9 @@ type StructureOperationNode = {
     | 'equipmentHandler'
     | 'combatCondition'
     | 'eventResponse'
-    | 'skillEventHandler';
+    | 'skillEventHandler'
+    | 'buffAbilityResponse'
+    | 'buffIgniteResponse';
 };
 
 const props = defineProps<{
@@ -85,7 +95,11 @@ const selectedPath = ref('');
 const pendingMode = ref<'step' | 'lifecycle' | ''>('');
 const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
-const structureClipboard = shallowRef<CombatStepDefinition>();
+const structureClipboard = shallowRef<
+  | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
+  | { readonly kind: 'buffAbilityResponse'; readonly value: SkillBuffAbilityEventResponse }
+  | { readonly kind: 'buffIgniteResponse'; readonly value: SkillBuffIgniteEventResponse }
+>();
 const structureUndoStack = shallowRef<SkillBuffDefinition[]>([]);
 const structureRedoStack = shallowRef<SkillBuffDefinition[]>([]);
 const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
@@ -101,6 +115,16 @@ const selectedNode = computed(() => nodeIndex.value.get(selectedId.value));
 const selectedStep = computed(() =>
   selectedNode.value?.kind === '战斗步骤'
     ? (resolveStructureValue(props.definition, selectedPath.value) as CombatStepDefinition)
+    : undefined,
+);
+const selectedAbilityResponse = computed(() =>
+  selectedNode.value?.payloadKind === 'buffAbilityResponse'
+    ? (resolveStructureValue(props.definition, selectedPath.value) as SkillBuffAbilityEventResponse)
+    : undefined,
+);
+const selectedIgniteResponse = computed(() =>
+  selectedNode.value?.payloadKind === 'buffIgniteResponse'
+    ? (resolveStructureValue(props.definition, selectedPath.value) as SkillBuffIgniteEventResponse)
     : undefined,
 );
 const editingStep = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }>>(() => ({
@@ -198,6 +222,10 @@ async function beginAdd(
   } else if (node.canAddChild === 'step') {
     pendingMode.value = 'step';
     pickerKey.value += 1;
+  } else if (node.canAddChild === 'buffAbilityResponse') {
+    await appendResponse('buffAbilityResponse');
+  } else if (node.canAddChild === 'buffIgniteResponse') {
+    await appendResponse('buffIgniteResponse');
   }
 }
 function closeLifecycleFromOutside(event: PointerEvent): void {
@@ -224,6 +252,17 @@ async function addLifecycle(key: (typeof LIFECYCLE_KEYS)[number]): Promise<void>
   pendingMode.value = '';
   await selectPath(`lifecycleSequences.${key}`);
 }
+async function appendResponse(kind: 'buffAbilityResponse' | 'buffIgniteResponse'): Promise<void> {
+  const arrayPath =
+    kind === 'buffAbilityResponse' ? 'abilityEventResponses' : 'igniteEventResponses';
+  const response =
+    kind === 'buffAbilityResponse'
+      ? createBuffAbilityEventResponseDraft()
+      : createBuffIgniteEventResponseDraft();
+  const result = insertStructureArrayItem(props.definition, arrayPath, response);
+  emitStructureUpdate(result.root);
+  await selectPath(result.itemPath);
+}
 function updateRootStep(step: CombatStepDefinition): void {
   if (step.kind === 'applyBuff' && step.parameters.definition !== undefined) {
     emit('update', step.parameters.definition);
@@ -231,6 +270,11 @@ function updateRootStep(step: CombatStepDefinition): void {
 }
 function updateStep(step: CombatStepDefinition): void {
   emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, step));
+}
+function updateResponse(
+  response: SkillBuffAbilityEventResponse | SkillBuffIgniteEventResponse,
+): void {
+  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, response));
 }
 async function moveStep(offset: -1 | 1): Promise<void> {
   const result = moveCombatStepInStructure(props.definition, selectedPath.value, offset);
@@ -251,15 +295,19 @@ async function moveStructureNode(operation: {
   readonly target: StructureOperationNode;
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
-  if (operation.source.payloadKind !== 'combatStep') return;
+  const kind = operation.source.payloadKind;
+  if (kind !== 'combatStep' && kind !== 'buffAbilityResponse' && kind !== 'buffIgniteResponse') {
+    return;
+  }
   let arrayPath: string;
   let index: number | undefined;
   if (operation.placement === 'inside') {
-    if (operation.target.acceptsChildKind !== 'combatStep') return;
-    arrayPath = `${operation.target.sourcePath}.steps`;
+    if (operation.target.acceptsChildKind !== kind) return;
+    arrayPath =
+      kind === 'combatStep' ? `${operation.target.sourcePath}.steps` : operation.target.sourcePath;
   } else {
     const match = /^(.*)\[(\d+)\]$/.exec(operation.target.sourcePath);
-    if (match === null || operation.target.payloadKind !== 'combatStep') return;
+    if (match === null || operation.target.payloadKind !== kind) return;
     arrayPath = match[1]!;
     index = Number(match[2]) + (operation.placement === 'after' ? 1 : 0);
   }
@@ -279,10 +327,16 @@ async function runStructureNodeAction(
   action: 'delete' | 'copy' | 'paste',
   node: StructureOperationNode,
 ): Promise<void> {
-  if (action === 'copy' && node.payloadKind === 'combatStep') {
-    structureClipboard.value = cloneStructureValue(
-      resolveStructureValue(props.definition, node.sourcePath) as CombatStepDefinition,
-    );
+  if (
+    action === 'copy' &&
+    (node.payloadKind === 'combatStep' ||
+      node.payloadKind === 'buffAbilityResponse' ||
+      node.payloadKind === 'buffIgniteResponse')
+  ) {
+    structureClipboard.value = {
+      kind: node.payloadKind,
+      value: cloneStructureValue(resolveStructureValue(props.definition, node.sourcePath)),
+    } as typeof structureClipboard.value;
     return;
   }
   if (action === 'delete' && node.payloadKind === 'combatStep') {
@@ -292,17 +346,32 @@ async function runStructureNodeAction(
     return;
   }
   if (
+    action === 'delete' &&
+    (node.payloadKind === 'buffAbilityResponse' || node.payloadKind === 'buffIgniteResponse')
+  ) {
+    emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
+    await selectPath(
+      node.payloadKind === 'buffAbilityResponse' ? 'abilityEventResponses' : 'igniteEventResponses',
+    );
+    return;
+  }
+  if (
     action !== 'paste' ||
     structureClipboard.value === undefined ||
-    node.acceptsChildKind !== 'combatStep'
+    node.acceptsChildKind !== structureClipboard.value.kind
   ) {
     return;
   }
-  const result = insertStructureArrayItem(
-    props.definition,
-    `${node.sourcePath}.steps`,
-    duplicateStep(structureClipboard.value),
-  );
+  const clipboard = structureClipboard.value;
+  const arrayPath = clipboard.kind === 'combatStep' ? `${node.sourcePath}.steps` : node.sourcePath;
+  const value =
+    clipboard.kind === 'combatStep'
+      ? duplicateStep(clipboard.value)
+      : {
+          ...cloneStructureValue(clipboard.value),
+          sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
+        };
+  const result = insertStructureArrayItem(props.definition, arrayPath, value);
   emitStructureUpdate(result.root);
   await selectPath(result.itemPath);
 }
@@ -310,6 +379,18 @@ async function deleteCurrent(): Promise<void> {
   if (selectedStep.value !== undefined) {
     const parentPath = selectedPath.value.replace(/\.steps\[\d+\]$/, '');
     emitStructureUpdate(removeCombatStepInStructure(props.definition, selectedPath.value));
+    await selectPath(parentPath);
+    return;
+  }
+  if (
+    selectedNode.value?.payloadKind === 'buffAbilityResponse' ||
+    selectedNode.value?.payloadKind === 'buffIgniteResponse'
+  ) {
+    const parentPath =
+      selectedNode.value.payloadKind === 'buffAbilityResponse'
+        ? 'abilityEventResponses'
+        : 'igniteEventResponses';
+    emitStructureUpdate(removeStructureArrayItem(props.definition, selectedPath.value));
     await selectPath(parentPath);
     return;
   }
@@ -333,7 +414,7 @@ async function deleteCurrent(): Promise<void> {
       :root="root"
       :selected-id="selectedId"
       :show-reference-pins="false"
-      :clipboard-kind="structureClipboard === undefined ? undefined : 'combatStep'"
+      :clipboard-kind="structureClipboard?.kind"
       :can-undo="canUndoStructure"
       :can-redo="canRedoStructure"
       @select="selectNode"
@@ -407,6 +488,33 @@ async function deleteCurrent(): Promise<void> {
           :show-header="false"
           inspector-only
           @update="updateStep"
+        />
+      </section>
+
+      <section
+        v-else-if="selectedAbilityResponse || selectedIgniteResponse"
+        class="node-card response-card"
+      >
+        <header>
+          <div>
+            <small>{{ selectedNode?.kind }}</small
+            ><strong>{{ selectedNode?.label }}</strong>
+          </div>
+          <button @click="deleteCurrent">
+            <el-icon><Delete /></el-icon>
+          </button>
+        </header>
+        <BuffEventResponseInspector
+          v-if="selectedAbilityResponse"
+          kind="ability"
+          :response="selectedAbilityResponse"
+          @update="updateResponse"
+        />
+        <BuffEventResponseInspector
+          v-else-if="selectedIgniteResponse"
+          kind="ignite"
+          :response="selectedIgniteResponse"
+          @update="updateResponse"
         />
       </section>
 

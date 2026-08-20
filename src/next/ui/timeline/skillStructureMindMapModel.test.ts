@@ -150,12 +150,40 @@ describe('skillStructureMindMapModel', () => {
           steps: [{ kind: 'changeResource', parameters: { resource: 'sp', amount: 1 } }],
         },
       },
+      abilityEventResponses: [
+        {
+          event: 'outputDamage',
+          priority: 3,
+          sequence: {
+            steps: [{ kind: 'changeResource', parameters: { resource: 'sp', amount: 2 } }],
+          },
+        },
+      ],
+      igniteEventResponses: [
+        {
+          igniteType: 'test-ignite',
+          finishAfterIgnited: true,
+          sequence: { steps: [{ kind: 'finishBuff', parameters: {} }] },
+        },
+      ],
     } as never);
     const buffNodes = indexSkillStructureNodes(buff);
     expect(buff.canAddChild).toBe('lifecycle');
     expect(buffNodes.get('buff:lifecycle:trigger')?.canAddChild).toBe('step');
     expect(buffNodes.get('buff:lifecycle:trigger:step:0')?.sourcePath).toBe(
       'lifecycleSequences.trigger.steps[0]',
+    );
+    expect(buffNodes.get('buff:ability-responses')?.canAddChild).toBe('buffAbilityResponse');
+    expect(buffNodes.get('buff:ability-responses')?.relationToParent).toBe('port');
+    expect(buffNodes.get('buff:ability-response:0')?.sourcePath).toBe('abilityEventResponses[0]');
+    expect(buffNodes.get('buff:ability-response:0:sequence')?.relationToParent).toBe('port');
+    expect(buffNodes.get('buff:ability-response:0:sequence:step:0')?.sourcePath).toBe(
+      'abilityEventResponses[0].sequence.steps[0]',
+    );
+    expect(buffNodes.get('buff:ignite-responses')?.canAddChild).toBe('buffIgniteResponse');
+    expect(buffNodes.get('buff:ignite-response:0')?.sourcePath).toBe('igniteEventResponses[0]');
+    expect(buffNodes.get('buff:ignite-response:0:sequence:step:0')?.sourcePath).toBe(
+      'igniteEventResponses[0].sequence.steps[0]',
     );
 
     const entity = buildAbilityEntityStructureMindMap('entity.test', {
