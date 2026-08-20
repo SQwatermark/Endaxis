@@ -12,6 +12,7 @@ import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
   COMBAT_RESOURCES,
+  type CombatCondition,
   type CombatResource,
   type CombatStepDefinition,
   type ScheduledSequenceDefinition,
@@ -43,6 +44,7 @@ import {
 import {
   appendCombatStepAtSequencePath,
   cloneStructureValue,
+  deleteStructureValueAtPath,
   duplicateCombatStepAtPath,
   insertStructureArrayItem,
   moveStructureArrayItem,
@@ -50,11 +52,14 @@ import {
   removeStructureArrayItem,
   removeCombatStepAtPath,
   replaceCombatStepAtPath,
+  replaceStructureValueAtPath,
   resolveSkillStructureValue,
+  resolveStructureValue,
 } from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
+import CombatConditionEditor from './CombatConditionEditor.vue';
+import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import SkillAvailabilityEditor from './SkillAvailabilityEditor.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
@@ -127,11 +132,13 @@ const structureMap = ref<{
   transferCollapsedState: (fromId: string, toId: string) => void;
 } | null>(null);
 const pendingStepTargetPath = ref('');
+const pendingConditionTargetPath = ref('');
 const stepPickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
+  | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
 >();
 const structureUndoStack = shallowRef<SkillDefinition[]>([]);
 const structureRedoStack = shallowRef<SkillDefinition[]>([]);
@@ -172,6 +179,11 @@ const selectedCombatStep = computed(() =>
       ) as CombatStepDefinition)
     : undefined,
 );
+const selectedCombatCondition = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'combatCondition'
+    ? (resolveStructureValue(draft.value, selectedStructureSourcePath.value) as CombatCondition)
+    : undefined,
+);
 
 function createNestedStep(kind: EditableCombatStepKind) {
   return createSkillEditorStep(draft.value, kind);
@@ -202,13 +214,6 @@ function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): 
   const next = { ...draft.value };
   if (Object.keys(blackboard).length === 0) delete next.blackboard;
   else next.blackboard = blackboard;
-  draft.value = next;
-}
-
-function setAvailability(availability: SkillDefinition['availability']): void {
-  const next = { ...draft.value };
-  if (availability === undefined) delete next.availability;
-  else next.availability = availability;
   draft.value = next;
 }
 
@@ -264,6 +269,7 @@ function selectStructureNode(node: { readonly id: string }): void {
   selectedStructureSourcePath.value = target.sourcePath;
   selectedSection.value = target.editorSection;
   pendingStepTargetPath.value = '';
+  pendingConditionTargetPath.value = '';
 }
 
 async function selectStructurePath(path: string): Promise<void> {
@@ -294,10 +300,32 @@ function beginAddChild(
     appendSequence();
     return;
   }
+  if (node.canAddChild === 'combatCondition') {
+    pendingConditionTargetPath.value = node.sourcePath;
+    insertAnchor.value = { ...anchor };
+    stepPickerKey.value += 1;
+    return;
+  }
   if (node.canAddChild !== 'step') return;
   pendingStepTargetPath.value = node.sourcePath;
   insertAnchor.value = { ...anchor };
   stepPickerKey.value += 1;
+}
+
+async function appendConditionToPendingTarget(condition: CombatCondition): Promise<void> {
+  const targetPath = pendingConditionTargetPath.value;
+  if (targetPath === '') return;
+  const target = resolveStructureValue(draft.value, targetPath) as CombatCondition | undefined;
+  if (target?.kind === 'all' || target?.kind === 'any') {
+    const result = insertStructureArrayItem(draft.value, `${targetPath}.conditions`, condition);
+    pendingConditionTargetPath.value = '';
+    commitStructureDraft(result.root);
+    await selectStructurePath(result.itemPath);
+    return;
+  }
+  pendingConditionTargetPath.value = '';
+  commitStructureDraft(replaceStructureValueAtPath(draft.value, targetPath, condition));
+  await selectStructurePath(targetPath);
 }
 
 async function appendStepToPendingSequence(kind: EditableCombatStepKind): Promise<void> {
@@ -347,6 +375,13 @@ function replaceSelectedCombatStep(step: CombatStepDefinition): void {
   draft.value = replaceCombatStepAtPath(draft.value, selectedStructureSourcePath.value, step);
 }
 
+function replaceSelectedCombatCondition(condition: CombatCondition): void {
+  if (selectedCombatCondition.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, condition),
+  );
+}
+
 async function moveSelectedCombatStep(offset: -1 | 1): Promise<void> {
   if (selectedCombatStep.value === undefined) return;
   const result = moveCombatStepAtPath(draft.value, selectedStructureSourcePath.value, offset);
@@ -374,10 +409,13 @@ async function removeSelectedCombatStep(): Promise<void> {
 
 function childArrayPath(
   node: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence',
+  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition',
 ): string | undefined {
   if (kind === 'scheduledSequence') {
     return node.acceptsChildKind === kind ? 'scheduledSequences' : undefined;
+  }
+  if (kind === 'combatCondition') {
+    return node.acceptsChildKind === kind ? `${node.sourcePath}.conditions` : undefined;
   }
   if (node.acceptsChildKind !== kind) return undefined;
   return node.payloadKind === 'scheduledSequence'
@@ -387,7 +425,7 @@ function childArrayPath(
 
 function insertionTarget(
   target: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence',
+  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition',
   placement: 'inside' | 'before' | 'after',
 ): { readonly arrayPath: string; readonly index?: number } | undefined {
   if (placement === 'inside') {
@@ -408,7 +446,13 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
-  if (kind !== 'combatStep' && kind !== 'scheduledSequence') return;
+  if (kind !== 'combatStep' && kind !== 'scheduledSequence' && kind !== 'combatCondition') return;
+  if (kind === 'combatCondition') {
+    const source = /^(.*\.conditions)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(draft.value, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
   const target = insertionTarget(operation.target, kind, operation.placement);
   if (target === undefined) return;
   const result = moveStructureArrayItem(
@@ -443,10 +487,31 @@ async function runStructureNodeAction(
           resolveSkillStructureValue(draft.value, node.sourcePath) as ScheduledSequenceDefinition,
         ),
       };
+    } else if (node.payloadKind === 'combatCondition') {
+      structureClipboard.value = {
+        kind: 'combatCondition',
+        value: cloneStructureValue(
+          resolveStructureValue(draft.value, node.sourcePath) as CombatCondition,
+        ),
+      };
     }
     return;
   }
   if (action === 'delete' && node.payloadKind !== undefined) {
+    if (node.payloadKind === 'combatCondition') {
+      const child = /^(.*\.conditions)\[\d+\]$/.exec(node.sourcePath);
+      if (child !== null) {
+        const siblings = resolveStructureValue(draft.value, child[1]!) as readonly unknown[];
+        if (siblings.length <= 1) return;
+        commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
+        await selectStructurePath(child[1]!.replace(/\.conditions$/, ''));
+        return;
+      }
+      if (node.sourcePath !== 'availability') return;
+      commitStructureDraft(deleteStructureValueAtPath(draft.value, 'availability'));
+      await selectStructurePath('availability');
+      return;
+    }
     const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|scheduledSequences\[\d+\]$/, '');
     commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
     await selectStructurePath(parentPath);
@@ -459,10 +524,12 @@ async function runStructureNodeAction(
   const value =
     clipboard.kind === 'combatStep'
       ? duplicateNestedStep(clipboard.value)
-      : {
-          ...clipboard.value,
-          sequence: { steps: clipboard.value.sequence.steps.map(duplicateNestedStep) },
-        };
+      : clipboard.kind === 'scheduledSequence'
+        ? {
+            ...clipboard.value,
+            sequence: { steps: clipboard.value.sequence.steps.map(duplicateNestedStep) },
+          }
+        : cloneStructureValue(clipboard.value);
   const result = insertStructureArrayItem(draft.value, arrayPath, value);
   commitStructureDraft(result.root);
   await selectStructurePath(result.itemPath);
@@ -560,6 +627,14 @@ function reset(): void {
           hide-trigger
           open-on-mount
           @select="appendStepToPendingSequence"
+          @close="pendingStepTargetPath = ''"
+        />
+        <CombatConditionTypePicker
+          v-if="pendingConditionTargetPath"
+          :key="`condition:${stepPickerKey}`"
+          :anchor="insertAnchor"
+          @select="appendConditionToPendingTarget"
+          @close="pendingConditionTargetPath = ''"
         />
         <template v-if="selectedSection === 'overview'">
           <section class="editor-section">
@@ -702,11 +777,25 @@ function reset(): void {
           @update="setBlackboard"
         />
 
-        <SkillAvailabilityEditor
-          v-else-if="selectedSection === 'availability'"
-          :availability="draft.value.availability"
-          @update="setAvailability"
+        <CombatConditionEditor
+          v-else-if="selectedCombatCondition"
+          :condition="selectedCombatCondition"
+          layer-only
+          @update="replaceSelectedCombatCondition"
         />
+
+        <section
+          v-else-if="selectedSection === 'availability'"
+          class="editor-section node-inspector"
+        >
+          <header class="node-inspector__header">
+            <div>
+              <span>技能设置</span>
+              <strong>{{ t('nextTimeline.skillEditing.availability') }}</strong>
+            </div>
+          </header>
+          <p class="node-inspector__hint">当前未设置条件；从左侧节点的加号选择条件类型。</p>
+        </section>
 
         <section v-else-if="selectedScheduledSequence" class="editor-section node-inspector">
           <header class="node-inspector__header">

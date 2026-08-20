@@ -7,6 +7,8 @@ import eventListenerStepEditorSource from './EventListenerStepEditor.vue?raw';
 import scheduledSequenceEditorSource from './ScheduledSequenceEditor.vue?raw';
 import actionSequenceEditorSource from './ActionSequenceEditor.vue?raw';
 import stepTypePickerSource from './StepTypePicker.vue?raw';
+import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
+import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
@@ -118,6 +120,17 @@ describe('SkillDefinitionEditor structure', () => {
     const listedKinds = STEP_TYPE_GROUPS.flatMap(group => group.kinds);
     expect(new Set(listedKinds).size).toBe(listedKinds.length);
     expect([...listedKinds].sort()).toEqual([...EDITABLE_COMBAT_STEP_KINDS].sort());
+  });
+
+  it('技能可用条件与分支条件使用导图节点和纯本层 Inspector', () => {
+    expect(editorSource).toContain('CombatConditionTypePicker');
+    expect(editorSource).toContain('appendConditionToPendingTarget');
+    expect(editorSource).toContain('selectedCombatCondition');
+    expect(editorSource).toContain('layer-only');
+    expect(editorSource).not.toContain('SkillAvailabilityEditor');
+    expect(branchEditorSource).toContain("step.kind === 'conditional' && !inspectorOnly");
+    expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
+    expect(conditionEditorSource).toContain('!layerOnly && condition.kind');
   });
 
   it('顶层与递归步骤参数都提供统一折叠入口', () => {
@@ -270,9 +283,8 @@ describe('SkillDefinitionEditor structure', () => {
     ]) {
       expect(stepEditorSource).toContain(component);
     }
-    for (const component of ['SkillBlackboardEditor', 'SkillAvailabilityEditor']) {
-      expect(editorSource).toContain(component);
-    }
+    expect(editorSource).toContain('SkillBlackboardEditor');
+    expect(editorSource).toContain('CombatConditionEditor');
     expect(branchEditorSource).toContain('CombatConditionEditor');
   });
 });

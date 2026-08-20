@@ -107,7 +107,7 @@ function removeStep(index: number): void {
 <template>
   <div class="branch-editor">
     <CombatConditionEditor
-      v-if="step.kind === 'conditional'"
+      v-if="step.kind === 'conditional' && !inspectorOnly"
       :condition="step.parameters.condition"
       @update="setCondition"
     />

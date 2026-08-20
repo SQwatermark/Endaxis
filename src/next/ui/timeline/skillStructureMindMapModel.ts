@@ -90,7 +90,7 @@ function conditionNode(
   id: string,
   sourcePath: string,
   label: string = condition.kind,
-  editorSection: number = 0,
+  editorSection: SkillStructureEditorSection = 0,
   canDelete = true,
   canMove = true,
 ): SkillStructureNode {
@@ -172,6 +172,17 @@ function stepNode(
 ): SkillStructureNode {
   const children: SkillStructureNode[] = [];
   if (step.kind === 'conditional') {
+    children.push(
+      conditionNode(
+        step.parameters.condition,
+        `${id}:condition`,
+        `${sourcePath}.parameters.condition`,
+        '判断条件',
+        editorSection,
+        false,
+        false,
+      ),
+    );
     children.push(
       sequenceNode(
         step.whenTrue,
@@ -301,17 +312,27 @@ export function buildSkillStructureMindMap(
         editorSection: 'blackboard',
         children: [],
       },
-      {
-        id: 'availability',
-        label: labels.availability,
-        kind: '技能设置',
-        summary:
-          skill.availability === undefined ? '未设置' : describeCondition(skill.availability),
-        sourcePath: 'availability',
-        details: skill.availability ?? {},
-        editorSection: 'availability',
-        children: [],
-      },
+      skill.availability === undefined
+        ? {
+            id: 'availability',
+            label: labels.availability,
+            kind: '技能设置',
+            summary: '未设置',
+            sourcePath: 'availability',
+            details: {},
+            editorSection: 'availability',
+            children: [],
+            canAddChild: 'combatCondition',
+          }
+        : conditionNode(
+            skill.availability,
+            'availability',
+            'availability',
+            labels.availability,
+            'availability',
+            true,
+            false,
+          ),
       ...sequences,
     ],
     canAddChild: 'sequence',

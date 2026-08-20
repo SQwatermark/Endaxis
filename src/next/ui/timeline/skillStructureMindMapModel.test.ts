@@ -14,6 +14,10 @@ describe('skillStructureMindMapModel', () => {
     const skill = {
       key: 'testSkill',
       timelineBlockFrames: 20,
+      availability: {
+        kind: 'any',
+        conditions: [{ kind: 'combatActive' }, { kind: 'casterControlled' }],
+      },
       scheduledSequences: [
         {
           startFrame: 5,
@@ -64,10 +68,25 @@ describe('skillStructureMindMapModel', () => {
       ).id,
     ).toBe('sequence:0:step:0:true:step:0');
     expect(nodes.get('sequence:0:step:0')?.details['步骤类型']).toBe('conditional');
+    expect(nodes.get('availability')?.payloadKind).toBe('combatCondition');
+    expect(nodes.get('availability')?.canAddChild).toBe('combatCondition');
+    expect(nodes.get('availability:condition:1')?.sourcePath).toBe('availability.conditions[1]');
+    expect(nodes.get('sequence:0:step:0:condition')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[0].parameters.condition',
+    );
+    expect(nodes.get('sequence:0:step:0:condition')?.canDelete).toBe(false);
     expect(nodes.get('sequence:0:step:0:true:step:0')?.reference).toEqual({
       kind: 'entity',
       id: 'entity.test',
     });
+
+    const withoutAvailability = buildSkillStructureMindMap({
+      ...skill,
+      availability: undefined,
+    });
+    expect(indexSkillStructureNodes(withoutAvailability).get('availability')?.canAddChild).toBe(
+      'combatCondition',
+    );
   });
 
   it('projects Buff lifecycle and ability-entity child timelines through the same node model', () => {
