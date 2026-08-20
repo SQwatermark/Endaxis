@@ -18,8 +18,10 @@ interface MapNodeSource {
   readonly editorSection?: 'overview' | 'blackboard' | 'availability' | number;
   readonly reference?: MapReference;
   readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
-  readonly payloadKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
-  readonly acceptsChildKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+  readonly payloadKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+  readonly acceptsChildKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
 }
 
 interface PositionedNode {
@@ -133,6 +135,8 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'combatStep') return '战斗步骤';
   if (props.clipboardKind === 'scheduledSequence') return '调度序列';
   if (props.clipboardKind === 'childSkill') return '实体子技能';
+  if (props.clipboardKind === 'equipmentModifier') return '属性修正';
+  if (props.clipboardKind === 'equipmentHandler') return '事件响应';
   return '';
 });
 

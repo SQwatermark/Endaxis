@@ -1,19 +1,36 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import type {
   EquipmentContributionDefinition,
   EquipmentEventHandlerDefinition,
   EquipmentModifierDefinition,
 } from '../../../core/game-data/equipmentDefinition';
 import type { CombatStepDefinition, LevelValues } from '../../../core/game-data/operatorDefinition';
-import { buildEquipmentContributionMindMap } from '../skillStructureMindMapModel';
 import {
+  buildEquipmentContributionMindMap,
+  findSkillStructureNodeForPath,
+} from '../skillStructureMindMapModel';
+import {
+  cloneStructureValue,
+  insertStructureArrayItem,
+  moveStructureArrayItem,
+  removeStructureArrayItem,
   replaceStructureValueAtPath,
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
+import { duplicateSkillEditorDetachedStep } from '../skillDefinitionEditorViewModel';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
+
+type ContributionPayloadKind =
+  'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+interface ContributionOperationNode {
+  readonly id: string;
+  readonly sourcePath: string;
+  readonly payloadKind?: ContributionPayloadKind;
+  readonly acceptsChildKind?: ContributionPayloadKind;
+}
 
 const props = defineProps<{
   contribution: EquipmentContributionDefinition;
@@ -23,6 +40,13 @@ const props = defineProps<{
 const emit = defineEmits<{ update: [contribution: EquipmentContributionDefinition] }>();
 const selectedPath = ref('');
 const selectedId = ref('equipment:contribution');
+const undoStack = shallowRef<EquipmentContributionDefinition[]>([]);
+const redoStack = shallowRef<EquipmentContributionDefinition[]>([]);
+const clipboard = shallowRef<
+  | { readonly kind: 'equipmentModifier'; readonly value: EquipmentModifierDefinition }
+  | { readonly kind: 'equipmentHandler'; readonly value: EquipmentEventHandlerDefinition }
+  | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
+>();
 const structure = computed(() =>
   buildEquipmentContributionMindMap(props.contribution, props.label),
 );
@@ -42,11 +66,12 @@ const selectedStep = computed(() =>
 );
 
 watch(
-  () => props.contribution,
+  () => props.label,
   () => {
-    if (resolveStructureValue(props.contribution, selectedPath.value) !== undefined) return;
     selectedPath.value = '';
     selectedId.value = 'equipment:contribution';
+    undoStack.value = [];
+    redoStack.value = [];
   },
 );
 
@@ -55,9 +80,120 @@ function selectNode(node: { id: string; sourcePath: string }): void {
   selectedPath.value = node.sourcePath;
 }
 
+function commit(next: EquipmentContributionDefinition): void {
+  undoStack.value = [...undoStack.value, cloneStructureValue(props.contribution)];
+  redoStack.value = [];
+  emit('update', next);
+}
+
 function replaceSelected(value: unknown): void {
   if (selectedPath.value === '') return;
-  emit('update', replaceStructureValueAtPath(props.contribution, selectedPath.value, value));
+  commit(replaceStructureValueAtPath(props.contribution, selectedPath.value, value));
+}
+
+async function restoreHistory(action: 'undo' | 'redo'): Promise<void> {
+  const source = action === 'undo' ? undoStack : redoStack;
+  const target = action === 'undo' ? redoStack : undoStack;
+  const snapshot = source.value.at(-1);
+  if (snapshot === undefined) return;
+  source.value = source.value.slice(0, -1);
+  target.value = [...target.value, cloneStructureValue(props.contribution)];
+  emit('update', cloneStructureValue(snapshot));
+  selectedPath.value = '';
+  selectedId.value = 'equipment:contribution';
+}
+
+function childArrayPath(
+  node: ContributionOperationNode,
+  kind: ContributionPayloadKind,
+): string | undefined {
+  if (node.acceptsChildKind !== kind) return undefined;
+  if (kind === 'combatStep') return `${node.sourcePath}.steps`;
+  return node.sourcePath;
+}
+
+function insertionTarget(
+  node: ContributionOperationNode,
+  kind: ContributionPayloadKind,
+  placement: 'inside' | 'before' | 'after',
+): { readonly arrayPath: string; readonly index?: number } | undefined {
+  if (placement === 'inside') {
+    const arrayPath = childArrayPath(node, kind);
+    return arrayPath === undefined ? undefined : { arrayPath };
+  }
+  const match = /^(.*)\[(\d+)\]$/.exec(node.sourcePath);
+  if (match === null || node.payloadKind !== kind) return undefined;
+  return { arrayPath: match[1]!, index: Number(match[2]) + (placement === 'after' ? 1 : 0) };
+}
+
+async function selectPath(path: string): Promise<void> {
+  await nextTick();
+  const node = findSkillStructureNodeForPath(structure.value, path);
+  selectedPath.value = node.sourcePath;
+  selectedId.value = node.id;
+}
+
+async function moveNode(operation: {
+  readonly source: ContributionOperationNode;
+  readonly target: ContributionOperationNode;
+  readonly placement: 'inside' | 'before' | 'after';
+}): Promise<void> {
+  const kind = operation.source.payloadKind;
+  if (kind === undefined || kind === 'scheduledSequence' || kind === 'childSkill') return;
+  const target = insertionTarget(operation.target, kind, operation.placement);
+  if (target === undefined) return;
+  const result = moveStructureArrayItem(
+    props.contribution,
+    operation.source.sourcePath,
+    target.arrayPath,
+    target.index,
+  );
+  commit(result.root);
+  await selectPath(result.itemPath);
+}
+
+function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
+  return duplicateSkillEditorDetachedStep(
+    {
+      key: 'equipment-contribution',
+      timelineBlockFrames: 0,
+      scheduledSequences: (props.contribution.eventHandlers ?? []).map(handler => ({
+        startFrame: 0,
+        sequence: handler.sequence,
+      })),
+    },
+    step,
+  );
+}
+
+async function nodeAction(
+  action: 'delete' | 'copy' | 'paste',
+  node: ContributionOperationNode,
+): Promise<void> {
+  const kind = node.payloadKind;
+  if (action === 'copy') {
+    if (kind !== 'equipmentModifier' && kind !== 'equipmentHandler' && kind !== 'combatStep')
+      return;
+    clipboard.value = {
+      kind,
+      value: cloneStructureValue(resolveStructureValue(props.contribution, node.sourcePath)),
+    } as typeof clipboard.value;
+    return;
+  }
+  if (action === 'delete' && kind !== undefined) {
+    commit(removeStructureArrayItem(props.contribution, node.sourcePath));
+    await selectPath(node.sourcePath.replace(/\[[0-9]+\]$/, ''));
+    return;
+  }
+  const copied = clipboard.value;
+  if (action !== 'paste' || copied === undefined) return;
+  const arrayPath = childArrayPath(node, copied.kind);
+  if (arrayPath === undefined) return;
+  const value =
+    copied.kind === 'combatStep' ? duplicateStep(copied.value) : cloneStructureValue(copied.value);
+  const result = insertStructureArrayItem(props.contribution, arrayPath, value);
+  commit(result.root);
+  await selectPath(result.itemPath);
 }
 
 function parseLevelValues(event: Event): void {
@@ -87,7 +223,13 @@ function levelValuesText(value: LevelValues): string {
       :root="structure"
       :selected-id="selectedId"
       :show-reference-pins="false"
+      :clipboard-kind="clipboard?.kind"
+      :can-undo="undoStack.length > 0"
+      :can-redo="redoStack.length > 0"
       @select="selectNode"
+      @move-node="moveNode"
+      @node-action="nodeAction"
+      @history-action="restoreHistory"
     />
     <aside class="contribution-inspector">
       <template v-if="selectedModifier">

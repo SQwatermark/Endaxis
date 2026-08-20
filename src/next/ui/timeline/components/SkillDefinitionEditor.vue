@@ -63,8 +63,10 @@ type EditorSection = 'overview' | 'blackboard' | 'availability' | number;
 type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
-  readonly payloadKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
-  readonly acceptsChildKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+  readonly payloadKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+  readonly acceptsChildKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
 };
 
 const props = defineProps<{

@@ -54,8 +54,10 @@ const LIFECYCLE_KEYS = [
 type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
-  readonly payloadKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
-  readonly acceptsChildKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+  readonly payloadKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+  readonly acceptsChildKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
 };
 
 const props = defineProps<{

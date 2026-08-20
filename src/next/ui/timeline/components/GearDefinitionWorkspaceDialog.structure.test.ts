@@ -47,6 +47,11 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('CombatEventTriggerEditor');
     expect(contributionEditorSource).toContain('CombatStepEditor');
     expect(contributionEditorSource).toContain('inspector-only');
+    expect(contributionEditorSource).toContain('@move-node="moveNode"');
+    expect(contributionEditorSource).toContain('@node-action="nodeAction"');
+    expect(contributionEditorSource).toContain('@history-action="restoreHistory"');
+    expect(contributionEditorSource).toContain(':clipboard-kind="clipboard?.kind"');
+    expect(contributionEditorSource).toContain('duplicateSkillEditorDetachedStep');
     expect(contributionEditorSource).not.toContain('<textarea');
   });
 });

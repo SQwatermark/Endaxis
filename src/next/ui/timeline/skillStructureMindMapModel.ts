@@ -21,8 +21,10 @@ export interface SkillStructureNode {
   readonly editorSection: SkillStructureEditorSection;
   readonly reference?: { readonly kind: 'buff' | 'entity'; readonly id: string };
   readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
-  readonly payloadKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
-  readonly acceptsChildKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+  readonly payloadKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+  readonly acceptsChildKind?:
+    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
 }
 
 export interface SkillStructureMindMapLabels {
@@ -267,6 +269,7 @@ export function buildEquipmentContributionMindMap(
         sourcePath: 'modifiers',
         details: { 数量: modifiers.length },
         editorSection: 'overview',
+        acceptsChildKind: 'equipmentModifier',
         children: modifiers.map((modifier, index) => ({
           id: `equipment:modifier:${index}`,
           label: `${index + 1}. ${modifier.kind}`,
@@ -276,6 +279,7 @@ export function buildEquipmentContributionMindMap(
           details: { ...modifier },
           editorSection: index,
           children: [],
+          payloadKind: 'equipmentModifier',
         })),
       },
       {
@@ -286,6 +290,7 @@ export function buildEquipmentContributionMindMap(
         sourcePath: 'eventHandlers',
         details: { 数量: handlers.length },
         editorSection: 'overview',
+        acceptsChildKind: 'equipmentHandler',
         children: handlers.map((handler, index) => ({
           id: `equipment:handler:${index}`,
           label: handler.key,
@@ -294,6 +299,7 @@ export function buildEquipmentContributionMindMap(
           sourcePath: `eventHandlers[${index}]`,
           details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
           editorSection: index,
+          payloadKind: 'equipmentHandler',
           children: [
             sequenceNode(
               handler.sequence,
