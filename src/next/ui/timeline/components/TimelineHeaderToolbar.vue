@@ -9,6 +9,7 @@ defineProps<{
   canUndo: boolean;
   canRedo: boolean;
   canPaste: boolean;
+  projectDirty: boolean;
   labels: {
     undo: string;
     redo: string;
@@ -93,7 +94,7 @@ defineEmits<{
 
       <div class="scenario-title" :title="scenarioName">
         <span>[</span><strong>{{ scenarioName }}</strong
-        ><span>]</span>
+        ><span>]</span><i v-if="projectDirty" class="dirty-indicator" title="项目有未导出修改">●</i>
       </div>
       <button type="button" class="scenario-tab is-active">01</button>
       <button type="button" class="icon-button add-button" disabled :title="labels.add">+</button>
@@ -249,6 +250,13 @@ button {
 .scenario-title strong {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.dirty-indicator {
+  flex: none;
+  color: var(--ea-gold);
+  font-size: 8px;
+  font-style: normal;
 }
 
 .scenario-tab {

@@ -25,4 +25,14 @@ describe('Next project I/O shell', () => {
     expect(editorSource).toContain('createProjectDocumentIdAllocator');
     expect(editorSource).not.toContain('nextDocumentId');
   });
+
+  it('protects dirty projects before replacing or leaving the page', () => {
+    expect(editorSource).toContain('snapshot.project !== savedProjectSnapshot.value');
+    expect(editorSource).toContain('ElMessageBox.confirm');
+    expect(editorSource).toContain(
+      "window.addEventListener('beforeunload', protectUnsavedProject)",
+    );
+    expect(editorSource).toContain(':project-dirty="projectDirty"');
+    expect(toolbarSource).toContain('class="dirty-indicator"');
+  });
 });

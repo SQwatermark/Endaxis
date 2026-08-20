@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onScopeDispose, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   getEnemyGameName,
   getOperatorCombatSkillName,
@@ -218,6 +218,8 @@ initialProject.scenarios = [initialScenario];
 const projectSession = new ProjectEditorSession(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
+const savedProjectSnapshot = shallowRef(initialProject);
+const projectDirty = ref(false);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
@@ -228,6 +230,7 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   applyActionSelection(reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario));
 });
 const unsubscribeProjectSession = projectSession.subscribe(snapshot => {
+  projectDirty.value = snapshot.project !== savedProjectSnapshot.value;
   const library = getProjectDefinitionLibrary(snapshot.project);
   if (library === projectDefinitionLibrary.value) return;
   projectDefinitionLibrary.value = library;
@@ -239,7 +242,15 @@ onScopeDispose(() => {
   scenarioSession.dispose();
   cancelConnectionDrag();
   cancelCastMove();
+  window.removeEventListener('beforeunload', protectUnsavedProject);
 });
+
+function protectUnsavedProject(event: BeforeUnloadEvent): void {
+  if (!projectDirty.value) return;
+  event.preventDefault();
+  event.returnValue = '';
+}
+window.addEventListener('beforeunload', protectUnsavedProject);
 
 function commitScenario(
   commandName: string,
@@ -279,7 +290,18 @@ function projectOpenFailureMessage(result: Exclude<OpenProjectResult, { ok: true
   return '项目迁移器声明与项目版本不一致';
 }
 
-function requestOpenProject(): void {
+async function requestOpenProject(): Promise<void> {
+  if (projectDirty.value) {
+    try {
+      await ElMessageBox.confirm('当前项目有尚未导出的修改。继续加载会替换整个项目。', '加载项目', {
+        confirmButtonText: '继续加载',
+        cancelButtonText: '取消',
+        type: 'warning',
+      });
+    } catch {
+      return;
+    }
+  }
   projectFileInput.value?.click();
 }
 
@@ -297,6 +319,8 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     showSkillDefinitionEditor.value = false;
     showOperatorDefinitionWorkspace.value = false;
     projectSession.replaceProject(result.project);
+    savedProjectSnapshot.value = result.project;
+    projectDirty.value = false;
     selectedTrack.value = 0;
     selectedCastId.value = null;
     actionSelection.value = createEmptyTimelineActionSelection();
@@ -324,6 +348,8 @@ function exportProject(): void {
     anchor.download = `${fileBase || 'endaxis-project'}.json`;
     anchor.click();
     URL.revokeObjectURL(blobUrl);
+    savedProjectSnapshot.value = project;
+    projectDirty.value = false;
     ElMessage.success('项目 JSON 已导出');
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '导出项目失败');
@@ -1842,6 +1868,7 @@ function setPanelDialogVisible(visible: boolean): void {
         :can-undo="canUndo"
         :can-redo="canRedo"
         :can-paste="timelineClipboard !== null"
+        :project-dirty="projectDirty"
         :labels="{
           undo: t('timeline.shortcuts.items.undo'),
           redo: t('timeline.shortcuts.items.redo'),
