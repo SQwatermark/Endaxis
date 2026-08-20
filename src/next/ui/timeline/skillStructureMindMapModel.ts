@@ -636,6 +636,7 @@ export function buildBuffStructureMindMap(
   buffId: string,
   definition: SkillBuffDefinition,
 ): SkillStructureNode {
+  const scheduledSequences = definition.scheduledSequences ?? [];
   const lifecycleNodes = Object.entries(definition.lifecycleSequences ?? {}).flatMap(
     ([key, sequence]) => {
       if (sequence === undefined) return [];
@@ -657,16 +658,38 @@ export function buildBuffStructureMindMap(
     id: 'buff',
     label: buffId,
     kind: 'Buff 定义',
-    summary: `${lifecycleNodes.length} 个生命周期 · ${abilityResponses.length + igniteResponses.length} 个事件响应`,
+    summary: `${scheduledSequences.length} 条调度序列 · ${lifecycleNodes.length} 个生命周期 · ${abilityResponses.length + igniteResponses.length} 个事件响应`,
     sourcePath: '',
     details: {
       叠加类型: definition.stackingType,
       持续秒数: definition.durationSeconds ?? '—',
       生命周期数: lifecycleNodes.length,
+      调度序列数: scheduledSequences.length,
       事件响应数: abilityResponses.length + igniteResponses.length,
     },
     editorSection: 'overview',
     children: [
+      {
+        id: 'buff:scheduled-sequences',
+        label: '调度序列',
+        kind: '序列分组',
+        summary: `${scheduledSequences.length} 条`,
+        sourcePath: 'scheduledSequences',
+        details: { 数量: scheduledSequences.length },
+        editorSection: 0,
+        children: scheduledSequences.map((sequence, index) =>
+          scheduledSequenceNodeAtPath(
+            sequence,
+            `buff:sequence:${index}`,
+            `scheduledSequences[${index}]`,
+            `调度序列 ${index + 1}`,
+            index,
+          ),
+        ),
+        canAddChild: 'sequence',
+        acceptsChildKind: 'scheduledSequence',
+        relationToParent: 'port',
+      },
       ...lifecycleNodes,
       {
         id: 'buff:ability-responses',

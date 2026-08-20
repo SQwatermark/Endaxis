@@ -200,6 +200,15 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffEventResponseInspectorSource).not.toContain('ActionSequenceEditor');
   });
 
+  it('Buff 调度序列贯通集合操作、帧 Inspector 和步骤树', () => {
+    expect(buffGraphEditorSource).toContain('selectedSequence');
+    expect(buffGraphEditorSource).toContain('appendSequence');
+    expect(buffGraphEditorSource).toContain('updateSequenceFrame');
+    expect(buffGraphEditorSource).toContain("kind: 'scheduledSequence'");
+    expect(buffGraphEditorSource).toContain('copySequence');
+    expect(buffGraphEditorSource).toContain("await selectPath('scheduledSequences')");
+  });
+
   it('固定结构字段使用端口关系的连线与节点轮廓', () => {
     expect(structureMapSource).toContain("node.relationToParent === 'port'");
     expect(structureMapSource).toContain('固定字段端口');

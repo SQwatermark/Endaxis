@@ -12,6 +12,7 @@ import {
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import type {
   CombatStepDefinition,
+  ScheduledSequenceDefinition,
   SkillBuffAbilityEventResponse,
   SkillBuffDefinition,
   SkillBuffIgniteEventResponse,
@@ -97,6 +98,7 @@ const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
+  | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'buffAbilityResponse'; readonly value: SkillBuffAbilityEventResponse }
   | { readonly kind: 'buffIgniteResponse'; readonly value: SkillBuffIgniteEventResponse }
 >();
@@ -116,6 +118,15 @@ const selectedStep = computed(() =>
   selectedNode.value?.kind === '战斗步骤'
     ? (resolveStructureValue(props.definition, selectedPath.value) as CombatStepDefinition)
     : undefined,
+);
+const selectedSequenceIndex = computed(() => {
+  const match = /^scheduledSequences\[(\d+)\]$/.exec(selectedPath.value);
+  return match === null ? undefined : Number(match[1]);
+});
+const selectedSequence = computed(() =>
+  selectedSequenceIndex.value === undefined
+    ? undefined
+    : props.definition.scheduledSequences?.[selectedSequenceIndex.value],
 );
 const selectedAbilityResponse = computed(() =>
   selectedNode.value?.payloadKind === 'buffAbilityResponse'
@@ -168,7 +179,11 @@ watch(
 );
 
 function context(): SkillDefinition {
-  return { key: `buff:${props.buffId}`, timelineBlockFrames: 0, scheduledSequences: [] };
+  return {
+    key: `buff:${props.buffId}`,
+    timelineBlockFrames: 0,
+    scheduledSequences: props.definition.scheduledSequences ?? [],
+  };
 }
 function createStep(kind: EditableCombatStepKind): CombatStepDefinition {
   return createSkillEditorStep(context(), kind);
@@ -222,11 +237,21 @@ async function beginAdd(
   } else if (node.canAddChild === 'step') {
     pendingMode.value = 'step';
     pickerKey.value += 1;
+  } else if (node.canAddChild === 'sequence') {
+    await appendSequence();
   } else if (node.canAddChild === 'buffAbilityResponse') {
     await appendResponse('buffAbilityResponse');
   } else if (node.canAddChild === 'buffIgniteResponse') {
     await appendResponse('buffIgniteResponse');
   }
+}
+async function appendSequence(): Promise<void> {
+  const result = insertStructureArrayItem(props.definition, 'scheduledSequences', {
+    startFrame: 0,
+    sequence: { steps: [] },
+  });
+  emitStructureUpdate(result.root);
+  await selectPath(result.itemPath);
 }
 function closeLifecycleFromOutside(event: PointerEvent): void {
   if (pendingMode.value === 'lifecycle' && !lifecyclePicker.value?.contains(event.target as Node)) {
@@ -236,14 +261,24 @@ function closeLifecycleFromOutside(event: PointerEvent): void {
 onMounted(() => document.addEventListener('pointerdown', closeLifecycleFromOutside));
 onBeforeUnmount(() => document.removeEventListener('pointerdown', closeLifecycleFromOutside));
 async function appendStep(kind: EditableCombatStepKind): Promise<void> {
-  const result = appendCombatStepInStructure(
-    props.definition,
-    selectedPath.value,
-    createStep(kind),
-  );
+  const sequencePath =
+    selectedSequence.value === undefined ? selectedPath.value : `${selectedPath.value}.sequence`;
+  const result = appendCombatStepInStructure(props.definition, sequencePath, createStep(kind));
   emitStructureUpdate(result.root);
   pendingMode.value = '';
   await selectPath(result.stepPath);
+}
+function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): void {
+  if (selectedSequence.value === undefined) return;
+  const raw = (event.target as HTMLInputElement).value;
+  const next: ScheduledSequenceDefinition = { ...selectedSequence.value };
+  if (field === 'endFrame' && raw === '') delete next.endFrame;
+  else {
+    const value = Math.round(Number(raw));
+    if (!Number.isFinite(value) || value < 0) return;
+    next[field] = value;
+  }
+  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, next));
 }
 async function addLifecycle(key: (typeof LIFECYCLE_KEYS)[number]): Promise<void> {
   emitStructureUpdate(
@@ -290,13 +325,45 @@ async function copyStep(): Promise<void> {
   emitStructureUpdate(result.root);
   await selectPath(result.stepPath);
 }
+async function moveSequence(offset: -1 | 1): Promise<void> {
+  const index = selectedSequenceIndex.value;
+  const sequences = props.definition.scheduledSequences ?? [];
+  if (index === undefined) return;
+  const target = index + offset;
+  if (target < 0 || target >= sequences.length) return;
+  const next = [...sequences];
+  [next[index], next[target]] = [next[target]!, next[index]!];
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, 'scheduledSequences', next));
+  await selectPath(`scheduledSequences[${target}]`);
+}
+async function copySequence(): Promise<void> {
+  const index = selectedSequenceIndex.value;
+  const sequence = selectedSequence.value;
+  if (index === undefined || sequence === undefined) return;
+  const result = insertStructureArrayItem(
+    props.definition,
+    'scheduledSequences',
+    {
+      ...sequence,
+      sequence: { steps: sequence.sequence.steps.map(duplicateStep) },
+    },
+    index + 1,
+  );
+  emitStructureUpdate(result.root);
+  await selectPath(result.itemPath);
+}
 async function moveStructureNode(operation: {
   readonly source: StructureOperationNode;
   readonly target: StructureOperationNode;
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
-  if (kind !== 'combatStep' && kind !== 'buffAbilityResponse' && kind !== 'buffIgniteResponse') {
+  if (
+    kind !== 'combatStep' &&
+    kind !== 'scheduledSequence' &&
+    kind !== 'buffAbilityResponse' &&
+    kind !== 'buffIgniteResponse'
+  ) {
     return;
   }
   let arrayPath: string;
@@ -304,7 +371,11 @@ async function moveStructureNode(operation: {
   if (operation.placement === 'inside') {
     if (operation.target.acceptsChildKind !== kind) return;
     arrayPath =
-      kind === 'combatStep' ? `${operation.target.sourcePath}.steps` : operation.target.sourcePath;
+      kind === 'combatStep'
+        ? operation.target.payloadKind === 'scheduledSequence'
+          ? `${operation.target.sourcePath}.sequence.steps`
+          : `${operation.target.sourcePath}.steps`
+        : operation.target.sourcePath;
   } else {
     const match = /^(.*)\[(\d+)\]$/.exec(operation.target.sourcePath);
     if (match === null || operation.target.payloadKind !== kind) return;
@@ -330,6 +401,7 @@ async function runStructureNodeAction(
   if (
     action === 'copy' &&
     (node.payloadKind === 'combatStep' ||
+      node.payloadKind === 'scheduledSequence' ||
       node.payloadKind === 'buffAbilityResponse' ||
       node.payloadKind === 'buffIgniteResponse')
   ) {
@@ -355,6 +427,11 @@ async function runStructureNodeAction(
     );
     return;
   }
+  if (action === 'delete' && node.payloadKind === 'scheduledSequence') {
+    emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
+    await selectPath('scheduledSequences');
+    return;
+  }
   if (
     action !== 'paste' ||
     structureClipboard.value === undefined ||
@@ -364,14 +441,23 @@ async function runStructureNodeAction(
   }
   const clipboard = structureClipboard.value;
   const arrayPath = clipboard.kind === 'combatStep' ? `${node.sourcePath}.steps` : node.sourcePath;
+  const targetArrayPath =
+    clipboard.kind === 'combatStep' && node.payloadKind === 'scheduledSequence'
+      ? `${node.sourcePath}.sequence.steps`
+      : arrayPath;
   const value =
     clipboard.kind === 'combatStep'
       ? duplicateStep(clipboard.value)
-      : {
-          ...cloneStructureValue(clipboard.value),
-          sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
-        };
-  const result = insertStructureArrayItem(props.definition, arrayPath, value);
+      : clipboard.kind === 'scheduledSequence'
+        ? {
+            ...cloneStructureValue(clipboard.value),
+            sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
+          }
+        : {
+            ...cloneStructureValue(clipboard.value),
+            sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
+          };
+  const result = insertStructureArrayItem(props.definition, targetArrayPath, value);
   emitStructureUpdate(result.root);
   await selectPath(result.itemPath);
 }
@@ -392,6 +478,11 @@ async function deleteCurrent(): Promise<void> {
         : 'igniteEventResponses';
     emitStructureUpdate(removeStructureArrayItem(props.definition, selectedPath.value));
     await selectPath(parentPath);
+    return;
+  }
+  if (selectedSequence.value !== undefined) {
+    emitStructureUpdate(removeStructureArrayItem(props.definition, selectedPath.value));
+    await selectPath('scheduledSequences');
     return;
   }
   const lifecycle = /^lifecycleSequences\.([^.]+)$/.exec(selectedPath.value);
@@ -489,6 +580,52 @@ async function deleteCurrent(): Promise<void> {
           inspector-only
           @update="updateStep"
         />
+      </section>
+
+      <section v-else-if="selectedSequence" class="node-card">
+        <header>
+          <div>
+            <small>Buff 调度序列</small><strong>序列 {{ selectedSequenceIndex! + 1 }}</strong>
+          </div>
+          <div class="node-actions">
+            <button :disabled="selectedSequenceIndex === 0" @click="moveSequence(-1)">
+              <el-icon><ArrowUp /></el-icon>
+            </button>
+            <button
+              :disabled="selectedSequenceIndex === (definition.scheduledSequences?.length ?? 0) - 1"
+              @click="moveSequence(1)"
+            >
+              <el-icon><ArrowDown /></el-icon>
+            </button>
+            <button @click="copySequence">
+              <el-icon><CopyDocument /></el-icon>
+            </button>
+            <button @click="deleteCurrent">
+              <el-icon><Delete /></el-icon>
+            </button>
+          </div>
+        </header>
+        <label class="field-row">
+          <span>开始帧</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            :value="selectedSequence.startFrame"
+            @input="updateSequenceFrame('startFrame', $event)"
+          />
+        </label>
+        <label class="field-row">
+          <span>结束帧</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            :value="selectedSequence.endFrame ?? ''"
+            @input="updateSequenceFrame('endFrame', $event)"
+          />
+        </label>
+        <p>子步骤从导图节点的＋添加。</p>
       </section>
 
       <section

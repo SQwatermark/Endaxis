@@ -145,6 +145,15 @@ describe('skillStructureMindMapModel', () => {
   it('projects Buff lifecycle and ability-entity child timelines through the same node model', () => {
     const buff = buildBuffStructureMindMap('buff.test', {
       stackingType: 'refresh',
+      scheduledSequences: [
+        {
+          startFrame: 4,
+          endFrame: 12,
+          sequence: {
+            steps: [{ kind: 'changeResource', parameters: { resource: 'sp', amount: 3 } }],
+          },
+        },
+      ],
       lifecycleSequences: {
         trigger: {
           steps: [{ kind: 'changeResource', parameters: { resource: 'sp', amount: 1 } }],
@@ -169,6 +178,14 @@ describe('skillStructureMindMapModel', () => {
     } as never);
     const buffNodes = indexSkillStructureNodes(buff);
     expect(buff.canAddChild).toBe('lifecycle');
+    expect(buffNodes.get('buff:scheduled-sequences')?.canAddChild).toBe('sequence');
+    expect(buffNodes.get('buff:scheduled-sequences')?.relationToParent).toBe('port');
+    expect(buffNodes.get('buff:sequence:0')?.sourcePath).toBe('scheduledSequences[0]');
+    expect(buffNodes.get('buff:sequence:0')?.payloadKind).toBe('scheduledSequence');
+    expect(buffNodes.get('buff:sequence:0')?.relationToParent).toBe('member');
+    expect(buffNodes.get('buff:sequence:0:step:0')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[0]',
+    );
     expect(buffNodes.get('buff:lifecycle:trigger')?.canAddChild).toBe('step');
     expect(buffNodes.get('buff:lifecycle:trigger:step:0')?.sourcePath).toBe(
       'lifecycleSequences.trigger.steps[0]',
