@@ -18,11 +18,29 @@ interface MapNodeSource {
   readonly editorSection?: 'overview' | 'blackboard' | 'availability' | number;
   readonly reference?: MapReference;
   readonly canAddChild?:
-    'sequence' | 'step' | 'lifecycle' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'sequence'
+    | 'step'
+    | 'lifecycle'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
   readonly payloadKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
   readonly acceptsChildKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
+  readonly canDelete?: boolean;
+  readonly canMove?: boolean;
 }
 
 interface PositionedNode {
@@ -138,6 +156,7 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'childSkill') return '实体子技能';
   if (props.clipboardKind === 'equipmentModifier') return '属性修正';
   if (props.clipboardKind === 'equipmentHandler') return '事件响应';
+  if (props.clipboardKind === 'combatCondition') return '战斗条件';
   return '';
 });
 
@@ -194,7 +213,7 @@ function compatiblePlacement(event: DragEvent, target: MapNodeSource) {
 }
 
 function startNodeDrag(event: DragEvent, node: MapNodeSource): void {
-  if (node.payloadKind === undefined) return;
+  if (node.payloadKind === undefined || node.canMove === false) return;
   draggedNode.value = node;
   event.dataTransfer?.setData('text/plain', node.id);
   if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
@@ -252,7 +271,8 @@ function handleKeyboard(event: KeyboardEvent): void {
     emit('historyAction', 'redo');
   } else if (
     (event.key === 'Delete' || event.key === 'Backspace') &&
-    node.payloadKind !== undefined
+    node.payloadKind !== undefined &&
+    node.canDelete !== false
   ) {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -553,7 +573,7 @@ watch(
             @contextmenu="openContextMenu($event, node.source)"
           >
             <span
-              v-if="node.source.payloadKind"
+              v-if="node.source.payloadKind && node.source.canMove !== false"
               class="node-drag-handle"
               draggable="true"
               title="拖放以移动节点"
@@ -616,7 +636,7 @@ watch(
           粘贴 <kbd>Ctrl+V</kbd>
         </button>
         <button
-          v-if="contextMenu.node.payloadKind"
+          v-if="contextMenu.node.payloadKind && contextMenu.node.canDelete !== false"
           class="danger"
           @click="runNodeAction('delete', contextMenu.node)"
         >

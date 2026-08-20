@@ -40,7 +40,7 @@ const RecursiveConditionEditor = defineAsyncComponent(() => import('./CombatCond
 const TAG_QUERY_TYPES = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
 const EVENT_TAG_MATCH_TYPES = ['exact', ...TAG_QUERY_TYPES] as const;
 
-const props = defineProps<{ condition: CombatCondition }>();
+const props = defineProps<{ condition: CombatCondition; layerOnly?: boolean }>();
 const emit = defineEmits<{ update: [condition: CombatCondition] }>();
 const { t } = useI18n({ useScope: 'global' });
 const newChildKind = ref<CombatConditionKind>('combatActive');
@@ -815,11 +815,11 @@ function removeChild(index: number): void {
       >
     </template>
 
-    <div v-if="condition.kind === 'not'" class="condition-editor__children">
+    <div v-if="!layerOnly && condition.kind === 'not'" class="condition-editor__children">
       <RecursiveConditionEditor :condition="condition.condition" @update="updateChild(0, $event)" />
     </div>
     <div
-      v-else-if="condition.kind === 'all' || condition.kind === 'any'"
+      v-else-if="!layerOnly && (condition.kind === 'all' || condition.kind === 'any')"
       class="condition-editor__children"
     >
       <div

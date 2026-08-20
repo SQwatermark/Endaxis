@@ -42,6 +42,17 @@ function setAtPath(root: unknown, path: string, value: unknown): void {
   parent[parts.at(-1)!] = value;
 }
 
+function deleteAtPath(root: unknown, path: string): void {
+  const parts = tokens(path);
+  if (parts.length === 0) throw new TypeError('cannot delete the structure root');
+  let parent = root as Record<PathToken, unknown>;
+  for (const token of parts.slice(0, -1)) {
+    if (parent[token] === undefined || parent[token] === null) return;
+    parent = parent[token] as Record<PathToken, unknown>;
+  }
+  delete parent[parts.at(-1)!];
+}
+
 function arrayItem(path: string): { readonly arrayPath: string; readonly index: number } {
   const match = /^(.*)\[(\d+)\]$/.exec(path);
   if (match === null) throw new TypeError(`not an array-item path: '${path}'`);
@@ -103,6 +114,12 @@ export function moveStructureArrayItem<T>(
 export function replaceStructureValueAtPath<T>(root: T, path: string, value: unknown): T {
   const next = clone(root);
   setAtPath(next, path, value);
+  return next;
+}
+
+export function deleteStructureValueAtPath<T>(root: T, path: string): T {
+  const next = clone(root);
+  deleteAtPath(next, path);
   return next;
 }
 

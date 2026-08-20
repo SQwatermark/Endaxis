@@ -12,6 +12,7 @@ import {
   DAMAGE_TYPES,
   OPERATOR_ATTRIBUTES,
   SKILL_TYPES,
+  type CombatCondition,
   type CombatStepDefinition,
   type DamageType,
   type LevelValues,
@@ -22,8 +23,9 @@ import {
   findSkillStructureNodeForPath,
 } from '../skillStructureMindMapModel';
 import {
-  cloneStructureValue,
   appendCombatStepInStructure,
+  cloneStructureValue,
+  deleteStructureValueAtPath,
   insertStructureArrayItem,
   moveStructureArrayItem,
   removeStructureArrayItem,
@@ -40,9 +42,16 @@ import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
 import EquipmentContributionTypePicker from './EquipmentContributionTypePicker.vue';
+import CombatConditionEditor from './CombatConditionEditor.vue';
+import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 
 type ContributionPayloadKind =
-  'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+  | 'scheduledSequence'
+  | 'combatStep'
+  | 'childSkill'
+  | 'equipmentModifier'
+  | 'equipmentHandler'
+  | 'combatCondition';
 interface ContributionOperationNode {
   readonly id: string;
   readonly sourcePath: string;
@@ -58,8 +67,9 @@ const props = defineProps<{
 const emit = defineEmits<{ update: [contribution: EquipmentContributionDefinition] }>();
 const selectedPath = ref('');
 const selectedId = ref('equipment:contribution');
+const selectedPayloadKind = ref<ContributionPayloadKind>();
 const pendingAdd = ref<{
-  readonly kind: 'step' | 'modifier' | 'handler';
+  readonly kind: 'step' | 'modifier' | 'handler' | 'condition';
   readonly targetPath: string;
   readonly anchor: { readonly x: number; readonly y: number };
 } | null>(null);
@@ -75,6 +85,7 @@ const clipboard = shallowRef<
   | { readonly kind: 'equipmentModifier'; readonly value: EquipmentModifierDefinition }
   | { readonly kind: 'equipmentHandler'; readonly value: EquipmentEventHandlerDefinition }
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
+  | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
 >();
 const structure = computed(() =>
   buildEquipmentContributionMindMap(props.contribution, props.label),
@@ -93,26 +104,41 @@ const selectedHandler = computed(() =>
 const selectedStep = computed(() =>
   /\.steps\[\d+\]$/.test(selectedPath.value) ? (selectedValue.value as CombatStepDefinition) : null,
 );
+const selectedCondition = computed(() =>
+  selectedPayloadKind.value === 'combatCondition' ? (selectedValue.value as CombatCondition) : null,
+);
 
 watch(
   () => props.label,
   () => {
     selectedPath.value = '';
     selectedId.value = 'equipment:contribution';
+    selectedPayloadKind.value = undefined;
     undoStack.value = [];
     redoStack.value = [];
   },
 );
 
-function selectNode(node: { id: string; sourcePath: string }): void {
+function selectNode(node: {
+  id: string;
+  sourcePath: string;
+  payloadKind?: ContributionPayloadKind;
+}): void {
   selectedId.value = node.id;
   selectedPath.value = node.sourcePath;
+  selectedPayloadKind.value = node.payloadKind;
 }
 
 function beginAdd(
   node: ContributionOperationNode & {
     readonly canAddChild?:
-      'step' | 'equipmentModifier' | 'equipmentHandler' | 'sequence' | 'lifecycle' | 'childSkill';
+      | 'step'
+      | 'equipmentModifier'
+      | 'equipmentHandler'
+      | 'combatCondition'
+      | 'sequence'
+      | 'lifecycle'
+      | 'childSkill';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {
@@ -123,7 +149,9 @@ function beginAdd(
         ? 'modifier'
         : node.canAddChild === 'equipmentHandler'
           ? 'handler'
-          : null;
+          : node.canAddChild === 'combatCondition'
+            ? 'condition'
+            : null;
   if (kind === null) return;
   selectNode(node);
   pendingAdd.value = { kind, targetPath: node.sourcePath, anchor };
@@ -151,6 +179,7 @@ async function restoreHistory(action: 'undo' | 'redo'): Promise<void> {
   emit('update', cloneStructureValue(snapshot));
   selectedPath.value = '';
   selectedId.value = 'equipment:contribution';
+  selectedPayloadKind.value = undefined;
 }
 
 function childArrayPath(
@@ -159,6 +188,7 @@ function childArrayPath(
 ): string | undefined {
   if (node.acceptsChildKind !== kind) return undefined;
   if (kind === 'combatStep') return `${node.sourcePath}.steps`;
+  if (kind === 'combatCondition') return `${node.sourcePath}.conditions`;
   return node.sourcePath;
 }
 
@@ -181,6 +211,7 @@ async function selectPath(path: string): Promise<void> {
   const node = findSkillStructureNodeForPath(structure.value, path);
   selectedPath.value = node.sourcePath;
   selectedId.value = node.id;
+  selectedPayloadKind.value = node.payloadKind;
 }
 
 async function moveNode(operation: {
@@ -190,6 +221,12 @@ async function moveNode(operation: {
 }): Promise<void> {
   const kind = operation.source.payloadKind;
   if (kind === undefined || kind === 'scheduledSequence' || kind === 'childSkill') return;
+  if (kind === 'combatCondition') {
+    const source = /^(.*\.conditions)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(props.contribution, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
   const target = insertionTarget(operation.target, kind, operation.placement);
   if (target === undefined) return;
   const result = moveStructureArrayItem(
@@ -248,13 +285,40 @@ async function appendStep(kind: EditableCombatStepKind): Promise<void> {
   await selectPath(result.stepPath);
 }
 
+async function appendCondition(condition: CombatCondition): Promise<void> {
+  const pending = pendingAdd.value;
+  if (pending?.kind !== 'condition') return;
+  const target = resolveStructureValue(props.contribution, pending.targetPath) as
+    EquipmentEventHandlerDefinition | CombatCondition;
+  if ('kind' in target && (target.kind === 'all' || target.kind === 'any')) {
+    const result = insertStructureArrayItem(
+      props.contribution,
+      `${pending.targetPath}.conditions`,
+      condition,
+    );
+    pendingAdd.value = null;
+    commit(result.root);
+    await selectPath(result.itemPath);
+    return;
+  }
+  const conditionPath = `${pending.targetPath}.condition`;
+  pendingAdd.value = null;
+  commit(replaceStructureValueAtPath(props.contribution, conditionPath, condition));
+  await selectPath(conditionPath);
+}
+
 async function nodeAction(
   action: 'delete' | 'copy' | 'paste',
   node: ContributionOperationNode,
 ): Promise<void> {
   const kind = node.payloadKind;
   if (action === 'copy') {
-    if (kind !== 'equipmentModifier' && kind !== 'equipmentHandler' && kind !== 'combatStep')
+    if (
+      kind !== 'equipmentModifier' &&
+      kind !== 'equipmentHandler' &&
+      kind !== 'combatStep' &&
+      kind !== 'combatCondition'
+    )
       return;
     clipboard.value = {
       kind,
@@ -263,6 +327,20 @@ async function nodeAction(
     return;
   }
   if (action === 'delete' && kind !== undefined) {
+    if (kind === 'combatCondition') {
+      const child = /^(.*\.conditions)\[\d+\]$/.exec(node.sourcePath);
+      if (child !== null) {
+        const siblings = resolveStructureValue(props.contribution, child[1]!) as readonly unknown[];
+        if (siblings.length <= 1) return;
+        commit(removeStructureArrayItem(props.contribution, node.sourcePath));
+        await selectPath(child[1]!.replace(/\.conditions$/, ''));
+        return;
+      }
+      if (!/^eventHandlers\[\d+\]\.condition$/.test(node.sourcePath)) return;
+      commit(deleteStructureValueAtPath(props.contribution, node.sourcePath));
+      await selectPath(node.sourcePath.replace(/\.condition$/, ''));
+      return;
+    }
     commit(removeStructureArrayItem(props.contribution, node.sourcePath));
     await selectPath(node.sourcePath.replace(/\[[0-9]+\]$/, ''));
     return;
@@ -396,6 +474,13 @@ function toggleSkillType(skillType: SkillType): void {
       @handler="appendHandler"
       @close="pendingAdd = null"
     />
+    <CombatConditionTypePicker
+      v-if="pendingAdd?.kind === 'condition'"
+      :key="`condition:${pickerKey}`"
+      :anchor="pendingAdd.anchor"
+      @select="appendCondition"
+      @close="pendingAdd = null"
+    />
     <aside class="contribution-inspector">
       <template v-if="selectedModifier">
         <header>
@@ -484,6 +569,12 @@ function toggleSkillType(skillType: SkillType): void {
           <small>单值或逗号分隔的逐级数值；当前预览等级 {{ level }}。</small>
         </label>
       </template>
+      <CombatConditionEditor
+        v-else-if="selectedCondition"
+        :condition="selectedCondition"
+        layer-only
+        @update="replaceSelected"
+      />
       <template v-else-if="selectedHandler">
         <header>
           <strong>事件响应</strong><span>{{ selectedHandler.key }}</span>
@@ -504,7 +595,7 @@ function toggleSkillType(skillType: SkillType): void {
           :event="selectedHandler.event"
           @update="replaceSelected({ ...selectedHandler, event: $event })"
         />
-        <p class="hint">条件保持原定义；在条件节点接入导图前不会被扁平化或丢弃。</p>
+        <p class="hint">响应条件与动作序列作为子节点显示在画布中；右侧只编辑当前层。</p>
       </template>
       <CombatStepEditor
         v-else-if="selectedStep"

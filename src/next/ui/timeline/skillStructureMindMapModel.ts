@@ -1,6 +1,7 @@
 import type {
   ActionSequenceDefinition,
   AbilityEntityDefinition,
+  CombatCondition,
   CombatStepDefinition,
   ScheduledSequenceDefinition,
   SkillBuffDefinition,
@@ -21,11 +22,29 @@ export interface SkillStructureNode {
   readonly editorSection: SkillStructureEditorSection;
   readonly reference?: { readonly kind: 'buff' | 'entity'; readonly id: string };
   readonly canAddChild?:
-    'sequence' | 'step' | 'lifecycle' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'sequence'
+    | 'step'
+    | 'lifecycle'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
   readonly payloadKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
   readonly acceptsChildKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
+  readonly canDelete?: boolean;
+  readonly canMove?: boolean;
 }
 
 export interface SkillStructureMindMapLabels {
@@ -64,6 +83,60 @@ function describeCondition(value: unknown, depth = 0): string {
     .slice(0, 3)
     .map(([key, entry]) => `${key}=${describeCondition(entry, depth + 1)}`);
   return parameters.length === 0 ? kind : `${kind}(${parameters.join(', ')})`;
+}
+
+function conditionNode(
+  condition: CombatCondition,
+  id: string,
+  sourcePath: string,
+  label: string = condition.kind,
+  editorSection: number = 0,
+  canDelete = true,
+  canMove = true,
+): SkillStructureNode {
+  const children =
+    condition.kind === 'not'
+      ? [
+          conditionNode(
+            condition.condition,
+            `${id}:condition`,
+            `${sourcePath}.condition`,
+            'NOT',
+            editorSection,
+            false,
+            false,
+          ),
+        ]
+      : condition.kind === 'all' || condition.kind === 'any'
+        ? condition.conditions.map((child, index) =>
+            conditionNode(
+              child,
+              `${id}:condition:${index}`,
+              `${sourcePath}.conditions[${index}]`,
+              `${index + 1}. ${child.kind}`,
+              editorSection,
+              condition.conditions.length > 1,
+              condition.conditions.length > 1,
+            ),
+          )
+        : [];
+  const composite = condition.kind === 'all' || condition.kind === 'any';
+  return {
+    id,
+    label,
+    kind: '战斗条件',
+    summary: describeCondition(condition),
+    sourcePath,
+    details: { 条件类型: condition.kind },
+    editorSection,
+    children,
+    payloadKind: 'combatCondition',
+    canDelete,
+    canMove,
+    ...(composite
+      ? { canAddChild: 'combatCondition' as const, acceptsChildKind: 'combatCondition' as const }
+      : {}),
+  };
 }
 
 function sequenceNode(
@@ -294,26 +367,43 @@ export function buildEquipmentContributionMindMap(
         editorSection: 'overview',
         canAddChild: 'equipmentHandler',
         acceptsChildKind: 'equipmentHandler',
-        children: handlers.map((handler, index) => ({
-          id: `equipment:handler:${index}`,
-          label: handler.key,
-          kind: '事件响应',
-          summary: handler.event.kind,
-          sourcePath: `eventHandlers[${index}]`,
-          details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
-          editorSection: index,
-          payloadKind: 'equipmentHandler',
-          children: [
-            sequenceNode(
-              handler.sequence,
-              `equipment:handler:${index}:sequence`,
-              '响应序列',
-              `eventHandlers[${index}].sequence`,
-              `${handler.sequence.steps.length} 个直属步骤`,
-              index,
-            ),
-          ],
-        })),
+        children: handlers.map((handler, index) => {
+          const handlerPath = `eventHandlers[${index}]`;
+          return {
+            id: `equipment:handler:${index}`,
+            label: handler.key,
+            kind: '事件响应',
+            summary: handler.event.kind,
+            sourcePath: handlerPath,
+            details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
+            editorSection: index,
+            payloadKind: 'equipmentHandler' as const,
+            ...(handler.condition === undefined ? { canAddChild: 'combatCondition' as const } : {}),
+            children: [
+              ...(handler.condition === undefined
+                ? []
+                : [
+                    conditionNode(
+                      handler.condition,
+                      `equipment:handler:${index}:condition`,
+                      `${handlerPath}.condition`,
+                      '响应条件',
+                      index,
+                      true,
+                      false,
+                    ),
+                  ]),
+              sequenceNode(
+                handler.sequence,
+                `equipment:handler:${index}:sequence`,
+                '响应序列',
+                `${handlerPath}.sequence`,
+                `${handler.sequence.steps.length} 个直属步骤`,
+                index,
+              ),
+            ],
+          };
+        }),
       },
     ],
   };

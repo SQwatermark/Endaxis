@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import {
   appendCombatStepAtSequencePath,
+  deleteStructureValueAtPath,
   duplicateCombatStepAtPath,
   insertStructureArrayItem,
   moveStructureArrayItem,
@@ -9,6 +10,7 @@ import {
   removeCombatStepAtPath,
   replaceCombatStepAtPath,
   resolveSkillStructureValue,
+  resolveStructureValue,
 } from './skillStructureEditorCommands';
 
 function skill(): SkillDefinition {
@@ -95,5 +97,12 @@ describe('skillStructureEditorCommands', () => {
       (resolveSkillStructureValue(moved.root, `${sourcePath}.whenFalse`) as { steps: unknown[] })
         .steps,
     ).toHaveLength(2);
+  });
+
+  it('deletes an optional nested property without mutating the source', () => {
+    const input = { handlers: [{ condition: { kind: 'combatActive' }, steps: [] }] };
+    const result = deleteStructureValueAtPath(input, 'handlers[0].condition');
+    expect(resolveStructureValue(result, 'handlers[0].condition')).toBeUndefined();
+    expect(resolveStructureValue(input, 'handlers[0].condition')).toEqual({ kind: 'combatActive' });
   });
 });

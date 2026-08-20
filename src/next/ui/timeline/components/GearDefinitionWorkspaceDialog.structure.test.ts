@@ -6,6 +6,8 @@ import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
 import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
 import contributionTypePickerSource from './EquipmentContributionTypePicker.vue?raw';
 import eventTriggerEditorSource from './CombatEventTriggerEditor.vue?raw';
+import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
+import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
@@ -78,5 +80,15 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('toggleSkillType');
     expect(contributionEditorSource).toContain('clearSkillTypeFilter');
     expect(contributionEditorSource).not.toContain('v-for="(value, key) in selectedModifier"');
+  });
+
+  it('projects event conditions into the map and keeps their inspector layer-local', () => {
+    expect(contributionEditorSource).toContain('CombatConditionTypePicker');
+    expect(contributionEditorSource).toContain('appendCondition');
+    expect(contributionEditorSource).toContain('deleteStructureValueAtPath');
+    expect(contributionEditorSource).toContain('layer-only');
+    expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
+    expect(conditionTypePickerSource).toContain('createCombatCondition');
+    expect(conditionEditorSource).toContain('!layerOnly && condition.kind');
   });
 });

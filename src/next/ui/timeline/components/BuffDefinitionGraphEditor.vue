@@ -55,9 +55,19 @@ type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
   readonly payloadKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
   readonly acceptsChildKind?:
-    'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
+    | 'scheduledSequence'
+    | 'combatStep'
+    | 'childSkill'
+    | 'equipmentModifier'
+    | 'equipmentHandler'
+    | 'combatCondition';
 };
 
 const props = defineProps<{
