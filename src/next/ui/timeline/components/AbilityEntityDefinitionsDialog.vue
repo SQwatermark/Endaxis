@@ -5,16 +5,10 @@ import type {
   AbilityEntityDefinition,
   CombatStepDefinition,
   OperatorAbilityEntityDefinitions,
-  SkillDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { validateAbilityEntityDefinition } from '../../../core/game-data/validateSkillDefinition';
 import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
-import {
-  createSkillEditorStep,
-  duplicateSkillEditorDetachedStep,
-  type EditableCombatStepKind,
-} from '../skillDefinitionEditorViewModel';
-import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
+import AbilityEntityDefinitionGraphEditor from './AbilityEntityDefinitionGraphEditor.vue';
 
 type SpawnAbilityEntityStep = Extract<
   CombatStepDefinition,
@@ -27,6 +21,7 @@ const props = defineProps<{
   customDefinitions?: OperatorAbilityEntityDefinitions;
   commonDefinitions?: OperatorAbilityEntityDefinitions;
   skillLevel: number;
+  initialSelectedId?: string;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -85,7 +80,10 @@ watch(
     if (!visible) return;
     draft.value = cloneProjectJson(props.customDefinitions ?? {});
     const ids = Object.keys({ ...props.baseDefinitions, ...draft.value }).sort();
-    selectedId.value = ids[0] ?? '';
+    selectedId.value =
+      props.initialSelectedId !== undefined && ids.includes(props.initialSelectedId)
+        ? props.initialSelectedId
+        : (ids[0] ?? '');
     newId.value = nextCustomId(ids);
     filterText.value = '';
   },
@@ -107,22 +105,6 @@ function nextCustomId(existing = allIds.value): string {
  */
 function cloneProjectJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function childSkillContext(): SkillDefinition {
-  return {
-    key: `ability-entity:${selectedId.value}`,
-    timelineBlockFrames: 0,
-    scheduledSequences: selectedDefinition.value?.childSkill?.scheduledSequences ?? [],
-  };
-}
-
-function createStep(kind: EditableCombatStepKind): CombatStepDefinition {
-  return createSkillEditorStep(childSkillContext(), kind);
-}
-
-function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
-  return duplicateSkillEditorDetachedStep(childSkillContext(), step);
 }
 
 function updateDefinition(step: CombatStepDefinition): void {
@@ -262,13 +244,20 @@ function save(): void {
             </button>
           </div>
           <div class="entity-workspace__scroll">
-            <AbilityEntityStepEditor
-              :step="editingStep"
+            <AbilityEntityDefinitionGraphEditor
+              :ability-entity-id="selectedId"
+              :definition="selectedDefinition!"
               :skill-level="skillLevel"
-              :create-step="createStep"
-              :duplicate-step="duplicateStep"
-              definition-only
-              @update="updateDefinition"
+              @update="
+                updateDefinition({
+                  kind: 'spawnAbilityEntity',
+                  parameters: {
+                    abilityEntityId: selectedId,
+                    definition: $event,
+                    dieWhenSourceDies: false,
+                  },
+                })
+              "
             />
           </div>
         </template>
@@ -288,12 +277,7 @@ function save(): void {
         <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
           {{ t('nextTimeline.skillEditing.cancel') }}
         </button>
-        <button
-          type="button"
-          class="ea-btn ea-btn--sm"
-          :disabled="validationIssues.length > 0"
-          @click="save"
-        >
+        <button type="button" class="ea-btn ea-btn--sm" @click="save">
           {{ t('nextTimeline.skillEditing.saveAbilityEntityObjects') }}
         </button>
       </div>

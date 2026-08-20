@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type CSSProperties,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Plus, Search } from '@element-plus/icons-vue';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import { STEP_TYPE_GROUPS } from '../stepTypePickerCatalog';
 
-const props = defineProps<{ disabled?: boolean; compact?: boolean }>();
+const props = defineProps<{
+  disabled?: boolean;
+  compact?: boolean;
+  openOnMount?: boolean;
+  hideTrigger?: boolean;
+  anchor?: { readonly x: number; readonly y: number };
+}>();
 const emit = defineEmits<{ select: [kind: EditableCombatStepKind] }>();
 const { t } = useI18n({ useScope: 'global' });
 const root = ref<HTMLElement>();
@@ -40,19 +54,22 @@ async function toggle(): Promise<void> {
 }
 
 function updatePosition(): void {
-  if (!open.value || !trigger.value) return;
-  const rect = trigger.value.getBoundingClientRect();
+  if (!open.value || (trigger.value === undefined && props.anchor === undefined)) return;
+  const rect = trigger.value?.getBoundingClientRect();
+  const anchorLeft = props.anchor?.x ?? rect!.left;
+  const anchorTop = props.anchor?.y ?? rect!.top;
+  const anchorBottom = props.anchor?.y ?? rect!.bottom;
   const width = Math.min(360, window.innerWidth - 24);
-  const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
-  const spaceAbove = rect.top - 12;
-  const spaceBelow = window.innerHeight - rect.bottom - 12;
+  const left = Math.max(12, Math.min(anchorLeft, window.innerWidth - width - 12));
+  const spaceAbove = anchorTop - 12;
+  const spaceBelow = window.innerHeight - anchorBottom - 12;
   const openBelow = spaceBelow >= 320 || spaceBelow >= spaceAbove;
   const availableHeight = openBelow ? spaceBelow : spaceAbove;
   popoverStyle.value = {
     left: `${left}px`,
     width: `${width}px`,
-    top: openBelow ? `${rect.bottom + 6}px` : undefined,
-    bottom: openBelow ? undefined : `${window.innerHeight - rect.top + 6}px`,
+    top: openBelow ? `${anchorBottom + 6}px` : undefined,
+    bottom: openBelow ? undefined : `${window.innerHeight - anchorTop + 6}px`,
     '--step-picker-options-height': `${Math.max(140, availableHeight - 112)}px`,
   } as CSSProperties;
 }
@@ -71,7 +88,9 @@ onMounted(() => {
   document.addEventListener('pointerdown', closeFromOutside);
   window.addEventListener('resize', updatePosition);
   window.addEventListener('scroll', updatePosition, true);
+  if (props.openOnMount) void toggle();
 });
+watch(() => props.anchor, updatePosition, { deep: true });
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', closeFromOutside);
   window.removeEventListener('resize', updatePosition);
@@ -87,6 +106,7 @@ onBeforeUnmount(() => {
     @keydown.esc="open = false"
   >
     <button
+      v-if="!hideTrigger"
       ref="trigger"
       type="button"
       class="step-type-picker__trigger"
@@ -107,7 +127,7 @@ onBeforeUnmount(() => {
         :class="{ 'is-compact': props.compact }"
         :style="popoverStyle"
         role="menu"
-        @keydown.esc="open = false"
+        @keydown.esc.stop="open = false"
       >
         <div class="step-type-picker__heading">
           <strong>{{ t('nextTimeline.skillEditing.chooseStepType') }}</strong>

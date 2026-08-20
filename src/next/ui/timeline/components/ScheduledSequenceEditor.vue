@@ -20,6 +20,7 @@ const props = defineProps<{
   endFrameChanged?: boolean;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
+  selectedStepPath?: string;
 }>();
 const emit = defineEmits<{ update: [sequence: ScheduledSequenceDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -87,6 +88,7 @@ function setSequence(sequence: ScheduledSequenceDefinition['sequence']): void {
         :skill-level="skillLevel"
         :create-step="createStep"
         :duplicate-step="duplicateStep"
+        :selected-path="selectedStepPath"
         @update="setSequence"
       />
     </div>

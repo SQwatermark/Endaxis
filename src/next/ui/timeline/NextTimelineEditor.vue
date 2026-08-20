@@ -380,6 +380,8 @@ function openOperatorDefinitionWorkspace(): void {
   const track = scenario.value.tracks[selectedTrack.value];
   const current = selectedLoadoutModel.value.operator?.definition ?? null;
   if (track?.operator === null || track === null || current === null) return;
+  // 定义工作区取代构筑弹窗，不在其上再叠一个同尺寸模态框。
+  showOperatorBuildDialog.value = false;
   if (projectDefinitionLibrary.value.operators[current.slug] !== undefined) {
     showOperatorDefinitionWorkspace.value = true;
     return;
@@ -1530,6 +1532,8 @@ const hasModalPanel = computed(
     weaponDialogTrack.value !== null ||
     gearDialogTarget.value !== null ||
     showOperatorBuildDialog.value ||
+    showOperatorDefinitionWorkspace.value ||
+    showSkillDefinitionEditor.value ||
     showWeaponBuildDialog.value ||
     showGearBuildDialog.value ||
     panelDialogTrack.value !== null,

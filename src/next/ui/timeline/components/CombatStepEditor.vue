@@ -35,6 +35,8 @@ const props = defineProps<{
   showHeader?: boolean;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
+  selectedPath?: string;
+  inspectorOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -122,6 +124,7 @@ function forward(step: CombatStepDefinition): void {
           :skill-level="skillLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
+          :inspector-only="inspectorOnly"
           @update="forward"
         />
       </template>
@@ -131,6 +134,7 @@ function forward(step: CombatStepDefinition): void {
           :skill-level="skillLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
+          :inspector-only="inspectorOnly"
           @update="forward"
         />
       </template>
@@ -167,6 +171,8 @@ function forward(step: CombatStepDefinition): void {
           :skill-level="skillLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
+          :selected-path="selectedPath"
+          :inspector-only="inspectorOnly"
           @update="forward"
         />
       </template>
@@ -282,15 +288,25 @@ function forward(step: CombatStepDefinition): void {
 }
 
 .step-editor :deep(fieldset) {
+  min-width: 0;
+  max-width: calc(100% - 28px);
+  box-sizing: border-box;
   margin: 0 14px 14px;
   padding: 10px;
   border: 1px solid var(--ea-border-soft);
 }
 
 .step-editor :deep(legend) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   padding: 0 5px;
   color: var(--ea-fg-muted);
   font-size: 10px;
+}
+
+.step-editor :deep(.step-editor__grid > label > *) {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .step-editor :deep(.step-editor__check) {

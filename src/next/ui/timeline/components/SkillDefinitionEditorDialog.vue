@@ -16,12 +16,15 @@ const props = defineProps<{
   customDefinition: SkillDefinition | undefined;
   skillLevel: number;
   abilityEntityIds?: readonly string[];
+  showReferencePins?: boolean;
+  allowInvalidSave?: boolean;
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [definition: SkillDefinition];
   reset: [];
+  reference: [reference: { readonly kind: 'buff' | 'entity'; readonly id: string }];
 }>();
 const { t } = useI18n({ useScope: 'global' });
 provide(
@@ -56,7 +59,7 @@ const labels = () => ({
   <el-dialog
     :model-value="visible"
     :title="`${t('nextTimeline.skillEditing.section')} · ${title}`"
-    width="1040px"
+    width="min(1500px, 96vw)"
     append-to-body
     destroy-on-close
     class="skill-definition-dialog"
@@ -68,9 +71,12 @@ const labels = () => ({
       :custom-definition="customDefinition"
       :skill-level="skillLevel"
       :labels="labels()"
+      :show-reference-pins="showReferencePins"
+      :allow-invalid-save="allowInvalidSave"
       @save="emit('save', $event)"
       @cancel="emit('update:visible', false)"
       @reset="emit('reset')"
+      @reference="emit('reference', $event)"
     />
   </el-dialog>
 </template>

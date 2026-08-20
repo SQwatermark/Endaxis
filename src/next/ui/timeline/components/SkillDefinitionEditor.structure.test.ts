@@ -9,6 +9,10 @@ import actionSequenceEditorSource from './ActionSequenceEditor.vue?raw';
 import stepTypePickerSource from './StepTypePicker.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
+import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
+import buffGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw';
+import structureMapSource from './SkillStructureMindMap.vue?raw';
+import timelineEditorSource from '../NextTimelineEditor.vue?raw';
 import abilityEntityTargetQueryEditorSource from './AbilityEntityTargetQueryEditor.vue?raw';
 import timeDilationStepEditorSource from './TimeDilationStepEditor.vue?raw';
 import healStepEditorSource from './HealStepEditor.vue?raw';
@@ -33,13 +37,71 @@ describe('SkillDefinitionEditor structure', () => {
     expect(stepEditorSource).not.toContain('{{ step.key }}');
   });
 
-  it('步骤编辑器按当前步骤身份重建，避免切换后保留上一项视图', () => {
-    expect(editorSource).toContain('ScheduledSequenceEditor');
+  it('技能右栏只编辑当前导图节点，不再重复渲染子步骤列表', () => {
+    expect(editorSource).toContain('CombatStepEditor');
+    expect(editorSource).toContain('inspector-only');
+    expect(editorSource).not.toContain('ScheduledSequenceEditor');
+    expect(editorSource).not.toContain('ActionSequenceEditor');
     expect(scheduledSequenceEditorSource).toContain('ActionSequenceEditor');
     expect(scheduledSequenceEditorSource).not.toContain('CombatStepEditor');
     expect(actionSequenceEditorSource).toContain('CombatStepEditor');
     expect(eventListenerStepEditorSource).toContain('ActionSequenceEditor');
     expect(eventListenerStepEditorSource).toContain('CombatEventTriggerEditor');
+  });
+
+  it('Buff 与能力实体定义也使用纯当前层 Inspector，并从导图节点添加子项', () => {
+    for (const source of [buffGraphEditorSource, abilityEntityGraphEditorSource]) {
+      expect(source).toContain('SkillStructureMindMap');
+      expect(source).toContain('@add-child="beginAdd"');
+      expect(source).toContain('CombatStepEditor');
+      expect(source).toContain('inspector-only');
+      expect(source).toContain('hide-trigger');
+      expect(source).toContain(':anchor="insertAnchor"');
+      expect(source).not.toContain('ActionSequenceEditor');
+      expect(source).not.toContain('ScheduledSequenceEditor');
+    }
+    expect(abilityEntityGraphEditorSource).not.toContain('AbilityEntityStepEditor');
+    expect(abilityEntityGraphEditorSource).toContain("selectedId === 'entity:lifetime'");
+    expect(abilityEntityGraphEditorSource).toContain('setLifetimeKind');
+    expect(buffGraphEditorSource).toContain('lifecyclePickerStyle');
+    expect(buffGraphEditorSource).toContain('@keydown.esc.stop="pendingMode = \'\'"');
+  });
+
+  it('正式导图贯通拖放与本地结构剪贴板，并提供可见粘贴入口', () => {
+    for (const source of [editorSource, buffGraphEditorSource, abilityEntityGraphEditorSource]) {
+      expect(source).toContain('@move-node="moveStructureNode"');
+      expect(source).toContain('@node-action="runStructureNodeAction"');
+      expect(source).toContain('clipboard-kind');
+    }
+    expect(structureMapSource).toContain("emit('moveNode'");
+    expect(structureMapSource).toContain('粘贴到此处');
+    expect(structureMapSource).toContain('剪贴板：');
+    expect(structureMapSource).toContain('clipboardKind !== undefined');
+    expect(structureMapSource).toContain('node-drag-handle');
+    expect(structureMapSource).toContain('transferCollapsedState');
+    expect(structureMapSource).toContain("emit('historyAction', event.shiftKey ? 'redo' : 'undo')");
+    expect(structureMapSource).toContain('event.stopImmediatePropagation()');
+    for (const source of [editorSource, buffGraphEditorSource, abilityEntityGraphEditorSource]) {
+      expect(source).toContain('transferCollapsedState(operation.source.id, movedNode.id)');
+      expect(source).toContain('@history-action="restoreStructureHistory"');
+      expect(source).toContain(':can-undo="canUndoStructure"');
+      expect(source).toContain(':can-redo="canRedoStructure"');
+    }
+    expect(timelineEditorSource).toContain('showOperatorDefinitionWorkspace.value ||');
+    expect(timelineEditorSource).toContain('showSkillDefinitionEditor.value ||');
+  });
+
+  it('结构图选择沿 sourcePath 精确定位顶层和递归步骤', () => {
+    expect(editorSource).toContain('selectedStructureSourcePath');
+    expect(editorSource).toContain('resolveSkillStructureValue');
+    expect(editorSource).toContain('replaceCombatStepAtPath');
+    expect(editorSource).toContain('@add-child="beginAddChild"');
+    expect(scheduledSequenceEditorSource).toContain(':selected-path="selectedStepPath"');
+    expect(actionSequenceEditorSource).toContain('match(/^steps\\[(\\d+)\\]/)');
+    expect(actionSequenceEditorSource).toContain(':selected-path="nestedSelectedPath"');
+    expect(stepEditorSource).toContain(':selected-path="selectedPath"');
+    expect(branchEditorSource).toContain('match(/^(whenTrue|whenFalse|body)\\.steps\\[(\\d+)\\]/)');
+    expect(branchEditorSource).toContain(':selected-path="nestedSelectedPath"');
   });
 
   it('添加步骤由加号打开统一类型选单，顶层与嵌套序列使用相同交互', () => {
@@ -49,6 +111,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(branchEditorSource).not.toContain('newStepKind');
     expect(stepTypePickerSource).toContain('aria-haspopup="menu"');
     expect(stepTypePickerSource).toContain("emit('select', kind)");
+    expect(stepTypePickerSource).toContain('props.anchor');
+    expect(stepTypePickerSource).toContain('@keydown.esc.stop="open = false"');
 
     const listedKinds = STEP_TYPE_GROUPS.flatMap(group => group.kinds);
     expect(new Set(listedKinds).size).toBe(listedKinds.length);

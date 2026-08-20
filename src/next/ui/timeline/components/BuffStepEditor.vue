@@ -5,7 +5,7 @@
  * 接收目标、来源和可选覆盖项在这里明确分开。初始黑板赋值按具名条目编辑，
  * 保存时仍写回 SkillDefinition 使用的 Record 结构，不引入仅供界面使用的数据格式。
  */
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   BUFF_APPLICATION_TARGETS,
@@ -46,10 +46,27 @@ const props = defineProps<{
   definitionOnly?: boolean;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
+  selectedStructurePath?: string;
+  inspectorOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
 const activeLifecycle = ref<BuffLifecycleKey>('start');
+const selectedLifecycleStepPath = computed(() => {
+  const prefix = `lifecycleSequences.${activeLifecycle.value}`;
+  if (!props.selectedStructurePath?.startsWith(prefix)) return '';
+  return props.selectedStructurePath.slice(prefix.length).replace(/^\./, '');
+});
+
+watch(
+  () => props.selectedStructurePath,
+  path => {
+    const match = path?.match(/^lifecycleSequences\.([^.]+)/);
+    const key = match?.[1] as BuffLifecycleKey | undefined;
+    if (key !== undefined && BUFF_LIFECYCLE_KEYS.includes(key)) activeLifecycle.value = key;
+  },
+  { immediate: true },
+);
 
 const assignments = computed(() =>
   Object.entries(props.step.parameters.blackboardAssignments ?? {}),
@@ -452,7 +469,7 @@ function removeAssignment(key: string): void {
     </div>
   </fieldset>
 
-  <fieldset v-if="step.parameters.definition" class="buff-lifecycle">
+  <fieldset v-if="step.parameters.definition && !inspectorOnly" class="buff-lifecycle">
     <legend>
       <EditorFieldLabel
         :label="t('nextTimeline.skillEditing.buffLifecycle')"
@@ -491,6 +508,7 @@ function removeAssignment(key: string): void {
       :skill-level="skillLevel"
       :create-step="createStep"
       :duplicate-step="duplicateStep"
+      :selected-path="selectedLifecycleStepPath"
       @update="setLifecycleSequence(activeLifecycle, $event)"
     />
   </fieldset>

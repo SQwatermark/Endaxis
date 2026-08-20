@@ -36,6 +36,8 @@ const props = defineProps<{
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   definitionOnly?: boolean;
+  selectedStructurePath?: string;
+  inspectorOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -54,6 +56,11 @@ const editsInlineDefinition = computed(
   () => props.definitionOnly === true || props.step.parameters.definition !== undefined,
 );
 const selectedChildSequenceIndex = ref(0);
+const selectedChildSequenceStepPath = computed(() => {
+  const prefix = `childSkill.scheduledSequences[${selectedChildSequenceIndex.value}].sequence`;
+  if (!props.selectedStructurePath?.startsWith(prefix)) return '';
+  return props.selectedStructurePath.slice(prefix.length).replace(/^\./, '');
+});
 
 const assignments = computed(() =>
   Object.entries(props.step.parameters.blackboardAssignments ?? {}),
@@ -82,6 +89,21 @@ watch(
   () => {
     selectedChildSequenceIndex.value = 0;
   },
+);
+watch(
+  () => props.selectedStructurePath,
+  path => {
+    const match = path?.match(/^childSkill\.scheduledSequences\[(\d+)\]/);
+    if (match === null || match === undefined) return;
+    const index = Number(match[1]);
+    if (
+      index >= 0 &&
+      index < (editableDefinition.value.childSkill?.scheduledSequences.length ?? 0)
+    ) {
+      selectedChildSequenceIndex.value = index;
+    }
+  },
+  { immediate: true },
 );
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
@@ -420,7 +442,7 @@ function removeChildSequence(index: number): void {
       </button>
     </fieldset>
 
-    <fieldset v-if="editsInlineDefinition">
+    <fieldset v-if="editsInlineDefinition && !inspectorOnly">
       <legend>
         <label class="step-editor__check">
           <input
@@ -496,6 +518,7 @@ function removeChildSequence(index: number): void {
             "
             :create-step="createStep"
             :duplicate-step="duplicateStep"
+            :selected-step-path="selectedChildSequenceStepPath"
             @update="replaceChildSequence(selectedChildSequenceIndex, $event)"
           >
             <template #actions>

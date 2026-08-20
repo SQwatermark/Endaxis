@@ -31,6 +31,14 @@ const routes: RouteRecordRaw[] = [
       ] satisfies readonly GameTextFamily[],
     },
   },
+  {
+    path: '/next/editor-demo',
+    name: 'NextEditorDemo',
+    component: () => import('../next/ui/editor-demo/OperatorEditorWorkspaceDemo.vue'),
+    meta: {
+      gameTextFamilies: ['operators'] satisfies readonly GameTextFamily[],
+    },
+  },
 ];
 
 const router = createRouter({

@@ -5,7 +5,7 @@
  * 嵌套序列继续使用统一 CombatStepEditor，避免顶层和分支内步骤形成两套编辑语义。
  * 为解除组件循环依赖，递归编辑器按需异步加载；步骤默认值由顶层草稿工厂提供。
  */
-import { computed, defineAsyncComponent, ref } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type {
   CombatCondition,
@@ -28,6 +28,8 @@ const props = defineProps<{
   skillLevel: number;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
+  selectedPath?: string;
+  inspectorOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -41,6 +43,25 @@ const steps = computed(() => {
     : props.step.whenTrue.steps;
 });
 const selectedStep = computed(() => steps.value[selectedIndex.value]);
+const nestedSelectedPath = computed(() => {
+  const prefix = `${selectedBranch.value}.steps[${selectedIndex.value}]`;
+  if (!props.selectedPath?.startsWith(prefix)) return '';
+  return props.selectedPath.slice(prefix.length).replace(/^\./, '');
+});
+
+watch(
+  () => props.selectedPath,
+  path => {
+    const match = path?.match(/^(whenTrue|whenFalse|body)\.steps\[(\d+)\]/);
+    if (match === null || match === undefined) return;
+    const branch = match[1] as BranchName;
+    if (props.step.kind === 'conditional' && branch === 'body') return;
+    if (props.step.kind !== 'conditional' && branch !== 'body') return;
+    selectedBranch.value = branch;
+    selectedIndex.value = Number(match[2]);
+  },
+  { immediate: true },
+);
 
 function setCondition(condition: CombatCondition): void {
   if (props.step.kind !== 'conditional') return;
@@ -98,7 +119,7 @@ function removeStep(index: number): void {
       <input type="text" :value="step.parameters.scopeKey" @input="setScopeKey" />
     </label>
 
-    <div v-if="step.kind === 'conditional'" class="branch-editor__tabs">
+    <div v-if="step.kind === 'conditional' && !inspectorOnly" class="branch-editor__tabs">
       <button
         type="button"
         :class="{ active: selectedBranch === 'whenTrue' }"
@@ -121,7 +142,7 @@ function removeStep(index: number): void {
       </button>
     </div>
 
-    <div class="branch-editor__body">
+    <div v-if="!inspectorOnly" class="branch-editor__body">
       <div class="branch-editor__list">
         <button
           v-for="(item, index) in steps"
@@ -141,6 +162,7 @@ function removeStep(index: number): void {
         :skill-level="skillLevel"
         :create-step="createStep"
         :duplicate-step="duplicateStep"
+        :selected-path="nestedSelectedPath"
         @update="replaceStep"
       />
     </div>

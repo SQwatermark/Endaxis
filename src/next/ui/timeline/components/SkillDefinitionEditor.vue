@@ -7,15 +7,18 @@
  * 统一命令入口严格校验，取消或恢复模板则直接丢弃草稿 / 删除整个 customDefinition。
  * 组件不解析编译产物，也不把天赋潜能等构筑效果写进自定义技能。
  */
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
   COMBAT_RESOURCES,
   type CombatResource,
+  type CombatStepDefinition,
+  type ScheduledSequenceDefinition,
   type SkillDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
+import type { ValidationIssue } from '../../../core/project/validation';
 import {
   applySkillEditorCost,
   applySkillEditorField,
@@ -32,12 +35,37 @@ import {
   type EditableCombatStepKind,
   type SkillEditorViewModel,
 } from '../skillDefinitionEditorViewModel';
+import {
+  buildSkillStructureMindMap,
+  findSkillStructureNodeForPath,
+  indexSkillStructureNodes,
+} from '../skillStructureMindMapModel';
+import {
+  appendCombatStepAtSequencePath,
+  cloneStructureValue,
+  duplicateCombatStepAtPath,
+  insertStructureArrayItem,
+  moveStructureArrayItem,
+  moveCombatStepAtPath,
+  removeStructureArrayItem,
+  removeCombatStepAtPath,
+  replaceCombatStepAtPath,
+  resolveSkillStructureValue,
+} from '../skillStructureEditorCommands';
+import CombatStepEditor from './CombatStepEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillAvailabilityEditor from './SkillAvailabilityEditor.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
-import ScheduledSequenceEditor from './ScheduledSequenceEditor.vue';
+import SkillStructureMindMap from './SkillStructureMindMap.vue';
+import StepTypePicker from './StepTypePicker.vue';
 
 type EditorSection = 'overview' | 'blackboard' | 'availability' | number;
+type StructureOperationNode = {
+  readonly id: string;
+  readonly sourcePath: string;
+  readonly payloadKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+  readonly acceptsChildKind?: 'scheduledSequence' | 'combatStep' | 'childSkill';
+};
 
 const props = defineProps<{
   template: SkillDefinition;
@@ -64,12 +92,15 @@ const props = defineProps<{
     structure: string;
     sequence: string;
   };
+  showReferencePins?: boolean;
+  allowInvalidSave?: boolean;
 }>();
 
 const emit = defineEmits<{
   save: [draft: SkillDefinition];
   cancel: [];
   reset: [];
+  reference: [reference: { readonly kind: 'buff' | 'entity'; readonly id: string }];
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
@@ -77,6 +108,23 @@ const draft = reactive<{ value: SkillDefinition }>({
   value: createSkillEditorDraft(props.template, props.customDefinition),
 });
 const selectedSection = ref<EditorSection>('overview');
+const selectedStructureNodeId = ref('skill');
+const selectedStructureSourcePath = ref('');
+const structureMap = ref<{
+  revealNode: (id: string) => Promise<void>;
+  transferCollapsedState: (fromId: string, toId: string) => void;
+} | null>(null);
+const pendingStepTargetPath = ref('');
+const stepPickerKey = ref(0);
+const insertAnchor = ref({ x: 0, y: 0 });
+const structureClipboard = shallowRef<
+  | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
+  | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
+>();
+const structureUndoStack = shallowRef<SkillDefinition[]>([]);
+const structureRedoStack = shallowRef<SkillDefinition[]>([]);
+const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
+const canRedoStructure = computed(() => structureRedoStack.value.length > 0);
 
 const customized = computed(() => props.customDefinition !== undefined);
 
@@ -84,9 +132,32 @@ const view = computed<SkillEditorViewModel>(() =>
   projectSkillEditor(props.template, draft.value, customized.value),
 );
 const validationIssues = computed(() => validateSkillDefinition(draft.value));
-const selectedSequence = computed(() =>
-  typeof selectedSection.value === 'number'
-    ? view.value.sequences[selectedSection.value]
+const structureRoot = computed(() =>
+  buildSkillStructureMindMap(draft.value, {
+    blackboard: t('nextTimeline.skillEditing.initialBlackboard'),
+    availability: t('nextTimeline.skillEditing.availability'),
+    sequence: props.labels.sequence,
+  }),
+);
+const structureNodeIndex = computed(() => indexSkillStructureNodes(structureRoot.value));
+const selectedStructureNode = computed(() =>
+  structureNodeIndex.value.get(selectedStructureNodeId.value),
+);
+const selectedScheduledSequenceIndex = computed(() => {
+  const match = /^sequence:(\d+)$/.exec(selectedStructureNodeId.value);
+  return match === null ? undefined : Number(match[1]);
+});
+const selectedScheduledSequence = computed(() =>
+  selectedScheduledSequenceIndex.value === undefined
+    ? undefined
+    : draft.value.scheduledSequences[selectedScheduledSequenceIndex.value],
+);
+const selectedCombatStep = computed(() =>
+  selectedStructureNode.value?.kind === '战斗步骤'
+    ? (resolveSkillStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as CombatStepDefinition)
     : undefined,
 );
 
@@ -96,6 +167,23 @@ function createNestedStep(kind: EditableCombatStepKind) {
 
 function duplicateNestedStep(step: Parameters<typeof duplicateSkillEditorDetachedStep>[1]) {
   return duplicateSkillEditorDetachedStep(draft.value, step);
+}
+
+function commitStructureDraft(next: SkillDefinition): void {
+  structureUndoStack.value = [...structureUndoStack.value, cloneStructureValue(draft.value)];
+  structureRedoStack.value = [];
+  draft.value = next;
+}
+
+async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
+  const source = action === 'undo' ? structureUndoStack : structureRedoStack;
+  const target = action === 'undo' ? structureRedoStack : structureUndoStack;
+  const snapshot = source.value.at(-1);
+  if (snapshot === undefined) return;
+  source.value = source.value.slice(0, -1);
+  target.value = [...target.value, cloneStructureValue(draft.value)];
+  draft.value = cloneStructureValue(snapshot);
+  await selectStructurePath('');
 }
 
 function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): void {
@@ -117,6 +205,10 @@ watch(
   () => {
     draft.value = createSkillEditorDraft(props.template, props.customDefinition);
     selectedSection.value = 'overview';
+    selectedStructureNodeId.value = 'skill';
+    selectedStructureSourcePath.value = '';
+    structureUndoStack.value = [];
+    structureRedoStack.value = [];
   },
 );
 
@@ -153,8 +245,59 @@ function removeCost(index: number): void {
   draft.value = removeSkillEditorCost(draft.value, index);
 }
 
-function selectSequence(index: number): void {
-  selectedSection.value = index;
+function selectStructureNode(node: { readonly id: string }): void {
+  const target = structureNodeIndex.value.get(node.id);
+  if (target === undefined) return;
+  selectedStructureNodeId.value = target.id;
+  selectedStructureSourcePath.value = target.sourcePath;
+  selectedSection.value = target.editorSection;
+  pendingStepTargetPath.value = '';
+}
+
+async function selectStructurePath(path: string): Promise<void> {
+  await nextTick();
+  const target = findSkillStructureNodeForPath(structureRoot.value, path);
+  selectStructureNode(target);
+  await nextTick();
+  await structureMap.value?.revealNode(target.id);
+}
+
+function beginAddChild(
+  node: {
+    readonly id: string;
+    readonly sourcePath: string;
+    readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
+  },
+  anchor: { readonly x: number; readonly y: number },
+): void {
+  selectStructureNode(node);
+  if (node.canAddChild === 'sequence') {
+    appendSequence();
+    return;
+  }
+  if (node.canAddChild !== 'step') return;
+  pendingStepTargetPath.value = node.sourcePath;
+  insertAnchor.value = { ...anchor };
+  stepPickerKey.value += 1;
+}
+
+async function appendStepToPendingSequence(kind: EditableCombatStepKind): Promise<void> {
+  if (pendingStepTargetPath.value === '') return;
+  const result = appendCombatStepAtSequencePath(
+    draft.value,
+    pendingStepTargetPath.value,
+    createNestedStep(kind),
+  );
+  commitStructureDraft(result.skill);
+  pendingStepTargetPath.value = '';
+  await selectStructurePath(result.stepPath);
+}
+
+async function revealValidationIssue(issue: ValidationIssue): Promise<void> {
+  const target = findSkillStructureNodeForPath(structureRoot.value, issue.path);
+  selectStructureNode(target);
+  await nextTick();
+  await structureMap.value?.revealNode(target.id);
 }
 
 function replaceSelectedSequence(
@@ -166,30 +309,182 @@ function replaceSelectedSequence(
   draft.value = { ...draft.value, scheduledSequences };
 }
 
+function setSelectedSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): void {
+  const sequence = selectedScheduledSequence.value;
+  if (sequence === undefined) return;
+  const raw = (event.target as HTMLInputElement).value;
+  const next: ScheduledSequenceDefinition = { ...sequence };
+  if (field === 'endFrame' && raw === '') delete next.endFrame;
+  else {
+    const value = Math.round(Number(raw));
+    if (!Number.isFinite(value) || value < 0) return;
+    next[field] = value;
+  }
+  replaceSelectedSequence(next);
+}
+
+function replaceSelectedCombatStep(step: CombatStepDefinition): void {
+  if (selectedCombatStep.value === undefined) return;
+  draft.value = replaceCombatStepAtPath(draft.value, selectedStructureSourcePath.value, step);
+}
+
+async function moveSelectedCombatStep(offset: -1 | 1): Promise<void> {
+  if (selectedCombatStep.value === undefined) return;
+  const result = moveCombatStepAtPath(draft.value, selectedStructureSourcePath.value, offset);
+  commitStructureDraft(result.skill);
+  await selectStructurePath(result.stepPath);
+}
+
+async function duplicateSelectedCombatStep(): Promise<void> {
+  if (selectedCombatStep.value === undefined) return;
+  const result = duplicateCombatStepAtPath(
+    draft.value,
+    selectedStructureSourcePath.value,
+    duplicateNestedStep,
+  );
+  commitStructureDraft(result.skill);
+  await selectStructurePath(result.stepPath);
+}
+
+async function removeSelectedCombatStep(): Promise<void> {
+  if (selectedCombatStep.value === undefined) return;
+  const parentPath = selectedStructureSourcePath.value.replace(/\.steps\[\d+\]$/, '');
+  commitStructureDraft(removeCombatStepAtPath(draft.value, selectedStructureSourcePath.value));
+  await selectStructurePath(parentPath);
+}
+
+function childArrayPath(
+  node: StructureOperationNode,
+  kind: 'combatStep' | 'scheduledSequence',
+): string | undefined {
+  if (kind === 'scheduledSequence') {
+    return node.acceptsChildKind === kind ? 'scheduledSequences' : undefined;
+  }
+  if (node.acceptsChildKind !== kind) return undefined;
+  return node.payloadKind === 'scheduledSequence'
+    ? `${node.sourcePath}.sequence.steps`
+    : `${node.sourcePath}.steps`;
+}
+
+function insertionTarget(
+  target: StructureOperationNode,
+  kind: 'combatStep' | 'scheduledSequence',
+  placement: 'inside' | 'before' | 'after',
+): { readonly arrayPath: string; readonly index?: number } | undefined {
+  if (placement === 'inside') {
+    const arrayPath = childArrayPath(target, kind);
+    return arrayPath === undefined ? undefined : { arrayPath };
+  }
+  const match = /^(.*)\[(\d+)\]$/.exec(target.sourcePath);
+  if (match === null || target.payloadKind !== kind) return undefined;
+  return {
+    arrayPath: match[1]!,
+    index: Number(match[2]) + (placement === 'after' ? 1 : 0),
+  };
+}
+
+async function moveStructureNode(operation: {
+  readonly source: StructureOperationNode;
+  readonly target: StructureOperationNode;
+  readonly placement: 'inside' | 'before' | 'after';
+}): Promise<void> {
+  const kind = operation.source.payloadKind;
+  if (kind !== 'combatStep' && kind !== 'scheduledSequence') return;
+  const target = insertionTarget(operation.target, kind, operation.placement);
+  if (target === undefined) return;
+  const result = moveStructureArrayItem(
+    draft.value,
+    operation.source.sourcePath,
+    target.arrayPath,
+    target.index,
+  );
+  commitStructureDraft(result.root);
+  await nextTick();
+  const movedNode = findSkillStructureNodeForPath(structureRoot.value, result.itemPath);
+  structureMap.value?.transferCollapsedState(operation.source.id, movedNode.id);
+  await selectStructurePath(result.itemPath);
+}
+
+async function runStructureNodeAction(
+  action: 'delete' | 'copy' | 'paste',
+  node: StructureOperationNode,
+): Promise<void> {
+  if (action === 'copy') {
+    if (node.payloadKind === 'combatStep') {
+      structureClipboard.value = {
+        kind: 'combatStep',
+        value: cloneStructureValue(
+          resolveSkillStructureValue(draft.value, node.sourcePath) as CombatStepDefinition,
+        ),
+      };
+    } else if (node.payloadKind === 'scheduledSequence') {
+      structureClipboard.value = {
+        kind: 'scheduledSequence',
+        value: cloneStructureValue(
+          resolveSkillStructureValue(draft.value, node.sourcePath) as ScheduledSequenceDefinition,
+        ),
+      };
+    }
+    return;
+  }
+  if (action === 'delete' && node.payloadKind !== undefined) {
+    const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|scheduledSequences\[\d+\]$/, '');
+    commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
+    await selectStructurePath(parentPath);
+    return;
+  }
+  const clipboard = structureClipboard.value;
+  if (action !== 'paste' || clipboard === undefined) return;
+  const arrayPath = childArrayPath(node, clipboard.kind);
+  if (arrayPath === undefined) return;
+  const value =
+    clipboard.kind === 'combatStep'
+      ? duplicateNestedStep(clipboard.value)
+      : {
+          ...clipboard.value,
+          sequence: { steps: clipboard.value.sequence.steps.map(duplicateNestedStep) },
+        };
+  const result = insertStructureArrayItem(draft.value, arrayPath, value);
+  commitStructureDraft(result.root);
+  await selectStructurePath(result.itemPath);
+}
+
 function appendSequence(): void {
-  draft.value = appendSkillEditorSequence(draft.value);
+  commitStructureDraft(appendSkillEditorSequence(draft.value));
   selectedSection.value = draft.value.scheduledSequences.length - 1;
+  selectedStructureNodeId.value = `sequence:${selectedSection.value}`;
+  selectedStructureSourcePath.value = `scheduledSequences[${selectedSection.value}]`;
 }
 
 function moveSequence(offset: -1 | 1): void {
   if (typeof selectedSection.value !== 'number') return;
   const target = selectedSection.value + offset;
   if (target < 0 || target >= draft.value.scheduledSequences.length) return;
-  draft.value = moveSkillEditorSequence(draft.value, selectedSection.value, offset);
+  commitStructureDraft(moveSkillEditorSequence(draft.value, selectedSection.value, offset));
   selectedSection.value = target;
+  selectedStructureNodeId.value = `sequence:${target}`;
+  selectedStructureSourcePath.value = `scheduledSequences[${target}]`;
 }
 
 function duplicateSequence(): void {
   if (typeof selectedSection.value !== 'number') return;
-  draft.value = duplicateSkillEditorSequence(draft.value, selectedSection.value);
+  commitStructureDraft(duplicateSkillEditorSequence(draft.value, selectedSection.value));
   selectedSection.value += 1;
+  selectedStructureNodeId.value = `sequence:${selectedSection.value}`;
+  selectedStructureSourcePath.value = `scheduledSequences[${selectedSection.value}]`;
 }
 
 function removeSequence(): void {
   if (typeof selectedSection.value !== 'number') return;
   const current = selectedSection.value;
-  draft.value = removeSkillEditorSequence(draft.value, current);
+  commitStructureDraft(removeSkillEditorSequence(draft.value, current));
   selectedSection.value = Math.max(0, Math.min(current, draft.value.scheduledSequences.length - 1));
+  selectedStructureNodeId.value =
+    draft.value.scheduledSequences.length === 0 ? 'skill' : `sequence:${selectedSection.value}`;
+  selectedStructureSourcePath.value =
+    draft.value.scheduledSequences.length === 0
+      ? ''
+      : `scheduledSequences[${selectedSection.value}]`;
 }
 
 function save(): void {
@@ -220,52 +515,33 @@ function reset(): void {
     </header>
 
     <div class="skill-editor__workspace">
-      <nav class="skill-editor__tree" :aria-label="labels.structure">
-        <button
-          type="button"
-          :class="{ 'is-active': selectedSection === 'overview' }"
-          @click="selectedSection = 'overview'"
-        >
-          <span class="tree-icon">◆</span>
-          <span>{{ labels.overview }}</span>
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': selectedSection === 'blackboard' }"
-          @click="selectedSection = 'blackboard'"
-        >
-          <span class="tree-icon">▦</span>
-          <span>{{ t('nextTimeline.skillEditing.initialBlackboard') }}</span>
-          <small>{{ Object.keys(draft.value.blackboard ?? {}).length }}</small>
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': selectedSection === 'availability' }"
-          @click="selectedSection = 'availability'"
-        >
-          <span class="tree-icon">?</span>
-          <span>{{ t('nextTimeline.skillEditing.availability') }}</span>
-          <small>{{ draft.value.availability === undefined ? '—' : '1' }}</small>
-        </button>
-        <div class="tree-group-label">{{ labels.scheduledSequences }}</div>
-        <button
-          v-for="sequence in view.sequences"
-          :key="sequence.index"
-          type="button"
-          :class="{ 'is-active': selectedSection === sequence.index }"
-          @click="selectSequence(sequence.index)"
-        >
-          <span class="tree-index">{{ sequence.index + 1 }}</span>
-          <span>{{ labels.sequence }} {{ sequence.index + 1 }}</span>
-          <small>{{ sequence.startFrame }}f</small>
-        </button>
-        <button type="button" class="tree-add" @click="appendSequence">
-          <el-icon><Plus /></el-icon>
-          <span>{{ t('nextTimeline.skillEditing.addSequence') }}</span>
-        </button>
-      </nav>
+      <SkillStructureMindMap
+        ref="structureMap"
+        class="skill-editor__map"
+        :root="structureRoot"
+        :selected-id="selectedStructureNodeId"
+        :show-reference-pins="showReferencePins"
+        :clipboard-kind="structureClipboard?.kind"
+        :can-undo="canUndoStructure"
+        :can-redo="canRedoStructure"
+        @select="selectStructureNode"
+        @reference="emit('reference', $event)"
+        @add-child="beginAddChild"
+        @move-node="moveStructureNode"
+        @node-action="runStructureNodeAction"
+        @history-action="restoreStructureHistory"
+      />
 
       <main class="skill-editor__detail">
+        <StepTypePicker
+          v-if="pendingStepTargetPath"
+          :key="stepPickerKey"
+          class="floating-step-picker"
+          :anchor="insertAnchor"
+          hide-trigger
+          open-on-mount
+          @select="appendStepToPendingSequence"
+        />
         <template v-if="selectedSection === 'overview'">
           <section class="editor-section">
             <h4>{{ labels.overview }}</h4>
@@ -413,23 +689,17 @@ function reset(): void {
           @update="setAvailability"
         />
 
-        <ScheduledSequenceEditor
-          v-else-if="selectedSequence && typeof selectedSection === 'number'"
-          :sequence="draft.value.scheduledSequences[selectedSection]!"
-          :skill-level="skillLevel"
-          :title="`${labels.sequence} ${selectedSection + 1}`"
-          :start-frame-changed="selectedSequence.startFrameChanged"
-          :end-frame-changed="selectedSequence.endFrameChanged"
-          :create-step="createNestedStep"
-          :duplicate-step="duplicateNestedStep"
-          @update="replaceSelectedSequence"
-        >
-          <template #actions>
+        <section v-else-if="selectedScheduledSequence" class="editor-section node-inspector">
+          <header class="node-inspector__header">
             <div>
+              <span>动作序列</span>
+              <strong>{{ `${labels.sequence} ${selectedScheduledSequenceIndex! + 1}` }}</strong>
+            </div>
+            <div class="node-inspector__toolbar">
               <button
                 type="button"
                 class="icon-button"
-                :disabled="selectedSection === 0"
+                :disabled="selectedScheduledSequenceIndex === 0"
                 :title="t('nextTimeline.skillEditing.moveSequenceUp')"
                 @click="moveSequence(-1)"
               >
@@ -438,7 +708,7 @@ function reset(): void {
               <button
                 type="button"
                 class="icon-button"
-                :disabled="selectedSection === view.sequences.length - 1"
+                :disabled="selectedScheduledSequenceIndex === view.sequences.length - 1"
                 :title="t('nextTimeline.skillEditing.moveSequenceDown')"
                 @click="moveSequence(1)"
               >
@@ -462,8 +732,89 @@ function reset(): void {
                 <el-icon><Delete /></el-icon>
               </button>
             </div>
-          </template>
-        </ScheduledSequenceEditor>
+          </header>
+          <div class="editor-grid">
+            <label class="skill-editor__row">
+              <EditorFieldLabel
+                :label="labels.startFrame"
+                :help="t('nextTimeline.skillEditing.fieldHelp.sequenceStartFrame')"
+              />
+              <input
+                type="number"
+                min="0"
+                step="1"
+                class="skill-editor__input"
+                :value="selectedScheduledSequence.startFrame"
+                @input="setSelectedSequenceFrame('startFrame', $event)"
+              />
+            </label>
+            <label class="skill-editor__row">
+              <EditorFieldLabel
+                :label="labels.endFrame"
+                :help="t('nextTimeline.skillEditing.fieldHelp.sequenceEndFrame')"
+              />
+              <input
+                type="number"
+                min="0"
+                step="1"
+                class="skill-editor__input"
+                :value="selectedScheduledSequence.endFrame ?? ''"
+                @input="setSelectedSequenceFrame('endFrame', $event)"
+              />
+            </label>
+          </div>
+          <p class="node-inspector__hint">子步骤在左侧导图中添加和选择。</p>
+        </section>
+
+        <section v-else-if="selectedCombatStep" class="editor-section node-inspector">
+          <header class="node-inspector__header">
+            <div>
+              <span>战斗步骤</span>
+              <strong>{{
+                t(`nextTimeline.skillEditing.stepKinds.${selectedCombatStep.kind}`)
+              }}</strong>
+            </div>
+            <div class="node-inspector__toolbar">
+              <button class="icon-button" @click="moveSelectedCombatStep(-1)">
+                <el-icon><ArrowUp /></el-icon>
+              </button>
+              <button class="icon-button" @click="moveSelectedCombatStep(1)">
+                <el-icon><ArrowDown /></el-icon>
+              </button>
+              <button class="icon-button" @click="duplicateSelectedCombatStep">
+                <el-icon><CopyDocument /></el-icon>
+              </button>
+              <button class="icon-button icon-button--danger" @click="removeSelectedCombatStep">
+                <el-icon><Delete /></el-icon>
+              </button>
+            </div>
+          </header>
+          <CombatStepEditor
+            :step="selectedCombatStep"
+            :skill-level="skillLevel"
+            :create-step="createNestedStep"
+            :duplicate-step="duplicateNestedStep"
+            :show-header="false"
+            inspector-only
+            @update="replaceSelectedCombatStep"
+          />
+          <p v-if="selectedStructureNode?.children.length" class="node-inspector__hint">
+            分支和子步骤在左侧导图中编辑。
+          </p>
+        </section>
+
+        <section
+          v-else-if="selectedStructureNode?.canAddChild === 'step'"
+          class="editor-section node-inspector"
+        >
+          <header class="node-inspector__header">
+            <div>
+              <span>{{ selectedStructureNode.kind }}</span>
+              <strong>{{ selectedStructureNode.label }}</strong>
+            </div>
+          </header>
+          <p class="node-inspector__hint">此节点只承载有序子步骤，请使用导图节点上的＋添加。</p>
+        </section>
       </main>
     </div>
 
@@ -482,8 +833,10 @@ function reset(): void {
           </summary>
           <ul>
             <li v-for="issue in validationIssues" :key="`${issue.path}:${issue.message}`">
-              <code>{{ issue.path }}</code>
-              <span>{{ issue.message }}</span>
+              <button type="button" @click="revealValidationIssue(issue)">
+                <code>{{ issue.path }}</code>
+                <span>{{ issue.message }}</span>
+              </button>
             </li>
           </ul>
         </details>
@@ -503,7 +856,7 @@ function reset(): void {
         <button
           type="button"
           class="skill-editor__button skill-editor__button--primary"
-          :disabled="validationIssues.length > 0"
+          :disabled="!allowInvalidSave && validationIssues.length > 0"
           @click="save"
         >
           {{ labels.save }}
@@ -515,7 +868,8 @@ function reset(): void {
 
 <style scoped>
 .skill-editor {
-  min-height: 600px;
+  height: min(760px, calc(100vh - 150px));
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   background: var(--ea-workbench-panel);
@@ -551,6 +905,7 @@ function reset(): void {
 
 .skill-editor__status {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
@@ -562,7 +917,25 @@ function reset(): void {
   min-height: 0;
   flex: 1;
   display: grid;
-  grid-template-columns: 230px minmax(0, 1fr);
+  grid-template-columns: minmax(520px, 1.45fr) minmax(380px, 0.85fr);
+}
+
+.skill-editor__map {
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid var(--ea-border-soft);
+}
+
+.map-add-sequence {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg);
+  cursor: pointer;
 }
 
 .skill-editor__tree {
@@ -624,12 +997,63 @@ function reset(): void {
 }
 
 .skill-editor__detail {
+  position: relative;
   min-width: 0;
   padding: 18px 20px;
-  overflow-y: auto;
+  overflow: auto;
+  container-type: inline-size;
+}
+.floating-step-picker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+.node-inspector__header {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 10px 0 12px;
+  border-bottom: 1px solid var(--ea-border-soft);
+}
+.node-inspector__header > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.node-inspector__header strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.node-inspector__header span {
+  color: var(--ea-fg-muted);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.node-inspector__toolbar {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.node-inspector__hint {
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--ea-border-soft);
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+}
+.node-inspector :deep(.step-editor) {
+  border: 0;
 }
 
 .editor-section {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   margin-bottom: 16px;
   border: 1px solid var(--ea-border-soft);
   background: var(--ea-fill-soft);
@@ -699,7 +1123,7 @@ function reset(): void {
 .skill-editor__row {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) 140px;
+  grid-template-columns: minmax(90px, 1fr) minmax(100px, 140px);
   align-items: center;
   gap: 12px;
 }
@@ -823,10 +1247,24 @@ function reset(): void {
 }
 
 .validation-issues li {
+  padding: 0;
+}
+
+.validation-issues li button {
+  width: 100%;
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(160px, 1fr);
   gap: 10px;
-  padding: 3px 0;
+  padding: 5px 4px;
+  border: 0;
+  background: transparent;
+  color: #ff6b6b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.validation-issues li button:hover {
+  background: var(--ea-active-fill);
 }
 
 .validation-issues code {
@@ -873,5 +1311,25 @@ function reset(): void {
   padding: 20px;
   color: var(--ea-fg-muted);
   text-align: center;
+}
+
+@container (max-width: 700px) {
+  .editor-grid,
+  .sequence-frame-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container (max-width: 430px) {
+  .skill-editor__row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .node-inspector__header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 9px 10px;
+  }
 }
 </style>

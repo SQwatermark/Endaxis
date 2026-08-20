@@ -10,13 +10,10 @@ import {
   type SkillDefinition,
   type SkillGroupDefinition,
 } from '../../../core/game-data/operatorDefinition';
-import {
-  createSkillEditorStep,
-  duplicateSkillEditorDetachedStep,
-  type EditableCombatStepKind,
-} from '../skillDefinitionEditorViewModel';
+import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
+import type { ValidationIssue } from '../../../core/project/validation';
 import AbilityEntityDefinitionsDialog from './AbilityEntityDefinitionsDialog.vue';
-import BuffStepEditor from './BuffStepEditor.vue';
+import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 import SkillDefinitionEditorDialog from './SkillDefinitionEditorDialog.vue';
 
 type Section = 'panel' | 'skills' | 'buffs' | 'entities';
@@ -48,6 +45,9 @@ const selectedSkillIndex = ref(0);
 const selectedBuffId = ref('');
 const showSkillEditor = ref(false);
 const showEntityEditor = ref(false);
+const referencedEntityId = ref('');
+const objectSearch = ref('');
+const showProblems = ref(false);
 
 watch(
   () => props.visible,
@@ -58,6 +58,8 @@ watch(
     selectedGroupIndex.value = 0;
     selectedSkillIndex.value = 0;
     selectedBuffId.value = Object.keys(draft.value.buffDefinitions ?? {}).sort()[0] ?? '';
+    objectSearch.value = '';
+    showProblems.value = false;
   },
   { immediate: true },
 );
@@ -86,6 +88,37 @@ const abilityEntityIds = computed(() =>
     ...(draft.value.abilityEntityDefinitions ?? {}),
   }).sort(),
 );
+const normalizedObjectSearch = computed(() => objectSearch.value.trim().toLocaleLowerCase());
+const filteredGroups = computed(() =>
+  groups.value
+    .map((group, index) => ({ group, index }))
+    .filter(({ group }) => group.key.toLocaleLowerCase().includes(normalizedObjectSearch.value)),
+);
+const filteredBuffIds = computed(() =>
+  buffIds.value.filter(id => id.toLocaleLowerCase().includes(normalizedObjectSearch.value)),
+);
+const draftIssues = computed<readonly ValidationIssue[]>(() =>
+  draft.value.skillGroups.flatMap((group, groupIndex) =>
+    normalizeSkills(group.skills).flatMap((skill, skillIndex) =>
+      validateSkillDefinition(skill, `skillGroups[${groupIndex}].skills[${skillIndex}]`),
+    ),
+  ),
+);
+const isDirty = computed(
+  () =>
+    JSON.stringify(draft.value) !== JSON.stringify(props.customDefinition ?? props.baseDefinition),
+);
+const sectionLabel = computed(() => {
+  if (section.value === 'panel') return '基础面板';
+  if (section.value === 'skills') return '技能与技能组';
+  if (section.value === 'buffs') return 'Buff';
+  return '能力实体';
+});
+const objectLabel = computed(() => {
+  if (section.value === 'skills') return selectedGroup.value?.key ?? '';
+  if (section.value === 'buffs') return selectedBuffId.value;
+  return '';
+});
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -174,18 +207,6 @@ function removeBuff(): void {
   selectedBuffId.value = Object.keys(next).sort()[0] ?? '';
 }
 
-function buffContext(): SkillDefinition {
-  return { key: `buff:${selectedBuffId.value}`, timelineBlockFrames: 0, scheduledSequences: [] };
-}
-
-function createBuffStep(kind: EditableCombatStepKind): CombatStepDefinition {
-  return createSkillEditorStep(buffContext(), kind);
-}
-
-function duplicateBuffStep(step: CombatStepDefinition): CombatStepDefinition {
-  return duplicateSkillEditorDetachedStep(buffContext(), step);
-}
-
 function saveEntities(definitions: OperatorAbilityEntityDefinitions): void {
   draft.value = {
     ...draft.value,
@@ -197,6 +218,36 @@ function saveEntities(definitions: OperatorAbilityEntityDefinitions): void {
 function save(): void {
   emit('save', clone(draft.value));
   emit('update:visible', false);
+}
+
+function selectSection(value: Section): void {
+  section.value = value;
+  objectSearch.value = '';
+}
+
+function revealIssue(issue: ValidationIssue): void {
+  const match = /^skillGroups\[(\d+)\]\.skills\[(\d+)\]/.exec(issue.path);
+  if (match === null) return;
+  section.value = 'skills';
+  selectedGroupIndex.value = Number(match[1]);
+  selectedSkillIndex.value = Number(match[2]);
+  showProblems.value = false;
+}
+
+function openReferencedDefinition(reference: {
+  readonly kind: 'buff' | 'entity';
+  readonly id: string;
+}): void {
+  showSkillEditor.value = false;
+  if (reference.kind === 'buff') {
+    section.value = 'buffs';
+    selectedBuffId.value = reference.id;
+    objectSearch.value = reference.id;
+    return;
+  }
+  section.value = 'entities';
+  referencedEntityId.value = reference.id;
+  showEntityEditor.value = true;
 }
 </script>
 
@@ -212,7 +263,8 @@ function save(): void {
     <template #header>
       <div class="workspace-title">
         <div>
-          <strong>自定义干员</strong><span>{{ draft.slug }}</span>
+          <strong>自定义干员</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+          <em v-if="isDirty">已修改</em>
         </div>
         <small>编辑干员定义；这里的修改由所有引用该定义的干员实例共享。</small>
       </div>
@@ -220,21 +272,33 @@ function save(): void {
 
     <div class="workspace">
       <nav class="workspace-nav">
-        <button :class="{ active: section === 'panel' }" @click="section = 'panel'">
+        <div class="nav-caption">定义结构</div>
+        <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
           <span>基础面板</span><b>90 级</b>
         </button>
-        <button :class="{ active: section === 'skills' }" @click="section = 'skills'">
+        <button :class="{ active: section === 'skills' }" @click="selectSection('skills')">
           <span>技能与技能组</span><b>{{ draft.skillGroups.length }}</b>
         </button>
-        <button :class="{ active: section === 'buffs' }" @click="section = 'buffs'">
+        <button :class="{ active: section === 'buffs' }" @click="selectSection('buffs')">
           <span>Buff</span><b>{{ buffIds.length }}</b>
         </button>
-        <button :class="{ active: section === 'entities' }" @click="section = 'entities'">
+        <button :class="{ active: section === 'entities' }" @click="selectSection('entities')">
           <span>能力实体</span><b>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</b>
         </button>
       </nav>
 
       <main class="workspace-main">
+        <nav class="workspace-breadcrumbs" aria-label="当前位置">
+          <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
+          <span>›</span>
+          <button @click="selectSection(section)">{{ sectionLabel }}</button>
+          <template v-if="objectLabel">
+            <span>›</span><strong>{{ objectLabel }}</strong>
+          </template>
+          <template v-if="section === 'skills' && selectedSkill">
+            <span>›</span><strong>{{ selectedSkill.key }}</strong>
+          </template>
+        </nav>
         <section v-if="section === 'panel'" class="definition-section">
           <header>
             <div>
@@ -268,17 +332,18 @@ function save(): void {
 
         <section v-else-if="section === 'skills'" class="definition-section split-section">
           <aside class="object-list">
+            <input v-model="objectSearch" class="object-search" placeholder="搜索技能组…" />
             <button
-              v-for="(group, index) in groups"
-              :key="`${group.key}:${index}`"
-              :class="{ active: selectedGroupIndex === index }"
+              v-for="entry in filteredGroups"
+              :key="`${entry.group.key}:${entry.index}`"
+              :class="{ active: selectedGroupIndex === entry.index }"
               @click="
-                selectedGroupIndex = index;
+                selectedGroupIndex = entry.index;
                 selectedSkillIndex = 0;
               "
             >
-              <span>{{ group.key }}</span
-              ><small>{{ normalizeSkills(group.skills).length }} 个技能</small>
+              <span>{{ entry.group.key }}</span
+              ><small>{{ normalizeSkills(entry.group.skills).length }} 个技能</small>
             </button>
           </aside>
           <div v-if="selectedGroup" class="object-editor">
@@ -336,9 +401,10 @@ function save(): void {
 
         <section v-else-if="section === 'buffs'" class="definition-section split-section">
           <aside class="object-list">
+            <input v-model="objectSearch" class="object-search" placeholder="搜索 Buff…" />
             <button class="add-object" @click="addBuff">＋ 新增 Buff</button>
             <button
-              v-for="id in buffIds"
+              v-for="id in filteredBuffIds"
               :key="id"
               :class="{ active: selectedBuffId === id }"
               @click="selectedBuffId = id"
@@ -354,13 +420,20 @@ function save(): void {
               </div>
               <button class="danger-button" @click="removeBuff">删除</button>
             </header>
-            <BuffStepEditor
-              :step="selectedBuffStep"
+            <BuffDefinitionGraphEditor
+              :buff-id="selectedBuffId"
+              :definition="selectedBuff!"
               :skill-level="skillLevel"
-              definition-only
-              :create-step="createBuffStep"
-              :duplicate-step="duplicateBuffStep"
-              @update="updateBuffStep"
+              @update="
+                updateBuffStep({
+                  kind: 'applyBuff',
+                  parameters: {
+                    buffId: selectedBuffId,
+                    target: 'caster',
+                    definition: $event,
+                  },
+                })
+              "
             />
           </div>
           <div v-else class="empty-state">这个干员还没有 Buff 定义。</div>
@@ -385,7 +458,24 @@ function save(): void {
     </div>
 
     <template #footer>
+      <div v-if="showProblems && draftIssues.length" class="workspace-problems">
+        <button
+          v-for="issue in draftIssues"
+          :key="`${issue.path}:${issue.message}`"
+          @click="revealIssue(issue)"
+        >
+          <code>{{ issue.path }}</code
+          ><span>{{ issue.message }}</span>
+        </button>
+      </div>
       <div class="workspace-footer">
+        <button
+          class="problem-summary"
+          :class="{ invalid: draftIssues.length > 0 }"
+          @click="showProblems = !showProblems"
+        >
+          {{ draftIssues.length > 0 ? `● ${draftIssues.length} 个问题` : '✓ 定义结构有效' }}
+        </button>
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
           恢复游戏定义
         </button>
@@ -393,7 +483,11 @@ function save(): void {
         <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
           取消
         </button>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
+        <button
+          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+          :disabled="!isDirty"
+          @click="save"
+        >
           保存干员定义
         </button>
       </div>
@@ -408,8 +502,11 @@ function save(): void {
     :custom-definition="undefined"
     :skill-level="skillLevel"
     :ability-entity-ids="abilityEntityIds"
+    show-reference-pins
+    allow-invalid-save
     @update:visible="showSkillEditor = $event"
     @save="replaceSelectedSkill"
+    @reference="openReferencedDefinition"
   />
   <AbilityEntityDefinitionsDialog
     :visible="showEntityEditor"
@@ -417,6 +514,7 @@ function save(): void {
     :custom-definitions="draft.abilityEntityDefinitions"
     :common-definitions="commonAbilityEntityDefinitions"
     :skill-level="skillLevel"
+    :initial-selected-id="referencedEntityId"
     @update:visible="showEntityEditor = $event"
     @save="saveEntities"
   />
@@ -448,10 +546,26 @@ function save(): void {
 .workspace-title small {
   color: #999;
 }
+.workspace-title em {
+  padding: 2px 7px;
+  color: #e7d64f;
+  border: 1px solid #776f2c;
+  border-radius: 10px;
+  font-size: 11px;
+  font-style: normal;
+}
 .workspace-nav {
   padding: 12px;
   border-right: 1px solid #343438;
   background: #121214;
+}
+.nav-caption {
+  padding: 3px 12px 10px;
+  color: #68686e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .workspace-nav button,
 .object-list button {
@@ -481,6 +595,30 @@ function save(): void {
 .workspace-main {
   min-width: 0;
   overflow: auto;
+}
+.workspace-breadcrumbs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 18px;
+  border-bottom: 1px solid #343438;
+  background: rgba(23, 23, 25, 0.96);
+  color: #777;
+}
+.workspace-breadcrumbs button {
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+}
+.workspace-breadcrumbs strong {
+  color: #ddd;
+  font-weight: 500;
 }
 .definition-section {
   padding: 24px;
@@ -552,6 +690,11 @@ input:disabled {
   border-right: 1px solid #343438;
   background: #151517;
   overflow: auto;
+}
+.object-search {
+  width: 100%;
+  margin-bottom: 10px;
+  box-sizing: border-box;
 }
 .object-list button {
   display: flex;
@@ -632,8 +775,42 @@ input:disabled {
 }
 .workspace-footer {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto auto 1fr auto auto;
   gap: 10px;
+}
+.problem-summary {
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: #80bf93;
+  cursor: pointer;
+}
+.problem-summary.invalid {
+  color: #e69a7a;
+}
+.workspace-problems {
+  max-height: 150px;
+  margin-bottom: 10px;
+  overflow: auto;
+  border: 1px solid #4b3430;
+  background: #191313;
+}
+.workspace-problems button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid #332625;
+  background: transparent;
+  color: #d7b2a4;
+  text-align: left;
+  cursor: pointer;
+}
+.workspace-problems code {
+  color: #e3876e;
+  overflow-wrap: anywhere;
 }
 @media (max-width: 850px) {
   .workspace {

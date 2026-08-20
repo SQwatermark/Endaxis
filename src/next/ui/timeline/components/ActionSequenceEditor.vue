@@ -3,7 +3,7 @@
  * 编辑一条不带时间偏移的同步动作序列。
  * 技能调度、事件监听和 Buff 生命周期共用这里的步骤增删、排序、复制与参数编辑。
  */
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   ArrowDown,
@@ -26,11 +26,19 @@ const props = defineProps<{
   skillLevel: number;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
+  selectedPath?: string;
 }>();
 const emit = defineEmits<{ update: [sequence: ActionSequenceDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
 const selectedStepIndex = ref(0);
 const detailCollapsed = ref(false);
+const nestedSelectedPath = computed(() => {
+  const match = props.selectedPath?.match(/^steps\[(\d+)\](?:\.(.*))?$/);
+  if (match === null || match === undefined || Number(match[1]) !== selectedStepIndex.value) {
+    return '';
+  }
+  return match[2] ?? '';
+});
 
 watch(
   () => props.sequence,
@@ -40,6 +48,19 @@ watch(
       Math.min(selectedStepIndex.value, sequence.steps.length - 1),
     );
   },
+);
+
+watch(
+  () => props.selectedPath,
+  path => {
+    const match = path?.match(/^steps\[(\d+)\]/);
+    if (match === null || match === undefined) return;
+    const index = Number(match[1]);
+    if (index < 0 || index >= props.sequence.steps.length) return;
+    selectedStepIndex.value = index;
+    detailCollapsed.value = false;
+  },
+  { immediate: true },
 );
 
 function replaceSteps(steps: readonly CombatStepDefinition[]): void {
@@ -171,6 +192,7 @@ function appendStep(kind: EditableCombatStepKind): void {
         :show-header="false"
         :create-step="createStep"
         :duplicate-step="duplicateStep"
+        :selected-path="nestedSelectedPath"
         @update="replaceStep"
       />
     </div>
