@@ -20,7 +20,7 @@ const props = defineProps<{
   hideTrigger?: boolean;
   anchor?: { readonly x: number; readonly y: number };
 }>();
-const emit = defineEmits<{ select: [kind: EditableCombatStepKind] }>();
+const emit = defineEmits<{ select: [kind: EditableCombatStepKind]; close: [] }>();
 const { t } = useI18n({ useScope: 'global' });
 const root = ref<HTMLElement>();
 const trigger = ref<HTMLButtonElement>();
@@ -45,12 +45,21 @@ const filteredGroups = computed(() => {
 });
 
 async function toggle(): Promise<void> {
-  open.value = !open.value;
-  if (!open.value) return;
+  if (open.value) {
+    close();
+    return;
+  }
+  open.value = true;
   query.value = '';
   await nextTick();
   updatePosition();
   searchInput.value?.focus();
+}
+
+function close(): void {
+  if (!open.value) return;
+  open.value = false;
+  emit('close');
 }
 
 function updatePosition(): void {
@@ -81,7 +90,7 @@ function choose(kind: EditableCombatStepKind): void {
 
 function closeFromOutside(event: PointerEvent): void {
   const target = event.target as Node;
-  if (!root.value?.contains(target) && !popover.value?.contains(target)) open.value = false;
+  if (!root.value?.contains(target) && !popover.value?.contains(target)) close();
 }
 
 onMounted(() => {
@@ -99,12 +108,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="root"
-    class="step-type-picker"
-    :class="{ 'is-compact': compact }"
-    @keydown.esc="open = false"
-  >
+  <div ref="root" class="step-type-picker" :class="{ 'is-compact': compact }" @keydown.esc="close">
     <button
       v-if="!hideTrigger"
       ref="trigger"
@@ -127,7 +131,7 @@ onBeforeUnmount(() => {
         :class="{ 'is-compact': props.compact }"
         :style="popoverStyle"
         role="menu"
-        @keydown.esc.stop="open = false"
+        @keydown.esc.stop="close"
       >
         <div class="step-type-picker__heading">
           <strong>{{ t('nextTimeline.skillEditing.chooseStepType') }}</strong>

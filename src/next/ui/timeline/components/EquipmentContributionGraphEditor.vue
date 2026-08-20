@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import type {
+  EquipmentAttribute,
   EquipmentContributionDefinition,
   EquipmentEventHandlerDefinition,
   EquipmentModifierDefinition,
+  EquipmentPanelStat,
 } from '../../../core/game-data/equipmentDefinition';
-import type { CombatStepDefinition, LevelValues } from '../../../core/game-data/operatorDefinition';
+import { EQUIPMENT_PANEL_STATS } from '../../../core/game-data/equipmentDefinition';
+import {
+  DAMAGE_TYPES,
+  OPERATOR_ATTRIBUTES,
+  SKILL_TYPES,
+  type CombatStepDefinition,
+  type DamageType,
+  type LevelValues,
+  type SkillType,
+} from '../../../core/game-data/operatorDefinition';
 import {
   buildEquipmentContributionMindMap,
   findSkillStructureNodeForPath,
@@ -53,6 +64,11 @@ const pendingAdd = ref<{
   readonly anchor: { readonly x: number; readonly y: number };
 } | null>(null);
 const pickerKey = ref(0);
+const modifierAttributes = [
+  ...OPERATOR_ATTRIBUTES,
+  'main',
+  'secondary',
+] as const satisfies readonly EquipmentAttribute[];
 const undoStack = shallowRef<EquipmentContributionDefinition[]>([]);
 const redoStack = shallowRef<EquipmentContributionDefinition[]>([]);
 const clipboard = shallowRef<
@@ -280,6 +296,68 @@ function parseLevelValues(event: Event): void {
 function levelValuesText(value: LevelValues): string {
   return Array.isArray(value) ? value.join(', ') : String(value);
 }
+
+function setModifierAttribute(attribute: EquipmentAttribute): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind === 'attribute') replaceSelected({ ...modifier, attribute });
+}
+
+function setModifierOperation(operation: 'flat' | 'percent'): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind === 'attribute') replaceSelected({ ...modifier, operation });
+}
+
+function setModifierPanelStat(stat: EquipmentPanelStat): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind === 'panelStat') replaceSelected({ ...modifier, stat });
+}
+
+function selectedDamageTypes(modifier: EquipmentModifierDefinition): readonly DamageType[] {
+  if (modifier.kind !== 'damageBonus') return [];
+  return typeof modifier.damageTypes === 'string' ? [modifier.damageTypes] : modifier.damageTypes;
+}
+
+function selectedSkillTypes(
+  modifier: EquipmentModifierDefinition,
+): readonly SkillType[] | undefined {
+  if (modifier.kind !== 'damageBonus' || modifier.skillTypes === undefined) return undefined;
+  return typeof modifier.skillTypes === 'string' ? [modifier.skillTypes] : modifier.skillTypes;
+}
+
+function toggleDamageType(damageType: DamageType): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind !== 'damageBonus') return;
+  const current = selectedDamageTypes(modifier);
+  const next = current.includes(damageType)
+    ? current.filter(value => value !== damageType)
+    : [...current, damageType];
+  if (next.length === 0) return;
+  replaceSelected({ ...modifier, damageTypes: next.length === 1 ? next[0]! : next });
+}
+
+function clearSkillTypeFilter(): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind !== 'damageBonus') return;
+  const { skillTypes: _skillTypes, ...next } = modifier;
+  replaceSelected(next);
+}
+
+function toggleSkillType(skillType: SkillType): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind !== 'damageBonus') return;
+  const current = selectedSkillTypes(modifier);
+  const next =
+    current === undefined
+      ? [skillType]
+      : current.includes(skillType)
+        ? current.filter(value => value !== skillType)
+        : [...current, skillType];
+  if (next.length === 0) {
+    clearSkillTypeFilter();
+    return;
+  }
+  replaceSelected({ ...modifier, skillTypes: next.length === 1 ? next[0]! : next });
+}
 </script>
 
 <template>
@@ -305,6 +383,7 @@ function levelValuesText(value: LevelValues): string {
       open-on-mount
       :anchor="pendingAdd.anchor"
       @select="appendStep"
+      @close="pendingAdd = null"
     />
     <EquipmentContributionTypePicker
       v-if="pendingAdd?.kind === 'modifier' || pendingAdd?.kind === 'handler'"
@@ -322,15 +401,88 @@ function levelValuesText(value: LevelValues): string {
         <header>
           <strong>属性修正</strong><span>{{ selectedModifier.kind }}</span>
         </header>
+        <div v-if="selectedModifier.kind === 'attribute'" class="field-grid">
+          <label>
+            <span>属性</span>
+            <select
+              :value="selectedModifier.attribute"
+              @change="
+                setModifierAttribute(
+                  ($event.target as HTMLSelectElement).value as EquipmentAttribute,
+                )
+              "
+            >
+              <option v-for="attribute in modifierAttributes" :key="attribute" :value="attribute">
+                {{ attribute }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>运算方式</span>
+            <select
+              :value="selectedModifier.operation"
+              @change="
+                setModifierOperation(
+                  ($event.target as HTMLSelectElement).value as 'flat' | 'percent',
+                )
+              "
+            >
+              <option value="flat">固定值</option>
+              <option value="percent">百分比</option>
+            </select>
+          </label>
+        </div>
+        <label v-else-if="selectedModifier.kind === 'panelStat'">
+          <span>面板属性</span>
+          <select
+            :value="selectedModifier.stat"
+            @change="
+              setModifierPanelStat(($event.target as HTMLSelectElement).value as EquipmentPanelStat)
+            "
+          >
+            <option v-for="stat in EQUIPMENT_PANEL_STATS" :key="stat" :value="stat">
+              {{ stat }}
+            </option>
+          </select>
+        </label>
+        <template v-else>
+          <fieldset>
+            <legend>伤害类型（至少一项）</legend>
+            <button
+              v-for="damageType in DAMAGE_TYPES"
+              :key="damageType"
+              class="filter-chip"
+              :class="{ active: selectedDamageTypes(selectedModifier).includes(damageType) }"
+              @click="toggleDamageType(damageType)"
+            >
+              {{ damageType }}
+            </button>
+          </fieldset>
+          <fieldset>
+            <legend>技能类型筛选</legend>
+            <button
+              class="filter-chip"
+              :class="{ active: selectedSkillTypes(selectedModifier) === undefined }"
+              @click="clearSkillTypeFilter"
+            >
+              全部
+            </button>
+            <button
+              v-for="skillType in SKILL_TYPES"
+              :key="skillType"
+              class="filter-chip"
+              :class="{ active: selectedSkillTypes(selectedModifier)?.includes(skillType) }"
+              @click="toggleSkillType(skillType)"
+            >
+              {{ skillType }}
+            </button>
+          </fieldset>
+        </template>
         <label>
           <span>等级值</span>
           <input :value="levelValuesText(selectedModifier.value)" @change="parseLevelValues" />
           <small>单值或逗号分隔的逐级数值；当前预览等级 {{ level }}。</small>
         </label>
-        <div class="readout" v-for="(value, key) in selectedModifier" :key="key">
-          <span>{{ key }}</span
-          ><code>{{ value }}</code>
-        </div>
       </template>
       <template v-else-if="selectedHandler">
         <header>
@@ -412,7 +564,8 @@ label {
   margin-top: 14px;
   font-size: 11px;
 }
-input {
+input,
+select {
   width: 100%;
   min-width: 0;
   height: 32px;
@@ -420,6 +573,34 @@ input {
   border: 1px solid var(--ea-border);
   background: var(--ea-fill-input);
   color: var(--ea-fg);
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+fieldset {
+  margin: 14px 0 0;
+  padding: 10px;
+  border: 1px solid var(--ea-border-soft);
+}
+legend {
+  padding: 0 5px;
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+}
+.filter-chip {
+  margin: 3px;
+  padding: 5px 7px;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg-secondary);
+  cursor: pointer;
+}
+.filter-chip.active {
+  border-color: var(--ea-gold);
+  color: var(--ea-gold);
+  background: color-mix(in srgb, var(--ea-gold) 12%, var(--ea-fill-soft));
 }
 .readout {
   display: grid;

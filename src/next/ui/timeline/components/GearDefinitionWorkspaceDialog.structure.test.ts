@@ -54,6 +54,7 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('@history-action="restoreHistory"');
     expect(contributionEditorSource).toContain('@add-child="beginAdd"');
     expect(contributionEditorSource).toContain('StepTypePicker');
+    expect(contributionEditorSource).toContain('@close="pendingAdd = null"');
     expect(contributionEditorSource).toContain('EquipmentContributionTypePicker');
     expect(contributionEditorSource).toContain(':clipboard-kind="clipboard?.kind"');
     expect(contributionEditorSource).toContain('duplicateSkillEditorDetachedStep');
@@ -67,5 +68,15 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionTypePickerSource).toContain('DAMAGE_TYPES');
     expect(contributionTypePickerSource).toContain('EDITABLE_COMBAT_EVENT_TRIGGER_KINDS');
     expect(eventTriggerEditorSource).toContain('createCombatEventTriggerDraft');
+  });
+
+  it('edits every modifier variant in the layer-local inspector', () => {
+    expect(contributionEditorSource).toContain('modifierAttributes');
+    expect(contributionEditorSource).toContain('setModifierOperation');
+    expect(contributionEditorSource).toContain('EQUIPMENT_PANEL_STATS');
+    expect(contributionEditorSource).toContain('toggleDamageType');
+    expect(contributionEditorSource).toContain('toggleSkillType');
+    expect(contributionEditorSource).toContain('clearSkillTypeFilter');
+    expect(contributionEditorSource).not.toContain('v-for="(value, key) in selectedModifier"');
   });
 });
