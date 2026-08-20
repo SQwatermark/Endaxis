@@ -127,13 +127,17 @@ function skillIcon(source: SkillLevelSource): string {
       : source === 'comboSkill'
         ? 'combo.webp'
         : 'ultimate.webp';
-  return `/operators/${operator.operatorSlug}/${file}`;
+  return `/operators/${operator.definition.assetSlug ?? operator.operatorSlug}/${file}`;
 }
 
 function skillDescription(source: SkillLevelSource): string {
   const operator = props.operator;
   if (!operator) return '';
-  return getOperatorCombatSkillDescription(operator.operatorSlug, source, locale.value);
+  return getOperatorCombatSkillDescription(
+    operator.definition.assetSlug ?? operator.operatorSlug,
+    source,
+    locale.value,
+  );
 }
 
 function setSkillLevel(source: SkillLevelSource, level: number): void {
@@ -171,7 +175,12 @@ function talentFlatIndex(groupIndex: number): number {
 function talentName(groupIndex: number): string {
   const operator = props.operator;
   if (!operator) return '';
-  return getOperatorTalentName(operator.operatorSlug, talentFlatIndex(groupIndex), 0, locale.value);
+  return getOperatorTalentName(
+    operator.definition.assetSlug ?? operator.operatorSlug,
+    talentFlatIndex(groupIndex),
+    0,
+    locale.value,
+  );
 }
 
 function talentDescription(groupIndex: number, level: number): string {
@@ -179,7 +188,7 @@ function talentDescription(groupIndex: number, level: number): string {
   if (!operator) return '';
   return (
     getOperatorTalentDescription(
-      operator.operatorSlug,
+      operator.definition.assetSlug ?? operator.operatorSlug,
       talentFlatIndex(groupIndex),
       level - 1,
       locale.value,
@@ -189,13 +198,23 @@ function talentDescription(groupIndex: number, level: number): string {
 
 function potentialName(level: number): string {
   const operator = props.operator;
-  return operator ? getOperatorPotentialName(operator.operatorSlug, level - 1, locale.value) : '';
+  return operator
+    ? getOperatorPotentialName(
+        operator.definition.assetSlug ?? operator.operatorSlug,
+        level - 1,
+        locale.value,
+      )
+    : '';
 }
 
 function potentialDescription(level: number): string {
   const operator = props.operator;
   return operator
-    ? (getOperatorPotentialDescription(operator.operatorSlug, level - 1, locale.value) ?? '')
+    ? (getOperatorPotentialDescription(
+        operator.definition.assetSlug ?? operator.operatorSlug,
+        level - 1,
+        locale.value,
+      ) ?? '')
     : '';
 }
 
@@ -253,11 +272,18 @@ function maxOut(): void {
             :class="`rarity-${definition.rarity}-style`"
             :style="definition.rarity === 6 ? {} : { borderColor: rarityColor }"
           >
-            <img :src="`/operators/${operator.operatorSlug}/avatar.webp`" alt="" class="portrait" />
+            <img
+              :src="`/operators/${operator.definition.assetSlug ?? operator.operatorSlug}/avatar.webp`"
+              alt=""
+              class="portrait"
+            />
           </div>
           <div class="header-info">
             <div class="name-row">
-              <span class="name">{{ getOperatorGameName(operator.operatorSlug, locale) }}</span>
+              <span class="name">{{
+                operator.definition.displayName ??
+                getOperatorGameName(operator.definition.assetSlug ?? operator.operatorSlug, locale)
+              }}</span>
               <span
                 class="stars"
                 :class="`header-rarity-${definition.rarity}`"
@@ -459,7 +485,7 @@ function maxOut(): void {
                       @click="setTalentState(groupIndex, level)"
                     >
                       <img
-                        :src="`/operators/${operator.operatorSlug}/talent ${groupIndex + 1}.webp`"
+                        :src="`/operators/${operator.definition.assetSlug ?? operator.operatorSlug}/talent ${groupIndex + 1}.webp`"
                         alt=""
                         class="talent-icon"
                       />

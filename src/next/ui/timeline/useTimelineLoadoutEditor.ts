@@ -10,7 +10,7 @@ import {
 } from '../../application/editor/loadoutBuildFactory';
 import type {
   ScenarioCommand,
-  ScenarioEditorSession,
+  ScenarioEditingSession,
 } from '../../application/editor/scenarioEditorSession';
 import type { GameDataBrowser, GameDataRepository } from '../../core/game-data/gameDataRepository';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
@@ -39,7 +39,7 @@ type TimelineGameData = GameDataRepository & GameDataBrowser;
 
 export interface TimelineLoadoutEditorOptions {
   readonly scenario: Readonly<Ref<ScenarioDocument>>;
-  readonly session: ScenarioEditorSession;
+  readonly session: ScenarioEditingSession;
   readonly selectedTrack: Ref<TrackIndex>;
   readonly clearTimelineSelection: () => void;
   readonly gameData: TimelineGameData;

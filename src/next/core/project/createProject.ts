@@ -74,6 +74,7 @@ export function createEmptyProject(options: CreateProjectOptions): EndaxisProjec
     gameDataRevision: options.gameDataRevision,
     fps: PROJECT_FPS,
     activeScenarioId: scenarioId,
+    definitionLibrary: { operators: {}, weapons: {}, gears: {}, gearSets: {} },
     scenarios: [createEmptyScenario(scenarioId, options.scenarioName ?? 'Scenario 1')],
   };
 }

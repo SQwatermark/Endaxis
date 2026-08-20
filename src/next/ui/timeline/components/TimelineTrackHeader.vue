@@ -114,7 +114,11 @@ function updateInitialUltimateEnergy(event: Event): void {
           class="avatar-shell avatar-trigger"
           @click.stop="$emit('operator')"
         >
-          <img class="avatar" :src="`/operators/${track.operatorSlug}/avatar.webp`" alt="" />
+          <img
+            class="avatar"
+            :src="`/operators/${track.operatorAssetSlug ?? track.operatorSlug}/avatar.webp`"
+            alt=""
+          />
           <span class="avatar-change-hint" aria-hidden="true">↻</span>
         </button>
         <span v-else class="avatar-shell"

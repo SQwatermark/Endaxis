@@ -9,7 +9,7 @@ import {
   replaceEnemyEditableValues,
   setScenarioEnemy,
 } from '../../application/editor/enemyEditorCommands';
-import type { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
+import type { ScenarioEditingSession } from '../../application/editor/scenarioEditorSession';
 import type { GameDataBrowser, GameDataRepository } from '../../core/game-data/gameDataRepository';
 import type { EnemyEditableValues, ScenarioDocument } from '../../core/project/schema';
 
@@ -17,7 +17,7 @@ type TimelineEnemyGameData = GameDataRepository & GameDataBrowser;
 
 export interface TimelineEnemyEditorOptions {
   readonly scenario: Readonly<Ref<ScenarioDocument>>;
-  readonly session: ScenarioEditorSession;
+  readonly session: ScenarioEditingSession;
   readonly gameData: TimelineEnemyGameData;
   readonly fps: number;
 }

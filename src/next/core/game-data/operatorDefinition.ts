@@ -1310,6 +1310,10 @@ export interface OperatorEntityBlackboardInitializerDefinition {
 
 export interface OperatorDefinition {
   slug: string;
+  /** 项目模板可提供独立展示名；内置定义继续使用本地化文本。 */
+  displayName?: string;
+  /** 项目模板继承头像、技能图标和本地化回退时使用的内置资源 slug。 */
+  assetSlug?: string;
   gameId: string;
   rarity: OperatorRarity;
   weaponType: OperatorWeaponType;

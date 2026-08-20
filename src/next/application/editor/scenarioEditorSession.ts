@@ -16,6 +16,16 @@ export interface ScenarioEditorSnapshot {
 export type ScenarioCommand = (scenario: ScenarioDocument) => ScenarioDocument;
 export type ScenarioEditorSubscriber = (snapshot: ScenarioEditorSnapshot) => void;
 
+export interface ScenarioEditingSession {
+  readonly snapshot: ScenarioEditorSnapshot;
+  readonly canUndo: boolean;
+  readonly canRedo: boolean;
+  commit(commandName: string, command: ScenarioCommand): boolean;
+  undo(): boolean;
+  redo(): boolean;
+  subscribe(subscriber: ScenarioEditorSubscriber): () => void;
+}
+
 interface ScenarioHistoryEntry {
   readonly commandName: string;
   readonly before: ScenarioDocument;
@@ -24,7 +34,7 @@ interface ScenarioHistoryEntry {
 
 const DEFAULT_HISTORY_LIMIT = 50;
 
-export class ScenarioEditorSession {
+export class ScenarioEditorSession implements ScenarioEditingSession {
   #snapshot: ScenarioEditorSnapshot;
   readonly #subscribers = new Set<ScenarioEditorSubscriber>();
   readonly #historyLimit: number;

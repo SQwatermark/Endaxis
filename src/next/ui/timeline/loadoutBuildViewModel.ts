@@ -27,7 +27,6 @@ export interface OperatorInstanceViewModel {
   readonly skillLevels: Readonly<Record<string, number>>;
   readonly talentStates: Readonly<Record<string, number>>;
   readonly baseStatOverrides?: Readonly<Record<string, number>>;
-  readonly customAbilityEntityDefinitions?: OperatorInstanceDocument['customAbilityEntityDefinitions'];
   readonly definition: Readonly<OperatorDefinition>;
 }
 
@@ -102,11 +101,6 @@ function projectOperator(
     ...(instance.baseStatOverrides === undefined
       ? {}
       : { baseStatOverrides: { ...instance.baseStatOverrides } }),
-    ...(instance.customAbilityEntityDefinitions === undefined
-      ? {}
-      : {
-          customAbilityEntityDefinitions: structuredClone(instance.customAbilityEntityDefinitions),
-        }),
     definition,
   };
 }

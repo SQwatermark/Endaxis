@@ -75,7 +75,7 @@ const editingStep = computed<SpawnAbilityEntityStep | null>(() => {
 });
 const validationIssues = computed(() =>
   Object.entries(draft.value).flatMap(([id, definition]) =>
-    validateAbilityEntityDefinition(definition, `customAbilityEntityDefinitions['${id}']`),
+    validateAbilityEntityDefinition(definition, `abilityEntityDefinitions['${id}']`),
   ),
 );
 

@@ -10,6 +10,11 @@ import {
 } from './schema';
 import { DAMAGE_ELEMENTS } from '../game-data/operatorDefinition';
 import {
+  validateGearDefinition,
+  validateGearSetDefinition,
+  validateWeaponDefinition,
+} from '../game-data/equipmentDefinitionValidation';
+import {
   validateBattle,
   validateEditor,
   validateEnemy,
@@ -34,6 +39,94 @@ import {
 export type { ValidationIssue } from './validationHelpers';
 
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
+
+function validateProjectTemplateRecord(
+  value: unknown,
+  path: string,
+  kind: 'operator' | 'weapon' | 'gear' | 'gearSet',
+  issues: ValidationIssue[],
+): void {
+  if (!isObject(value)) {
+    issues.push({ path, message: 'expected an object' });
+    return;
+  }
+  for (const [id, template] of Object.entries(value)) {
+    const templatePath = `${path}.${JSON.stringify(id)}`;
+    if (!id.startsWith(`project:${kind}:`) || id.length === `project:${kind}:`.length) {
+      issues.push({ path: templatePath, message: `expected project:${kind}: template id` });
+    }
+    if (!isObject(template)) {
+      issues.push({ path: templatePath, message: 'expected an object' });
+      continue;
+    }
+    const declaredId = requireString(template, 'id', templatePath, issues);
+    if (declaredId !== null && declaredId !== id) {
+      issues.push({ path: `${templatePath}.id`, message: 'template id must match record key' });
+    }
+    requireString(template, 'name', templatePath, issues);
+    if (template.origin !== undefined) {
+      if (!isObject(template.origin)) {
+        issues.push({ path: `${templatePath}.origin`, message: 'expected an object' });
+      } else {
+        requireString(template.origin, 'templateId', `${templatePath}.origin`, issues);
+        requireString(template.origin, 'gameDataRevision', `${templatePath}.origin`, issues);
+      }
+    }
+    if (!isObject(template.definition)) {
+      issues.push({ path: `${templatePath}.definition`, message: 'expected an object' });
+      continue;
+    }
+    if (template.definition.slug !== id) {
+      issues.push({
+        path: `${templatePath}.definition.slug`,
+        message: 'definition identity mismatch',
+      });
+    }
+    const definitionPath = `${templatePath}.definition`;
+    if (kind === 'operator') {
+      requireString(template.definition, 'gameId', definitionPath, issues);
+      if (!Array.isArray(template.definition.skillGroups)) {
+        issues.push({ path: `${definitionPath}.skillGroups`, message: 'expected an array' });
+      } else {
+        template.definition.skillGroups.forEach((group, groupIndex) => {
+          const groupPath = `${definitionPath}.skillGroups[${groupIndex}]`;
+          if (!isObject(group)) {
+            issues.push({ path: groupPath, message: 'expected an object' });
+            return;
+          }
+          requireString(group, 'key', groupPath, issues);
+          const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+          skills.forEach((skill, skillIndex) => {
+            issues.push(...validateSkillDefinition(skill, `${groupPath}.skills[${skillIndex}]`));
+          });
+        });
+      }
+    } else {
+      const definitionIssues =
+        kind === 'weapon'
+          ? validateWeaponDefinition(template.definition, definitionPath)
+          : kind === 'gear'
+            ? validateGearDefinition(template.definition, definitionPath)
+            : validateGearSetDefinition(template.definition, definitionPath);
+      issues.push(...definitionIssues);
+    }
+  }
+}
+
+function validateProjectDefinitionLibrary(
+  value: unknown,
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  if (!isObject(value)) {
+    issues.push({ path, message: 'expected an object' });
+    return;
+  }
+  validateProjectTemplateRecord(value.operators, `${path}.operators`, 'operator', issues);
+  validateProjectTemplateRecord(value.weapons, `${path}.weapons`, 'weapon', issues);
+  validateProjectTemplateRecord(value.gears, `${path}.gears`, 'gear', issues);
+  validateProjectTemplateRecord(value.gearSets, `${path}.gearSets`, 'gearSet', issues);
+}
 
 /** 严格校验后的项目或完整问题列表；失败值不得进入领域层。 */
 export type ValidationResult =
@@ -215,6 +308,9 @@ export function validateProjectDocument(value: unknown): ValidationResult {
   const activeScenarioId = requireString(value, 'activeScenarioId', '$', issues);
   requireString(value, 'createdWith', '$', issues);
   requireString(value, 'gameDataRevision', '$', issues);
+  if (value.definitionLibrary !== undefined) {
+    validateProjectDefinitionLibrary(value.definitionLibrary, '$.definitionLibrary', issues);
+  }
 
   if (!Array.isArray(value.scenarios) || value.scenarios.length === 0) {
     issues.push({ path: '$.scenarios', message: 'expected at least one scenario' });

@@ -89,6 +89,7 @@ export * from './projection/skillExecutionDiagnostics';
 export * from './projection/comboWindowDiagnostics';
 export * from './projection/statusChangePoints';
 export * from './project/createProject';
+export * from './project/projectDefinitionLibrary';
 export * from './project/definitionValidation';
 export * from './project/migration';
 export * from './project/resolveControlTimeline';

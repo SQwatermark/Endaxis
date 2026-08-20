@@ -172,16 +172,7 @@ export function resolveScenarioBuilds(
       operatorInstance.operatorSlug,
       `${trackPath}.operator`,
     );
-    const operator: OperatorDefinition =
-      operatorInstance.customAbilityEntityDefinitions === undefined
-        ? baseOperator
-        : {
-            ...baseOperator,
-            abilityEntityDefinitions: {
-              ...baseOperator.abilityEntityDefinitions,
-              ...operatorInstance.customAbilityEntityDefinitions,
-            },
-          };
+    const operator: OperatorDefinition = baseOperator;
     const weapon = resolveWeapon(track, operator, trackPath, index);
     const gears = resolveGears(track, trackPath, index);
     resolved.push({

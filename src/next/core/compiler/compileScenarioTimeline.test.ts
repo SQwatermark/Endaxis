@@ -74,12 +74,8 @@ describe('compileScenarioTimeline', () => {
     });
   });
 
-  it('merges project ability entity additions and overrides after generated definitions', () => {
+  it('compiles ability entity additions and overrides from a project operator template', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
-    scenario.tracks[0]!.operator!.customAbilityEntityDefinitions = {
-      generated: { lifetime: { kind: 'limited', durationSeconds: 3 } },
-      custom: { lifetime: { kind: 'infinite' } },
-    };
     scenario.tracks[0]!.skillCasts[0]!.customDefinition = {
       key: 'battleSkill',
       timelineBlockFrames: 1,
@@ -104,7 +100,8 @@ describe('compileScenarioTimeline', () => {
     const operator = {
       ...perlica,
       abilityEntityDefinitions: {
-        generated: { lifetime: { kind: 'limited' as const, durationSeconds: 9 } },
+        generated: { lifetime: { kind: 'limited' as const, durationSeconds: 3 } },
+        custom: { lifetime: { kind: 'infinite' as const } },
       },
     };
 

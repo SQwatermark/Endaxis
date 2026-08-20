@@ -4,7 +4,6 @@
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
 import { DAMAGE_FEATURES, DAMAGE_TAGS, SKILL_TYPES } from '../game-data/operatorDefinition';
-import { validateAbilityEntityDefinition } from '../game-data/validateSkillDefinition';
 import { ENEMY_RANKS } from '../game-data/enemyRank';
 import {
   isObject,
@@ -39,29 +38,6 @@ export function validateOperatorInstance(
   validateFiniteNumberRecord(value.talentStates, `${path}.talentStates`, issues);
   if (value.baseStatOverrides !== undefined) {
     validateFiniteNumberRecord(value.baseStatOverrides, `${path}.baseStatOverrides`, issues);
-  }
-  if (value.customAbilityEntityDefinitions !== undefined) {
-    if (!isObject(value.customAbilityEntityDefinitions)) {
-      issues.push({
-        path: `${path}.customAbilityEntityDefinitions`,
-        message: 'expected an object',
-      });
-    } else {
-      for (const [id, definition] of Object.entries(value.customAbilityEntityDefinitions)) {
-        if (id.trim().length === 0) {
-          issues.push({
-            path: `${path}.customAbilityEntityDefinitions`,
-            message: 'contains a blank ability entity id',
-          });
-        }
-        issues.push(
-          ...validateAbilityEntityDefinition(
-            definition,
-            `${path}.customAbilityEntityDefinitions.${JSON.stringify(id)}`,
-          ),
-        );
-      }
-    }
   }
 }
 

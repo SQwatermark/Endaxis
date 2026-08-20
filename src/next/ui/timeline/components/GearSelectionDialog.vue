@@ -94,16 +94,17 @@ const currentArtificingTier = computed(() => {
 
 const gearItems = computed<readonly GearListItem[]>(() =>
   props.gears.map(definition => {
+    const assetSlug = definition.assetSlug ?? definition.slug;
     const gearSetSlug =
       definition.gearSetSlug && definition.gearSetSlug !== 'no-set-bonuses'
         ? definition.gearSetSlug
         : null;
-    const gearSupport = getSharedEquipmentSupport('gear', definition.slug);
+    const gearSupport = getSharedEquipmentSupport('gear', assetSlug);
     const setSupport = gearSetSlug ? getSharedEquipmentSupport('gearSet', gearSetSlug) : null;
     const issues = [...(gearSupport?.issues ?? []), ...(setSupport?.issues ?? [])];
     return {
       definition,
-      name: getGearPieceGameName(definition.slug, locale.value),
+      name: definition.displayName ?? getGearPieceGameName(assetSlug, locale.value),
       gearSetSlug,
       gearSetName: gearSetSlug ? getGearSetGameName(gearSetSlug, locale.value) : props.labels.noSet,
       isPartial: gearSupport?.completeness === 'partial' || setSupport?.completeness === 'partial',

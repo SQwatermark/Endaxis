@@ -4,7 +4,18 @@ import type { EndaxisProjectDocument, TrackDocument } from '../project/schema';
 import type { GearDefinition, GearSetDefinition, WeaponDefinition } from './equipmentDefinition';
 import { validateProjectBuildDefinitionReferences } from './buildDefinitionValidation';
 
-const operator = { slug: 'fixture-operator', weaponType: 'arts-unit' } as const;
+const operator = {
+  slug: 'fixture-operator',
+  weaponType: 'arts-unit',
+  skillGroups: [
+    {
+      key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      skills: { key: 'current-skill', timelineBlockFrames: 30, scheduledSequences: [] },
+    },
+  ],
+} as const;
 const weapon: WeaponDefinition = {
   slug: 'fixture-weapon',
   rarity: 6,
@@ -97,6 +108,21 @@ function createProject(): EndaxisProjectDocument {
 }
 
 describe('validateProjectBuildDefinitionReferences', () => {
+  it('reports casts and hit connections left behind by free template key edits', () => {
+    const project = createProject();
+    const track = project.scenarios[0]!.tracks[0]!;
+    track.skillCasts.push({
+      id: 'cast:stale',
+      source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'old-skill' },
+      placement: { startFrame: 30 },
+    });
+
+    expect(validateProjectBuildDefinitionReferences(project, createRepository())).toContainEqual({
+      path: '$.scenarios[0].tracks[0].skillCasts[0].source.skillKey',
+      message: "unknown skill 'old-skill'",
+    });
+    expect(track.skillCasts).toHaveLength(1);
+  });
   it('accepts definition-backed builds with compatible track equipment', () => {
     expect(validateProjectBuildDefinitionReferences(createProject(), createRepository())).toEqual(
       [],

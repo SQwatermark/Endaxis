@@ -31,6 +31,7 @@ const props = defineProps<{
   connectionToolEnabled?: boolean;
   /** 合法性诊断归约到该技能块的警告标记。 */
   warning?: boolean;
+  warningText?: string;
   /** 技能块上的独立命中点标记；同时是连线工具的伤害命中端点。 */
   hits?: readonly TimelineHitMarkerView[];
   /** 由该技能产生的时间膨胀流光，沿用旧版从技能块左侧开始并裁剪到块内。 */
@@ -79,7 +80,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
     }"
     :data-skill-type="skillType"
     :style="blockStyle"
-    :title="label"
+    :title="[label, warningText].filter(Boolean).join(' · ')"
     :draggable="false"
     @pointerdown="beginMove"
     @click.stop="$emit('select', $event)"

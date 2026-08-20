@@ -274,7 +274,6 @@ export function compileOperatorDefinitionSkills(
 ): readonly CompiledSkillProgram[] {
   const duplicateAbilityEntityIds = [
     ...Object.keys(operator.abilityEntityDefinitions ?? {}),
-    ...Object.keys(build.customAbilityEntityDefinitions ?? {}),
   ].filter(id => id in commonAbilityEntityDefinitions);
   if (duplicateAbilityEntityIds.length > 0) {
     throw new Error(
@@ -284,7 +283,6 @@ export function compileOperatorDefinitionSkills(
   const abilityEntityDefinitions = {
     ...commonAbilityEntityDefinitions,
     ...operator.abilityEntityDefinitions,
-    ...build.customAbilityEntityDefinitions,
   };
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
@@ -325,7 +323,6 @@ function compileResolvedTimelineTracks(
   for (const { track, operatorInstance, operator } of tracks) {
     const duplicateAbilityEntityIds = [
       ...Object.keys(operator.abilityEntityDefinitions ?? {}),
-      ...Object.keys(operatorInstance.customAbilityEntityDefinitions ?? {}),
     ].filter(id => id in commonAbilityEntityDefinitions);
     if (duplicateAbilityEntityIds.length > 0) {
       throw new Error(
@@ -335,7 +332,6 @@ function compileResolvedTimelineTracks(
     const abilityEntityDefinitions = {
       ...commonAbilityEntityDefinitions,
       ...operator.abilityEntityDefinitions,
-      ...operatorInstance.customAbilityEntityDefinitions,
     };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
     const skills: CompiledSkillProgram[] = [];

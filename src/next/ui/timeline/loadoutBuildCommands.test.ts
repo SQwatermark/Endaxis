@@ -67,27 +67,6 @@ describe('loadoutBuildCommands', () => {
     expect(source.tracks[0]!.operator!.level).toBe(90);
   });
 
-  it('stores validated operator-owned ability entity overrides as a detached snapshot', () => {
-    const source = equippedScenario();
-    const definitions = {
-      'custom-orb': {
-        lifetime: { kind: 'limited' as const, durationSeconds: 6 },
-        childSkill: { skillId: 'pulse', scheduledSequences: [] },
-      },
-    };
-
-    const updated = updateTrackOperatorInstance(source, 0, {
-      customAbilityEntityDefinitions: definitions,
-    });
-    definitions['custom-orb'].lifetime.durationSeconds = 9;
-
-    expect(updated.tracks[0]!.operator!.customAbilityEntityDefinitions?.['custom-orb']).toEqual({
-      lifetime: { kind: 'limited', durationSeconds: 6 },
-      childSkill: { skillId: 'pulse', scheduledSequences: [] },
-    });
-    expect(source.tracks[0]!.operator!.customAbilityEntityDefinitions).toBeUndefined();
-  });
-
   it('updates weapon inputs without mutating the source document', () => {
     const source = equippedScenario();
     const updated = updateTrackWeaponInstance(source, 0, {
@@ -127,19 +106,5 @@ describe('loadoutBuildCommands', () => {
     expect(() => updateTrackGearInstance(scenario, 0, 'gloves', [0])).toThrow(
       "track 0 has no gear instance in 'gloves'",
     );
-    expect(() =>
-      updateTrackOperatorInstance(scenario, 0, {
-        customAbilityEntityDefinitions: {
-          broken: { lifetime: { kind: 'limited', durationSeconds: -1 } },
-        },
-      }),
-    ).toThrow('invalid ability entity definition');
-    expect(() =>
-      updateTrackOperatorInstance(scenario, 0, {
-        customAbilityEntityDefinitions: {
-          '   ': { lifetime: { kind: 'infinite' } },
-        },
-      }),
-    ).toThrow('ability entity id must not be blank');
   });
 });

@@ -7,9 +7,15 @@ import type { ValidationIssue } from '../project/validation';
 import type { GearDefinition, GearSlotType, WeaponDefinition } from './equipmentDefinition';
 import type { GameDataRepository } from './gameDataRepository';
 import type { OperatorDefinition } from './operatorDefinition';
+import { collectDamageStepKeys } from './collectDamageStepKeys';
 
 type BuildDefinitionIndex = {
-  getOperator(slug: string): Pick<OperatorDefinition, 'slug' | 'weaponType'> | null;
+  getOperator(
+    slug: string,
+  ):
+    | (Pick<OperatorDefinition, 'slug' | 'weaponType'> &
+        Partial<Pick<OperatorDefinition, 'skillGroups'>>)
+    | null;
   getWeapon(slug: string): WeaponDefinition | null;
   getGear(slug: string): GearDefinition | null;
   getGearSet: GameDataRepository['getGearSet'];
@@ -50,6 +56,7 @@ export function validateProjectBuildDefinitionReferences(
   project.scenarios.forEach((scenario, scenarioIndex) => {
     const scenarioPath = `$.scenarios[${scenarioIndex}]`;
 
+    const damageStepKeysByCastId = new Map<string, ReadonlySet<string>>();
     scenario.tracks.forEach((track, trackIndex) => {
       if (track === null) return;
       const trackPath = `${scenarioPath}.tracks[${trackIndex}]`;
@@ -69,6 +76,38 @@ export function validateProjectBuildDefinitionReferences(
             issues,
           )
         ) {
+          for (let castIndex = 0; castIndex < track.skillCasts.length; castIndex += 1) {
+            const cast = track.skillCasts[castIndex]!;
+            if (cast.source.kind !== 'operatorSkill') continue;
+            const source = cast.source;
+            const castPath = `${trackPath}.skillCasts[${castIndex}].source`;
+            const group = definition.skillGroups?.find(
+              candidate => candidate.key === source.skillGroupKey,
+            );
+            // 精简索引只提供构筑兼容性时不校验技能引用；正式仓库始终提供技能组。
+            if (definition.skillGroups === undefined) continue;
+            if (group === undefined) {
+              issues.push({
+                path: `${castPath}.skillGroupKey`,
+                message: `unknown skill group '${source.skillGroupKey}'`,
+              });
+              continue;
+            }
+            const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+            const skill = skills.find(candidate => candidate.key === source.skillKey);
+            if (skill === undefined) {
+              issues.push({
+                path: `${castPath}.skillKey`,
+                message: `unknown skill '${source.skillKey}'`,
+              });
+              continue;
+            }
+            const effective = cast.customDefinition ?? skill;
+            damageStepKeysByCastId.set(
+              cast.id,
+              new Set(collectDamageStepKeys(effective).map(entry => entry.key)),
+            );
+          }
           const weapon = track.weapon;
           if (weapon !== null) {
             const weaponDefinition = repository.getWeapon(weapon.weaponSlug);
@@ -179,6 +218,20 @@ export function validateProjectBuildDefinitionReferences(
               issues,
             );
           }
+        }
+      }
+    });
+
+    scenario.connections.forEach((connection, connectionIndex) => {
+      for (const endpointName of ['from', 'to'] as const) {
+        const endpoint = connection[endpointName];
+        if (endpoint.kind !== 'damageHit') continue;
+        const known = damageStepKeysByCastId.get(endpoint.skillCastId);
+        if (known !== undefined && !known.has(endpoint.stepKey)) {
+          issues.push({
+            path: `${scenarioPath}.connections[${connectionIndex}].${endpointName}.stepKey`,
+            message: `unknown damage step '${endpoint.stepKey}'`,
+          });
         }
       }
     });

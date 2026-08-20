@@ -21,6 +21,11 @@ import SkillDefinitionEditorDialog from './SkillDefinitionEditorDialog.vue';
 
 type Section = 'panel' | 'skills' | 'buffs' | 'entities';
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
+const PANEL_ATTRIBUTE_KEYS: readonly (keyof OperatorDefinition['attributes'])[] = [
+  ...OPERATOR_ATTRIBUTES,
+  'baseAttack',
+  'baseHealth',
+];
 
 const props = defineProps<{
   visible: boolean;
@@ -249,7 +254,7 @@ function save(): void {
             <strong>Lv.{{ panelLevel }}</strong>
           </div>
           <div class="stat-grid">
-            <label v-for="key in [...OPERATOR_ATTRIBUTES, 'baseAttack', 'baseHealth']" :key="key">
+            <label v-for="key in PANEL_ATTRIBUTE_KEYS" :key="key">
               <span>{{ key }}</span>
               <input
                 type="number"

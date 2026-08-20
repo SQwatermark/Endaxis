@@ -7,6 +7,10 @@ import { validateProjectEnemyDefinitionReferences } from '../game-data/enemyDefi
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import { validateMechanicSelections } from '../game-data/mechanicValidation';
 import { validateProjectDocument, type ValidationResult } from './validation';
+import {
+  createProjectGameDataIndex,
+  getProjectDefinitionLibrary,
+} from './projectDefinitionLibrary';
 
 /**
  * 先对不可信输入做结构校验，再校验当前已建模的 build 与机制定义引用。
@@ -20,13 +24,17 @@ export function validateProjectWithGameData(
   if (!structuralResult.ok) return structuralResult;
 
   const project = structuralResult.value;
-  const issues = validateProjectBuildDefinitionReferences(project, repository);
-  issues.push(...validateProjectEnemyDefinitionReferences(project, repository));
+  const projectRepository = createProjectGameDataIndex(
+    repository,
+    getProjectDefinitionLibrary(project),
+  );
+  const issues = validateProjectBuildDefinitionReferences(project, projectRepository);
+  issues.push(...validateProjectEnemyDefinitionReferences(project, projectRepository));
   project.scenarios.forEach((scenario, scenarioIndex) => {
     issues.push(
       ...validateMechanicSelections(
         scenario.mechanics,
-        repository,
+        projectRepository,
         `$.scenarios[${scenarioIndex}].mechanics`,
       ),
     );

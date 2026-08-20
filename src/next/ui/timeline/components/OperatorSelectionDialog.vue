@@ -99,12 +99,13 @@ const classFilters = computed(() => [
 
 const operatorItems = computed(() =>
   props.operators.map(operator => {
-    const name = getOperatorGameName(operator.slug, locale.value);
+    const assetSlug = operator.assetSlug ?? operator.slug;
+    const name = operator.displayName ?? getOperatorGameName(assetSlug, locale.value);
     const elementName = getGameElementName(operator.element, locale.value);
     return {
       slug: operator.slug,
       name,
-      avatar: `/operators/${operator.slug}/avatar.webp`,
+      avatar: `/operators/${assetSlug}/avatar.webp`,
       rarity: Number(operator.rarity) || 0,
       element: operator.element,
       elementName,
@@ -112,6 +113,7 @@ const operatorItems = computed(() =>
       searchTerms: [
         name,
         operator.slug,
+        assetSlug,
         operator.gameId,
         elementName,
         getGameClassName(operator.role, locale.value),

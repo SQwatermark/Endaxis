@@ -77,10 +77,11 @@ function summarizeSupport(support: SharedEquipmentSupport | null): string {
 
 const weaponItems = computed<readonly WeaponListItem[]>(() =>
   props.weapons.map(definition => {
-    const support = getSharedEquipmentSupport('weapon', definition.slug);
+    const assetSlug = definition.assetSlug ?? definition.slug;
+    const support = getSharedEquipmentSupport('weapon', assetSlug);
     return {
       definition,
-      name: getWeaponGameName(definition.slug, locale.value),
+      name: definition.displayName ?? getWeaponGameName(assetSlug, locale.value),
       weaponTypeName: getGameWeaponTypeName(definition.weaponType, locale.value),
       support,
       supportSummary: summarizeSupport(support),

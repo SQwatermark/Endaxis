@@ -82,6 +82,8 @@ export interface WeaponTraitDefinition extends EquipmentContributionDefinition {
 /** 一把武器在只读定义中的稳定身份、成长数据与词条能力。 */
 export interface WeaponDefinition {
   readonly slug: string;
+  readonly displayName?: string;
+  readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
   readonly iconPath?: string;
   readonly rarity: WeaponRarity;
@@ -104,6 +106,8 @@ export interface GearTraitDefinition extends EquipmentContributionDefinition {
 /** 一件装备在只读定义中的稳定身份、基础防御、词条与套装归属。 */
 export interface GearDefinition {
   readonly slug: string;
+  readonly displayName?: string;
+  readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
   readonly iconPath?: string;
   readonly slotType: GearSlotType;
@@ -119,4 +123,5 @@ export interface GearDefinition {
  */
 export interface GearSetDefinition extends EquipmentContributionDefinition {
   readonly slug: string;
+  readonly displayName?: string;
 }

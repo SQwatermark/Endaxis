@@ -9,18 +9,11 @@ import type {
   WeaponInstanceDocument,
 } from '../../core/project/schema';
 import type { TrackGearSlot } from './timelineDocumentCommands';
-import { validateAbilityEntityDefinition } from '../../core/game-data/validateSkillDefinition';
 
 export type OperatorInstanceChanges = Partial<
   Pick<
     OperatorInstanceDocument,
-    | 'level'
-    | 'promoted'
-    | 'potential'
-    | 'trustLevel'
-    | 'skillLevels'
-    | 'talentStates'
-    | 'customAbilityEntityDefinitions'
+    'level' | 'promoted' | 'potential' | 'trustLevel' | 'skillLevels' | 'talentStates'
   >
 >;
 
@@ -66,32 +59,11 @@ export function updateTrackOperatorInstance(
       requireIntegerAtLeast(state, 0, `operator talent state '${key}'`),
     );
   }
-  if (changes.customAbilityEntityDefinitions !== undefined) {
-    for (const id of Object.keys(changes.customAbilityEntityDefinitions)) {
-      if (id.trim().length === 0) throw new TypeError('ability entity id must not be blank');
-      const validation = validateAbilityEntityDefinition(
-        changes.customAbilityEntityDefinitions[id],
-        `customAbilityEntityDefinitions.${JSON.stringify(id)}`,
-      );
-      if (validation.length > 0) {
-        const first = validation[0]!;
-        throw new TypeError(
-          `invalid ability entity definition at '${first.path}': ${first.message}`,
-        );
-      }
-    }
-  }
-
   const updated = {
     ...instance,
     ...changes,
     ...(changes.skillLevels === undefined ? {} : { skillLevels: { ...changes.skillLevels } }),
     ...(changes.talentStates === undefined ? {} : { talentStates: { ...changes.talentStates } }),
-    ...(changes.customAbilityEntityDefinitions === undefined
-      ? {}
-      : {
-          customAbilityEntityDefinitions: structuredClone(changes.customAbilityEntityDefinitions),
-        }),
   };
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, operator: updated };

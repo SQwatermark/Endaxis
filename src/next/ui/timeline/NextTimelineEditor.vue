@@ -33,13 +33,28 @@ import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import SimulationPerformanceAudit from './components/SimulationPerformanceAudit.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
-import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
+import {
+  ActiveScenarioEditorSession,
+  ProjectEditorSession,
+} from '../../application/editor/projectEditorSession';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { sampleStepCurve } from '../../core/projection/curveSampling';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
-import { PROJECT_FPS, type ScenarioDocument, type TrackIndex } from '../../core/project/schema';
+import {
+  PROJECT_FPS,
+  type ProjectDefinitionLibraryDocument,
+  type ScenarioDocument,
+  type TrackIndex,
+} from '../../core/project/schema';
+import {
+  allocateProjectTemplateId,
+  deriveProjectOperatorTemplate,
+  getProjectDefinitionLibrary,
+  switchTrackToCompatibleOperatorTemplate,
+} from '../../core/project/projectDefinitionLibrary';
+import { createEmptyProject } from '../../core/project/createProject';
 import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
@@ -136,7 +151,12 @@ const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
 const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
 const showSkillDefinitionEditor = ref(false);
 const showOperatorDefinitionWorkspace = ref(false);
-const customOperatorDefinitions = shallowRef<Record<string, OperatorDefinition>>({});
+const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
+  operators: {},
+  weapons: {},
+  gears: {},
+  gearSets: {},
+});
 const operatorDefinitionRevision = ref(0);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const hoveredCastId = ref<string | null>(null);
@@ -187,7 +207,16 @@ let nextDocumentId = 0;
 const ids: TimelineDocumentIdAllocator = {
   allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
 };
-const scenarioSession = new ScenarioEditorSession(createTimelineSampleScenario());
+const initialScenario = createTimelineSampleScenario();
+const initialProject = createEmptyProject({
+  projectId: 'next-sample',
+  createdWith: 'endaxis-next',
+  gameDataRevision: nextGameDataRepository.revision,
+});
+initialProject.activeScenarioId = initialScenario.id;
+initialProject.scenarios = [initialScenario];
+const projectSession = new ProjectEditorSession(initialProject);
+const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
@@ -197,8 +226,16 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   canRedo.value = scenarioSession.canRedo;
   applyActionSelection(reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario));
 });
+const unsubscribeProjectSession = projectSession.subscribe(snapshot => {
+  const library = getProjectDefinitionLibrary(snapshot.project);
+  if (library === projectDefinitionLibrary.value) return;
+  projectDefinitionLibrary.value = library;
+  operatorDefinitionRevision.value += 1;
+});
 onScopeDispose(() => {
   unsubscribeScenarioSession();
+  unsubscribeProjectSession();
+  scenarioSession.dispose();
   cancelConnectionDrag();
   cancelCastMove();
 });
@@ -210,15 +247,36 @@ function commitScenario(
   return scenarioSession.commit(commandName, command);
 }
 
-/** 项目级定义覆盖端口；干员实例仍只保存养成与配装状态。 */
+/** 项目模板库与版本化数据的联合查询端口；实例只保存模板 ID 和养成/配装状态。 */
 const editorGameDataRepository = {
   ...nextGameDataRepository,
   getOperator: (slug: string) =>
-    customOperatorDefinitions.value[slug] ?? nextGameDataRepository.getOperator(slug),
-  getOperators: () =>
-    nextGameDataRepository
-      .getOperators()
-      .map(definition => customOperatorDefinitions.value[definition.slug] ?? definition),
+    projectDefinitionLibrary.value.operators[slug]?.definition ??
+    nextGameDataRepository.getOperator(slug),
+  getOperators: () => [
+    ...nextGameDataRepository.getOperators(),
+    ...Object.values(projectDefinitionLibrary.value.operators).map(value => value.definition),
+  ],
+  getWeapon: (slug: string) =>
+    projectDefinitionLibrary.value.weapons[slug]?.definition ??
+    nextGameDataRepository.getWeapon(slug),
+  getWeapons: () => [
+    ...nextGameDataRepository.getWeapons(),
+    ...Object.values(projectDefinitionLibrary.value.weapons).map(value => value.definition),
+  ],
+  getGear: (slug: string) =>
+    projectDefinitionLibrary.value.gears[slug]?.definition ?? nextGameDataRepository.getGear(slug),
+  getGears: () => [
+    ...nextGameDataRepository.getGears(),
+    ...Object.values(projectDefinitionLibrary.value.gears).map(value => value.definition),
+  ],
+  getGearSet: (slug: string) =>
+    projectDefinitionLibrary.value.gearSets[slug]?.definition ??
+    nextGameDataRepository.getGearSet(slug),
+  getGearSets: () => [
+    ...nextGameDataRepository.getGearSets(),
+    ...Object.values(projectDefinitionLibrary.value.gearSets).map(value => value.definition),
+  ],
 };
 
 const {
@@ -304,37 +362,106 @@ const {
 });
 const selectedOperatorBaseDefinition = computed(() => {
   const slug = selectedLoadoutModel.value.operator?.operatorSlug;
-  return slug === undefined ? null : nextGameDataRepository.getOperator(slug);
+  if (slug === undefined) return null;
+  const template = projectDefinitionLibrary.value.operators[slug];
+  return nextGameDataRepository.getOperator(template?.origin?.templateId ?? slug);
 });
 const selectedOperatorCustomDefinition = computed(() => {
   const slug = selectedLoadoutModel.value.operator?.operatorSlug;
-  return slug === undefined ? undefined : customOperatorDefinitions.value[slug];
+  return slug === undefined
+    ? undefined
+    : projectDefinitionLibrary.value.operators[slug]?.definition;
 });
 const selectedOperatorDefinitionSkillLevel = computed(() =>
   Math.max(1, ...Object.values(selectedLoadoutModel.value.operator?.skillLevels ?? {})),
 );
 
 function openOperatorDefinitionWorkspace(): void {
-  if (selectedOperatorBaseDefinition.value !== null) showOperatorDefinitionWorkspace.value = true;
+  const track = scenario.value.tracks[selectedTrack.value];
+  const current = selectedLoadoutModel.value.operator?.definition ?? null;
+  if (track?.operator === null || track === null || current === null) return;
+  if (projectDefinitionLibrary.value.operators[current.slug] !== undefined) {
+    showOperatorDefinitionWorkspace.value = true;
+    return;
+  }
+
+  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'operator');
+  const displayName = `${getOperatorGameName(current.slug, locale.value)}（自定义）`;
+  const changed = projectSession.commit('deriveProjectOperatorTemplate', project => {
+    const nextProject = deriveProjectOperatorTemplate(project, {
+      id: templateId,
+      name: displayName,
+      baseTemplateId: current.slug,
+      definition: current,
+    });
+    const nextDefinition =
+      getProjectDefinitionLibrary(nextProject).operators[templateId]!.definition;
+    return {
+      ...nextProject,
+      scenarios: nextProject.scenarios.map(value =>
+        value.id === nextProject.activeScenarioId
+          ? switchTrackToCompatibleOperatorTemplate(
+              value,
+              selectedTrack.value,
+              current,
+              templateId,
+              nextDefinition,
+            )
+          : value,
+      ),
+    };
+  });
+  if (!changed) return;
+  simulationService.clearCache();
+  showOperatorDefinitionWorkspace.value = true;
 }
 
 function saveOperatorDefinition(definition: OperatorDefinition): void {
-  customOperatorDefinitions.value = {
-    ...customOperatorDefinitions.value,
-    [definition.slug]: definition,
-  };
-  operatorDefinitionRevision.value += 1;
+  const template = projectDefinitionLibrary.value.operators[definition.slug];
+  if (template === undefined)
+    throw new Error(`missing project operator template '${definition.slug}'`);
+  projectSession.commit('saveProjectOperatorTemplate', project => ({
+    ...project,
+    definitionLibrary: {
+      ...getProjectDefinitionLibrary(project),
+      operators: {
+        ...getProjectDefinitionLibrary(project).operators,
+        [definition.slug]: {
+          ...template,
+          name: definition.displayName ?? template.name,
+          definition: structuredClone({ ...definition, slug: template.id }),
+        },
+      },
+    },
+  }));
   simulationService.clearCache();
   void simulateNow();
 }
 
 function resetOperatorDefinition(): void {
-  const slug = selectedOperatorBaseDefinition.value?.slug;
-  if (slug === undefined || customOperatorDefinitions.value[slug] === undefined) return;
-  const next = { ...customOperatorDefinitions.value };
-  delete next[slug];
-  customOperatorDefinitions.value = next;
-  operatorDefinitionRevision.value += 1;
+  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
+  if (slug === undefined) return;
+  const template = projectDefinitionLibrary.value.operators[slug];
+  const base = selectedOperatorBaseDefinition.value;
+  if (template === undefined || base === null) return;
+  projectSession.commit('resetProjectOperatorTemplate', project => ({
+    ...project,
+    definitionLibrary: {
+      ...getProjectDefinitionLibrary(project),
+      operators: {
+        ...getProjectDefinitionLibrary(project).operators,
+        [slug]: {
+          ...template,
+          definition: structuredClone({
+            ...base,
+            slug,
+            displayName: template.name,
+            assetSlug: base.assetSlug ?? base.slug,
+          }),
+        },
+      },
+    },
+  }));
   showOperatorDefinitionWorkspace.value = false;
   simulationService.clearCache();
   void simulateNow();
@@ -357,8 +484,14 @@ const selectedCastModel = computed(() => {
     );
     if (castModel !== undefined && cast !== undefined) {
       const operator = editorGameDataRepository.getOperator(trackModel.operatorSlug ?? '');
-      const template =
-        operator === null ? null : resolveSkillTemplateDefinition(cast, operator).definition;
+      let template: SkillDefinition | null = null;
+      if (operator !== null) {
+        try {
+          template = resolveSkillTemplateDefinition(cast, operator).definition;
+        } catch {
+          // 模板内部 key 可自由编辑；失配由技能块原地诊断，不删除时间轴内容。
+        }
+      }
       const diffCount =
         cast.customDefinition === undefined || template === null
           ? 0
@@ -397,7 +530,6 @@ const selectedCastAbilityEntityIds = computed(() => {
   return Object.keys({
     ...commonAbilityEntityDefinitions,
     ...(operator?.abilityEntityDefinitions ?? {}),
-    ...(track?.operator?.customAbilityEntityDefinitions ?? {}),
   }).sort();
 });
 const skillCastActualStartFrames = computed(() =>
@@ -696,7 +828,11 @@ const cursorGuideLines = computed(() => {
 const cursorGuideText = computed(() => cursorGuideLines.value.join('\n'));
 
 function operatorName(slug: string | null): string {
-  return slug === null ? t('nextTimeline.emptyTrack') : getOperatorGameName(slug, locale.value);
+  if (slug === null) return t('nextTimeline.emptyTrack');
+  const definition = editorGameDataRepository.getOperator(slug);
+  return (
+    definition?.displayName ?? getOperatorGameName(definition?.assetSlug ?? slug, locale.value)
+  );
 }
 
 function enemyName(enemyId: string): string {
@@ -704,7 +840,9 @@ function enemyName(enemyId: string): string {
 }
 
 function skillName(groupKey: string, slug: string | null): string {
-  return slug === null ? groupKey : getOperatorCombatSkillName(slug, groupKey, locale.value);
+  if (slug === null) return groupKey;
+  const definition = editorGameDataRepository.getOperator(slug);
+  return getOperatorCombatSkillName(definition?.assetSlug ?? slug, groupKey, locale.value);
 }
 
 function skillTypeLabel(skillType: string): string {
@@ -756,10 +894,12 @@ function skillAccentColor(skillType: string): string {
 
 function skillDisplayIcon(skillType: string, operatorSlug: string | null): string {
   if (operatorSlug === null) return '';
-  if (skillType === 'battleSkill') return `/operators/${operatorSlug}/battle.webp`;
-  if (skillType === 'comboSkill') return `/operators/${operatorSlug}/combo.webp`;
-  if (skillType === 'ultimate') return `/operators/${operatorSlug}/ultimate.webp`;
-  const weaponType = editorGameDataRepository.getOperator(operatorSlug)?.weaponType ?? 'sword';
+  const operator = editorGameDataRepository.getOperator(operatorSlug);
+  const assetSlug = operator?.assetSlug ?? operatorSlug;
+  if (skillType === 'battleSkill') return `/operators/${assetSlug}/battle.webp`;
+  if (skillType === 'comboSkill') return `/operators/${assetSlug}/combo.webp`;
+  if (skillType === 'ultimate') return `/operators/${assetSlug}/ultimate.webp`;
+  const weaponType = operator?.weaponType ?? 'sword';
   return (
     {
       sword: '/icons/icon_attack_sword.webp',
@@ -1792,7 +1932,8 @@ function setPanelDialogVisible(visible: boolean): void {
                 :edited="cast.edited"
                 :color="cast.color"
                 :connection-tool-enabled="connectionToolEnabled"
-                :warning="diagnosticsByCastId.has(cast.id)"
+                :warning="diagnosticsByCastId.has(cast.id) || cast.resolutionIssue !== undefined"
+                :warning-text="cast.resolutionIssue ?? castWarningTitle(cast.id)"
                 :hits="castHitMarkers(track.trackIndex, cast.id)"
                 :time-dilation-segments="
                   castTimeDilationSegments(
@@ -1800,11 +1941,6 @@ function setPanelDialogVisible(visible: boolean): void {
                     cast.startFrame,
                     castActualDurationFrame(cast.id, cast.durationFrames),
                   )
-                "
-                :title="
-                  [timelineCastLabel(cast, track), castWarningTitle(cast.id)]
-                    .filter(Boolean)
-                    .join(' · ')
                 "
                 @select="handleActionSelection($event, cast.id)"
                 @hit-click="

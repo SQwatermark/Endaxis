@@ -5,10 +5,15 @@
  */
 import type {
   DamageElement,
-  OperatorAbilityEntityDefinitions,
+  OperatorDefinition,
   SkillDefinition,
   SkillType,
 } from '../game-data/operatorDefinition';
+import type {
+  GearDefinition,
+  GearSetDefinition,
+  WeaponDefinition,
+} from '../game-data/equipmentDefinition';
 import type { EnemyRank } from '../game-data/enemyRank';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
@@ -24,6 +29,7 @@ export interface JsonObject {
 
 /** 一个干员养成方案中由用户决定的稳定输入。 */
 export interface OperatorInstanceDocument {
+  /** 引用内置或项目级干员模板；项目模板 ID 使用 `project:operator:` 命名空间。 */
   operatorSlug: string;
   level: number;
   promoted: boolean;
@@ -32,13 +38,11 @@ export interface OperatorInstanceDocument {
   skillLevels: Record<string, number>;
   talentStates: Record<string, number>;
   baseStatOverrides?: Record<string, number>;
-  /** 对版本化干员能力实体蓝图的用户新增或完整覆盖；未出现的 ID 继续使用游戏数据。 */
-  customAbilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
 }
 
 /** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器定义决定。 */
 export interface WeaponInstanceDocument {
-  /** 引用当前游戏数据版本中的 `WeaponDefinition.slug`。 */
+  /** 引用内置或项目级武器模板。 */
   weaponSlug: string;
   level: number;
   tuned: boolean;
@@ -48,9 +52,51 @@ export interface WeaponInstanceDocument {
 
 /** 一件装备的定义身份与精锻等级配置。 */
 export interface GearInstanceDocument {
-  /** 引用当前游戏数据版本中的 `GearDefinition.slug`。 */
+  /** 引用内置或项目级装备模板。 */
   gearSlug: string;
   artificingLevels: number[];
+}
+
+/** 项目模板的来源只用于审计、展示和显式重新派生；运行时直接消费物化后的完整定义。 */
+export interface ProjectTemplateOriginDocument {
+  templateId: string;
+  gameDataRevision: string;
+}
+
+export interface ProjectOperatorTemplateDocument {
+  id: string;
+  name: string;
+  origin?: ProjectTemplateOriginDocument;
+  definition: OperatorDefinition;
+}
+
+export interface ProjectWeaponTemplateDocument {
+  id: string;
+  name: string;
+  origin?: ProjectTemplateOriginDocument;
+  definition: WeaponDefinition;
+}
+
+export interface ProjectGearTemplateDocument {
+  id: string;
+  name: string;
+  origin?: ProjectTemplateOriginDocument;
+  definition: GearDefinition;
+}
+
+export interface ProjectGearSetTemplateDocument {
+  id: string;
+  name: string;
+  origin?: ProjectTemplateOriginDocument;
+  definition: GearSetDefinition;
+}
+
+/** 随项目保存、由全部场景实例共享的自定义模板库。 */
+export interface ProjectDefinitionLibraryDocument {
+  operators: Record<string, ProjectOperatorTemplateDocument>;
+  weapons: Record<string, ProjectWeaponTemplateDocument>;
+  gears: Record<string, ProjectGearTemplateDocument>;
+  gearSets: Record<string, ProjectGearSetTemplateDocument>;
 }
 
 /** 可从版本化游戏数据恢复身份和默认行为的技能来源。武器效果是被动行为，不产生时间轴释放。 */
@@ -341,5 +387,7 @@ export interface EndaxisProjectDocument {
   fps: typeof PROJECT_FPS;
   /** 打开的方案id */
   activeScenarioId: string;
+  /** schema-1 旧文档可省略；加载后等价于空库。 */
+  definitionLibrary?: ProjectDefinitionLibraryDocument;
   scenarios: ScenarioDocument[];
 }

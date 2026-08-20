@@ -45,6 +45,8 @@ export interface TimelineSkillCastViewModel {
   readonly disabled: boolean;
   readonly locked: boolean;
   readonly edited: boolean;
+  /** 模板仍存在但内部稳定键已被自由编辑到无法解析时，技能块原地保留并显示此错误。 */
+  readonly resolutionIssue?: string;
   readonly color?: string | null;
 }
 
@@ -53,6 +55,8 @@ export interface TimelineTrackViewModel {
   readonly trackIndex: TrackIndex;
   readonly operatorInstanceId: string | null;
   readonly operatorSlug: string | null;
+  /** 静态资源目录仍沿用来源干员 slug，不与项目模板的稳定 ID 混用。 */
+  readonly operatorAssetSlug: string | null;
   readonly operatorSupport: OperatorSupportViewModel | null;
   readonly initialUltimateEnergy: number;
   readonly maxUltimateEnergy: number | null;
@@ -95,14 +99,10 @@ export interface TimelineEditorViewModel {
 function projectSkillCast(
   skillCast: SkillCastDocument,
   resolved: ResolvedSkillDefinition | null,
-  issues: string[],
+  resolutionIssue: string | undefined,
   abilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
 ): TimelineSkillCastViewModel {
-  const source = skillCast.source;
   const skillType = resolved?.group.skillType ?? null;
-  if (source.kind === 'operatorSkill' && skillType === null) {
-    issues.push(`missing skill group '${source.skillGroupKey}' for cast '${skillCast.id}'`);
-  }
   return {
     id: skillCast.id,
     startFrame: skillCast.placement.startFrame,
@@ -116,6 +116,7 @@ function projectSkillCast(
     disabled: skillCast.presentation?.disabled ?? false,
     locked: skillCast.presentation?.locked ?? false,
     edited: skillCast.customDefinition !== undefined,
+    ...(resolutionIssue === undefined ? {} : { resolutionIssue }),
     ...(skillCast.presentation?.color === undefined ? {} : { color: skillCast.presentation.color }),
   };
 }
@@ -131,6 +132,7 @@ function projectTrack(
       trackIndex,
       operatorInstanceId: null,
       operatorSlug: null,
+      operatorAssetSlug: null,
       operatorSupport: null,
       initialUltimateEnergy: 0,
       maxUltimateEnergy: null,
@@ -173,17 +175,29 @@ function projectTrack(
         });
 
   const skillCasts = track.skillCasts.map(skillCast => {
-    const resolved =
-      operator !== null && operatorInstance !== null
-        ? resolveEffectiveSkillDefinition(skillCast, operator)
-        : null;
-    return projectSkillCast(skillCast, resolved, issues, operator?.abilityEntityDefinitions);
+    let resolved: ResolvedSkillDefinition | null = null;
+    let resolutionIssue: string | undefined;
+    if (operator !== null && operatorInstance !== null) {
+      try {
+        resolved = resolveEffectiveSkillDefinition(skillCast, operator);
+      } catch (error) {
+        resolutionIssue = error instanceof Error ? error.message : String(error);
+        issues.push(`cast '${skillCast.id}': ${resolutionIssue}`);
+      }
+    }
+    return projectSkillCast(
+      skillCast,
+      resolved,
+      resolutionIssue,
+      operator?.abilityEntityDefinitions,
+    );
   });
 
   return {
     trackIndex,
     operatorInstanceId: track.id,
     operatorSlug: operatorInstance?.operatorSlug ?? null,
+    operatorAssetSlug: operator?.assetSlug ?? operator?.slug ?? null,
     operatorSupport: operator === null ? null : projectOperatorSupport(operator),
     initialUltimateEnergy: track.initialState.ultimateEnergy,
     maxUltimateEnergy:
