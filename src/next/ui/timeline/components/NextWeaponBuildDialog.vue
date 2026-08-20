@@ -18,6 +18,7 @@ import {
   type WeaponTraitLevelBounds,
 } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
+import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
 import type { WeaponInstanceChanges } from '../loadoutBuildCommands';
 import type { WeaponInstanceViewModel } from '../loadoutBuildViewModel';
 
@@ -28,11 +29,13 @@ type WeaponTraitKey = 'skill1' | 'skill2' | 'skill3';
 const props = defineProps<{
   visible: boolean;
   weapon: WeaponInstanceViewModel | null;
+  customDefinition?: WeaponDefinition;
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   change: [changes: WeaponInstanceChanges];
+  'edit-definition': [];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
@@ -60,6 +63,13 @@ const baseAttack = computed(() => {
   if (!weapon || levelNodeIndex.value < 0) return null;
   return weapon.definition.baseAttackAtLevelNodes[levelNodeIndex.value] ?? null;
 });
+const weaponTextSlug = computed(
+  () => props.weapon?.definition.assetSlug ?? props.weapon?.weaponSlug ?? '',
+);
+const weaponDisplayName = computed(
+  () =>
+    props.weapon?.definition.displayName ?? getWeaponGameName(weaponTextSlug.value, locale.value),
+);
 
 const canTune = computed(() => {
   const level = props.weapon?.level;
@@ -174,13 +184,13 @@ function slotClass(key: WeaponTraitKey, level: number): string {
 function traitName(key: WeaponTraitKey): string {
   const weapon = props.weapon;
   if (!weapon) return t(`armory.weapon.${key}`);
-  return getWeaponSkillName(weapon.weaponSlug, key, locale.value, t(`armory.weapon.${key}`));
+  return getWeaponSkillName(weaponTextSlug.value, key, locale.value, t(`armory.weapon.${key}`));
 }
 
 function traitDescription(key: WeaponTraitKey): string {
   const weapon = props.weapon;
   if (!weapon) return '';
-  return getWeaponSkillDescription(weapon.weaponSlug, key, locale.value, traitLevel(key)) ?? '';
+  return getWeaponSkillDescription(weaponTextSlug.value, key, locale.value, traitLevel(key)) ?? '';
 }
 
 function tuningLabel(): string {
@@ -231,7 +241,7 @@ function maxOut(): void {
           </div>
           <div class="header-info">
             <div class="name-row">
-              <span class="name">{{ getWeaponGameName(weapon.weaponSlug, locale) }}</span>
+              <span class="name">{{ weaponDisplayName }}</span>
               <span
                 class="stars"
                 :class="`header-rarity-${weapon.definition.rarity}`"
@@ -336,6 +346,13 @@ function maxOut(): void {
 
     <template #footer>
       <div class="footer">
+        <button
+          class="ea-btn ea-btn--sm ea-btn--glass-rect"
+          :disabled="weapon === null"
+          @click="emit('edit-definition')"
+        >
+          {{ customDefinition === undefined ? '自定义武器' : '编辑武器定义' }}
+        </button>
         <button
           class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
           :disabled="weapon === null"

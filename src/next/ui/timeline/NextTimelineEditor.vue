@@ -6,6 +6,7 @@ import {
   getEnemyGameName,
   getOperatorCombatSkillName,
   getOperatorGameName,
+  getWeaponGameName,
 } from '../legacy/legacyGameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
@@ -14,6 +15,7 @@ import NextOperatorPanelDialog from './components/NextOperatorPanelDialog.vue';
 import NextOperatorBuildDialog from './components/NextOperatorBuildDialog.vue';
 import OperatorDefinitionWorkspaceDialog from './components/OperatorDefinitionWorkspaceDialog.vue';
 import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
+import WeaponDefinitionWorkspaceDialog from './components/WeaponDefinitionWorkspaceDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
@@ -51,8 +53,11 @@ import {
 import {
   allocateProjectTemplateId,
   deriveProjectOperatorTemplate,
+  deriveProjectWeaponTemplate,
   getProjectDefinitionLibrary,
+  replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleOperatorTemplate,
+  switchTrackToCompatibleWeaponTemplate,
 } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
@@ -61,6 +66,7 @@ import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
+import type { WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import { placeSkillGroup } from './placeSkillGroup';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
@@ -154,6 +160,7 @@ const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
 const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
 const showSkillDefinitionEditor = ref(false);
 const showOperatorDefinitionWorkspace = ref(false);
+const showWeaponDefinitionWorkspace = ref(false);
 const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
   operators: {},
   weapons: {},
@@ -318,6 +325,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     }
     showSkillDefinitionEditor.value = false;
     showOperatorDefinitionWorkspace.value = false;
+    showWeaponDefinitionWorkspace.value = false;
     projectSession.replaceProject(result.project);
     savedProjectSnapshot.value = result.project;
     projectDirty.value = false;
@@ -484,6 +492,16 @@ const selectedOperatorCustomDefinition = computed(() => {
 const selectedOperatorDefinitionSkillLevel = computed(() =>
   Math.max(1, ...Object.values(selectedLoadoutModel.value.operator?.skillLevels ?? {})),
 );
+const selectedWeaponBaseDefinition = computed(() => {
+  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
+  if (slug === undefined) return null;
+  const template = projectDefinitionLibrary.value.weapons[slug];
+  return nextGameDataRepository.getWeapon(template?.origin?.templateId ?? slug);
+});
+const selectedWeaponCustomDefinition = computed(() => {
+  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
+  return slug === undefined ? undefined : projectDefinitionLibrary.value.weapons[slug]?.definition;
+});
 
 function openOperatorDefinitionWorkspace(): void {
   const track = scenario.value.tracks[selectedTrack.value];
@@ -574,6 +592,72 @@ function resetOperatorDefinition(): void {
     },
   }));
   showOperatorDefinitionWorkspace.value = false;
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function openWeaponDefinitionWorkspace(): void {
+  const track = scenario.value.tracks[selectedTrack.value];
+  const current = selectedLoadoutModel.value.weapon?.definition ?? null;
+  if (track?.weapon === null || track === null || current === null) return;
+  showWeaponBuildDialog.value = false;
+  if (projectDefinitionLibrary.value.weapons[current.slug] !== undefined) {
+    showWeaponDefinitionWorkspace.value = true;
+    return;
+  }
+
+  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'weapon');
+  const displayName = `${getWeaponGameName(current.slug, locale.value)}（自定义）`;
+  const changed = projectSession.commit('deriveProjectWeaponTemplate', project => {
+    const nextProject = deriveProjectWeaponTemplate(project, {
+      id: templateId,
+      name: displayName,
+      baseTemplateId: current.slug,
+      definition: current,
+    });
+    const nextDefinition = getProjectDefinitionLibrary(nextProject).weapons[templateId]!.definition;
+    return {
+      ...nextProject,
+      scenarios: nextProject.scenarios.map(value =>
+        value.id === nextProject.activeScenarioId
+          ? switchTrackToCompatibleWeaponTemplate(
+              value,
+              selectedTrack.value,
+              templateId,
+              nextDefinition,
+            )
+          : value,
+      ),
+    };
+  });
+  if (!changed) return;
+  simulationService.clearCache();
+  showWeaponDefinitionWorkspace.value = true;
+}
+
+function saveWeaponDefinition(definition: WeaponDefinition): void {
+  projectSession.commit('saveProjectWeaponTemplate', project =>
+    replaceProjectWeaponTemplateDefinition(project, definition.slug, definition),
+  );
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function resetWeaponDefinition(): void {
+  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
+  const base = selectedWeaponBaseDefinition.value;
+  const template = slug === undefined ? undefined : projectDefinitionLibrary.value.weapons[slug];
+  if (slug === undefined || template === undefined || base === null) return;
+  const definition = structuredClone({
+    ...base,
+    slug,
+    displayName: template.name,
+    assetSlug: base.assetSlug ?? base.slug,
+  });
+  projectSession.commit('resetProjectWeaponTemplate', project =>
+    replaceProjectWeaponTemplateDefinition(project, slug, definition),
+  );
+  showWeaponDefinitionWorkspace.value = false;
   simulationService.clearCache();
   void simulateNow();
 }
@@ -1642,6 +1726,7 @@ const hasModalPanel = computed(
     gearDialogTarget.value !== null ||
     showOperatorBuildDialog.value ||
     showOperatorDefinitionWorkspace.value ||
+    showWeaponDefinitionWorkspace.value ||
     showSkillDefinitionEditor.value ||
     showWeaponBuildDialog.value ||
     showGearBuildDialog.value ||
@@ -2254,8 +2339,19 @@ function setPanelDialogVisible(visible: boolean): void {
   <NextWeaponBuildDialog
     :visible="showWeaponBuildDialog"
     :weapon="selectedLoadoutModel.weapon"
+    :custom-definition="selectedWeaponCustomDefinition"
     @update:visible="showWeaponBuildDialog = $event"
     @change="updateWeaponBuild"
+    @edit-definition="openWeaponDefinitionWorkspace"
+  />
+  <WeaponDefinitionWorkspaceDialog
+    v-if="selectedWeaponBaseDefinition && selectedWeaponCustomDefinition"
+    :visible="showWeaponDefinitionWorkspace"
+    :base-definition="selectedWeaponBaseDefinition"
+    :custom-definition="selectedWeaponCustomDefinition"
+    @update:visible="showWeaponDefinitionWorkspace = $event"
+    @save="saveWeaponDefinition"
+    @reset="resetWeaponDefinition"
   />
   <NextOperatorBuildDialog
     :visible="showOperatorBuildDialog"

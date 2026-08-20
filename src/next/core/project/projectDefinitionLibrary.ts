@@ -197,6 +197,20 @@ export function deriveProjectOperatorTemplate(
   };
 }
 
+export function deriveProjectWeaponTemplate(
+  project: EndaxisProjectDocument,
+  input: DeriveEquipmentTemplateInput<WeaponDefinition>,
+): EndaxisProjectDocument {
+  return {
+    ...project,
+    definitionLibrary: deriveProjectWeaponTemplateInLibrary(
+      getProjectDefinitionLibrary(project),
+      project.gameDataRevision,
+      input,
+    ),
+  };
+}
+
 function collectSkillIdentities(definition: OperatorDefinition): ReadonlySet<string> {
   const identities = new Set<string>();
   for (const group of definition.skillGroups) {
@@ -235,6 +249,76 @@ export function switchTrackToCompatibleOperatorTemplate(
     operator: { ...track.operator, operatorSlug: nextTemplateId },
   };
   return { ...scenario, tracks };
+}
+
+/** A derived weapon keeps the equipped build while changing only its template identity. */
+export function switchTrackToCompatibleWeaponTemplate(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  nextTemplateId: string,
+  nextDefinition: WeaponDefinition,
+): ScenarioDocument {
+  const track = scenario.tracks[trackIndex];
+  if (track?.weapon === null || track === null)
+    throw new Error(`track ${trackIndex} has no weapon`);
+  if (track.weapon.traitLevels.length !== nextDefinition.traits.length) {
+    throw new Error(
+      `weapon template '${nextTemplateId}' cannot preserve ${track.weapon.traitLevels.length} trait levels with ${nextDefinition.traits.length} traits`,
+    );
+  }
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = {
+    ...track,
+    weapon: { ...track.weapon, weaponSlug: nextTemplateId },
+  };
+  return { ...scenario, tracks };
+}
+
+/** Replace one materialized weapon definition and keep every referencing build structurally valid. */
+export function replaceProjectWeaponTemplateDefinition(
+  project: EndaxisProjectDocument,
+  templateId: string,
+  definition: WeaponDefinition,
+): EndaxisProjectDocument {
+  const library = getProjectDefinitionLibrary(project);
+  const template = library.weapons[templateId];
+  if (template === undefined) throw new Error(`missing project weapon template '${templateId}'`);
+  if (definition.slug !== templateId) {
+    throw new Error(
+      `project weapon definition slug '${definition.slug}' does not match template '${templateId}'`,
+    );
+  }
+
+  const nextDefinition = clone(definition);
+  return {
+    ...project,
+    definitionLibrary: {
+      ...library,
+      weapons: {
+        ...library.weapons,
+        [templateId]: {
+          ...template,
+          name: definition.displayName?.trim() || template.name,
+          definition: nextDefinition,
+        },
+      },
+    },
+    scenarios: project.scenarios.map(scenario => ({
+      ...scenario,
+      tracks: scenario.tracks.map(track => {
+        if (track?.weapon?.weaponSlug !== templateId) return track;
+        return {
+          ...track,
+          weapon: {
+            ...track.weapon,
+            traitLevels: nextDefinition.traits.map((trait, index) =>
+              Math.min(Math.max(track.weapon?.traitLevels[index] ?? 1, 1), trait.levelCount),
+            ),
+          },
+        };
+      }) as ScenarioDocument['tracks'],
+    })),
+  };
 }
 
 export type ProjectGameData = GameDataRepository & GameDataBrowser;

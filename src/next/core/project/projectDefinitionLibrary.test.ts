@@ -15,9 +15,12 @@ import {
   deriveProjectGearSetTemplateInLibrary,
   deriveProjectGearTemplateInLibrary,
   deriveProjectOperatorTemplate,
+  deriveProjectWeaponTemplate,
   deriveProjectWeaponTemplateInLibrary,
   getProjectDefinitionLibrary,
+  replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleOperatorTemplate,
+  switchTrackToCompatibleWeaponTemplate,
 } from './projectDefinitionLibrary';
 
 function operatorInstance(operatorSlug: string) {
@@ -127,6 +130,60 @@ describe('projectDefinitionLibrary', () => {
       assetSlug: gear.slug,
     });
     expect(library.gearSets['project:gearSet:copy']?.definition.slug).toBe('project:gearSet:copy');
+  });
+
+  it('derives and atomically switches an equipped weapon template', () => {
+    const weapon = sharedWeaponDefinitions[0]!;
+    const project = deriveProjectWeaponTemplate(
+      createEmptyProject({ createdWith: 'test', gameDataRevision: 'definitions:test' }),
+      {
+        id: 'project:weapon:1',
+        name: '自定义武器',
+        baseTemplateId: weapon.slug,
+        definition: weapon,
+      },
+    );
+    const scenario = createEmptyScenario('scenario', 'Scenario');
+    scenario.tracks[0] = {
+      id: 'track:weapon',
+      operator: operatorInstance(perlica.slug),
+      weapon: {
+        weaponSlug: weapon.slug,
+        level: 90,
+        tuned: true,
+        potential: 2,
+        traitLevels: weapon.traits.map(() => 9),
+      },
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const custom = getProjectDefinitionLibrary(project).weapons['project:weapon:1']!.definition;
+
+    const next = switchTrackToCompatibleWeaponTemplate(scenario, 0, custom.slug, custom);
+
+    expect(next.tracks[0]!.weapon).toEqual({
+      ...scenario.tracks[0]!.weapon,
+      weaponSlug: 'project:weapon:1',
+    });
+
+    const projectWithScenario = { ...project, scenarios: [next] };
+    const replacement = {
+      ...custom,
+      displayName: '调整后的武器',
+      traits: custom.traits.map((trait, index) => ({
+        ...trait,
+        levelCount: index === 0 ? 2 : trait.levelCount,
+      })),
+    };
+    const replaced = replaceProjectWeaponTemplateDefinition(
+      projectWithScenario,
+      custom.slug,
+      replacement,
+    );
+
+    expect(getProjectDefinitionLibrary(replaced).weapons[custom.slug]?.name).toBe('调整后的武器');
+    expect(replaced.scenarios[0]?.tracks[0]?.weapon?.traitLevels[0]).toBe(2);
   });
 
   it('switches a track to a freshly derived compatible template without changing casts', () => {
