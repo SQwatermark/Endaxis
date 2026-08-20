@@ -9,6 +9,7 @@ import {
   applySkillEditorSequenceFrames,
   createSkillEditorDraft,
   createSkillEditorStep,
+  createCombatEventResponseDraft,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorStep,
   duplicateSkillEditorSequence,
@@ -173,6 +174,13 @@ function templateDefinition(): SkillDefinition {
 }
 
 describe('skillDefinitionEditorViewModel', () => {
+  it('creates a structurally valid event response with a unique stable key', () => {
+    expect(createCombatEventResponseDraft(['event-response-2', 'event-response-3'])).toEqual({
+      key: 'event-response-4',
+      event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+      sequence: { steps: [] },
+    });
+  });
   it('新建能力实体步骤只提供待选择的干员级蓝图引用', () => {
     const draft = createSkillEditorDraft(templateDefinition(), undefined);
     const step = createSkillEditorStep(draft, 'spawnAbilityEntity');

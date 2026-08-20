@@ -24,21 +24,24 @@ interface MapNodeSource {
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
 }
@@ -157,6 +160,7 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'equipmentModifier') return '属性修正';
   if (props.clipboardKind === 'equipmentHandler') return '事件响应';
   if (props.clipboardKind === 'combatCondition') return '战斗条件';
+  if (props.clipboardKind === 'eventResponse') return '事件响应';
   return '';
 });
 

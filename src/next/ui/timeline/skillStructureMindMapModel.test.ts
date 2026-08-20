@@ -36,6 +36,26 @@ describe('skillStructureMindMapModel', () => {
                 },
                 whenFalse: { steps: [] },
               },
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    {
+                      key: 'on-hit',
+                      event: { kind: 'buffApplied' },
+                      condition: { kind: 'combatActive' },
+                      sequence: {
+                        steps: [{ kind: 'finishTimeline', parameters: {} }],
+                      },
+                    },
+                    {
+                      key: 'on-airborne',
+                      event: { kind: 'airborneOutput' },
+                      sequence: { steps: [] },
+                    },
+                  ],
+                },
+              },
             ],
           },
         },
@@ -75,6 +95,17 @@ describe('skillStructureMindMapModel', () => {
       'scheduledSequences[0].sequence.steps[0].parameters.condition',
     );
     expect(nodes.get('sequence:0:step:0:condition')?.canDelete).toBe(false);
+    expect(nodes.get('sequence:0:step:1')?.canAddChild).toBe('eventResponse');
+    expect(nodes.get('sequence:0:step:1:response:0')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[1].parameters.responses[0]',
+    );
+    expect(nodes.get('sequence:0:step:1:response:0:condition')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[1].parameters.responses[0].condition',
+    );
+    expect(nodes.get('sequence:0:step:1:response:0:sequence:step:0')?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[1].parameters.responses[0].sequence.steps[0]',
+    );
+    expect(nodes.get('sequence:0:step:1:response:1')?.canAddChild).toBe('combatCondition');
     expect(nodes.get('sequence:0:step:0:true:step:0')?.reference).toEqual({
       kind: 'entity',
       id: 'entity.test',

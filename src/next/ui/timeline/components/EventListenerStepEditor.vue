@@ -12,6 +12,7 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import { createCombatCondition } from '../combatConditionEditorViewModel';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
+import { createCombatEventResponseDraft } from '../skillDefinitionEditorViewModel';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
@@ -41,14 +42,9 @@ function replaceResponse(index: number, response: CombatEventResponseDefinition)
 }
 
 function addResponse(): void {
-  const index = props.step.parameters.responses.length + 1;
   replaceResponses([
     ...props.step.parameters.responses,
-    {
-      key: `event-response-${index}`,
-      event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
-      sequence: { steps: [] },
-    },
+    createCombatEventResponseDraft(props.step.parameters.responses.map(response => response.key)),
   ]);
 }
 

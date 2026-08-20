@@ -10,11 +10,25 @@ import type {
   ActionValueOperand,
   CombatStepDefinition,
   CombatStepKind,
+  CombatEventResponseDefinition,
   LevelValues,
   ScheduledSequenceDefinition,
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
+
+export function createCombatEventResponseDraft(
+  existingKeys: readonly string[] = [],
+): CombatEventResponseDefinition {
+  let index = existingKeys.length + 1;
+  let key = `event-response-${index}`;
+  while (existingKeys.includes(key)) key = `event-response-${++index}`;
+  return {
+    key,
+    event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+    sequence: { steps: [] },
+  };
+}
 
 /** 读取当前技能等级对应的数值；单值定义对所有等级生效。 */
 export function resolveLevelValueForEditor(value: LevelValues, level: number): number | undefined {
@@ -648,15 +662,7 @@ export function createSkillEditorStep(
     case 'listenForCombatEvents':
       return {
         kind,
-        parameters: {
-          responses: [
-            {
-              key: 'event-response-1',
-              event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
-              sequence: { steps: [] },
-            },
-          ],
-        },
+        parameters: { responses: [createCombatEventResponseDraft()] },
       };
     case 'conditional':
       return {

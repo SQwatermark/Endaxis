@@ -178,12 +178,14 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'listenForCombatEvents'">
         <EventListenerStepEditor
+          v-if="!inspectorOnly"
           :step="step"
           :skill-level="skillLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
           @update="forward"
         />
+        <p v-else class="step-editor__unsupported">事件响应在左侧导图中添加和选择。</p>
       </template>
 
       <p v-else-if="!editable" class="step-editor__unsupported">

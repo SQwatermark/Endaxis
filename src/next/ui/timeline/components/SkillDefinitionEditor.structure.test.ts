@@ -9,6 +9,7 @@ import actionSequenceEditorSource from './ActionSequenceEditor.vue?raw';
 import stepTypePickerSource from './StepTypePicker.vue?raw';
 import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
+import responseInspectorSource from './CombatEventResponseInspector.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
@@ -131,6 +132,17 @@ describe('SkillDefinitionEditor structure', () => {
     expect(branchEditorSource).toContain("step.kind === 'conditional' && !inspectorOnly");
     expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
     expect(conditionEditorSource).toContain('!layerOnly && condition.kind');
+  });
+
+  it('临时事件监听器把响应、条件和序列展开到技能导图', () => {
+    expect(editorSource).toContain('selectedEventResponse');
+    expect(editorSource).toContain('CombatEventResponseInspector');
+    expect(editorSource).toContain('appendEventResponse');
+    expect(editorSource).toContain("kind: 'eventResponse'");
+    expect(responseInspectorSource).toContain('CombatEventTriggerEditor');
+    expect(responseInspectorSource).not.toContain('ActionSequenceEditor');
+    expect(stepEditorSource).toContain('v-if="!inspectorOnly"');
+    expect(stepEditorSource).toContain('事件响应在左侧导图中添加和选择');
   });
 
   it('顶层与递归步骤参数都提供统一折叠入口', () => {

@@ -13,6 +13,7 @@ import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/ic
 import {
   COMBAT_RESOURCES,
   type CombatCondition,
+  type CombatEventResponseDefinition,
   type CombatResource,
   type CombatStepDefinition,
   type ScheduledSequenceDefinition,
@@ -27,6 +28,7 @@ import {
   appendSkillEditorSequence,
   createSkillEditorDraft,
   createSkillEditorStep,
+  createCombatEventResponseDraft,
   duplicateSkillEditorDetachedStep,
   duplicateSkillEditorSequence,
   moveSkillEditorSequence,
@@ -59,6 +61,7 @@ import {
 import CombatStepEditor from './CombatStepEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
+import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
@@ -74,14 +77,16 @@ type StructureOperationNode = {
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
 };
 
 const props = defineProps<{
@@ -139,6 +144,7 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
+  | { readonly kind: 'eventResponse'; readonly value: CombatEventResponseDefinition }
 >();
 const structureUndoStack = shallowRef<SkillDefinition[]>([]);
 const structureRedoStack = shallowRef<SkillDefinition[]>([]);
@@ -182,6 +188,14 @@ const selectedCombatStep = computed(() =>
 const selectedCombatCondition = computed(() =>
   selectedStructureNode.value?.payloadKind === 'combatCondition'
     ? (resolveStructureValue(draft.value, selectedStructureSourcePath.value) as CombatCondition)
+    : undefined,
+);
+const selectedEventResponse = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'eventResponse'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as CombatEventResponseDefinition)
     : undefined,
 );
 
@@ -291,7 +305,8 @@ function beginAddChild(
       | 'childSkill'
       | 'equipmentModifier'
       | 'equipmentHandler'
-      | 'combatCondition';
+      | 'combatCondition'
+      | 'eventResponse';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {
@@ -306,21 +321,52 @@ function beginAddChild(
     stepPickerKey.value += 1;
     return;
   }
+  if (node.canAddChild === 'eventResponse') {
+    void appendEventResponse(node.sourcePath);
+    return;
+  }
   if (node.canAddChild !== 'step') return;
   pendingStepTargetPath.value = node.sourcePath;
   insertAnchor.value = { ...anchor };
   stepPickerKey.value += 1;
 }
 
+async function appendEventResponse(stepPath: string): Promise<void> {
+  const responsesPath = `${stepPath}.parameters.responses`;
+  const responses = resolveStructureValue(
+    draft.value,
+    responsesPath,
+  ) as readonly CombatEventResponseDefinition[];
+  const result = insertStructureArrayItem(
+    draft.value,
+    responsesPath,
+    createCombatEventResponseDraft(responses.map(response => response.key)),
+  );
+  commitStructureDraft(result.root);
+  await selectStructurePath(result.itemPath);
+}
+
 async function appendConditionToPendingTarget(condition: CombatCondition): Promise<void> {
   const targetPath = pendingConditionTargetPath.value;
   if (targetPath === '') return;
-  const target = resolveStructureValue(draft.value, targetPath) as CombatCondition | undefined;
-  if (target?.kind === 'all' || target?.kind === 'any') {
+  const target = resolveStructureValue(draft.value, targetPath) as
+    CombatCondition | CombatEventResponseDefinition | undefined;
+  if (
+    target !== undefined &&
+    'kind' in target &&
+    (target.kind === 'all' || target.kind === 'any')
+  ) {
     const result = insertStructureArrayItem(draft.value, `${targetPath}.conditions`, condition);
     pendingConditionTargetPath.value = '';
     commitStructureDraft(result.root);
     await selectStructurePath(result.itemPath);
+    return;
+  }
+  if (target !== undefined && 'event' in target) {
+    const conditionPath = `${targetPath}.condition`;
+    pendingConditionTargetPath.value = '';
+    commitStructureDraft(replaceStructureValueAtPath(draft.value, conditionPath, condition));
+    await selectStructurePath(conditionPath);
     return;
   }
   pendingConditionTargetPath.value = '';
@@ -382,6 +428,13 @@ function replaceSelectedCombatCondition(condition: CombatCondition): void {
   );
 }
 
+function replaceSelectedEventResponse(response: CombatEventResponseDefinition): void {
+  if (selectedEventResponse.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, response),
+  );
+}
+
 async function moveSelectedCombatStep(offset: -1 | 1): Promise<void> {
   if (selectedCombatStep.value === undefined) return;
   const result = moveCombatStepAtPath(draft.value, selectedStructureSourcePath.value, offset);
@@ -409,13 +462,16 @@ async function removeSelectedCombatStep(): Promise<void> {
 
 function childArrayPath(
   node: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition',
+  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse',
 ): string | undefined {
   if (kind === 'scheduledSequence') {
     return node.acceptsChildKind === kind ? 'scheduledSequences' : undefined;
   }
   if (kind === 'combatCondition') {
     return node.acceptsChildKind === kind ? `${node.sourcePath}.conditions` : undefined;
+  }
+  if (kind === 'eventResponse') {
+    return node.acceptsChildKind === kind ? `${node.sourcePath}.parameters.responses` : undefined;
   }
   if (node.acceptsChildKind !== kind) return undefined;
   return node.payloadKind === 'scheduledSequence'
@@ -425,7 +481,7 @@ function childArrayPath(
 
 function insertionTarget(
   target: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition',
+  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse',
   placement: 'inside' | 'before' | 'after',
 ): { readonly arrayPath: string; readonly index?: number } | undefined {
   if (placement === 'inside') {
@@ -446,9 +502,21 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
-  if (kind !== 'combatStep' && kind !== 'scheduledSequence' && kind !== 'combatCondition') return;
+  if (
+    kind !== 'combatStep' &&
+    kind !== 'scheduledSequence' &&
+    kind !== 'combatCondition' &&
+    kind !== 'eventResponse'
+  )
+    return;
   if (kind === 'combatCondition') {
     const source = /^(.*\.conditions)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(draft.value, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
+  if (kind === 'eventResponse') {
+    const source = /^(.*\.responses)\[(\d+)\]$/.exec(operation.source.sourcePath);
     if (source === null) return;
     const siblings = resolveStructureValue(draft.value, source[1]!) as readonly unknown[];
     if (siblings.length <= 1) return;
@@ -494,6 +562,13 @@ async function runStructureNodeAction(
           resolveStructureValue(draft.value, node.sourcePath) as CombatCondition,
         ),
       };
+    } else if (node.payloadKind === 'eventResponse') {
+      structureClipboard.value = {
+        kind: 'eventResponse',
+        value: cloneStructureValue(
+          resolveStructureValue(draft.value, node.sourcePath) as CombatEventResponseDefinition,
+        ),
+      };
     }
     return;
   }
@@ -507,9 +582,22 @@ async function runStructureNodeAction(
         await selectStructurePath(child[1]!.replace(/\.conditions$/, ''));
         return;
       }
-      if (node.sourcePath !== 'availability') return;
-      commitStructureDraft(deleteStructureValueAtPath(draft.value, 'availability'));
-      await selectStructurePath('availability');
+      if (
+        node.sourcePath !== 'availability' &&
+        !/\.parameters\.responses\[\d+\]\.condition$/.test(node.sourcePath)
+      )
+        return;
+      commitStructureDraft(deleteStructureValueAtPath(draft.value, node.sourcePath));
+      await selectStructurePath(node.sourcePath.replace(/\.condition$/, ''));
+      return;
+    }
+    if (node.payloadKind === 'eventResponse') {
+      const responses = /^(.*\.responses)\[\d+\]$/.exec(node.sourcePath);
+      if (responses === null) return;
+      const siblings = resolveStructureValue(draft.value, responses[1]!) as readonly unknown[];
+      if (siblings.length <= 1) return;
+      commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
+      await selectStructurePath(responses[1]!.replace(/\.parameters\.responses$/, ''));
       return;
     }
     const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|scheduledSequences\[\d+\]$/, '');
@@ -529,7 +617,22 @@ async function runStructureNodeAction(
             ...clipboard.value,
             sequence: { steps: clipboard.value.sequence.steps.map(duplicateNestedStep) },
           }
-        : cloneStructureValue(clipboard.value);
+        : clipboard.kind === 'eventResponse'
+          ? {
+              ...cloneStructureValue(clipboard.value),
+              key: createCombatEventResponseDraft(
+                (
+                  resolveStructureValue(
+                    draft.value,
+                    arrayPath,
+                  ) as readonly CombatEventResponseDefinition[]
+                ).map(response => response.key),
+              ).key,
+              sequence: {
+                steps: clipboard.value.sequence.steps.map(duplicateNestedStep),
+              },
+            }
+          : cloneStructureValue(clipboard.value);
   const result = insertStructureArrayItem(draft.value, arrayPath, value);
   commitStructureDraft(result.root);
   await selectStructurePath(result.itemPath);
@@ -782,6 +885,12 @@ function reset(): void {
           :condition="selectedCombatCondition"
           layer-only
           @update="replaceSelectedCombatCondition"
+        />
+
+        <CombatEventResponseInspector
+          v-else-if="selectedEventResponse"
+          :response="selectedEventResponse"
+          @update="replaceSelectedEventResponse"
         />
 
         <section

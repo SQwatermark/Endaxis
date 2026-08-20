@@ -2,6 +2,7 @@ import type {
   ActionSequenceDefinition,
   AbilityEntityDefinition,
   CombatCondition,
+  CombatEventResponseDefinition,
   CombatStepDefinition,
   ScheduledSequenceDefinition,
   SkillBuffDefinition,
@@ -28,21 +29,24 @@ export interface SkillStructureNode {
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
     | 'equipmentModifier'
     | 'equipmentHandler'
-    | 'combatCondition';
+    | 'combatCondition'
+    | 'eventResponse';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
 }
@@ -163,6 +167,52 @@ function sequenceNode(
   };
 }
 
+function eventResponseNode(
+  response: CombatEventResponseDefinition,
+  id: string,
+  sourcePath: string,
+  index: number,
+  responseCount: number,
+  editorSection: number,
+): SkillStructureNode {
+  return {
+    id,
+    label: `${index + 1}. ${response.key}`,
+    kind: '事件响应',
+    summary: response.event.kind,
+    sourcePath,
+    details: { 事件: response.event.kind, 条件: describeCondition(response.condition) },
+    editorSection,
+    payloadKind: 'eventResponse',
+    canDelete: responseCount > 1,
+    canMove: responseCount > 1,
+    ...(response.condition === undefined ? { canAddChild: 'combatCondition' as const } : {}),
+    children: [
+      ...(response.condition === undefined
+        ? []
+        : [
+            conditionNode(
+              response.condition,
+              `${id}:condition`,
+              `${sourcePath}.condition`,
+              '响应条件',
+              editorSection,
+              true,
+              false,
+            ),
+          ]),
+      sequenceNode(
+        response.sequence,
+        `${id}:sequence`,
+        '响应序列',
+        `${sourcePath}.sequence`,
+        `${response.sequence.steps.length} 个直属步骤`,
+        editorSection,
+      ),
+    ],
+  };
+}
+
 function stepNode(
   step: CombatStepDefinition,
   id: string,
@@ -219,6 +269,19 @@ function stepNode(
         editorSection,
       ),
     );
+  } else if (step.kind === 'listenForCombatEvents') {
+    children.push(
+      ...step.parameters.responses.map((response, responseIndex) =>
+        eventResponseNode(
+          response,
+          `${id}:response:${responseIndex}`,
+          `${sourcePath}.parameters.responses[${responseIndex}]`,
+          responseIndex,
+          step.parameters.responses.length,
+          editorSection,
+        ),
+      ),
+    );
   }
 
   const parameters = step.parameters as Readonly<Record<string, unknown>>;
@@ -245,6 +308,9 @@ function stepNode(
     editorSection,
     children,
     payloadKind: 'combatStep',
+    ...(step.kind === 'listenForCombatEvents'
+      ? { canAddChild: 'eventResponse' as const, acceptsChildKind: 'eventResponse' as const }
+      : {}),
     ...(reference === undefined || reference.id === '' ? {} : { reference }),
   };
 }
