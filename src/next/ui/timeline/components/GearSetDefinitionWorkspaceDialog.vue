@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+import type {
+  EquipmentContributionDefinition,
+  GearSetDefinition,
+} from '../../../core/game-data/equipmentDefinition';
 import { validateGearSetDefinition } from '../../../core/game-data/equipmentDefinitionValidation';
+import EquipmentContributionGraphEditor from './EquipmentContributionGraphEditor.vue';
 
 const props = defineProps<{
   visible: boolean;
@@ -29,6 +33,10 @@ watch(
 
 function updateDisplayName(event: Event): void {
   draft.value = { ...draft.value, displayName: (event.target as HTMLInputElement).value };
+}
+
+function updateContribution(contribution: EquipmentContributionDefinition): void {
+  draft.value = { ...draft.value, ...contribution };
 }
 
 function save(): void {
@@ -71,6 +79,12 @@ function save(): void {
           <span>事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
           <p>套装贡献稍后进入统一装备组件图；当前不会把事件序列展开为 JSON。</p>
         </div>
+        <EquipmentContributionGraphEditor
+          :contribution="draft"
+          :label="draft.displayName ?? draft.slug"
+          :level="1"
+          @update="updateContribution"
+        />
       </section>
     </div>
     <template #footer>

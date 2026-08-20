@@ -6,6 +6,7 @@ import type {
   SkillBuffDefinition,
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
+import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
 
 export type SkillStructureEditorSection = 'overview' | 'blackboard' | 'availability' | number;
 
@@ -239,6 +240,73 @@ export function buildSkillStructureMindMap(
     ],
     canAddChild: 'sequence',
     acceptsChildKind: 'scheduledSequence',
+  };
+}
+
+/** 武器、装备与套装共享同一贡献结构图；事件响应的动作序列继续使用技能步骤树。 */
+export function buildEquipmentContributionMindMap(
+  contribution: EquipmentContributionDefinition,
+  label = '装备贡献',
+): SkillStructureNode {
+  const modifiers = contribution.modifiers ?? [];
+  const handlers = contribution.eventHandlers ?? [];
+  return {
+    id: 'equipment:contribution',
+    label,
+    kind: '装备贡献',
+    summary: `${modifiers.length} 项修正 · ${handlers.length} 个事件响应`,
+    sourcePath: '',
+    details: { 属性修正: modifiers.length, 事件响应: handlers.length },
+    editorSection: 'overview',
+    children: [
+      {
+        id: 'equipment:modifiers',
+        label: '属性修正',
+        kind: '贡献分组',
+        summary: `${modifiers.length} 项`,
+        sourcePath: 'modifiers',
+        details: { 数量: modifiers.length },
+        editorSection: 'overview',
+        children: modifiers.map((modifier, index) => ({
+          id: `equipment:modifier:${index}`,
+          label: `${index + 1}. ${modifier.kind}`,
+          kind: '属性修正',
+          summary: shortValue(modifier.value),
+          sourcePath: `modifiers[${index}]`,
+          details: { ...modifier },
+          editorSection: index,
+          children: [],
+        })),
+      },
+      {
+        id: 'equipment:handlers',
+        label: '事件响应',
+        kind: '贡献分组',
+        summary: `${handlers.length} 项`,
+        sourcePath: 'eventHandlers',
+        details: { 数量: handlers.length },
+        editorSection: 'overview',
+        children: handlers.map((handler, index) => ({
+          id: `equipment:handler:${index}`,
+          label: handler.key,
+          kind: '事件响应',
+          summary: handler.event.kind,
+          sourcePath: `eventHandlers[${index}]`,
+          details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
+          editorSection: index,
+          children: [
+            sequenceNode(
+              handler.sequence,
+              `equipment:handler:${index}:sequence`,
+              '响应序列',
+              `eventHandlers[${index}].sequence`,
+              `${handler.sequence.steps.length} 个直属步骤`,
+              index,
+            ),
+          ],
+        })),
+      },
+    ],
   };
 }
 

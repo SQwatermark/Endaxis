@@ -3,6 +3,7 @@ import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import {
   buildAbilityEntityStructureMindMap,
   buildBuffStructureMindMap,
+  buildEquipmentContributionMindMap,
   buildSkillStructureMindMap,
   findSkillStructureNodeForPath,
   indexSkillStructureNodes,
@@ -110,5 +111,32 @@ describe('skillStructureMindMapModel', () => {
       lifetime: { kind: 'infinite' },
     });
     expect(entityWithoutChildSkill.canAddChild).toBe('childSkill');
+  });
+
+  it('projects equipment modifiers and event response sequences into the shared map', () => {
+    const root = buildEquipmentContributionMindMap({
+      modifiers: [{ kind: 'panelStat', stat: 'criticalRate', value: [0.1, 0.2] }],
+      eventHandlers: [
+        {
+          key: 'on-hit',
+          event: { kind: 'skillHit', skillGroupKey: 'battleSkill', scope: 'operator' },
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource',
+                parameters: { resource: 'sp', amount: 1, recipient: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const nodes = indexSkillStructureNodes(root);
+
+    expect(nodes.get('equipment:modifier:0')?.sourcePath).toBe('modifiers[0]');
+    expect(nodes.get('equipment:handler:0')?.sourcePath).toBe('eventHandlers[0]');
+    expect(nodes.get('equipment:handler:0:sequence:step:0')?.sourcePath).toBe(
+      'eventHandlers[0].sequence.steps[0]',
+    );
   });
 });

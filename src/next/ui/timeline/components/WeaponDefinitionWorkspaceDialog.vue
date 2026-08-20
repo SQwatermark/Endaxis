@@ -2,10 +2,12 @@
 import { computed, ref, watch } from 'vue';
 import {
   WEAPON_RARITIES,
+  type EquipmentContributionDefinition,
   type WeaponDefinition,
 } from '../../../core/game-data/equipmentDefinition';
 import { OPERATOR_WEAPON_TYPES } from '../../../core/game-data/operatorDefinition';
 import { validateWeaponDefinition } from '../../../core/game-data/equipmentDefinitionValidation';
+import EquipmentContributionGraphEditor from './EquipmentContributionGraphEditor.vue';
 
 const LEVEL_NODES = [1, 20, 40, 60, 80, 90] as const;
 const props = defineProps<{
@@ -73,6 +75,15 @@ function updateTrait(field: 'key' | 'levelCount', event: Event): void {
     ...trait,
     [field]: field === 'levelCount' ? Number(raw) : raw,
   };
+  draft.value = { ...draft.value, traits };
+}
+
+function updateTraitContribution(contribution: EquipmentContributionDefinition): void {
+  const index = selectedTraitIndex.value;
+  const trait = selectedTrait.value;
+  if (index === null || trait === undefined) return;
+  const traits = [...draft.value.traits];
+  traits[index] = { ...trait, ...contribution };
   draft.value = { ...draft.value, traits };
 }
 
@@ -189,6 +200,12 @@ function save(): void {
               JSON 文本。
             </p>
           </div>
+          <EquipmentContributionGraphEditor
+            :contribution="selectedTrait"
+            :label="selectedTrait.key"
+            :level="selectedTrait.levelCount"
+            @update="updateTraitContribution"
+          />
         </section>
       </main>
     </div>

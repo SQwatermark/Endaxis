@@ -3,6 +3,8 @@ import timelineEditorSource from '../NextTimelineEditor.vue?raw';
 import buildDialogSource from './NextGearLoadoutBuildDialog.vue?raw';
 import workspaceSource from './GearDefinitionWorkspaceDialog.vue?raw';
 import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
+import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
+import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
   it('materializes and switches a selected gear slot through the project library', () => {
@@ -35,5 +37,16 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(timelineEditorSource).toContain('saveProjectGearBeforeEditingSet');
     expect(gearSetWorkspaceSource).toContain('validateGearSetDefinition');
     expect(gearSetWorkspaceSource).not.toContain('<textarea');
+  });
+
+  it('shares the same layer-local contribution graph across weapons, gear and sets', () => {
+    for (const source of [workspaceSource, weaponWorkspaceSource, gearSetWorkspaceSource]) {
+      expect(source).toContain('EquipmentContributionGraphEditor');
+    }
+    expect(contributionEditorSource).toContain('SkillStructureMindMap');
+    expect(contributionEditorSource).toContain('CombatEventTriggerEditor');
+    expect(contributionEditorSource).toContain('CombatStepEditor');
+    expect(contributionEditorSource).toContain('inspector-only');
+    expect(contributionEditorSource).not.toContain('<textarea');
   });
 });
