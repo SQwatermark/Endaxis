@@ -134,7 +134,7 @@ def compile_buff_application_values(
         definition = buff_definitions.get(buff_id)
         if definition is None:
             raise ValueError(f"{path}: Buff definition {buff_id!r} was not resolved")
-        has_event_sequences = any(
+        has_event_sequences = bool(getattr(definition, "comboQteActions", ())) or any(
             sequence.actions
             for event in definition.eventActions
             for sequence in event.sequences
@@ -265,6 +265,9 @@ def compile_buff_application(
         ignored_buff_ids=ignored_buff_ids,
         buff_owner_target=buff_owner_target,
         current_buff_environment=current_buff_environment,
+        # 当前只在根技能时间轴保存动作区间；嵌套能力实体/事件序列还没有
+        # 同一原生动作的结束帧边界，不能把 autoFinishByAction 提前投影进去。
+        finish_by_action=root_skill_context and action.autoFinishByAction is True,
         path=path,
         services=services,
     )

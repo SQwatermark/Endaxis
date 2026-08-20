@@ -157,18 +157,18 @@ describe('next Perlica definition', () => {
                 parameters: {
                   buffId: 'buff_chr_0004_pelica_potential_3_atkup',
                   target: 'caster',
-                  definition: {
-                    stackingType: 'enhanceAndRefresh',
-                    maxStackCount: 2,
-                    durationSeconds: 5,
-                    attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
-                  },
                 },
               },
             ],
           },
         },
       ],
+    });
+    expect(perlica.buffDefinitions?.buff_chr_0004_pelica_potential_3_atkup).toMatchObject({
+      stackingType: 'enhanceAndRefresh',
+      maxStackCount: 2,
+      durationSeconds: 5,
+      attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
     });
     expect(potential?.modifiers).toBeUndefined();
   });

@@ -567,6 +567,9 @@
           "sequenceIndex": 6
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 8,
@@ -1017,6 +1020,9 @@
           "sequenceIndex": 5
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 7,
@@ -1321,6 +1327,9 @@
           "sequenceIndex": 7
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 9,
@@ -1807,6 +1816,9 @@
           "sequenceIndex": 7
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 4,
@@ -2288,6 +2300,9 @@
           "sequenceIndex": 11
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 16,
@@ -2816,6 +2831,9 @@
           "sequenceIndex": 12
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -2837,7 +2855,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -2858,7 +2877,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -3088,6 +3108,9 @@
           "sequenceIndex": 4
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -3327,6 +3350,9 @@
           "sequenceIndex": 8
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -3348,7 +3374,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -3626,6 +3653,9 @@
       "timelineBlockFrames": 23,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 15,
@@ -4603,6 +4633,9 @@
           "sequenceIndex": 29
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 103,
@@ -4712,7 +4745,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 41
+          "sequenceIndex": 41,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],

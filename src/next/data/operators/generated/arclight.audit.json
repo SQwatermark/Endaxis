@@ -1204,6 +1204,9 @@
           "sequenceIndex": 4
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 5,
@@ -1472,6 +1475,9 @@
           "sequenceIndex": 4
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 5,
@@ -1776,6 +1782,9 @@
           "sequenceIndex": 6
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 7,
@@ -2298,6 +2307,9 @@
           "sequenceIndex": 21
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 5,
@@ -3204,6 +3216,9 @@
           "sequenceIndex": 5
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 12,
@@ -3597,6 +3612,9 @@
           "sequenceIndex": 9
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -3618,7 +3636,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -3639,7 +3658,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 22
+          "sequenceIndex": 22,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -3928,6 +3948,9 @@
           "sequenceIndex": 3
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 1,
@@ -4366,6 +4389,90 @@
           "sequenceIndex": 11
         }
       ],
+      "timelineJumps": [
+        {
+          "startFrame": 4,
+          "endFrame": 5,
+          "destFrame": 96,
+          "actionIndex": 71,
+          "actionPath": [
+            "timelineActions[21]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "CompareFloat"
+          ],
+          "directConditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "SpawnThird",
+                "levelValues": null
+              },
+              "right": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "entityCount": null,
+              "buffStack": null,
+              "health": null,
+              "mainOperator": null,
+              "enemyRank": null,
+              "targetIdentity": null,
+              "distance": null,
+              "entityTag": null,
+              "timedMarker": null,
+              "globalCooldown": null,
+              "skillHasHit": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "abilityEntityDuration": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "directConditionNegated": [
+            false
+          ],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 21
+        },
+        {
+          "startFrame": 95,
+          "endFrame": 95,
+          "destFrame": 204,
+          "actionIndex": 73,
+          "actionPath": [
+            "timelineActions[22]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": false,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 22
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 136,
@@ -5386,7 +5493,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -5652,6 +5760,19 @@
           ]
         },
         {
+          "frame": 4,
+          "actionOrder": [
+            71
+          ],
+          "sequenceOrder": [
+            21
+          ],
+          "itemType": "timelineJump",
+          "sourcePath": [
+            "chr_0007_ikut_normal_skill"
+          ]
+        },
+        {
           "frame": 19,
           "actionOrder": [
             8
@@ -5686,6 +5807,19 @@
             8
           ],
           "itemType": "buffApplication",
+          "sourcePath": [
+            "chr_0007_ikut_normal_skill"
+          ]
+        },
+        {
+          "frame": 95,
+          "actionOrder": [
+            73
+          ],
+          "sequenceOrder": [
+            22
+          ],
+          "itemType": "timelineJump",
           "sourcePath": [
             "chr_0007_ikut_normal_skill"
           ]
@@ -6166,6 +6300,9 @@
           "sequenceIndex": 18
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -6187,7 +6324,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 18
+          "sequenceIndex": 18,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -7004,6 +7142,9 @@
       "timelineBlockFrames": 77,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -7094,7 +7235,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 54,
@@ -7114,7 +7256,8 @@
             "SpellInfliction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 25
+          "sequenceIndex": 25,
+          "autoFinishByAction": null
         }
       ],
       "blackboardCalculations": [],

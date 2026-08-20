@@ -3746,7 +3746,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -4404,7 +4407,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -5529,7 +5535,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -6281,7 +6290,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -6654,7 +6666,8 @@ export const daPanGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -6675,7 +6688,8 @@ export const daPanGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -6853,7 +6867,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -7318,7 +7335,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -7888,7 +7908,8 @@ export const daPanGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -8571,7 +8592,10 @@ export const daPanGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -8880,7 +8904,8 @@ export const daPanGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -9475,7 +9500,10 @@ export const daPanGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -10218,7 +10246,8 @@ export const daPanGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 31
+          "sequenceIndex": 31,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -11313,7 +11342,10 @@ export const daPanGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

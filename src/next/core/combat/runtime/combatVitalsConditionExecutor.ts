@@ -11,6 +11,7 @@ import { compareCombatNumbers } from './numericComparison';
 export interface CombatVitalsConditionDependencies {
   readonly resolveTarget: (
     target: Extract<CombatCondition, { kind: 'healthCompare' }>['target'],
+    buffSourceId?: string,
   ) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
 }
@@ -42,7 +43,7 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
         : this.dependencies.delegate.evaluate(condition, context);
     }
     if (context === undefined) throw new Error('healthCompare requires a combat operation context');
-    const vitals = this.dependencies.resolveTarget(condition.target);
+    const vitals = this.dependencies.resolveTarget(condition.target, context.buffSourceId);
     const current =
       condition.valueType === 'ratio' ? vitals.health / vitals.maxHealth : vitals.health;
     return compareCombatNumbers(

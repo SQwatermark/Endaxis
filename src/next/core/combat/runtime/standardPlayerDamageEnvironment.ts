@@ -7,7 +7,11 @@
  */
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { DamageFeature, DamageTag, HealTarget } from '../../game-data/operatorDefinition';
-import { CombatAttributeSet } from '../attributes/combatAttributes';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  CombatAttributeModifier,
+  CombatAttributeSet,
+} from '../attributes/combatAttributes';
 import {
   createOperatorAttackAttributes,
   resolveOperatorAttack,
@@ -73,6 +77,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeKillEntity'
   | 'afterKillEntity'
   | 'takeDamage'
+  | 'takeCriticalDamage'
   | 'outputDamage'
   | 'beforeOutputPoiseDamage'
   | 'beforeTakePoiseDamage'
@@ -85,7 +90,8 @@ export type StandardPlayerDamageEvent =
   | 'elementalInflictionStarted'
   | 'poiseRecovered'
   | 'beforeCastSkill'
-  | 'addedBuff';
+  | 'addedBuff'
+  | 'finishedBuff';
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -189,10 +195,11 @@ export class StandardPlayerDamageEnvironment {
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
-      resolveVitals: (target, operatorId) => {
+      resolveVitals: (target, operatorId, buffSourceId) => {
         if (target === 'enemy') return this.enemyVitals;
         if (target === 'caster') return this.#requireOperatorVitals(operatorId);
-        return this.#resolveHealTarget(target, operatorId, this.#requireClock().frame).vitals;
+        return this.#resolveHealTarget(target, operatorId, this.#requireClock().frame, buffSourceId)
+          .vitals;
       },
     };
   }
@@ -253,9 +260,20 @@ export class StandardPlayerDamageEnvironment {
               resolveNumber,
             ),
         ),
-      addInstantAttributeModifier: (_side, request) => {
-        throw new Error(
-          `instant attribute '${request.attribute}' is not available in the standard life-damage subset`,
+      addInstantAttributeModifier: (side, request) => {
+        const attributes = this.#buffContainer(side, operatorBuffs).attributes;
+        if (!attributes.has(request.attribute)) {
+          throw new Error(
+            `instant attribute '${request.attribute}' is not available on the ${side} side`,
+          );
+        }
+        attributes.addModifier(
+          new CombatAttributeModifier(
+            request.attribute,
+            request.values,
+            ATTRIBUTE_MODIFIER_SOURCES.instant,
+            request.timing,
+          ),
         );
       },
       clearInstantAttributeModifiers: side =>
@@ -307,8 +325,13 @@ export class StandardPlayerDamageEnvironment {
         }
         return context.panel.attributes[attribute];
       },
-      resolveTarget: target =>
-        this.#resolveHealTarget(target, context.program.operatorId, context.clock.frame),
+      resolveTarget: (target, buffSourceId) =>
+        this.#resolveHealTarget(
+          target,
+          context.program.operatorId,
+          context.clock.frame,
+          buffSourceId,
+        ),
       delegate: damage,
     });
   }
@@ -445,7 +468,17 @@ export class StandardPlayerDamageEnvironment {
     target: HealTarget,
     sourceOperatorId: string,
     frame: number,
+    buffSourceId?: string,
   ): ResolvedHealTarget {
+    if (target === 'buffSource') {
+      if (buffSourceId === undefined) {
+        throw new Error("heal target 'buffSource' requires a Buff lifecycle source");
+      }
+      return {
+        operatorId: buffSourceId,
+        vitals: this.#requireOperatorVitals(buffSourceId),
+      };
+    }
     if (target === 'caster') {
       return {
         operatorId: sourceOperatorId,
@@ -496,6 +529,10 @@ export class StandardPlayerDamageEnvironment {
           panel === undefined
             ? new CombatAttributeSet<string>()
             : createOperatorAttackAttributes(panel),
+          undefined,
+          null,
+          undefined,
+          (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
         ),
         {
           get: () => undefined,
@@ -512,11 +549,23 @@ export class StandardPlayerDamageEnvironment {
 
   #buffAbilityEventRegistrar(entityId: string) {
     return (
-      event: 'beforeTakeDamage' | 'outputDamage' | 'beforeCastSkill' | 'addedBuff',
+      event:
+        | 'beforeTakeDamage'
+        | 'takeCriticalDamage'
+        | 'outputDamage'
+        | 'beforeCastSkill'
+        | 'addedBuff'
+        | 'finishedBuff',
       priority: number,
       handle: (payload: unknown) => void,
+      samePriorityKey?: string,
     ) =>
-      this.eventsFor(entityId).registerAction(event, priority, context => handle(context.payload));
+      this.eventsFor(entityId).registerAction(
+        event,
+        priority,
+        context => handle(context.payload),
+        samePriorityKey,
+      );
   }
 
   #compileInlineBuffDefinition(
@@ -575,17 +624,17 @@ export class StandardPlayerDamageEnvironment {
       throw new Error(`spell burst source operator '${payload.sourceId}' has no resolved panel`);
     }
     const settings = this.#ensureSkillSettings();
+    const operatorAttributes = this.#operatorBuffRuntime(payload.sourceId, panel).container
+      .attributes;
     executeSpellBurst({
       definition,
       sourceId: payload.sourceId,
-      attack: resolveOperatorAttack(
-        panel,
-        this.#operatorBuffRuntime(payload.sourceId, panel).container.attributes,
-      ),
+      attack: resolveOperatorAttack(panel, operatorAttributes),
       // 来源附着增强属性尚未在面板落地；需要增强公式的爆发会在此明确失败。
       enhance: null,
-      criticalRate: panel.criticalRate,
-      criticalDamageIncrease: panel.criticalDamage,
+      criticalRate: panel.criticalRate + operatorAttributes.get('criticalRate'),
+      criticalDamageIncrease:
+        panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),
       criticalSample: this.options.criticalSamples.nextCriticalSample(),
       settings,
       defender: this.#requireEnemyIdentity().defenderAttributes,
@@ -656,6 +705,11 @@ export class StandardPlayerDamageEnvironment {
         layers: buff.enhanceCount,
       },
     });
+    this.#emit(ownerId, 'finishedBuff', {
+      sourceId: ownerId,
+      targetId: ownerId,
+      buffId: buff.definition.id,
+    });
   }
 
   #buffContainer(
@@ -667,7 +721,20 @@ export class StandardPlayerDamageEnvironment {
 
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {
     this.eventsFor(entityId).dispatch({ event, payload }, []);
+    if (event === 'takeDamage' && isCriticalDamagePayload(payload)) {
+      this.eventsFor(entityId).dispatch({ event: 'takeCriticalDamage', payload }, []);
+    }
   }
+}
+
+function isCriticalDamagePayload(payload: unknown): boolean {
+  if (typeof payload !== 'object' || payload === null) return false;
+  const result = (payload as { readonly result?: unknown }).result;
+  return (
+    typeof result === 'object' &&
+    result !== null &&
+    (result as { readonly isCritical?: unknown }).isCritical === true
+  );
 }
 
 function matchDamageProperties<T extends DamageTag | DamageFeature>(

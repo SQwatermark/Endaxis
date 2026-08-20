@@ -434,8 +434,7 @@ def parse_heal_payload(
     }
     if set(action) != expected_fields:
         raise ValueError(f"{path}: unexpected HealAction fields {sorted(action)}")
-    if action.get("alwaysNext") is not True:
-        raise ValueError(f"{path}.alwaysNext: only true is supported")
+    always_next = require_bool(action.get("alwaysNext"), f"{path}.alwaysNext")
     if action.get("healType") != "Normal" or action.get("healer") != "ActionSource":
         raise ValueError(f"{path}: unsupported healing type or healer identity")
     if action.get("contextKey") != "":
@@ -507,6 +506,7 @@ def parse_heal_payload(
     return HealPayload(
         healType="Normal",
         healer="ActionSource",
+        alwaysNext=always_next,
         target=parse_target_reference(action.get("target"), f"{path}.target"),
         attribute=None if attribute is None else str(attribute),
         multiplier=multiplier,

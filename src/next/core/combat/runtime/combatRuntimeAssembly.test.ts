@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CompiledSkillProgram, CompiledSkillSlotGroup } from '../../compiler/combatProgram';
-import { compileSkill } from '../../compiler/compileSkill';
+import { compileOperatorBuffDefinitions, compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { CompiledCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
@@ -16,7 +16,10 @@ import {
   logicalAbilityEntityRuntimeId,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { gilbertaBattleSkill } from '../../../data/operators/generated/gilberta.operator.generated';
+import {
+  gilbertaBattleSkill,
+  gilbertaGeneratedOperator,
+} from '../../../data/operators/generated/gilberta.operator.generated';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -118,6 +121,9 @@ function createAssembly(
   initialEntityBlackboard?: Readonly<Record<string, number>>,
   skillSlotGroups?: readonly CompiledSkillSlotGroup[],
   emitAbilityEvent?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['emitAbilityEvent'],
+  buffDefinitions?: ConstructorParameters<
+    typeof CombatRuntimeAssembly
+  >[0]['operators'][number]['buffDefinitions'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -145,6 +151,7 @@ function createAssembly(
       {
         operatorId: 'operator',
         skills: programs,
+        ...(buffDefinitions === undefined ? {} : { buffDefinitions }),
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
         ...(initialEntityBlackboard === undefined ? {} : { initialEntityBlackboard }),
       },
@@ -191,12 +198,22 @@ describe('CombatRuntimeAssembly', () => {
       [
         'operator',
         'beforeCastSkill',
-        { sourceId: 'operator', targetId: 'operator', skillType: 'battleSkill' },
+        {
+          sourceId: 'operator',
+          targetId: 'operator',
+          skillType: 'battleSkill',
+          skillId: 'first',
+        },
       ],
       [
         'operator',
         'beforeCastSkill',
-        { sourceId: 'operator', targetId: 'operator', skillType: 'ultimate' },
+        {
+          sourceId: 'operator',
+          targetId: 'operator',
+          skillType: 'ultimate',
+          skillId: 'second',
+        },
       ],
     ]);
   });
@@ -633,6 +650,7 @@ describe('CombatRuntimeAssembly', () => {
       skillType: 'battleSkill',
       skillLevel: 1,
       skill: gilbertaBattleSkill,
+      abilityEntityDefinitions: gilbertaGeneratedOperator.abilityEntityDefinitions,
     });
     const spawnAction = compiled.timelineActions.find(action =>
       action.sequence.steps.some(step => step.kind === 'spawnAbilityEntity'),
@@ -656,6 +674,10 @@ describe('CombatRuntimeAssembly', () => {
       testEnemy,
       undefined,
       createAbilityEntityBuffRuntime,
+      undefined,
+      undefined,
+      undefined,
+      compileOperatorBuffDefinitions(gilbertaGeneratedOperator.buffDefinitions),
     );
 
     expect(assembly.tryStartSkill('operator', program.skillId, program.castId)).toBe(true);

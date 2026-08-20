@@ -3906,7 +3906,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -5349,7 +5350,10 @@ export const endministratorGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkillFemale",
@@ -6127,7 +6131,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -7570,7 +7575,10 @@ export const endministratorGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackMale1",
@@ -8092,7 +8100,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackMale2",
@@ -8621,7 +8632,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackMale3",
@@ -9529,7 +9543,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackMale4",
@@ -10304,7 +10321,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -10888,7 +10906,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackMale5",
@@ -11733,7 +11754,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisherMale",
@@ -12210,7 +12234,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -12231,7 +12256,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 22
+          "sequenceIndex": 22,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -12466,7 +12492,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttackMale",
@@ -12931,7 +12960,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackFemale1",
@@ -13481,7 +13513,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackFemale2",
@@ -14024,7 +14059,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackFemale3",
@@ -14932,7 +14970,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackFemale4",
@@ -15714,7 +15755,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -16312,7 +16354,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttackFemale5",
@@ -17157,7 +17202,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisherFemale",
@@ -17634,7 +17682,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -17655,7 +17704,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 22
+          "sequenceIndex": 22,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -17890,7 +17940,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttackFemale",
@@ -18356,7 +18409,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -20510,7 +20566,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkillFemale",
@@ -22659,7 +22718,10 @@ export const endministratorGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -23254,7 +23316,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -24152,7 +24215,10 @@ export const endministratorGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimateFemale",
@@ -24754,7 +24820,8 @@ export const endministratorGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -25652,7 +25719,10 @@ export const endministratorGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

@@ -77,6 +77,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, match: 'hasAny', features: ['canBreakWeakness'] };
     case 'eventSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
+    case 'eventSkillIdIn':
+      return { kind, skillIds: ['custom-skill'] };
     case 'eventBuffIdMatch':
       return { kind, buffIds: ['custom-buff'] };
     case 'eventBuffTagsMatch':

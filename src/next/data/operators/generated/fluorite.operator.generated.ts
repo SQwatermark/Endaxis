@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0022_bounda_attack1',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -29,6 +30,7 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0022_bounda_attack2',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -53,6 +55,7 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0022_bounda_attack3',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -95,6 +98,7 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0022_bounda_attack4',
     timelineBlockFrames: 52,
     scheduledSequences: [
       scheduled(
@@ -139,6 +143,7 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0022_bounda_attack4_1',
     timelineBlockFrames: 49,
     scheduledSequences: [
       scheduled(
@@ -183,6 +188,7 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0022_bounda_power_attack',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -190,16 +196,12 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        22,
       ),
       scheduled(
         20,
@@ -223,6 +225,7 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
 export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0022_bounda_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -253,6 +256,7 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
 export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0022_bounda_normal_skill',
     timelineBlockFrames: 35,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -262,16 +266,6 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0022_bounda_normal_skill_onlymark',
-            definition: {
-              stackingType: 'stack',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 5,
-              triggerIntervalSeconds: 0,
-              waitFirstTriggerInterval: true,
-              maxTriggerCount: 1,
-              applyTagIds: [-1486085048],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -282,158 +276,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
-            definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
-              skillId: 'chr_0022_bounda_normal_skill_abilityrange',
-              blackboard: {
-                'atk_scale': 1,
-                'boom_up': 0,
-                'duration': 0,
-                'duration_potential': 0,
-                'move_speed_scalar': 0,
-                'poise': 20,
-                'potential_lv': 0,
-                'usp': 5,
-              },
-              scheduledSequences: [
-                scheduled(
-                  0,
-                  sequence(
-                    step('jumpTimeline', {
-                      destinationFrame: 89,
-                      condition: {
-                        kind: 'healthCompare',
-                        target: 'enemy',
-                        valueType: 'ratio',
-                        operator: 'lessOrEqual',
-                        value: { kind: 'constant', value: 0 },
-                      },
-                    }),
-                  ),
-                  89,
-                ),
-                scheduled(
-                  0,
-                  sequence(
-                    step('jumpTimeline', {
-                      destinationFrame: 149,
-                      condition: {
-                        kind: 'buffIdStackCompare',
-                        target: 'enemy',
-                        buffIds: ['buff_chr_0022_bounda_ultimate_skill'],
-                        operator: 'greaterOrEqual',
-                        value: { kind: 'constant', value: 1 },
-                      },
-                    }),
-                  ),
-                  89,
-                ),
-                scheduled(
-                  89,
-                  sequence(
-                    step('finishBuffsById', {
-                      target: 'caster',
-                      buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
-                      reason: 'other',
-                    }),
-                    step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-                    step('dealDamage', {
-                      damageType: 'nature',
-                      attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 10,
-                    }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:01:6'),
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'potential_lv' },
-                        operator: 'greaterOrEqual',
-                        right: { kind: 'constant', value: 3 },
-                      },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_common_affixes_slow',
-                          definition: {
-                            stackingType: 'highPriority',
-                            priority: { blackboardKey: 'rate' },
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            applyTagIds: [1925762097],
-                            blackboard: { rate: 0, duration: 0 },
-                          },
-                          target: 'enemy',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            rate: { kind: 'blackboard', key: 'move_speed_scalar' },
-                            duration: { kind: 'blackboard', key: 'duration_potential' },
-                          },
-                        }),
-                      ),
-                    ),
-                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                  ),
-                ),
-                scheduled(
-                  90,
-                  sequence(
-                    step('finishCurrentAbilityEntity', {}),
-                  ),
-                ),
-                scheduled(
-                  149,
-                  sequence(
-                    step('finishBuffsById', {
-                      target: 'caster',
-                      buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
-                      reason: 'other',
-                    }),
-                    step('applyElementalInfliction', { element: 'nature', isExtra: false }),
-                    step('dealDamage', {
-                      damageType: 'nature',
-                      attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 10,
-                    }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:02:20'),
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'potential_lv' },
-                        operator: 'greaterOrEqual',
-                        right: { kind: 'constant', value: 3 },
-                      },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_common_affixes_slow',
-                          definition: {
-                            stackingType: 'highPriority',
-                            priority: { blackboardKey: 'rate' },
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            applyTagIds: [1925762097],
-                            blackboard: { rate: 0, duration: 0 },
-                          },
-                          target: 'enemy',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            rate: { kind: 'blackboard', key: 'move_speed_scalar' },
-                            duration: { kind: 'blackboard', key: 'duration_potential' },
-                          },
-                        }),
-                      ),
-                    ),
-                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                  ),
-                ),
-                scheduled(
-                  150,
-                  sequence(
-                    step('finishCurrentAbilityEntity', {}),
-                  ),
-                ),
-              ],
-            } },
-            dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
           }),
@@ -444,14 +287,6 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_slow',
-            definition: {
-              stackingType: 'highPriority',
-              priority: { blackboardKey: 'rate' },
-              maxStackCount: 1,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [1925762097],
-              blackboard: { rate: 0, duration: 0 },
-            },
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
@@ -469,14 +304,13 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     'duration': 3,
     'move_speed_scalar': 0.3,
     'poise': 10,
-    'duration_potential': 0,
-    'potential_lv': 0,
   },
 );
 
 export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0022_bounda_combo_skill',
     timelineBlockFrames: 17,
     cooldownFrames: [1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1140],
     scheduledSequences: [
@@ -506,23 +340,6 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_potential_4',
-                              definition: {
-                                stackingType: 'refresh',
-                                priority: 0,
-                                maxStackCount: 1,
-                                durationSeconds: { blackboardKey: 'duration_potential_4' },
-                                blackboard: {
-                                  'atk_up_potential_4': 0,
-                                  'duration_potential_4': 0,
-                                },
-                                attributeModifiers: [
-                                  {
-                                    attribute: 'Atk',
-                                    slot: 'baseMultiplier',
-                                    value: { blackboardKey: 'atk_up_potential_4' },
-                                  },
-                                ],
-                              },
                               target: 'caster',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
@@ -620,6 +437,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
 export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0022_bounda_ultimate_skill',
     timelineBlockFrames: 77,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -761,6 +579,215 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: fluoriteUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: fluoriteComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0022_bounda_normal_skill_onlymark': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 5,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [-1486085048],
+    },
+    'buff_chr_0022_bounda_potential_4': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration_potential_4' },
+      blackboard: {
+        'atk_up_potential_4': 0,
+        'duration_potential_4': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk_up_potential_4' },
+        },
+      ],
+    },
+    'buff_chr_0022_bounda_talent_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'dmg_up': 0,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          condition: {
+            kind: 'entityTagMatch',
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            tagIds: [1925762097],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'attacker',
+              zone: 'normal',
+              addition: { blackboardKey: 'dmg_up' },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  abilityEntityDefinitions: {
+    'abilityentity_chr_0022_bounda_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
+        skillId: 'chr_0022_bounda_normal_skill_abilityrange',
+        blackboard: {
+          'atk_scale': 1,
+          'boom_up': 0,
+          'duration': 0,
+          'duration_potential': 0,
+          'move_speed_scalar': 0,
+          'poise': 20,
+          'potential_lv': 0,
+          'usp': 5,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('jumpTimeline', {
+                destinationFrame: 89,
+                condition: {
+                  kind: 'healthCompare',
+                  target: 'enemy',
+                  valueType: 'ratio',
+                  operator: 'lessOrEqual',
+                  value: { kind: 'constant', value: 0 },
+                },
+              }),
+            ),
+            89,
+          ),
+          scheduled(
+            0,
+            sequence(
+              step('jumpTimeline', {
+                destinationFrame: 149,
+                condition: {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0022_bounda_ultimate_skill'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+              }),
+            ),
+            89,
+          ),
+          scheduled(
+            89,
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
+                reason: 'other',
+              }),
+              step('applyElementalInfliction', { element: 'nature', isExtra: false }),
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 10,
+              }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:01:6'),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'potential_lv' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 3 },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_common_affixes_slow',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate' },
+                      maxStackCount: 1,
+                      durationSeconds: { blackboardKey: 'duration' },
+                      applyTagIds: [1925762097],
+                      blackboard: { rate: 0, duration: 0 },
+                    },
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                      duration: { kind: 'blackboard', key: 'duration_potential' },
+                    },
+                  }),
+                ),
+              ),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+          scheduled(
+            149,
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0022_bounda_normal_skill_onlymark', 'buff_chr_0022_bounda_ultimate_skill'],
+                reason: 'other',
+              }),
+              step('applyElementalInfliction', { element: 'nature', isExtra: false }),
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([187, 206, 224, 243, 262, 280, 299, 318, 336, 360, 388, 420]),
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 10,
+              }, '11:battleSkill13:abilityEntity28:chr_0022_bounda_normal_skill36:chr_0022_bounda_normal_skill_projhit41:chr_0022_bounda_normal_skill_abilityrange11:actionOrder2:191:02:20'),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'potential_lv' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 3 },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_common_affixes_slow',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate' },
+                      maxStackCount: 1,
+                      durationSeconds: { blackboardKey: 'duration' },
+                      applyTagIds: [1925762097],
+                      blackboard: { rate: 0, duration: 0 },
+                    },
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                      duration: { kind: 'blackboard', key: 'duration_potential' },
+                    },
+                  }),
+                ),
+              ),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+            ),
+          ),
+          scheduled(
+            150,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+  },
   talents: [
     {
       key: 'talent1',
@@ -775,33 +802,6 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0022_bounda_talent_1',
-              definition: {
-                stackingType: 'unique',
-                priority: 0,
-                maxStackCount: 1,
-                blackboard: {
-                  'dmg_up': 0,
-                },
-                damageModifiers: [
-                  {
-                    enabledSide: 'attacker',
-                    condition: {
-                      kind: 'entityTagMatch',
-                      target: 'enemy',
-                      tagQueryType: 'hasAny',
-                      tagIds: [1925762097],
-                    },
-                    processors: [
-                      {
-                        kind: 'damageScale',
-                        side: 'attacker',
-                        zone: 'normal',
-                        addition: { blackboardKey: 'dmg_up' },
-                      },
-                    ],
-                  },
-                ],
-              },
               target: 'caster',
               inheritSourceSkillCastInfo: false,
               blackboardAssignments: {

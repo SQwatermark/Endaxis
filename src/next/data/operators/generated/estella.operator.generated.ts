@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0021_whiten_attack1',
     timelineBlockFrames: 13,
     scheduledSequences: [
       scheduled(
@@ -41,6 +42,7 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0021_whiten_attack2',
     timelineBlockFrames: 16,
     scheduledSequences: [
       scheduled(
@@ -76,6 +78,7 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0021_whiten_attack3',
     timelineBlockFrames: 28,
     scheduledSequences: [
       scheduled(
@@ -135,6 +138,7 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0021_whiten_attack4',
     timelineBlockFrames: 46,
     scheduledSequences: [
       scheduled(
@@ -172,6 +176,7 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const estellaFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0021_whiten_power_attack',
     timelineBlockFrames: 30,
     scheduledSequences: [
       scheduled(
@@ -179,36 +184,24 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        50,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        30,
       ),
       scheduled(
         30,
@@ -232,6 +225,7 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
 export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0021_whiten_plunging_attack_end',
     timelineBlockFrames: 16,
     scheduledSequences: [
       scheduled(
@@ -267,6 +261,7 @@ export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0021_whiten_normal_skill',
     timelineBlockFrames: 46,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -348,6 +343,7 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
 export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0021_whiten_combo_skill',
     timelineBlockFrames: 20,
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
     scheduledSequences: [
@@ -393,33 +389,6 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
-                    definition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 1,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 3,
-                        'rate': -0.3,
-                      },
-                      damageModifiers: [
-                        {
-                          enabledSide: 'defender',
-                          condition: {
-                            kind: 'eventDamageTypesMatch',
-                            damageTypes: ['physical'],
-                          },
-                          processors: [
-                            {
-                              kind: 'damageScale',
-                              side: 'defender',
-                              zone: 'vulnerable',
-                              addition: { blackboardKey: 'rate' },
-                            },
-                          ],
-                        },
-                      ],
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -438,33 +407,6 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
-                    definition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 1,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 3,
-                        'rate': -0.3,
-                      },
-                      damageModifiers: [
-                        {
-                          enabledSide: 'defender',
-                          condition: {
-                            kind: 'eventDamageTypesMatch',
-                            damageTypes: ['physical'],
-                          },
-                          processors: [
-                            {
-                              kind: 'damageScale',
-                              side: 'defender',
-                              zone: 'vulnerable',
-                              addition: { blackboardKey: 'rate' },
-                            },
-                          ],
-                        },
-                      ],
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -516,6 +458,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
 export const estellaUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0021_whiten_ultimate_skill',
     timelineBlockFrames: 60,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 70 }],
@@ -603,6 +546,101 @@ export const estellaGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: estellaUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: estellaComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0021_whiten_combo_skill_physical_vulnerable': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 3,
+        'rate': -0.3,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['physical'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'vulnerable',
+              addition: { blackboardKey: 'rate' },
+            },
+          ],
+        },
+      ],
+    },
+    'buff_chr_0021_whiten_potential_5_inaura': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'cd': 1,
+        'usp': 5,
+      },
+      abilityEventResponses: [
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventBuffTagsMatch',
+                  match: 'hasAny',
+                  buffTagIds: [1535684437],
+                },
+                sequence(
+                  branch(
+                    { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'buff_chr_0021_whiten_potential_5_cd' } },
+                    sequence(
+                      step('createTimedMarker', {
+                        target: 'caster',
+                        markerId: 'buff_chr_0021_whiten_potential_5_cd',
+                        durationSeconds: { kind: 'blackboard', key: 'cd' },
+                        autoFinishByAction: false,
+                      }),
+                      step('changeResourceByActionValue', {
+                        resource: 'ultimateEnergy',
+                        amount: { kind: 'blackboard', key: 'usp' },
+                        recipient: 'caster',
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0021_whiten_potential_5': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'cd': 1,
+        'usp': 5,
+      },
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0021_whiten_potential_5_inaura',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+            blackboardAssignments: {
+              'usp': { kind: 'blackboard', key: 'usp' },
+              'cd': { kind: 'blackboard', key: 'cd' },
+            },
+          }),
+        ),
+      },
+    },
+  },
   talents: [
     {
       key: 'talent1',
@@ -685,72 +723,6 @@ export const estellaGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0021_whiten_potential_5',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            blackboard: {
-              'cd': 1,
-              'usp': 5,
-            },
-            lifecycleSequences: {
-              enable: sequence(
-                step('applyBuff', {
-                  buffId: 'buff_chr_0021_whiten_potential_5_inaura',
-                  definition: {
-                    stackingType: 'unique',
-                    priority: 0,
-                    maxStackCount: 1,
-                    blackboard: {
-                      'cd': 1,
-                      'usp': 5,
-                    },
-                    abilityEventResponses: [
-                      {
-                        event: 'addedBuff',
-                        priority: 0,
-                        sequence:
-                          sequence(
-                            branch(
-                              {
-                                kind: 'eventBuffTagsMatch',
-                                match: 'hasAny',
-                                buffTagIds: [1535684437],
-                              },
-                              sequence(
-                                branch(
-                                  { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'buff_chr_0021_whiten_potential_5_cd' } },
-                                  sequence(
-                                    step('createTimedMarker', {
-                                      target: 'caster',
-                                      markerId: 'buff_chr_0021_whiten_potential_5_cd',
-                                      durationSeconds: { kind: 'blackboard', key: 'cd' },
-                                      autoFinishByAction: false,
-                                    }),
-                                    step('changeResourceByActionValue', {
-                                      resource: 'ultimateEnergy',
-                                      amount: { kind: 'blackboard', key: 'usp' },
-                                      recipient: 'caster',
-                                    }),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      },
-                    ],
-                  },
-                  target: 'enemy',
-                  inheritSourceSkillCastInfo: false,
-                  finishByAction: true,
-                  blackboardAssignments: {
-                    'usp': { kind: 'blackboard', key: 'usp' },
-                    'cd': { kind: 'blackboard', key: 'cd' },
-                  },
-                }),
-              ),
-            },
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {

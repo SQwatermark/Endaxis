@@ -78,6 +78,7 @@ export const DAMAGE_FEATURES = [
   'shatter',
   'dot',
   'remainArea',
+  'talentDamage',
 ] as const;
 export type DamageFeature = (typeof DAMAGE_FEATURES)[number];
 
@@ -304,6 +305,11 @@ export type CombatCondition =
       skillTypes: readonly SkillType[];
     }
   | {
+      /** 匹配触发 Buff 响应的待施放技能稳定身份。 */
+      kind: 'eventSkillIdIn';
+      skillIds: readonly string[];
+    }
+  | {
       /** 匹配触发当前响应的新施加 Buff 身份。 */
       kind: 'eventBuffIdMatch';
       buffIds: readonly string[];
@@ -356,6 +362,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
   'eventSkillTypeIn',
+  'eventSkillIdIn',
   'eventBuffIdMatch',
   'eventBuffTagsMatch',
   'eventSourceMatchesBuffSource',
@@ -414,6 +421,7 @@ export type ResourceRecipient = (typeof RESOURCE_RECIPIENTS)[number];
 
 export const HEAL_TARGETS = [
   'caster',
+  'buffSource',
   'controlledOperator',
   'lowestHealthRatioOperator',
   'lowestHealthRatioOperatorExceptControlled',
@@ -470,12 +478,15 @@ export interface AbilityEntityChildSkillDefinition {
   readonly scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
-/** 技能生成步骤内联携带的完整逻辑能力实体蓝图。 */
+/** 可由干员级定义表复用的完整逻辑能力实体蓝图。 */
 export interface AbilityEntityDefinition {
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
   readonly childSkill?: AbilityEntityChildSkillDefinition;
 }
+
+/** 干员级能力实体蓝图；技能只引用身份并提供本次生成参数。 */
+export type OperatorAbilityEntityDefinitions = Readonly<Record<string, AbilityEntityDefinition>>;
 
 /**
  * 所有战斗步骤与参数结构的集中映射。
@@ -514,8 +525,8 @@ export interface CombatStepParameters {
   /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
   spawnAbilityEntity: {
     abilityEntityId: string;
-    /** 完整蓝图随技能定义内联，不在编译或运行时查找共享模板。 */
-    definition: AbilityEntityDefinition;
+    /** 手写定义可暂时内联；生成定义从干员或只读公共定义表按 ID 解析。 */
+    definition?: AbilityEntityDefinition;
     /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
     inheritActionBlackboard?: boolean;
     target?: CombatTarget;
@@ -544,6 +555,8 @@ export interface CombatStepParameters {
   /** 按施法者四维属性计算，并写入干员生命账本的普通治疗。 */
   heal: {
     target: HealTarget;
+    /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
+    alwaysNext?: boolean;
     /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
     tagIds: readonly number[];
   } & (
@@ -626,6 +639,10 @@ export interface CombatStepParameters {
   /** 结束当前正在执行生命周期或事件响应的 Buff 实例。 */
   finishCurrentBuff: {
     reason: 'early' | 'absorbed' | 'other';
+  };
+  /** 设置当前正在执行事件响应的 Buff 实例是否暂停计时。 */
+  setCurrentBuffTimePaused: {
+    paused: boolean;
   };
   /** 以原生点燃类型同步触发目标身上所有匹配响应；来源与接收目标保持独立。 */
   igniteBuffs: {
@@ -759,6 +776,8 @@ export interface CombatStepParameters {
     destinationFrame: number;
     condition?: CombatCondition;
   };
+  /** 立即结束当前宿主技能时间轴；只承接原生 InterruptCurSkillAction。 */
+  finishTimeline: Record<string, never>;
   conditional: { condition: CombatCondition };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
@@ -810,6 +829,7 @@ export const COMBAT_STEP_KINDS = [
   'finishBuffsByTag',
   'finishBuffsById',
   'finishCurrentBuff',
+  'setCurrentBuffTimePaused',
   'igniteBuffs',
   'adjustSkillCooldown',
   'holdBuffsById',
@@ -827,6 +847,7 @@ export const COMBAT_STEP_KINDS = [
   'applyStatus',
   'consumeStatus',
   'jumpTimeline',
+  'finishTimeline',
   'conditional',
   'once',
   'repeatEachTick',
@@ -974,7 +995,13 @@ export interface SkillBuffLifecycleSequences {
 /** Buff 启用期间注册在其所有者 AbilitySystem 上的一条同步事件响应。 */
 export interface SkillBuffAbilityEventResponse {
   /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
-  event: 'beforeTakeDamage' | 'outputDamage' | 'beforeCastSkill' | 'addedBuff';
+  event:
+    | 'beforeTakeDamage'
+    | 'takeCriticalDamage'
+    | 'outputDamage'
+    | 'beforeCastSkill'
+    | 'addedBuff'
+    | 'finishedBuff';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
   sequence: ActionSequenceDefinition;
@@ -1005,12 +1032,17 @@ export type SkillBuffDefinition = Omit<
   presentation?: SkillBuffPresentation;
 };
 
+/** 干员拥有的 Buff 蓝图表；技能步骤只引用稳定 ID，并在施加时提供实例黑板覆盖值。 */
+export type OperatorBuffDefinitions = Readonly<Record<string, SkillBuffDefinition>>;
+
 /**
  * 一个可独立释放或触发的技能定义。
  * 它描述战斗身份和时序，不承载翻译后的名称或编辑器布局。
  */
 export interface SkillDefinition {
   key: string;
+  /** 原始游戏数据中的技能身份；事件守卫不得用编辑器 key 冒充它。 */
+  sourceSkillId?: string;
   /** 技能实例创建时按当前技能等级解析、每次释放前恢复的原生动作黑板。 */
   blackboard?: Readonly<Record<string, LevelValues>>;
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
@@ -1289,6 +1321,10 @@ export interface OperatorDefinition {
   /** 仅记录偏离全局 `[10, 15, 15, 20]` 主属性规则的干员。 */
   trustAttributeBonus?: TrustAttributeBonusDefinition;
   skillGroups: readonly SkillGroupDefinition[];
+  /** 干员级附属对象；编辑器后续可在干员层级创建和修改，技能不得复制其完整定义。 */
+  buffDefinitions?: OperatorBuffDefinitions;
+  /** 干员级能力实体蓝图；子技能按引用它的技能等级编译。 */
+  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
   comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
   /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */

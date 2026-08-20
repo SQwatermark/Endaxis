@@ -2131,7 +2131,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -2983,7 +2986,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -4603,7 +4609,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -5780,7 +5789,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -6531,7 +6543,10 @@ export const camilleGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -7328,7 +7343,8 @@ export const camilleGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 28
+          "sequenceIndex": 28,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -7349,7 +7365,8 @@ export const camilleGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 29
+          "sequenceIndex": 29,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -8573,7 +8590,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -9062,7 +9082,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -9345,7 +9368,8 @@ export const camilleGeneratedSource = {
                 "SpellInfliction"
               ],
               "buffSourceContextKey": null,
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": null
             },
             {
               "startFrame": 0,
@@ -9366,7 +9390,8 @@ export const camilleGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             },
             {
               "startFrame": 0,
@@ -9387,7 +9412,8 @@ export const camilleGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -9638,7 +9664,8 @@ export const camilleGeneratedSource = {
                   "blackboardAssignments": {},
                   "nestedCombatActions": [],
                   "buffSourceContextKey": "",
-                  "sequenceIndex": 0
+                  "sequenceIndex": 0,
+                  "autoFinishByAction": false
                 },
                 {
                   "startFrame": 0,
@@ -9714,7 +9741,8 @@ export const camilleGeneratedSource = {
                   },
                   "nestedCombatActions": [],
                   "buffSourceContextKey": "",
-                  "sequenceIndex": 1
+                  "sequenceIndex": 1,
+                  "autoFinishByAction": true
                 },
                 {
                   "startFrame": 0,
@@ -9735,7 +9763,8 @@ export const camilleGeneratedSource = {
                   "blackboardAssignments": {},
                   "nestedCombatActions": [],
                   "buffSourceContextKey": "",
-                  "sequenceIndex": 2
+                  "sequenceIndex": 2,
+                  "autoFinishByAction": true
                 },
                 {
                   "startFrame": 3,
@@ -9775,7 +9804,8 @@ export const camilleGeneratedSource = {
                   },
                   "nestedCombatActions": [],
                   "buffSourceContextKey": "",
-                  "sequenceIndex": 3
+                  "sequenceIndex": 3,
+                  "autoFinishByAction": false
                 }
               ],
               "resourceGains": [],
@@ -10180,7 +10210,10 @@ export const camilleGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill1",
@@ -11132,6 +11165,7 @@ export const camilleGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Source",
                               "targetGroupKey": "",
@@ -11556,6 +11590,7 @@ export const camilleGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Source",
                               "targetGroupKey": "",
@@ -13004,6 +13039,7 @@ export const camilleGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Source",
                               "targetGroupKey": "",
@@ -13428,6 +13464,7 @@ export const camilleGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Source",
                               "targetGroupKey": "",
@@ -13689,7 +13726,10 @@ export const camilleGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill2",
@@ -14986,6 +15026,7 @@ export const camilleGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "Source",
                         "targetGroupKey": "",
@@ -15346,6 +15387,7 @@ export const camilleGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "Source",
                         "targetGroupKey": "",
@@ -17096,6 +17138,7 @@ export const camilleGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "Source",
                         "targetGroupKey": "",
@@ -17456,6 +17499,7 @@ export const camilleGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "Source",
                         "targetGroupKey": "",
@@ -17737,7 +17781,10 @@ export const camilleGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -19074,7 +19121,8 @@ export const camilleGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 38
+          "sequenceIndex": 38,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 118,
@@ -19114,7 +19162,8 @@ export const camilleGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 39
+          "sequenceIndex": 39,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -19135,7 +19184,8 @@ export const camilleGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 42
+          "sequenceIndex": 42,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -20148,7 +20198,10 @@ export const camilleGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

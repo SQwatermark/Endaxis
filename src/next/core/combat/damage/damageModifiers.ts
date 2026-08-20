@@ -11,9 +11,11 @@ import type {
   DamageType,
 } from '../../game-data/operatorDefinition';
 import { compareCombatNumbers } from '../runtime/numericComparison';
-import type {
-  AttributeModifierTiming,
-  AttributeModifierValues,
+import {
+  attributeModifierValues,
+  type AttributeModifierSlot,
+  type AttributeModifierTiming,
+  type AttributeModifierValues,
 } from '../attributes/combatAttributes';
 import type {
   DamageModifierSide,
@@ -93,7 +95,9 @@ export type DamageProcessorDefinition =
       readonly kind: 'instantAttribute';
       readonly targetSide: DamageModifierSide;
       readonly attribute: string;
-      readonly values: AttributeModifierValues;
+      readonly values:
+        | AttributeModifierValues
+        | { readonly slot: AttributeModifierSlot; readonly value: DamageModifierNumber };
       readonly attributeTiming: AttributeModifierTiming;
     };
 
@@ -189,9 +193,13 @@ function applyProcessor(
       return;
     case 'instantAttribute':
       if (timing === 'beforeCalculation' && context.targetHealthType === 'normal') {
+        const values =
+          'slot' in processor.values
+            ? attributeModifierValues(processor.values.slot, resolveNumber(processor.values.value))
+            : processor.values;
         context.addInstantAttributeModifier(processor.targetSide, {
           attribute: processor.attribute,
-          values: processor.values,
+          values,
           timing: processor.attributeTiming,
         });
       }

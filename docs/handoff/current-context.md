@@ -344,3 +344,64 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 最终调度表达式会再次收集实际动作黑板引用，只给来源中已声明、确实使用，且没有补丁/本地计算/变异/Buff 读取/外部输入生产者的纯数值键注入默认值。该修复补回洛茜零潜能时会读取的 `potential_upgrade=0`；唐堂 `tornado_atk_scale*` 等外部动态输入仍不会使用序列化零值兜底。
 - manifest 已从战技、二段连携和三段连携的未建模清单移除 `normal_defup`；洛茜 `comboSkill3` 不再属于 `skillBehavior` 缺口，战技和二段连携仍有其他明确未建模 Buff，终结技缺口不变。
 - 收尾门禁：Python 规则测试 355/355、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1146/1146 均通过。本机旧 `__pycache__` 曾残留错误字段布局，验证改用 `tmp/python-cache` 独立缓存后全绿；`tmp/` 仍只作为未跟踪目录，不得提交。
+
+### 2026-08-20：洛茜二段连携延迟伤害 Buff 闭环
+
+- `buff_chr_0028_wulfa_combo_2_damagewait` 已从二段连携的未建模清单移除。它挂在唯一敌人身上，在动作传入的 `duration=0.3` 到期时执行 `OnBuffFinish`，再把 `atk_scale`、`trigger_times=3` 与 `damage_interval=0.125` 传给 `buff_chr_0028_wulfa_combo_2_damage`；不是把延迟伤害静态提升到根技能时间线。
+- Buff 生命周期事件中的 plain `Target` 只在事件来源确为 Buff、且宿主已严格证明为唯一敌人时归约为该宿主；Ability 承伤/输出等事件仍保留自己的事件目标语义。动态 `maxTriggerCount` 现在与持续时间、触发间隔一样可从实例黑板读取，非整数固定值继续拒绝。
+- 普通 `OnBuffTrigger` 已进入 `lifecycleSequences.trigger`。生产模拟明确只放置可手动拖出的 `comboSkill2`，延迟伤害 Buff 产生 3 次触发间隔伤害和第 10/12/15/18 实例局部帧的 4 次固定周期伤害，共 7 次，来源均为洛茜。测试没有自动放置 `comboSkill3`，也没有为其尚未接通的精准衔接状态 `EntityBB_Combo_QTE_Trigger` 伪造默认值。
+- 标准伤害兼容预检补列了运行时已由 `SkillCooldownOperationExecutor` 支持的 `adjustSkillCooldown`，避免合法的洛茜连携冷却步骤在模拟启动前被误拒绝。
+- 养成审计已重新生成并与 manifest 对齐为天赋 13/28、潜能 61/70。门禁为 Python 357/357、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1148/1148。直接运行全仓库 Vitest 仍有 8 个旧版/UI 结构基线失败，与本批修改文件无重叠；Next 专用门禁全绿。`tmp/` 仍不得提交。
+- 洛茜 `comboSkill2` 仍因 `combo_2_qte_timerlistening` 与 `combo_usetimer` 保持 `skillBehavior` 缺口；战技的 `normal_bleed` 递归进入天赋 2 暴击追加伤害与治疗链后，当前首阻塞是治疗失败短路语义，不能只抽取基础 DoT 后宣称整个 Buff 完整。
+
+### 2026-08-20：洛茜精准衔接 QTE 生产/消费链闭环
+
+- `ShowComboRingQte` 不再被当成纯提示丢弃。生成器严格关联它的 `earlyDuration=time_warning=0.5`、`activeDuration=time_succeed=0.5`、成功动作 `EntityBB_Combo_QTE_Trigger=1`，以及唯一从 `time_succeed` 读取持续时间的 Owner `qte_timer` Buff；监听 Buff 启动时原生清零动作仍保留。关联不唯一、成功写入不是 plain Owner 或计时来源不匹配都会失败关闭。
+- Next 将用户独立拖放的连携技视为 QTE 输入：只有 `qte_timer` 仍存在时，`beforeCastSkill(comboSkill)` 才在技能根序列执行前写入共享实体黑板。没有自动放置或替换 `comboSkill3`，提示期也不会自动成功。生产回归中第二段起始帧 1、后续段起始帧 55 时进入优先级 50 的精准冻屏；后续段改到帧 75 时只保留普通连携的优先级 30 冻屏。
+- 监听 Buff 的 `PauseBuffTime` 只会延长 6 秒监听器/表现寿命；精准判定由独立 0.5 秒 `qte_timer` 决定，标准排轴又不模拟教程提示和自动技能可用性，因此没有把暂停动作伪造成战斗状态。`comboSkill2` 已移除 QTE 监听缺口，但仍因 `buff_chr_0028_wulfa_combo_usetimer` 保持 `skillBehavior` 缺口。
+- 精准分支施加的 `CriticalRate` 与 `CriticalDamageIncrease` Buff 已映射到运行时增量属性，并叠加进普通伤害与法术爆发的即时快照；面板基础值仍留在构筑层，没有编造原生上下限。
+- 本轮门禁：Python 359/359，manifest 全量生成及 `--check`，`npm run type-check:next`，Next Vitest 178 文件 1151/1151 均通过。`tmp/` 仍为未跟踪目录，不得提交。下一项优先接入 `combo_usetimer` 的换段/冷却生命周期；其 `OnBuffFinish` 已能解析，当前真实阻塞是强击期间 `PauseBuffTime`/`powerattack_resumecombo` 对 6 秒窗口时钟的暂停与恢复，不能只抽取到期冷却后宣称完整。之后再回到 `normal_bleed` 的治疗失败短路边界。
+
+### 2026-08-20：洛茜连携计时 Buff 的重击暂停/恢复闭环
+
+- `PauseBuffTime` 已按当前 Buff 实例建模：暂停期间不推进剩余持续时间、周期触发、挂载时间轴或 `passedTime`，恢复后从原剩余时长继续；它不会暂停同实体其他 Buff，更不会复用全局时间膨胀。
+- 技能启动事件新增原始 `sourceSkillId`，因此 `CheckSkillId(chr_0028_wulfa_power_attack)` 匹配原生重击身份，不拿编辑器稳定 key 或笼统 `finisher` 类型冒充。`OnFinishedBuff` 由 Buff 实例真实结束边界发出，并以 `buffId` 匹配 `powerattack_resumecombo`。
+- 洛茜重击的 `powerattack_resumecombo` 来自第 0–65 帧 `CreateBuffAction(autoFinishByAction=true)`；根 Buff 应用现保留该动作区间和实例句柄，第 65 局部帧结束标记 Buff，随后恢复 `combo_usetimer` 与 QTE 监听 Buff。两个计时 Buff 的同优先级响应只在编译证明叶子为互斥技能身份写入或当前实例暂停赋值时共享事件优先级；其他未证明的同优先级动作仍拒绝注册。
+- `combo_usetimer` 到期时结束 `combo_usecount` 并按原生 `need_set_cd >= 0.5` 将二段连携冷却设置为完整周期。`ChangeSkillAction` 只负责恢复 ComboSkill 槽位；根据“强化/后续技能由用户直接拖放”的既定编辑器方针保留审计事实，不驱动自动替换或自动摆放。`OnTrulyExitFight` 与 `OnRemoveAllPendingComboSkill` 没有标准木桩模拟事件入口，只记录为边界，不伪造触发。
+- `comboSkill2` 已从 `conversionSupport.skillBehavior` 缺口移除；生产回归比较有无重击时 `combo_usetimer` 的自然到期帧，确认重击动作区间会推迟到期。下一项回到洛茜战技 `normal_bleed` 的治疗失败短路，或继续处理终结技剩余战斗形态缺口。
+- `autoFinishByAction` 目前只在根技能时间轴投影，因为根调度项保存了同一原生动作的 `endFrame`；能力实体子技能和 Buff 事件序列尚未统一保存该结束边界，不能仅凭布尔字段创建动作区间句柄。全量生成时曾由此暴露 Gilberta 来源死亡监视 Buff 的回归，现已以根上下文限制和专门测试锁定。
+- 本轮门禁：Python 361/361、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1154/1154、`git diff --check` 均通过；`tmp/` 仍仅为未跟踪目录，不得提交。
+- `normal_bleed` 的下一阻塞已进一步取证：追加伤害后的 `HealAction(alwaysNext=false)` 以原生 `Modifier.ApplyResult.Succeed` 决定序列是否继续，不能用 `actualHealing > 0` 代替；随后另有 `HP < 100%` 条件控制天赋治疗特效 Buff。当前真正缺口是把 Buff 创建来源身份传入嵌套生命周期，使 plain `Source` 可严格解析为洛茜而不是敌方宿主；完整证据与实现顺序见 `docs/research/rossi-normal-bleed-heal-boundary.md`。
+
+### 2026-08-20：洛茜战技 `normal_bleed` 递归闭环
+
+- `buff_chr_0028_wulfa_normal_bleed` 已从战技的未建模与跳过解析清单移除。根 Buff 的物理/火焰承伤修正按原生 `CheckDamageType` 保留，流血伤害保留 `Dot | TalentDamage` 两个原生装饰位；`TalentDamage=0x80000000` 的身份由运行时枚举声明和单独使用该位的洛茜天赋追加伤害 Buff 交叉确认，不从名称猜测。
+- Buff Ability 事件新增 `takeCriticalDamage`。标准伤害环境仍先派发普遍的 `takeDamage`，且只在同一伤害结果 `isCritical=true` 时追加派发 `takeCriticalDamage`；非暴击不能触发洛茜天赋 2 的追加链。事件内 `eventSourceMatchesBuffSource`、技能标签条件和原生顺序保持不变。
+- `HealAction` 现保留 `alwaysNext`，但标准木桩环境没有治疗取消/免疫输入，治疗应用成功与 `actualHealing > 0` 明确分离。plain `Source` 在 Buff 生命周期中编译为动态 `buffSource`，执行时通过当前 Buff 实例携带的精确来源 ID 解析治疗目标与后续生命比较；缺失来源或面板生命账本时失败关闭，不能退回静态 caster。
+- 标准伤害兼容预检现在按每名干员是否装配面板生命账本判断 `caster`/`buffSource` 治疗与生命比较。洛茜生产场景因此通过完整预检和执行，不再因 96 个递归展开路径被误报为不兼容。
+- 战技最后的 `buff_chr_0028_wulfa_tut_normalskill_success` 经原始 BuffData 核对并非纯教程表现：它在投射物第三次命中的局部子技能中施加给 Source，并于自身局部第 10/12/15/18 帧对主目标造成四次物理伤害和固定失衡。生成器现只把会提升到根调度的投射物子技能 Source Buff 加入定义依赖，不把未迁移能力实体子图一并展开；`autoFinishByAction` 的局部结束帧随提升后的绝对起点平移，避免第 230 帧开始却在局部第 0 帧结束的非法区间。生产回归观察到绝对第 240/242/245/248 帧四跳。
+- 洛茜战技现已退出 `skillBehavior` 缺口，整名干员只剩 `talentEffects` 和终结技 `skillBehavior`。本轮最终门禁：Python 365/365、manifest 全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1158/1158、`git diff --check` 均通过。`tmp/` 仍仅为未跟踪目录，不得提交。下一项应继续终结技的三个已知 Buff，优先处理不依赖敌人主动行为的战斗形态或流血暴伤链。
+
+### 2026-08-20：技能 Buff 蓝图提升为干员附属对象
+
+- BuffData 与技能等级解耦。定义解析只读取 BuffData 自己声明的固定黑板默认值；SkillPatch 的逐级值留在技能 `applyBuff.blackboardAssignments`，随每次施加写入实例。场景编译因此只为每名干员生成一份 Buff 蓝图表，并显式拒绝蓝图内部出现技能等级数组。
+- 正式生成器把技能、天赋和潜能中的 `applyBuff.definition` 自叶向根提升：只有 `buff_chr_*` 进入干员级 `buffDefinitions`，其他公共/系统身份汇总到单一只读 `commonBuffDefinitions.generated.ts`。嵌套 Buff 也只通过稳定 ID 链接，同一 ID 若在不同调用点产生不同定义会立即报错。
+- 运行时从“版本化公共表 + 当前干员表”解析 ID-only `applyBuff`，再叠加本次 `blackboardAssignments`；两张蓝图表都不保存单次模拟状态。全量正式生成无定义冲突，公共文件当前汇总 8 个实际引用定义；所有正式干员表均只含 `buff_chr_*`。
+- manifest 顶层、干员顶层和单技能 `compile` 均支持 `simulationNoEffectBuffIds`，三层取并集并在定义解析前排除。全局层拒绝 `buff_chr_*`，角色专属屏蔽必须写到对应干员；该字段只用于已有证据证明不影响木桩模拟的 Buff，不能掩盖未知行为。
+- 编辑器待办：增加干员层级的附属对象工作区，支持自定义角色 Buff 的增删复制、结构化编辑、ID 唯一性校验和技能引用选择器；公共表只读且不可自定义。不能退回技能内联复制。当前实现只完成数据、生成和运行时边界，尚未实现该编辑器入口。
+
+### 2026-08-20：能力实体蓝图提升为干员附属对象
+
+- 正式生成器新增 `operator_ability_entity_linker.py`。所有 `spawnAbilityEntity.definition` 从技能、天赋和潜能源码递归提出；`abilityentity_chr_*` 写入当前干员 `abilityEntityDefinitions`，其他身份写入只读 `commonAbilityEntityDefinitions.generated.ts`。调用点只剩 ID、目标、时长覆盖、Context 输出和实体黑板赋值；单行/多行对象都受控解析，同 ID 不同蓝图失败关闭。当前公共表为空，不能因此把未知公共实体自动归为无效果。
+- 能力实体不能复制 Buff 的 0 级编译规则。子技能的黑板、伤害和失衡存在真实技能等级数组；场景编译按每次引用技能的等级生成该技能自己的 `abilityEntityDefinitions` 闭包，根步骤和子技能中的递归生成仍只保留 ID。共享蓝图不会产生无限静态内联。
+- `AbilityEntityOperationExecutor` 从当前已编译技能程序解析 ID-only 生成。每个实体实例会复制自己的子技能程序步骤，避免递归实体共享同一个步骤对象时，`finishByAction` Buff、时间动作等以步骤身份保存的运行态互相冲突；唐糖生产模拟已覆盖该边界。
+- 时间轴命中预览现在可从干员级能力实体表收集子技能命中；技能校验允许 ID-only 生成步骤，场景编译会对缺失定义严格报错。
+- 项目中的干员实例新增 `customAbilityEntityDefinitions`，只保存相对版本化干员表的新增项或完整覆盖项。场景解析、直接时间轴编译和完整干员技能编译都按“公共只读表 → 版本化干员表 → 项目覆盖表”合并；项目定义按引用技能自己的等级展开，运行时状态仍只存在于模拟快照。公共 ID 与干员/项目 ID 冲突时失败关闭，不能借覆盖公共表修改共享语义。
+- 干员构筑弹窗现提供能力实体工作区：可创建、复制、删除项目对象，编辑生成蓝图时自动形成项目覆盖，也可恢复版本化定义；子技能继续复用结构化调度序列和步骤编辑器。能力实体本身没有等级，子技能逐级值按引用技能的当前等级解析，不再展示虚假的能力实体 1–12 级控件。公共能力实体只展示稳定 ID，不允许改写。技能生成步骤改用合并后的稳定 ID 选择器，只编辑目标、持续时间覆盖、Context 和黑板赋值；新步骤不再创建内联蓝图。旧的显式内联定义仍由模型保留兼容，但不是新增入口。
+- 能力实体工作区的编辑草稿在组件边界统一转成纯项目 JSON；不能直接用 `structuredClone` 克隆 Vue 嵌套响应式代理，否则新增实体启用子技能或编辑序列时会抛出 `DataCloneError` 并中断更新。浏览器实际验收已覆盖新增实体、修改生命周期、启用并改名子技能、新增调度序列和步骤、保存及重新打开，数据完整保留且控制台无错误。本轮门禁为 `type-check:next`、Next Vitest 178 文件 1176/1176。
+- 能力实体工作区不再把完整对象树一次性纵向展开：弹窗为固定高度双栏工作区，左栏支持 ID 搜索并截断显示长身份，右栏拥有固定对象工具栏和独立滚动区；初始黑板默认折叠并显示参数数目，子技能时间线以序列摘要列表选择单条序列编辑，窄视口自动改为摘要卡片网格，序列内部仍只展开当前步骤。实际以汤汤 9 个实体、首实体 15 项黑板和 9 条调度序列验收，搜索、第三条 4 步序列切换、复杂步骤表单及窄视口重排正常，没有横向溢出，控制台无告警或错误。本轮门禁为 `type-check:next`、Next Vitest 178 文件 1176/1176、`git diff --check`。
+- 2026-08-20 层级纠正：能力实体不再作为干员实例的养成设置展示。构筑弹窗右上角改为“自定义干员”入口，新工作区以完整 `OperatorDefinition` 为对象，统一容纳基础成长面板、技能组/技能、干员级 Buff 与能力实体；基础面板可逐级编辑，技能进入完整技能编辑器，Buff 复用结构化生命周期编辑器，能力实体进入上述独立工作区。
+- 页面已通过独立定义覆盖查询端口让同一 slug 的所有实例共享修改，面板、技能库、编译与模拟都读取覆盖，保存后清理模拟缓存并重算；新入口不再写 `OperatorInstanceDocument.customAbilityEntityDefinitions`。当前 Next 页面仍是单场景样本会话，因此定义覆盖暂存在页面级定义仓库。下一步必须把它接入 `EndaxisProjectDocument` 的项目级自定义干员定义表，并迁移删除旧实例字段及其兼容编译分支，不能把完整定义塞回轨道实例或单次模拟状态。
+- 本次收尾门禁：`npm run type-check:next`、Next Vitest 178 文件 1176/1176、`git diff --check` 通过。全仓 `npm run type-check` 仍被旧版既有类型错误阻塞；本轮新增文件没有进入该错误清单。`tmp/` 仍不得提交。
+- 本轮新增命令层、Build 投影和场景编译回归，`npm run type-check:next` 通过。当前 Codex 文件沙箱会阻止 esbuild 读取用户目录，Vitest 在加载任意配置文件前即失败；该环境阻塞须在正常终端补跑完整 Next 测试，不能把类型检查写成测试通过。`tmp/` 中的临时 Vitest 配置不得提交。
+- 门禁：Python 375/375、全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1174/1174 均通过。全仓 Vitest 仍有旧版/UI 结构基线失败，与本轮 Next 链路分开；`tmp/` 保持未跟踪且不得提交。

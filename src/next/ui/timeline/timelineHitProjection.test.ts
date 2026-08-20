@@ -9,6 +9,7 @@ import {
   findCastHitMarker,
   projectCastHitMarkers,
   projectTimelineHitMarkerLeftPx,
+  shouldDisplayTimelineHitMarker,
 } from './timelineHitProjection';
 
 function fixtureDef(cast: SkillCastDocument): SkillDefinition {
@@ -140,5 +141,59 @@ describe('projectCastHitMarkers', () => {
   it('空技能释放不产生命中标记', () => {
     const emptyCast = createCast([]);
     expect(projectCastHitMarkers(emptyCast, fixtureDef(emptyCast))).toEqual([]);
+  });
+
+  it('collects ID-only ability-entity child hits from the operator definition table', () => {
+    const cast = createCast([
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: { abilityEntityId: 'ability:test', dieWhenSourceDies: false },
+      },
+    ]);
+
+    expect(
+      projectCastHitMarkers(cast, fixtureDef(cast), {
+        'ability:test': {
+          lifetime: { kind: 'infinite' },
+          childSkill: {
+            skillId: 'child',
+            scheduledSequences: [
+              { startFrame: 7, sequence: { steps: [damageStep('child-hit', 'child-hit')] } },
+            ],
+          },
+        },
+      }),
+    ).toContainEqual({
+      hitId: deriveHitId('cast:1', 'child-hit'),
+      frameOffset: 17,
+      stepKey: 'child-hit',
+      conditional: false,
+    });
+  });
+});
+
+describe('shouldDisplayTimelineHitMarker', () => {
+  const directMarker = {
+    stepKey: 'direct-hit',
+    hitId: 'cast:1:direct-hit',
+    frameOffset: 195,
+    conditional: false,
+  } as const;
+  const conditionalMarker = {
+    ...directMarker,
+    stepKey: 'conditional-hit',
+    hitId: 'cast:1:conditional-hit',
+    conditional: true,
+  } as const;
+
+  it('uses unconditional definition markers only before the first simulation', () => {
+    expect(shouldDisplayTimelineHitMarker(directMarker, false, new Map())).toBe(true);
+    expect(shouldDisplayTimelineHitMarker(conditionalMarker, false, new Map())).toBe(false);
+  });
+
+  it('uses only actual DamageApplied hit identities after simulation', () => {
+    const actualFrames = new Map([[conditionalMarker.hitId, 24]]);
+    expect(shouldDisplayTimelineHitMarker(directMarker, true, actualFrames)).toBe(false);
+    expect(shouldDisplayTimelineHitMarker(conditionalMarker, true, actualFrames)).toBe(true);
   });
 });

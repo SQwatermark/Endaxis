@@ -103,8 +103,12 @@ export function resolveStaticPlayerDamageSnapshots(
     attacker: {
       ...attackerDamageScales,
       attack: resolveOperatorAttack(panel, operatorAttributes),
-      criticalRate: panel.criticalRate + (context.program.statModifiers?.criticalRate ?? 0),
-      criticalDamageIncrease: panel.criticalDamage,
+      criticalRate:
+        panel.criticalRate +
+        (context.program.statModifiers?.criticalRate ?? 0) +
+        operatorAttributes.get('criticalRate'),
+      criticalDamageIncrease:
+        panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),
       weaknessDamageMultiplier: 1,
       igniteDamageMultiplier: 1,
       physicalInflictionDamageMultiplier: 1,

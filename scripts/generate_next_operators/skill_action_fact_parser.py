@@ -25,14 +25,17 @@ from source_models import (
     BuffFinishSource,
     ConditionSource,
     TimedTimelineJumpSource,
+    TimedTimelineFinishSource,
 )
 from source_utils import (
     action_name,
+    require_bool,
     require_dict,
     require_list,
     require_non_negative_int,
     require_server_action_index,
 )
+from target_parser import parse_target_reference
 
 
 @dataclass(frozen=True)
@@ -248,6 +251,10 @@ def parse_auxiliary_actions(
                             targetValidatorTypes=payload.targetValidatorTypes,
                             targetPostProcessorTypes=payload.targetPostProcessorTypes,
                             sequenceIndex=timeline_index,
+                            autoFinishByAction=require_bool(
+                                action.get("autoFinishByAction"),
+                                f"{source_name}.CreateBuffAction.autoFinishByAction",
+                            ),
                         )
                     )
             elif name == "SpawnAbilityEntity":
@@ -323,7 +330,44 @@ def parse_timeline_jumps(
     services: SkillActionFactParserServices,
 ) -> tuple[TimedTimelineJumpSource, ...]:
     """保留 JumpToAction 的位置、时间与条件类型；未建模控制流不得被线性化。"""
-    walk_actions = services.walk_actions
+
+    supported_condition_names = {
+        "CheckHp",
+        "CheckBuffStackNum",
+        "CheckBuffStackNumAdvanced",
+        "CompareFloat",
+        "CheckMainCharacterCondition",
+        "CheckTimedMarkerCondition",
+    }
+
+    def parse_condition_sequence(
+        raw_items: tuple[dict[str, Any], ...], path: str
+    ) -> tuple[tuple[ConditionSource, ...], tuple[bool, ...], bool]:
+        parsed_conditions: list[ConditionSource] = []
+        parsed_negations: list[bool] = []
+        negate_next = False
+        valid = bool(raw_items)
+        for index, item in enumerate(raw_items):
+            condition_name = action_name(str(item.get("$type", "")))
+            if condition_name == "NotNextCheckAction":
+                if negate_next:
+                    return (), (), False
+                negate_next = True
+                continue
+            if condition_name not in supported_condition_names:
+                return (), (), False
+            parsed_conditions.append(
+                parse_timeline_jump_condition(
+                    item,
+                    f"{path}[{index}]",
+                    inherited_blackboard or {},
+                )
+            )
+            parsed_negations.append(negate_next)
+            negate_next = False
+        if negate_next or not valid:
+            return (), (), False
+        return tuple(parsed_conditions), tuple(parsed_negations), bool(parsed_conditions)
 
     def walk_action_paths(
         value: Any,
@@ -384,32 +428,66 @@ def parse_timeline_jumps(
             if action_name(action["$type"]) != "JumpToAction" or action.get("isEnable") is False:
                 continue
             path = f"{source_name}.{'.'.join(action_path)}"
-            condition_types = tuple(
-                action_name(item["$type"])
-                for item in walk_actions(action.get("conditionAction"))
-                if item.get("isEnable") is not False
+            condition_action = action.get("conditionAction")
+            raw_condition_data = (
+                condition_action.get("actionData")
+                if isinstance(condition_action, dict)
+                else None
             )
             raw_conditions = tuple(
                 item
-                for item in walk_actions(action.get("conditionAction"))
-                if item.get("isEnable") is not False
+                for item in raw_condition_data
+                if isinstance(item, dict) and item.get("isEnable") is not False
+            ) if isinstance(raw_condition_data, list) else ()
+            condition_types = tuple(
+                action_name(str(item.get("$type", ""))) for item in raw_conditions
             )
             direct_conditions: tuple[ConditionSource, ...] = ()
+            direct_condition_negated: tuple[bool, ...] = ()
+            direct_any_conditions: tuple[tuple[ConditionSource, ...], ...] = ()
+            direct_any_condition_negated: tuple[tuple[bool, ...], ...] = ()
             direct_conditions_supported = False
-            if raw_conditions and all(
-                action_name(str(item.get("$type", "")))
-                in {"CheckHp", "CheckBuffStackNum", "CheckBuffStackNumAdvanced"}
-                for item in raw_conditions
+            if (
+                len(raw_conditions) == 1
+                and action_name(str(raw_conditions[0].get("$type", "")))
+                == "OrConditionAction"
             ):
-                direct_conditions = tuple(
-                    parse_timeline_jump_condition(
-                        item,
-                        f"{path}.conditionAction[{index}]",
-                        inherited_blackboard or {},
-                    )
-                    for index, item in enumerate(raw_conditions)
+                raw_groups = raw_conditions[0].get("conditionList")
+                parsed_groups: list[tuple[ConditionSource, ...]] = []
+                parsed_group_negations: list[tuple[bool, ...]] = []
+                valid_any = isinstance(raw_groups, list) and bool(raw_groups)
+                if isinstance(raw_groups, list):
+                    for group_index, raw_group in enumerate(raw_groups):
+                        group = raw_group if isinstance(raw_group, dict) else {}
+                        group_items = group.get("actionData")
+                        enabled_group_items = tuple(
+                            item
+                            for item in group_items
+                            if isinstance(item, dict) and item.get("isEnable") is not False
+                        ) if isinstance(group_items, list) else ()
+                        conditions, negations, supported = parse_condition_sequence(
+                            enabled_group_items,
+                            f"{path}.conditionAction[0].conditionList[{group_index}]",
+                        )
+                        if not supported:
+                            valid_any = False
+                            break
+                        parsed_groups.append(conditions)
+                        parsed_group_negations.append(negations)
+                if valid_any:
+                    direct_any_conditions = tuple(parsed_groups)
+                    direct_any_condition_negated = tuple(parsed_group_negations)
+                    direct_conditions_supported = True
+            else:
+                (
+                    direct_conditions,
+                    direct_condition_negated,
+                    direct_conditions_supported,
+                ) = parse_condition_sequence(
+                    raw_conditions, f"{path}.conditionAction"
                 )
-                direct_conditions_supported = True
+            # directConditionsSupported 只表示 conditionAction 是可编译的直接条件
+            # 结构；具体目标能否在当前上下文解析仍由条件编译器 fail-closed 判定。
             result.append(
                 TimedTimelineJumpSource(
                     startFrame=start_frame,
@@ -421,6 +499,9 @@ def parse_timeline_jumps(
                     actionPath=action_path,
                     conditionActionTypes=condition_types,
                     directConditions=direct_conditions,
+                    directConditionNegated=direct_condition_negated,
+                    directAnyConditions=direct_any_conditions,
+                    directAnyConditionNegated=direct_any_condition_negated,
                     directConditionsSupported=direct_conditions_supported,
                     isOnlySequenceAction=(
                         len(enabled_root_actions) == 1 and enabled_root_actions[0] is action
@@ -436,6 +517,77 @@ def parse_timeline_jumps(
                             "[0]",
                         )
                     ),
+                    sequenceIndex=timeline_index,
+                )
+            )
+    return tuple(result)
+
+
+def parse_timeline_finishes(
+    root: dict[str, Any], source_name: str
+) -> tuple[TimedTimelineFinishSource, ...]:
+    """严格保留根时间轴上结束当前技能的直接动作。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    result: list[TimedTimelineFinishSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = require_non_negative_int(
+            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+        )
+        end_frame = require_non_negative_int(
+            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+        )
+        sequence = require_dict(
+            timeline.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData"
+        )
+        actions = require_list(sequence.get("actionData"), f"{timeline_path}.actionData")
+        enabled = tuple(
+            action
+            for action in actions
+            if isinstance(action, dict) and action.get("isEnable") is not False
+        )
+        for action in enabled:
+            if action_name(str(action.get("$type", ""))) != "InterruptCurSkillAction":
+                continue
+            if len(enabled) != 1:
+                raise ValueError(
+                    f"{timeline_path}: InterruptCurSkillAction must be the only enabled root action"
+                )
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "skillOwner",
+            }
+            if set(action) != expected_fields:
+                raise ValueError(
+                    f"{timeline_path}: unexpected InterruptCurSkillAction fields {sorted(action)}"
+                )
+            owner = parse_target_reference(
+                action.get("skillOwner"), f"{timeline_path}.skillOwner"
+            )
+            if (
+                owner.targetSource != "Owner"
+                or owner.targetGroupKey
+                or owner.validatorTypes
+                or owner.postProcessorTypes
+                or owner.selectorOwner != "ActionOwner"
+                or owner.ownerContextKey
+                or owner.centerType != "ActionSource"
+                or owner.centerContextKey
+                or owner.centerToGround
+                or owner.target != "ActionSource"
+                or owner.targetContextKey
+                or owner.enableAdvancedDirection
+                or owner.selectorDirection != "SourceForward"
+            ):
+                raise ValueError(f"{timeline_path}.skillOwner: expected plain Owner")
+            result.append(
+                TimedTimelineFinishSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(action, timeline_path),
                     sequenceIndex=timeline_index,
                 )
             )

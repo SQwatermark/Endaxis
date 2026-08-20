@@ -105,6 +105,8 @@ export interface BuffOperationDependencies {
   ) => readonly BuffOperationTarget[];
   /** 当前子时间线/Context 句柄只在显式能力实体目标的施加路径使用。 */
   readonly resolveCurrentAbilityEntityTarget?: (target: RuntimeTargetRef) => BuffOperationTarget;
+  /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
+  readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -153,11 +155,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? 1
           : resolveActionValueOperand(step.parameters.count, context!.blackboard);
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
+      const definition =
+        step.parameters.definition ??
+        this.dependencies.resolveBuffDefinition?.(step.parameters.buffId);
       const request: BuffApplicationRequest = {
         buffId: step.parameters.buffId,
-        ...(step.parameters.definition === undefined
-          ? {}
-          : { definition: step.parameters.definition }),
+        ...(definition === undefined ? {} : { definition }),
         sourceId:
           step.parameters.source === undefined
             ? this.dependencies.sourceId
@@ -267,6 +270,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('finishCurrentBuff requires a Buff operation context');
       }
       context.finishCurrentBuff(step.parameters.reason);
+      return true;
+    }
+
+    if (step.kind === 'setCurrentBuffTimePaused') {
+      if (context?.setCurrentBuffTimePaused === undefined) {
+        throw new Error('setCurrentBuffTimePaused requires a Buff operation context');
+      }
+      context.setCurrentBuffTimePaused(step.parameters.paused);
       return true;
     }
 

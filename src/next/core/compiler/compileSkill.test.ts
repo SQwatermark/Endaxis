@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 import { perlica } from '../../data/operators/perlica';
-import { compileSkill } from './compileSkill';
+import { compileOperatorBuffDefinitions, compileSkill } from './compileSkill';
 
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -13,6 +13,70 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('compiles operator Buff blueprints without a skill-level context', () => {
+    expect(
+      compileOperatorBuffDefinitions({
+        mark: {
+          stackingType: 'refresh',
+          priority: 0,
+          maxStackCount: 1,
+          lifecycleSequences: {
+            start: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'scale' },
+                    tags: [],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      mark: {
+        stackingType: 'refresh',
+        lifecycleSequences: {
+          start: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: { attackScale: { kind: 'blackboard', key: 'scale' } },
+              },
+            ],
+          },
+        },
+      },
+    });
+  });
+
+  it('rejects skill-level arrays inside an operator Buff blueprint', () => {
+    expect(() =>
+      compileOperatorBuffDefinitions({
+        invalid: {
+          stackingType: 'refresh',
+          lifecycleSequences: {
+            start: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: {
+                    damageType: 'physical',
+                    attackScale: [1, 2],
+                    tags: [],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toThrow('must not depend on a skill level inside an operator Buff');
+  });
+
   it('resolves heal multiplier and addition at the selected skill level', () => {
     const skill = {
       key: 'heal',
@@ -26,6 +90,7 @@ describe('compileSkill', () => {
                 kind: 'heal',
                 parameters: {
                   target: 'controlledOperator',
+                  alwaysNext: false,
                   attribute: 'will',
                   multiplier: [1, 2],
                   addition: [10, 20],
@@ -48,7 +113,7 @@ describe('compileSkill', () => {
       }).timelineActions[0]?.sequence.steps[0],
     ).toMatchObject({
       kind: 'heal',
-      parameters: { multiplier: 2, addition: 20 },
+      parameters: { alwaysNext: false, multiplier: 2, addition: 20 },
     });
   });
 
@@ -154,6 +219,87 @@ describe('compileSkill', () => {
             ],
           },
         },
+      },
+    });
+  });
+
+  it('compiles an ID-only AbilityEntity closure at the parent skill level without recursive inlining', () => {
+    const skill = {
+      key: 'entity-reference-parent',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const program = compileSkill({
+      operatorId: 'fixture',
+      skillGroupKey: 'combo',
+      skillType: 'comboSkill',
+      skillLevel: 2,
+      skill,
+      abilityEntityDefinitions: {
+        entity: {
+          lifetime: { kind: 'infinite' },
+          childSkill: {
+            skillId: 'entity-child',
+            blackboard: { coefficient: [1, 2] },
+            scheduledSequences: [
+              {
+                startFrame: 3,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'dealDamage',
+                      parameters: {
+                        damageType: 'physical',
+                        attackScale: [4, 5],
+                        tags: ['comboSkill'],
+                      },
+                    },
+                    {
+                      kind: 'spawnAbilityEntity',
+                      parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    expect(program.timelineActions[0]?.sequence.steps[0]).toEqual({
+      kind: 'spawnAbilityEntity',
+      parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+    });
+    expect(program.abilityEntityDefinitions?.entity).toMatchObject({
+      childSkill: {
+        initialBlackboard: { coefficient: 2 },
+        timelineActions: [
+          {
+            sequence: {
+              steps: [
+                { kind: 'dealDamage', parameters: { attackScale: 5 } },
+                {
+                  kind: 'spawnAbilityEntity',
+                  parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+                },
+              ],
+            },
+          },
+        ],
       },
     });
   });

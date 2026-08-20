@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0019_karin_attack1',
     timelineBlockFrames: 14,
     scheduledSequences: [
       scheduled(
@@ -29,6 +30,7 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0019_karin_attack2',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -88,6 +90,7 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0019_karin_attack3',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -123,6 +126,7 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0019_karin_attack4',
     timelineBlockFrames: 35,
     scheduledSequences: [
       scheduled(
@@ -181,6 +185,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0019_karin_power_attack',
     timelineBlockFrames: 37,
     scheduledSequences: [
       scheduled(
@@ -188,36 +193,24 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        60,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        36,
       ),
       scheduled(
         13,
@@ -253,6 +246,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
 export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0019_karin_plunging_attack_end',
     timelineBlockFrames: 14,
     scheduledSequences: [
       scheduled(
@@ -288,6 +282,7 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0019_karin_normal_skill',
     timelineBlockFrames: 41,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -322,6 +317,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
 export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0019_karin_combo_skill',
     timelineBlockFrames: 38,
     cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 270],
     scheduledSequences: [
@@ -487,6 +483,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
 export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0019_karin_ultimate_skill',
     timelineBlockFrames: 129,
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 120 }],
@@ -497,28 +494,15 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0019_karin_potential_3',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 1,
-              blackboard: {
-                'atk': 0.1,
-              },
-              attributeModifiers: [
-                {
-                  attribute: 'Atk',
-                  slot: 'baseMultiplier',
-                  value: { blackboardKey: 'atk' },
-                },
-              ],
-            },
             target: 'party',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
             blackboardAssignments: {
               'atk': { kind: 'blackboard', key: 'atk' },
             },
           }),
         ),
+        150,
       ),
       scheduled(
         0,
@@ -675,6 +659,41 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: akekuriUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: akekuriComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0019_karin_potential_3': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atk': 0.1,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk' },
+        },
+      ],
+    },
+    'buff_chr_0019_karin_potential_1_1': {
+      stackingType: 'enhanceAndRefresh',
+      priority: 0,
+      maxStackCount: 5,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_up': 0,
+        'duration': 5,
+        'max_stack': 1,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk_up' },
+        },
+      ],
+    },
+  },
   talents: [
     {
       key: 'talent1',
@@ -734,24 +753,6 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
           sequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0019_karin_potential_1_1',
-              definition: {
-                stackingType: 'enhanceAndRefresh',
-                priority: 0,
-                maxStackCount: 5,
-                durationSeconds: { blackboardKey: 'duration' },
-                blackboard: {
-                  'atk_up': 0,
-                  'duration': 5,
-                  'max_stack': 1,
-                },
-                attributeModifiers: [
-                  {
-                    attribute: 'Atk',
-                    slot: 'baseMultiplier',
-                    value: { blackboardKey: 'atk_up' },
-                  },
-                ],
-              },
               target: 'caster',
               inheritSourceSkillCastInfo: true,
               blackboardAssignments: {

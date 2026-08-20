@@ -54,6 +54,70 @@ function requireSingleSkill(skillGroupKey: string): SkillDefinition {
 }
 
 describe('compileScenarioTimeline', () => {
+  it('combines read-only common Buffs with operator-owned Buffs without a skill level', () => {
+    const operator = {
+      ...perlica,
+      buffDefinitions: {
+        buff_chr_fixture_owned: { stackingType: 'refresh' as const },
+      },
+    };
+    const compiled = compileScenarioTimeline(createScenario(), {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+      getCommonBuffDefinitions: () => ({
+        buff_common_fixture: { stackingType: 'unlimited' },
+      }),
+    });
+
+    expect(compiled.operators[0]?.buffDefinitions).toEqual({
+      buff_common_fixture: { stackingType: 'unlimited' },
+      buff_chr_fixture_owned: { stackingType: 'refresh' },
+    });
+  });
+
+  it('merges project ability entity additions and overrides after generated definitions', () => {
+    const scenario = place(createScenario(), 'battleSkill', 0);
+    scenario.tracks[0]!.operator!.customAbilityEntityDefinitions = {
+      generated: { lifetime: { kind: 'limited', durationSeconds: 3 } },
+      custom: { lifetime: { kind: 'infinite' } },
+    };
+    scenario.tracks[0]!.skillCasts[0]!.customDefinition = {
+      key: 'battleSkill',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: { abilityEntityId: 'generated', dieWhenSourceDies: false },
+              },
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: { abilityEntityId: 'custom', dieWhenSourceDies: false },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const operator = {
+      ...perlica,
+      abilityEntityDefinitions: {
+        generated: { lifetime: { kind: 'limited' as const, durationSeconds: 9 } },
+      },
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+
+    expect(compiled.operators[0]?.skills[0]?.abilityEntityDefinitions).toEqual({
+      generated: { lifetime: { kind: 'limited', durationSeconds: 3 } },
+      custom: { lifetime: { kind: 'infinite' } },
+    });
+  });
+
   it('compiles the complete operator skill index and placed input', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
 
@@ -256,7 +320,7 @@ describe('compileScenarioTimeline', () => {
     expect(spawn.kind).toBe('spawnAbilityEntity');
     if (spawn.kind !== 'spawnAbilityEntity') throw new Error('expected spawn step');
     expect(
-      spawn.parameters.definition.childSkill?.timelineActions[0]?.sequence.steps[0]?.hitId,
+      spawn.parameters.definition!.childSkill?.timelineActions[0]?.sequence.steps[0]?.hitId,
     ).toBe(deriveHitId(cast.id, 'child-hit'));
   });
 

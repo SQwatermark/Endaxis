@@ -1475,7 +1475,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -2025,7 +2028,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -2598,7 +2604,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -3819,7 +3828,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -4176,7 +4188,8 @@ export const lifengGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 15
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -4197,7 +4210,8 @@ export const lifengGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -4318,7 +4332,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -4776,7 +4793,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -5438,7 +5458,8 @@ export const lifengGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -5956,7 +5977,10 @@ export const lifengGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -6514,7 +6538,8 @@ export const lifengGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 16
+          "sequenceIndex": 16,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -7635,7 +7660,10 @@ export const lifengGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -8289,6 +8317,9 @@ export const lifengGeneratedSource = {
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": true,
@@ -8694,6 +8725,9 @@ export const lifengGeneratedSource = {
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": true,
@@ -8861,7 +8895,8 @@ export const lifengGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -9117,6 +9152,9 @@ export const lifengGeneratedSource = {
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": true,
@@ -9984,7 +10022,10 @@ export const lifengGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

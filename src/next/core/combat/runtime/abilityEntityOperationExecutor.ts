@@ -1,6 +1,7 @@
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type {
   CompiledAbilityEntityChildSkillProgram,
+  ResolvedAbilityEntityDefinition,
   ResolvedCombatOperationStep,
 } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
@@ -22,6 +23,9 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     readonly resolveOperations: () => CombatOperationExecutor;
     readonly semanticEvents?: CombatSemanticEventRuntime;
   };
+  readonly #resolveDefinition?: (
+    abilityEntityId: string,
+  ) => ResolvedAbilityEntityDefinition | undefined;
 
   constructor(
     operatorId: string,
@@ -31,11 +35,13 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       readonly resolveOperations: () => CombatOperationExecutor;
       readonly semanticEvents?: CombatSemanticEventRuntime;
     },
+    resolveDefinition?: (abilityEntityId: string) => ResolvedAbilityEntityDefinition | undefined,
   ) {
     this.#operatorId = operatorId;
     this.#entities = entities;
     this.#delegate = delegate;
     this.#childRuntimeDependencies = childRuntimeDependencies;
+    this.#resolveDefinition = resolveDefinition;
   }
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
@@ -124,6 +130,11 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       throw new Error('spawnAbilityEntity requires a combat operation context');
     }
     const parameters = step.parameters;
+    const definition =
+      parameters.definition ?? this.#resolveDefinition?.(parameters.abilityEntityId);
+    if (definition === undefined) {
+      throw new Error(`AbilityEntity definition '${parameters.abilityEntityId}' does not exist`);
+    }
     const explicitAssignments = Object.fromEntries(
       Object.entries(parameters.blackboardAssignments ?? {}).map(([key, operand]) => [
         key,
@@ -135,10 +146,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       ...explicitAssignments,
     };
     const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
-    if (
-      parameters.definition.childSkill !== undefined &&
-      this.#childRuntimeDependencies === undefined
-    ) {
+    if (definition.childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
       throw new Error('spawnAbilityEntity child skill runtime is not configured');
     }
     const target =
@@ -149,7 +157,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           : source;
     const entity = this.#entities.spawn({
       abilityEntityId: parameters.abilityEntityId,
-      definition: parameters.definition,
+      definition,
       ownerId: this.#operatorId,
       source,
       ...(context.skillCastInfo === undefined
@@ -166,16 +174,11 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           }),
       dieWhenSourceDies: parameters.dieWhenSourceDies,
       ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-      ...(parameters.definition.childSkill === undefined
+      ...(definition.childSkill === undefined
         ? {}
         : {
             createChildRuntime: (entity, entityBlackboard) =>
-              this.#createChildRuntime(
-                parameters.definition.childSkill!,
-                entity,
-                entityBlackboard,
-                context,
-              ),
+              this.#createChildRuntime(definition.childSkill!, entity, entityBlackboard, context),
           }),
     });
     if (parameters.saveToContextKey !== undefined) {
@@ -228,7 +231,10 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     if (this.#childRuntimeDependencies === undefined) {
       throw new Error('AbilityEntity child skill runtime is not configured');
     }
-    return new AbilityEntityChildSkillRuntime(program, {
+    // 蓝图由同一技能程序共享；每个实体实例必须获得独立步骤对象，否则按步骤身份保存的
+    // finishByAction、时间动作等运行态会在递归生成同一实体时彼此冲突。
+    const instanceProgram = structuredClone(program);
+    return new AbilityEntityChildSkillRuntime(instanceProgram, {
       entity,
       entityBlackboard,
       operations: this.#childRuntimeDependencies.resolveOperations(),

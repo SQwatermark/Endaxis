@@ -56,6 +56,7 @@ type IssueCollector = (issue: StandardPlayerDamageCompatibilityIssue) => void;
 
 interface CompatibilityFlags {
   readonly elementalInfliction: boolean;
+  readonly operatorVitals: boolean;
 }
 
 function report(
@@ -67,7 +68,12 @@ function report(
   collect(Object.freeze({ code, path, detail }));
 }
 
-function inspectCondition(condition: CombatCondition, path: string, collect: IssueCollector): void {
+function inspectCondition(
+  condition: CombatCondition,
+  path: string,
+  collect: IssueCollector,
+  flags: CompatibilityFlags,
+): void {
   switch (condition.kind) {
     case 'combatActive':
     case 'singleEnemyPresent':
@@ -82,28 +88,30 @@ function inspectCondition(condition: CombatCondition, path: string, collect: Iss
     case 'eventSourceMatchesBuffSource':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
+    case 'eventSkillTypeIn':
+    case 'eventSkillIdIn':
     case 'eventBuffIdMatch':
     case 'buffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':
       return;
     case 'healthCompare':
-      if (condition.target !== 'enemy') {
+      if (condition.target !== 'enemy' && !flags.operatorVitals) {
         report(
           collect,
           'unsupported-condition',
           path,
-          "healthCompare for 'caster' requires operator vitals",
+          `healthCompare for '${condition.target}' requires operator vitals`,
         );
       }
       return;
     case 'not':
-      inspectCondition(condition.condition, `${path}.condition`, collect);
+      inspectCondition(condition.condition, `${path}.condition`, collect, flags);
       return;
     case 'all':
     case 'any':
       condition.conditions.forEach((child, index) =>
-        inspectCondition(child, `${path}.conditions[${index}]`, collect),
+        inspectCondition(child, `${path}.conditions[${index}]`, collect, flags),
       );
       return;
     default:
@@ -176,6 +184,19 @@ function inspectSequence(
           );
         }
         return;
+      case 'heal':
+        if (
+          !flags.operatorVitals ||
+          (step.parameters.target !== 'caster' && step.parameters.target !== 'buffSource')
+        ) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            `heal target '${step.parameters.target}' requires an operator vitals selection path`,
+          );
+        }
+        return;
       case 'applyElementalInfliction':
         if (source === 'equipment') {
           report(
@@ -214,6 +235,7 @@ function inspectSequence(
       case 'finishBuffsByTag':
       case 'finishBuffsById':
       case 'finishCurrentBuff':
+      case 'setCurrentBuffTimePaused':
       case 'igniteBuffs':
       case 'holdBuffsById':
         return;
@@ -228,13 +250,21 @@ function inspectSequence(
       case 'gainFinisherSp':
       case 'openComboWindow':
       case 'changeSkillSlot':
+      case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
         return;
       case 'jumpTimeline':
         if (step.parameters.condition !== undefined) {
-          inspectCondition(step.parameters.condition, `${stepPath}.parameters.condition`, collect);
+          inspectCondition(
+            step.parameters.condition,
+            `${stepPath}.parameters.condition`,
+            collect,
+            flags,
+          );
         }
+        return;
+      case 'finishTimeline':
         return;
       case 'changeResource':
       case 'changeResourceByActionValue': {
@@ -253,7 +283,12 @@ function inspectSequence(
         return;
       }
       case 'conditional':
-        inspectCondition(step.parameters.condition, `${stepPath}.parameters.condition`, collect);
+        inspectCondition(
+          step.parameters.condition,
+          `${stepPath}.parameters.condition`,
+          collect,
+          flags,
+        );
         inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect, flags, source);
         if (step.whenFalse !== undefined) {
           inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect, flags, source);
@@ -358,24 +393,42 @@ export function inspectStandardPlayerDamageCompatibility(
   const collect: IssueCollector = issue => issues.push(issue);
   const flags: CompatibilityFlags = {
     elementalInfliction: input.supportsElementalInfliction ?? false,
+    operatorVitals: false,
   };
   const scheduledFrames = indexScheduledFrames(input.inputs ?? [], input.endFrame);
 
   input.operators.forEach((operator, operatorIndex) => {
     const operatorPath = `operators[${operatorIndex}]('${operator.operatorId}')`;
     const operatorScheduledFrames = scheduledFrames.get(operator.operatorId);
+    const operatorFlags: CompatibilityFlags = {
+      ...flags,
+      operatorVitals: operator.panel !== undefined,
+    };
     operator.skills.forEach(program => {
       const skillScheduledFrames = operatorScheduledFrames?.get(program.skillId);
       if (skillScheduledFrames === undefined) return;
-      inspectProgram(program, skillScheduledFrames, input.endFrame, operatorPath, collect, flags);
+      inspectProgram(
+        program,
+        skillScheduledFrames,
+        input.endFrame,
+        operatorPath,
+        collect,
+        operatorFlags,
+      );
     });
     operator.equipmentContributions?.forEach((contribution, contributionIndex) => {
       contribution.eventHandlers.forEach((handler, handlerIndex) => {
         const handlerPath = `${operatorPath}.equipmentContributions[${contributionIndex}].eventHandlers[${handlerIndex}]`;
         if (handler.condition !== undefined) {
-          inspectCondition(handler.condition, `${handlerPath}.condition`, collect);
+          inspectCondition(handler.condition, `${handlerPath}.condition`, collect, operatorFlags);
         }
-        inspectSequence(handler.sequence, `${handlerPath}.sequence`, collect, flags, 'equipment');
+        inspectSequence(
+          handler.sequence,
+          `${handlerPath}.sequence`,
+          collect,
+          operatorFlags,
+          'equipment',
+        );
       });
     });
   });

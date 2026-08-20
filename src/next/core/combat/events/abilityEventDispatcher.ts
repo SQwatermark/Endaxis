@@ -28,6 +28,7 @@ export interface AbilityEventRegistration {
 
 interface RegisteredAction<Event, Payload> {
   readonly priority: number;
+  readonly samePriorityKey?: string;
   readonly execute: AbilityEventHandler<Event, Payload>;
 }
 
@@ -56,22 +57,36 @@ export class AbilityEventDispatcher<Event, Payload = unknown> {
     event: Event,
     priority: number,
     execute: AbilityEventHandler<Event, Payload>,
+    samePriorityKey?: string,
   ): AbilityEventRegistration {
     if (!Number.isInteger(priority)) {
       throw new TypeError('ability event action priority must be an integer');
     }
     const actions = this.#actions.get(event);
     if (actions === undefined) {
-      const action = { priority, execute };
+      const action = {
+        priority,
+        execute,
+        ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
+      };
       this.#actions.set(event, [action]);
       return this.#createRegistration(this.#actions, event, action);
     }
-    if (actions.some(action => action.priority === priority)) {
+    const samePriority = actions.filter(action => action.priority === priority);
+    if (
+      samePriority.length > 0 &&
+      (samePriorityKey === undefined ||
+        samePriority.some(action => action.samePriorityKey !== samePriorityKey))
+    ) {
       throw new Error(
         `ability event '${String(event)}' has multiple actions at unresolved priority ${priority}`,
       );
     }
-    const action = { priority, execute };
+    const action = {
+      priority,
+      execute,
+      ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
+    };
     actions.push(action);
     actions.sort((left, right) => right.priority - left.priority);
     return this.#createRegistration(this.#actions, event, action);

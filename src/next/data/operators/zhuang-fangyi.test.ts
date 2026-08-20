@@ -21,7 +21,10 @@ function collectGeneratedDamageSchedule(skill: typeof generatedBasicAttack2) {
       .filter(step => step.kind === 'dealDamage')
       .map(step => ({ startFrame: item.startFrame, step }));
     const childDamage = collectSteps(item.sequence).flatMap(step => {
-      if (step.kind !== 'spawnAbilityEntity' || step.parameters.definition.childSkill === undefined)
+      if (
+        step.kind !== 'spawnAbilityEntity' ||
+        step.parameters.definition?.childSkill === undefined
+      )
         return [];
       return step.parameters.definition.childSkill.scheduledSequences.flatMap(childItem =>
         collectSteps(childItem.sequence)
@@ -114,7 +117,7 @@ describe('next Zhuang Fangyi definition', () => {
     const spawn = generatedRootSteps.find(step => step.kind === 'spawnAbilityEntity');
     if (
       spawn?.kind !== 'spawnAbilityEntity' ||
-      spawn.parameters.definition.childSkill === undefined
+      spawn.parameters.definition?.childSkill === undefined
     ) {
       throw new Error('missing generated AbilityEntity child timeline');
     }

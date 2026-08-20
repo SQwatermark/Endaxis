@@ -6,6 +6,7 @@ import { branch, percentage, percentages, scheduled, sequence, step, withSkillBl
 export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0015_lifeng_attack1',
     timelineBlockFrames: 24,
     scheduledSequences: [
       scheduled(
@@ -66,6 +67,7 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0015_lifeng_attack2',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -101,6 +103,7 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0015_lifeng_attack3',
     timelineBlockFrames: 14,
     scheduledSequences: [
       scheduled(
@@ -137,6 +140,7 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0015_lifeng_attack5',
     timelineBlockFrames: 35,
     scheduledSequences: [
       scheduled(
@@ -197,6 +201,7 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const lifengFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0015_lifeng_power_attack',
     timelineBlockFrames: 33,
     scheduledSequences: [
       scheduled(
@@ -204,36 +209,24 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        33,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        68,
       ),
       scheduled(
         6,
@@ -269,6 +262,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
 export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0015_lifeng_plunging_attack_end',
     timelineBlockFrames: 26,
     scheduledSequences: [
       scheduled(
@@ -304,6 +298,7 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0015_lifeng_normal_skill',
     timelineBlockFrames: 67,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -345,33 +340,6 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0015_lifeng_purify',
-                definition: {
-                  stackingType: 'stack',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 12,
-                    'rate': 0,
-                  },
-                  damageModifiers: [
-                    {
-                      enabledSide: 'defender',
-                      condition: {
-                        kind: 'eventDamageTypesMatch',
-                        damageTypes: ['physical'],
-                      },
-                      processors: [
-                        {
-                          kind: 'damageScale',
-                          side: 'defender',
-                          zone: 'vulnerable',
-                          addition: { blackboardKey: 'rate' },
-                        },
-                      ],
-                    },
-                  ],
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
@@ -411,6 +379,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
 export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0015_lifeng_combo_skill',
     timelineBlockFrames: 50,
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
     scheduledSequences: [
@@ -466,12 +435,6 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0015_lifeng_combo_skill_tutorial_marker',
-            definition: {
-              stackingType: 'unique',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 1,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -504,6 +467,7 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
 export const lifengUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0015_lifeng_ultimate_skill',
     timelineBlockFrames: 66,
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
@@ -560,96 +524,7 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
-            definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
-              skillId: 'chr_0015_lifeng_ultimate_skill_abentity',
-              blackboard: {
-                'atk_scale1': 1,
-                'atk_scale2': 1.5,
-                'atk_scale3': 0,
-                'isCombo': 0,
-                'poise': 0,
-                'poise2': 0,
-                'poise3': 0,
-              },
-              scheduledSequences: [
-                scheduled(
-                  6,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
-                      tags: ['ultimateSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 5,
-                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:01:5'),
-                  ),
-                ),
-                scheduled(
-                  66,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
-                      tags: ['ultimateSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 5,
-                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:10'),
-                  ),
-                ),
-                scheduled(
-                  67,
-                  sequence(
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'isCombo' },
-                        operator: 'equal',
-                        right: { kind: 'constant', value: 0 },
-                      },
-                      sequence(
-                        step('jumpTimeline', {
-                          destinationFrame: 150,
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-                scheduled(
-                  67,
-                  sequence(
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'isCombo' },
-                        operator: 'equal',
-                        right: { kind: 'constant', value: 0 },
-                      },
-                      sequence(),
-                      sequence(
-                        step('modifyActionValue', {
-                          key: 'EntityBB_isCombo',
-                          operation: 'assign',
-                          value: { kind: 'constant', value: 0 },
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-                scheduled(
-                  121,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: percentages([267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600]),
-                      tags: ['ultimateSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 5,
-                    }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:14'),
-                  ),
-                ),
-              ],
-            } },
-            dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),
@@ -692,6 +567,155 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: lifengUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: lifengComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0015_lifeng_purify': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 12,
+        'rate': 0,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['physical'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'vulnerable',
+              addition: { blackboardKey: 'rate' },
+            },
+          ],
+        },
+      ],
+    },
+    'buff_chr_0015_lifeng_combo_skill_tutorial_marker': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0015_lifeng_talent_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 1,
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atk_up': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'AtkIncreaseFactorFromWisd',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'atk_up' },
+        },
+        {
+          attribute: 'AtkIncreaseFactorFromWill',
+          slot: 'addition',
+          value: { blackboardKey: 'atk_up' },
+        },
+      ],
+    },
+  },
+  abilityEntityDefinitions: {
+    'abilityentity_chr_0015_lifeng_ultimate_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
+        skillId: 'chr_0015_lifeng_ultimate_skill_abentity',
+        blackboard: {
+          'atk_scale1': 1,
+          'atk_scale2': 1.5,
+          'atk_scale3': 0,
+          'isCombo': 0,
+          'poise': 0,
+          'poise2': 0,
+          'poise3': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            6,
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 5,
+              }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:01:5'),
+            ),
+          ),
+          scheduled(
+            66,
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 5,
+              }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:10'),
+            ),
+          ),
+          scheduled(
+            67,
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'isCombo' },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  step('jumpTimeline', {
+                    destinationFrame: 150,
+                  }),
+                ),
+              ),
+            ),
+          ),
+          scheduled(
+            67,
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'isCombo' },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(),
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'EntityBB_isCombo',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 0 },
+                  }),
+                ),
+              ),
+            ),
+          ),
+          scheduled(
+            121,
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: percentages([267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600]),
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 5,
+              }, '8:ultimate13:abilityEntity30:chr_0015_lifeng_ultimate_skill39:chr_0015_lifeng_ultimate_skill_abentity11:actionOrder2:371:02:14'),
+            ),
+          ),
+        ],
+    } },
+  },
   talents: [
     {
       key: 'talent1',
@@ -706,29 +730,6 @@ export const lifengGeneratedOperator: OperatorDefinition = {
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0015_lifeng_talent_1',
-              definition: {
-                stackingType: 'unique',
-                priority: 0,
-                maxStackCount: 1,
-                triggerIntervalSeconds: 1,
-                waitFirstTriggerInterval: false,
-                maxTriggerCount: -1,
-                blackboard: {
-                  'atk_up': 0,
-                },
-                attributeModifiers: [
-                  {
-                    attribute: 'AtkIncreaseFactorFromWisd',
-                    slot: 'baseAddition',
-                    value: { blackboardKey: 'atk_up' },
-                  },
-                  {
-                    attribute: 'AtkIncreaseFactorFromWill',
-                    slot: 'addition',
-                    value: { blackboardKey: 'atk_up' },
-                  },
-                ],
-              },
               target: 'caster',
               inheritSourceSkillCastInfo: false,
               blackboardAssignments: {

@@ -1088,7 +1088,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -1520,7 +1523,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -2072,7 +2078,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -2743,7 +2752,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -3414,7 +3426,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -3732,7 +3747,8 @@ export const fluoriteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -3753,7 +3769,8 @@ export const fluoriteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -3874,7 +3891,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -4415,7 +4435,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -4607,7 +4630,8 @@ export const fluoriteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -4671,7 +4695,8 @@ export const fluoriteGeneratedSource = {
                 "SpellInfliction"
               ],
               "buffSourceContextKey": null,
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": null
             }
           ],
           "resourceGains": [],
@@ -4945,6 +4970,11 @@ export const fluoriteGeneratedSource = {
                       "deckAttributeCompare": null
                     }
                   ],
+                  "directConditionNegated": [
+                    false
+                  ],
+                  "directAnyConditions": [],
+                  "directAnyConditionNegated": [],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
                   "isOnlyBranchAction": true,
@@ -4996,6 +5026,11 @@ export const fluoriteGeneratedSource = {
                       "deckAttributeCompare": null
                     }
                   ],
+                  "directConditionNegated": [
+                    false
+                  ],
+                  "directAnyConditions": [],
+                  "directAnyConditionNegated": [],
                   "directConditionsSupported": true,
                   "isOnlySequenceAction": true,
                   "isOnlyBranchAction": true,
@@ -6032,7 +6067,10 @@ export const fluoriteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -7816,7 +7854,10 @@ export const fluoriteGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -8117,7 +8158,8 @@ export const fluoriteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -8337,7 +8379,8 @@ export const fluoriteGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -8512,7 +8555,8 @@ export const fluoriteGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -8687,7 +8731,8 @@ export const fluoriteGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -9019,7 +9064,8 @@ export const fluoriteGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -9375,7 +9421,10 @@ export const fluoriteGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

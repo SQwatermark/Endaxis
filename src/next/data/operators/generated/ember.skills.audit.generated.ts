@@ -6,6 +6,7 @@ import { branch, once, percentages, scheduled, sequence, step, withSkillBlackboa
 export const emberComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0009_azrila_combo_skill',
     timelineBlockFrames: 39,
     cooldownFrames: [570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 540],
     scheduledSequences: [
@@ -107,6 +108,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
           }, '10:comboSkill6:direct27:chr_0009_azrila_combo_skill11:actionOrder2:28'),
           step('heal', {
             target: 'controlledOperator',
+            alwaysNext: true,
             attribute: 'will',
             multiplier: { kind: 'blackboard', key: 'will_additive' },
             addition: { kind: 'blackboard', key: 'heal_base' },
@@ -132,6 +134,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
               }),
               step('heal', {
                 target: 'lowestHealthRatioOperatorExceptControlled',
+                alwaysNext: true,
                 attribute: 'will',
                 multiplier: { kind: 'blackboard', key: 'will_additive' },
                 addition: { kind: 'blackboard', key: 'heal_base' },
@@ -167,6 +170,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
 export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0009_azrila_attack1',
     timelineBlockFrames: 24,
     scheduledSequences: [
       scheduled(
@@ -190,6 +194,7 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0009_azrila_attack2',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -213,6 +218,7 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0009_azrila_attack3',
     timelineBlockFrames: 35,
     scheduledSequences: [
       scheduled(
@@ -236,6 +242,7 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0009_azrila_attack4',
     timelineBlockFrames: 53,
     scheduledSequences: [
       scheduled(
@@ -278,6 +285,7 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const emberFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0009_azrila_power_attack',
     timelineBlockFrames: 28,
     scheduledSequences: [
       scheduled(
@@ -287,8 +295,10 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        50,
       ),
       scheduled(
         0,
@@ -297,8 +307,10 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_power_attack_disable_cast_skill',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        28,
       ),
       scheduled(
         9,
@@ -334,6 +346,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
 export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0009_azrila_plunging_attack_end',
     timelineBlockFrames: 12,
     scheduledSequences: [
       scheduled(
@@ -369,6 +382,7 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0009_azrila_normal_skill',
     timelineBlockFrames: 51,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -542,6 +556,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
 export const emberUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0009_azrila_ultimate_skill',
     timelineBlockFrames: 59,
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -569,8 +584,10 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_ult_skill',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        90,
       ),
       scheduled(
         0,

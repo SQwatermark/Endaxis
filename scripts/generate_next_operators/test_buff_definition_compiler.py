@@ -108,6 +108,17 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
 
         self.assertIn("maxStackCount: { blackboardKey: 'max_stack' }", compiled)
 
+    def test_compiles_dynamic_max_trigger_count_from_buff_blackboard(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {
+            "triggerInterval": scalar(0, "interval"),
+            "maxTriggerCount": scalar(0, "trigger_times"),
+        }
+        source = definition(lifecycle=SimpleNamespace(**lifecycle))
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("maxTriggerCount: { blackboardKey: 'trigger_times' }", compiled)
+
     def test_compiles_a_complete_simple_definition_without_id(self) -> None:
         result = compile_inline_buff_definition(definition(), "fixture")
 
@@ -155,6 +166,29 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
 
         self.assertIn("attribute: 'electricDamageIncrease'", result)
         self.assertIn("source: 'converted'", result)
+
+    def test_maps_native_critical_modifiers_to_runtime_snapshot_attributes(self) -> None:
+        source = definition(
+            attributeModifiers=(
+                SimpleNamespace(
+                    targetType="Specific",
+                    attributeType="CriticalRate",
+                    slot="Addition",
+                    value=scalar(0.25),
+                ),
+                SimpleNamespace(
+                    targetType="Specific",
+                    attributeType="CriticalDamageIncrease",
+                    slot="Addition",
+                    value=scalar(0.5),
+                ),
+            ),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("attribute: 'criticalRate'", result)
+        self.assertIn("attribute: 'criticalDamageIncrease'", result)
 
     def test_rejects_lifecycle_behavior_that_would_be_lost(self) -> None:
         source = definition(eventActions=(SimpleNamespace(event="OnBuffStart"),))

@@ -32,6 +32,7 @@ export type RegisterBuffAbilityEventAction = (
   event: ResolvedSkillBuffAbilityEventResponse['event'],
   priority: number,
   handle: (payload: unknown) => void,
+  samePriorityKey?: string,
 ) => AbilityEventRegistration;
 
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
@@ -115,6 +116,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
       finishCurrentBuff: reason => buff.finish(reason),
+      setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
     runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);
     runtimes.set(buff, runtime);
@@ -184,17 +186,24 @@ export function attachBuffLifecycleSequences<Key extends string>(
       }
       for (const group of responseGroups.values()) {
         registrations.push(
-          registerAbilityEventAction(group.event, group.priority, payload => {
-            const runtime = runtimeFor(buff);
-            for (const response of group.responses) {
-              runtime
-                .createSequence(response.sequence, {
-                  ...runtime.context,
-                  event: normalizeBuffAbilityEvent(response.event, payload),
-                })
-                .executeInstant({});
-            }
-          }),
+          registerAbilityEventAction(
+            group.event,
+            group.priority,
+            payload => {
+              const runtime = runtimeFor(buff);
+              for (const response of group.responses) {
+                runtime
+                  .createSequence(response.sequence, {
+                    ...runtime.context,
+                    event: normalizeBuffAbilityEvent(response.event, payload),
+                  })
+                  .executeInstant({});
+              }
+            },
+            group.responses.every(response => isCommutativeCurrentBuffTimeResponse(response))
+              ? 'current-buff-time-pause'
+              : undefined,
+          ),
         );
       }
     } catch (error) {
@@ -282,6 +291,41 @@ export function attachBuffLifecycleSequences<Key extends string>(
   return { ...definition, actions };
 }
 
+function isCommutativeCurrentBuffTimeResponse(
+  response: ResolvedSkillBuffAbilityEventResponse,
+): boolean {
+  let found = false;
+  const conditionKinds = (
+    condition: import('../../game-data/operatorDefinition').CombatCondition,
+  ): Set<string> => {
+    if (condition.kind === 'all' || condition.kind === 'any') {
+      return new Set(condition.conditions.flatMap(item => [...conditionKinds(item)]));
+    }
+    if (condition.kind === 'not') return conditionKinds(condition.condition);
+    return new Set([condition.kind]);
+  };
+  const visit = (current: ResolvedActionSequence, guards: ReadonlySet<string>): boolean =>
+    current.steps.every(step => {
+      if (step.kind === 'setCurrentBuffTimePaused') {
+        found = true;
+        return response.event === 'beforeCastSkill'
+          ? guards.has('eventSkillIdIn')
+          : response.event === 'finishedBuff' && guards.has('eventBuffIdMatch');
+      }
+      if (step.kind === 'modifyActionValue') {
+        found = true;
+        return response.event === 'beforeCastSkill' && guards.has('eventSkillTypeIn');
+      }
+      if (step.kind !== 'conditional') return false;
+      const nestedGuards = new Set([...guards, ...conditionKinds(step.parameters.condition)]);
+      return (
+        visit(step.whenTrue, nestedGuards) &&
+        (step.whenFalse === undefined || visit(step.whenFalse, nestedGuards))
+      );
+    });
+  return visit(response.sequence, new Set()) && found;
+}
+
 function normalizeBuffAbilityEvent(
   event: ResolvedSkillBuffAbilityEventResponse['event'],
   payload: unknown,
@@ -309,6 +353,17 @@ function normalizeBuffAbilityEvent(
       buffTagIds: source.buffTagIds as number[],
     };
   }
+  if (event === 'finishedBuff') {
+    if (typeof source.buffId !== 'string') {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid Buff identity`);
+    }
+    return {
+      kind: 'buffFinished',
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      buffId: source.buffId,
+    };
+  }
   if (event === 'beforeCastSkill') {
     if (
       source.skillType !== 'basicAttack' &&
@@ -326,6 +381,14 @@ function normalizeBuffAbilityEvent(
       sourceId: source.sourceId,
       targetId: source.targetId,
       skillType: source.skillType,
+      skillId:
+        typeof source.skillId === 'string'
+          ? source.skillId
+          : (() => {
+              throw new TypeError(
+                `Buff ability event '${event}' payload has invalid skill identity`,
+              );
+            })(),
     };
   }
   if (

@@ -9,6 +9,7 @@ import type {
   CompiledOperatorUpgradeEventProgram,
   CompiledSkillSlotGroup,
   CompiledSkillProgram,
+  ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
@@ -87,6 +88,8 @@ export type OperatorBuffRuntime = FrameRuntime &
 export interface CombatOperatorProgram {
   readonly operatorId: string;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
+  readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
   /** 稳定技能组的基础形态与不可直接放置的运行时替换形态。 */
   readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
   /** 构筑启用的养成初始化行为；在 Buff 生命周期装配后执行一次。 */
@@ -214,6 +217,7 @@ export interface CombatRuntimeAssemblyOptions {
       { kind: 'healthCompare' }
     >['target'],
     operatorId: string,
+    buffSourceId?: string,
   ) => CombatVitals;
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
@@ -230,6 +234,7 @@ export interface CombatRuntimeAssemblyOptions {
       readonly sourceId: string;
       readonly targetId: string;
       readonly skillType: SkillType;
+      readonly skillId: string;
     },
   ) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
@@ -728,6 +733,7 @@ export class CombatRuntimeAssembly {
         sourceId: operatorId,
         targetId: operatorId,
         skillType: program.skillType,
+        skillId: program.sourceSkillId ?? program.skillId,
       });
     }
   }
@@ -1027,6 +1033,7 @@ export class CombatRuntimeAssembly {
         },
         semanticEvents: this.semanticEvents,
       },
+      abilityEntityId => program.abilityEntityDefinitions?.[abilityEntityId],
     );
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       abilityEntityOperations,
@@ -1044,6 +1051,7 @@ export class CombatRuntimeAssembly {
           : [this.#resolveBuffTarget(target, operatorId)],
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
+      resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -1073,11 +1081,11 @@ export class CombatRuntimeAssembly {
     });
     const rankConditions = new EnemyRankConditionExecutor(enemy.rank, timedMarkerOperations);
     const vitalsConditions = new CombatVitalsConditionExecutor({
-      resolveTarget: target => {
+      resolveTarget: (target, buffSourceId) => {
         if (resolveVitals === undefined) {
           throw new Error(`skill '${program.skillId}' requires a combat vitals resolver`);
         }
-        return resolveVitals(target, operatorId);
+        return resolveVitals(target, operatorId, buffSourceId);
       },
       delegate: rankConditions,
     });
@@ -1178,6 +1186,7 @@ export class CombatRuntimeAssembly {
           : [this.#resolveBuffTarget(target, operatorId)],
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, options),
+      resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);
@@ -1206,11 +1215,11 @@ export class CombatRuntimeAssembly {
     });
     const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, markerOperations);
     const vitalsConditions = new CombatVitalsConditionExecutor({
-      resolveTarget: target => {
+      resolveTarget: (target, buffSourceId) => {
         if (options.resolveVitals === undefined) {
           throw new Error(`reactive event '${sourceActionId}' requires a vitals resolver`);
         }
-        return options.resolveVitals(target, operatorId);
+        return options.resolveVitals(target, operatorId, buffSourceId);
       },
       delegate: rankConditions,
     });

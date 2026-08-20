@@ -195,7 +195,11 @@ def compile_direct_damage(
         for lines in [step_source.splitlines()]
         for index, line in enumerate(lines)
     ]
-    fields = [f"key: {ts_inline_literal(skill.key)},", f"timelineBlockFrames: {skill.timelineBlockFrames},"]
+    fields = [
+        f"key: {ts_inline_literal(skill.key)},",
+        f"sourceSkillId: {ts_inline_literal(skill.skillId)},",
+        f"timelineBlockFrames: {skill.timelineBlockFrames},",
+    ]
     availability = config.get("availability")
     if availability == "targetStaggered":
         fields.append("availability: { kind: 'targetStaggered', target: 'enemy' },")
@@ -388,6 +392,7 @@ def compile_projectile_damage(
         [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
+            f"    sourceSkillId: {ts_inline_literal(skill.skillId)},",
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
             *resource_fields,
             "    scheduledSequences: [",

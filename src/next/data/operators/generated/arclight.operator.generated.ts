@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0007_ikut_attack1',
     timelineBlockFrames: 9,
     scheduledSequences: [
       scheduled(
@@ -41,6 +42,7 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0007_ikut_attack2',
     timelineBlockFrames: 10,
     scheduledSequences: [
       scheduled(
@@ -76,6 +78,7 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0007_ikut_attack3',
     timelineBlockFrames: 20,
     scheduledSequences: [
       scheduled(
@@ -136,6 +139,7 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0007_ikut_attack4',
     timelineBlockFrames: 27,
     scheduledSequences: [
       scheduled(
@@ -216,6 +220,7 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0007_ikut_attack5',
     timelineBlockFrames: 27,
     scheduledSequences: [
       scheduled(
@@ -253,6 +258,7 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const arclightFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0007_ikut_power_attack',
     timelineBlockFrames: 40,
     scheduledSequences: [
       scheduled(
@@ -260,36 +266,24 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        68,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        40,
       ),
       scheduled(
         15,
@@ -337,6 +331,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
 export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0007_ikut_plunging_attack_end',
     timelineBlockFrames: 26,
     scheduledSequences: [
       scheduled(
@@ -372,6 +367,7 @@ export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0007_ikut_normal_skill',
     timelineBlockFrames: 36,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -397,6 +393,21 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        4,
+        sequence(
+          step('jumpTimeline', {
+            destinationFrame: 96,
+            condition: {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'SpawnThird' },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+          }),
+        ),
+        5,
+      ),
+      scheduled(
         19,
         sequence(
           step('dealDamage', {
@@ -419,6 +430,15 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
           }, '11:battleSkill6:direct26:chr_0007_ikut_normal_skill11:actionOrder2:13'),
           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
+      ),
+      scheduled(
+        95,
+        sequence(
+          step('jumpTimeline', {
+            destinationFrame: 204,
+          }),
+        ),
+        95,
       ),
       scheduled(
         112,
@@ -467,59 +487,6 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_chr_0007_ikut_normal_skill_extra_count',
-                        definition: {
-                          stackingType: 'enhance',
-                          priority: 0,
-                          maxStackCount: 3,
-                          blackboard: {
-                            'count': 0,
-                            'duration': 0,
-                            'final_pulse_up': 0,
-                            'pulse_up': 0,
-                          },
-                          lifecycleSequences: {
-                            enhanceChanged: sequence(
-                              step('calculateActionValue', {
-                                key: 'final_pulse_up',
-                                operation: 'multiply',
-                                left: { kind: 'blackboard', key: 'intellect' },
-                                right: { kind: 'blackboard', key: 'pulse_up' },
-                              }),
-                              step('applyBuff', {
-                                buffId: 'buff_chr_0007_ikut_atk_buff_talent',
-                                definition: {
-                                  stackingType: 'stack',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: { blackboardKey: 'duration' },
-                                  blackboard: {
-                                    'duration': 0,
-                                    'pulse_up': 0,
-                                  },
-                                  attributeModifiers: [
-                                    {
-                                      attribute: 'electricDamageIncrease',
-                                      slot: 'baseAddition',
-                                      value: { blackboardKey: 'pulse_up' },
-                                      source: 'converted',
-                                    },
-                                  ],
-                                },
-                                target: 'party',
-                                inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  'pulse_up': { kind: 'blackboard', key: 'final_pulse_up' },
-                                  'duration': { kind: 'blackboard', key: 'duration' },
-                                },
-                              }),
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
-                                reason: 'other',
-                              }),
-                            ),
-                          },
-                        },
                         target: 'caster',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
@@ -613,6 +580,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
 export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0007_ikut_combo_skill',
     timelineBlockFrames: 27,
     cooldownFrames: 90,
     scheduledSequences: [
@@ -683,12 +651,6 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0007_ikut_combo_skill_tutorial_marker',
-            definition: {
-              stackingType: 'unique',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 1,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -714,6 +676,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
 export const arclightUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0007_ikut_ultimate_skill',
     timelineBlockFrames: 77,
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
@@ -750,45 +713,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0007_ikut_ultimate_skill',
-            definition: { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
-              skillId: 'chr_0007_ikut_ultimate_skill_abentity',
-              blackboard: {
-                'atk_scale1': 0.2,
-                'atk_scale2': 0,
-                'count': 0,
-                'duration': 12,
-                'poise1': 0,
-                'poise2': 0,
-              },
-              scheduledSequences: [
-                scheduled(
-                  7,
-                  sequence(
-                    step('applyElementalInfliction', { element: 'electric', isExtra: false }),
-                    step('dealDamage', {
-                      damageType: 'electric',
-                      attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
-                      tags: ['ultimateSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
-                    }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:551:5'),
-                  ),
-                ),
-                scheduled(
-                  63,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'electric',
-                      attackScale: percentages([244, 269, 293, 318, 342, 367, 391, 415, 440, 470, 507, 550]),
-                      tags: ['ultimateSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
-                    }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:552:12'),
-                  ),
-                ),
-              ],
-            } },
-            dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),
@@ -829,6 +754,121 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: arclightUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: arclightComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0007_ikut_atk_buff_talent': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0,
+        'pulse_up': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'electricDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'pulse_up' },
+          source: 'converted',
+        },
+      ],
+    },
+    'buff_chr_0007_ikut_normal_skill_extra_count': {
+      stackingType: 'enhance',
+      priority: 0,
+      maxStackCount: 3,
+      blackboard: {
+        'count': 0,
+        'duration': 0,
+        'final_pulse_up': 0,
+        'pulse_up': 0,
+      },
+      lifecycleSequences: {
+        enhanceChanged: sequence(
+          step('calculateActionValue', {
+            key: 'final_pulse_up',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'intellect' },
+            right: { kind: 'blackboard', key: 'pulse_up' },
+          }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0007_ikut_atk_buff_talent',
+            target: 'party',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'pulse_up': { kind: 'blackboard', key: 'final_pulse_up' },
+              'duration': { kind: 'blackboard', key: 'duration' },
+            },
+          }),
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+            reason: 'other',
+          }),
+        ),
+      },
+    },
+    'buff_chr_0007_ikut_combo_skill_tutorial_marker': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0007_ikut_finish_count_p5': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      lifecycleSequences: {
+        start: sequence(
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
+            reason: 'other',
+          }),
+        ),
+      },
+    },
+  },
+  abilityEntityDefinitions: {
+    'abilityentity_chr_0007_ikut_ultimate_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
+        skillId: 'chr_0007_ikut_ultimate_skill_abentity',
+        blackboard: {
+          'atk_scale1': 0.2,
+          'atk_scale2': 0,
+          'count': 0,
+          'duration': 12,
+          'poise1': 0,
+          'poise2': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            7,
+            sequence(
+              step('applyElementalInfliction', { element: 'electric', isExtra: false }),
+              step('dealDamage', {
+                damageType: 'electric',
+                attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
+              }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:551:5'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              step('dealDamage', {
+                damageType: 'electric',
+                attackScale: percentages([244, 269, 293, 318, 342, 367, 391, 415, 440, 470, 507, 550]),
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
+              }, '8:ultimate13:abilityEntity28:chr_0007_ikut_ultimate_skill37:chr_0007_ikut_ultimate_skill_abentity11:actionOrder2:552:12'),
+            ),
+          ),
+        ],
+    } },
+  },
   talents: [
     {
       key: 'electricDamageBonus',
@@ -935,20 +975,6 @@ export const arclightGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0007_ikut_finish_count_p5',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            lifecycleSequences: {
-              start: sequence(
-                step('finishBuffsById', {
-                  target: 'caster',
-                  buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
-                  reason: 'other',
-                }),
-              ),
-            },
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
         }),

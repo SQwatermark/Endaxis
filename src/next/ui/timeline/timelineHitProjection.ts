@@ -6,6 +6,7 @@
  * 命中点来自调用方提供的 SkillDefinition（目录或自定义），投影层不再从存档快照读取。
  */
 import type {
+  OperatorAbilityEntityDefinitions,
   SkillDefinition,
   CombatStepDefinition,
 } from '../../core/game-data/operatorDefinition';
@@ -32,6 +33,19 @@ export interface TimelineHitMarkerView {
 }
 
 /**
+ * 尚无模拟结果时只展示定义中无条件的命中预览；一旦有模拟快照，命中事实必须来自
+ * `DamageApplied(castId, hitId)`。这样时间轴跳转或提前结束后不可达的根调度命中不会
+ * 再退回原生定义帧，伪装成一次延迟命中。
+ */
+export function shouldDisplayTimelineHitMarker(
+  marker: TimelineHitMarker,
+  hasSimulationRun: boolean,
+  actualFrames: ReadonlyMap<string, number>,
+): boolean {
+  return hasSimulationRun ? actualFrames.has(marker.hitId) : !marker.conditional;
+}
+
+/**
  * 命中可以由能力实体等延迟到主技能块结束之后，不能被技能块宽度截断。
  * 负偏移没有可展示的实际意义，仍收敛到技能起点。
  */
@@ -45,6 +59,7 @@ function collectDamageSteps(
   markers: TimelineHitMarker[],
   cast: SkillCastDocument,
   frameOffset: number,
+  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
 ): void {
   if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
     if (step.key === undefined || step.key.length === 0) {
@@ -63,40 +78,48 @@ function collectDamageSteps(
   if (step.kind === 'conditional') {
     // 条件分支里的步骤跑不跑取决于当时条件，一律标记为 conditional。
     for (const nested of step.whenTrue.steps)
-      collectDamageSteps(nested, true, markers, cast, frameOffset);
+      collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
     for (const nested of step.whenFalse?.steps ?? []) {
-      collectDamageSteps(nested, true, markers, cast, frameOffset);
+      collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
     }
     return;
   }
   if (step.kind === 'once') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset);
+      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
     return;
   }
   if (step.kind === 'repeatEachTick' || step.kind === 'forEachContextTarget') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset);
+      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
     return;
   }
   if (step.kind === 'listenForCombatEvents') {
     for (const response of step.parameters.responses) {
       for (const nested of response.sequence.steps) {
-        collectDamageSteps(nested, true, markers, cast, frameOffset);
+        collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
       }
     }
     return;
   }
   const childSkill =
     step.kind === 'spawnAbilityEntity'
-      ? step.parameters.definition.childSkill
+      ? (step.parameters.definition ?? abilityEntityDefinitions?.[step.parameters.abilityEntityId])
+          ?.childSkill
       : step.kind === 'startCurrentAbilityEntityChildSkill'
         ? step.parameters.childSkill
         : undefined;
   if (childSkill !== undefined) {
     for (const scheduled of childSkill.scheduledSequences) {
       for (const nested of scheduled.sequence.steps) {
-        collectDamageSteps(nested, conditional, markers, cast, frameOffset + scheduled.startFrame);
+        collectDamageSteps(
+          nested,
+          conditional,
+          markers,
+          cast,
+          frameOffset + scheduled.startFrame,
+          abilityEntityDefinitions,
+        );
       }
     }
   }
@@ -109,11 +132,19 @@ function collectDamageSteps(
 export function projectCastHitMarkers(
   cast: SkillCastDocument,
   definition: SkillDefinition,
+  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
 ): readonly TimelineHitMarker[] {
   const markers: TimelineHitMarker[] = [];
   for (const scheduled of definition.scheduledSequences) {
     for (const step of scheduled.sequence.steps) {
-      collectDamageSteps(step, false, markers, cast, scheduled.startFrame);
+      collectDamageSteps(
+        step,
+        false,
+        markers,
+        cast,
+        scheduled.startFrame,
+        abilityEntityDefinitions,
+      );
     }
   }
   return markers;
@@ -124,6 +155,11 @@ export function findCastHitMarker(
   cast: SkillCastDocument,
   stepKey: string,
   definition: SkillDefinition,
+  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
 ): TimelineHitMarker | null {
-  return projectCastHitMarkers(cast, definition).find(marker => marker.stepKey === stepKey) ?? null;
+  return (
+    projectCastHitMarkers(cast, definition, abilityEntityDefinitions).find(
+      marker => marker.stepKey === stepKey,
+    ) ?? null
+  );
 }

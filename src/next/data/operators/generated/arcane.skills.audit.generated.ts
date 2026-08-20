@@ -6,6 +6,7 @@ import { branch, forEachContextTarget, percentages, scheduled, sequence, step, w
 export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0032_lizhiyan_combo_skill',
     timelineBlockFrames: 16,
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
     scheduledSequences: [
@@ -181,8 +182,10 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck',
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        11,
       ),
       scheduled(
         0,
@@ -370,6 +373,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
 export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0032_lizhiyan_attack1',
     timelineBlockFrames: 10,
     scheduledSequences: [
       scheduled(
@@ -414,6 +418,7 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0032_lizhiyan_attack2',
     timelineBlockFrames: 14,
     scheduledSequences: [
       scheduled(
@@ -484,6 +489,7 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0032_lizhiyan_attack3',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -544,6 +550,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0032_lizhiyan_attack4',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -660,6 +667,7 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0032_lizhiyan_attack5',
     timelineBlockFrames: 40,
     scheduledSequences: [
       scheduled(
@@ -720,6 +728,7 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0032_lizhiyan_power_attack',
     timelineBlockFrames: 34,
     scheduledSequences: [
       scheduled(
@@ -729,8 +738,10 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        51,
       ),
       scheduled(
         0,
@@ -739,8 +750,10 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_power_attack_disable_cast_skill',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        37,
       ),
       scheduled(
         7,
@@ -835,6 +848,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
 export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0032_lizhiyan_plunging_attack_end',
     timelineBlockFrames: 13,
     scheduledSequences: [
       scheduled(
@@ -870,6 +884,7 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
 export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0032_lizhiyan_normal_skill',
     timelineBlockFrames: 24,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -995,6 +1010,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
 export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill',
     timelineBlockFrames: 48,
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -1022,8 +1038,10 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        44,
       ),
       scheduled(
         0,
@@ -1053,8 +1071,10 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_ult_skill',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        72,
       ),
       scheduled(
         41,
@@ -1374,6 +1394,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
 export const arcaneArcana: SkillDefinition = withSkillBlackboard(
   {
     key: 'arcana',
+    sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill2',
     timelineBlockFrames: 60,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -1538,8 +1559,10 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        50,
       ),
       scheduled(
         0,
@@ -1602,8 +1625,10 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_ult_skill',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        59,
       ),
       scheduled(
         0,
@@ -1671,8 +1696,10 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        75,
       ),
     ],
   },

@@ -2,7 +2,11 @@
  * 编译和解析阶段访问版本化游戏数据的只读端口。
  * 具体数据源由应用层注入；核心不得借此读取项目状态、UI 状态或可变运行时对象。
  */
-import type { OperatorDefinition } from './operatorDefinition';
+import type {
+  OperatorAbilityEntityDefinitions,
+  OperatorBuffDefinitions,
+  OperatorDefinition,
+} from './operatorDefinition';
 import type { GearDefinition, GearSetDefinition, WeaponDefinition } from './equipmentDefinition';
 import type { EnemyDefinition } from './enemyDefinition';
 
@@ -33,6 +37,10 @@ export interface MechanicDefinitionRef {
 export interface GameDataRepository {
   /** 当前整套游戏数据内容的版本标记；项目加载层凭它判断要不要迁移或拒绝打开。 */
   readonly revision: string;
+  /** 由版本化数据生成、编辑器只读的共享 Buff 蓝图。 */
+  getCommonBuffDefinitions?(): OperatorBuffDefinitions;
+  /** 由版本化数据生成、编辑器只读的共享能力实体蓝图。 */
+  getCommonAbilityEntityDefinitions?(): OperatorAbilityEntityDefinitions;
   getOperator(slug: string): OperatorDefinition | null;
   getWeapon(slug: string): WeaponDefinition | null;
   getGear(slug: string): GearDefinition | null;

@@ -98,6 +98,13 @@ def render_report(
                 "timelineBlockFrames": skill.timelineBlockFrames,
                 "blockBoundarySource": skill.blockBoundarySource,
                 "directDamageHits": [asdict(hit) for hit in skill.directDamageHits],
+                "timelineJumps": [asdict(jump) for jump in skill.timelineJumps],
+                "timelineJumpControlFlowActions": [
+                    asdict(action) for action in skill.timelineJumpControlFlowActions
+                ],
+                "timelineFinishes": [
+                    asdict(finish) for finish in skill.timelineFinishes
+                ],
                 **(
                     {
                         "intervalDamageHits": [

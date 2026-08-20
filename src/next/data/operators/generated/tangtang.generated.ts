@@ -3055,7 +3055,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -3731,7 +3734,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -4911,7 +4917,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -5576,7 +5585,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -6357,7 +6369,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -6736,7 +6751,8 @@ export const tangtangGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 24
+          "sequenceIndex": 24,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -6757,7 +6773,8 @@ export const tangtangGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 25
+          "sequenceIndex": 25,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -6892,7 +6909,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -7340,7 +7360,10 @@ export const tangtangGeneratedSource = {
           ],
           "sequenceIndex": 3
         }
-      ]
+      ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -38185,7 +38208,8 @@ export const tangtangGeneratedSource = {
                       "blackboardAssignments": {},
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 2
+                      "sequenceIndex": 2,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -67377,7 +67401,8 @@ export const tangtangGeneratedSource = {
                       "blackboardAssignments": {},
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 2
+                      "sequenceIndex": 2,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -67643,7 +67668,8 @@ export const tangtangGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 26
+          "sequenceIndex": 26,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -69867,7 +69893,10 @@ export const tangtangGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -70807,6 +70836,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -70858,6 +70892,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -75798,6 +75837,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -75849,6 +75893,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -80650,6 +80699,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -80701,6 +80755,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -85641,6 +85700,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -85692,6 +85756,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -90538,6 +90607,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -90589,6 +90663,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -95529,6 +95608,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -95580,6 +95664,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -100381,6 +100470,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -100432,6 +100526,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -105372,6 +105471,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -105423,6 +105527,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -110335,6 +110444,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -110386,6 +110500,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -115326,6 +115445,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -115377,6 +115501,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -120178,6 +120307,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -120229,6 +120363,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -125169,6 +125308,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -125220,6 +125364,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -130066,6 +130215,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -130117,6 +130271,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -135057,6 +135216,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -135108,6 +135272,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -139909,6 +140078,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -139960,6 +140134,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -144900,6 +145079,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -144951,6 +145135,11 @@ export const tangtangGeneratedSource = {
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -149795,6 +149984,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -149846,6 +150040,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -154746,6 +154945,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -154797,6 +155001,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -159554,6 +159763,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -159605,6 +159819,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -164505,6 +164724,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -164556,6 +164780,11 @@ export const tangtangGeneratedSource = {
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -170586,7 +170815,10 @@ export const tangtangGeneratedSource = {
           ]
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -171514,6 +171746,9 @@ export const tangtangGeneratedSource = {
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": false,
@@ -171727,7 +171962,8 @@ export const tangtangGeneratedSource = {
                       },
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 17
+                      "sequenceIndex": 17,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -172901,6 +173137,9 @@ export const tangtangGeneratedSource = {
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": false,
@@ -173114,7 +173353,8 @@ export const tangtangGeneratedSource = {
                       },
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 17
+                      "sequenceIndex": 17,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -173779,7 +174019,8 @@ export const tangtangGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -174406,6 +174647,9 @@ export const tangtangGeneratedSource = {
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": false,
@@ -174619,7 +174863,8 @@ export const tangtangGeneratedSource = {
               },
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 17
+              "sequenceIndex": 17,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -176263,7 +176508,10 @@ export const tangtangGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

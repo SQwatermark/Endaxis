@@ -46,4 +46,36 @@ describe('CombatVitalsConditionExecutor', () => {
       ),
     ).toBe(false);
   });
+
+  it('resolves a dynamic Buff source from the operation context', () => {
+    const vitals = new CombatVitals({
+      health: 400,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const resolveTarget = vi.fn(() => vitals);
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget,
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'healthCompare',
+          target: 'buffSource',
+          valueType: 'ratio',
+          operator: 'less',
+          value: { kind: 'constant', value: 0.5 },
+        },
+        { blackboard: new ActionBlackboard(), buffSourceId: 'operator:source' },
+      ),
+    ).toBe(true);
+    expect(resolveTarget).toHaveBeenCalledWith('buffSource', 'operator:source');
+  });
 });

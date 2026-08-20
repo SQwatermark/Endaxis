@@ -62,6 +62,7 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0004_pelica_power_attack',
     timelineBlockFrames: 35,
     availability: { kind: 'targetStaggered', target: 'enemy' },
     scheduledSequences: [
@@ -88,6 +89,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
 export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0004_pelica_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -111,6 +113,7 @@ export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0004_pelica_normal_skill',
     timelineBlockFrames: 28,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -139,6 +142,7 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
 export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0004_pelica_combo_skill',
     timelineBlockFrames: 25,
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
     scheduledSequences: [
@@ -193,6 +197,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
 export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0004_pelica_ultimate_skill',
     timelineBlockFrames: 63,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
@@ -253,6 +258,20 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: perlicaComboSkill },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: perlicaUltimate },
   ],
+  buffDefinitions: {
+    'buff_chr_0004_pelica_potential_3_atkup': {
+      stackingType: 'enhanceAndRefresh',
+      maxStackCount: 2,
+      durationSeconds: 5,
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: 0.2,
+        },
+      ],
+    },
+  },
   comboSkillRegistrations: [{ skillKey: 'comboSkill', priority: 'default', rules: [{ trigger: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' } }] }],
   talents: [
     {
@@ -306,18 +325,6 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
           sequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0004_pelica_potential_3_atkup',
-              definition: {
-                stackingType: 'enhanceAndRefresh',
-                maxStackCount: 2,
-                durationSeconds: 5,
-                attributeModifiers: [
-                  {
-                    attribute: 'Atk',
-                    slot: 'baseMultiplier',
-                    value: 0.2,
-                  },
-                ],
-              },
               target: 'caster',
             }),
           ),

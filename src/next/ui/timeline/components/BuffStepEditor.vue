@@ -42,6 +42,8 @@ type BuffLifecycleKey = (typeof BUFF_LIFECYCLE_KEYS)[number];
 const props = defineProps<{
   step: BuffStep;
   skillLevel: number;
+  /** 作为干员级 Buff 蓝图编辑器使用时，隐藏施加目标、实例覆盖和内联开关。 */
+  definitionOnly?: boolean;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
 }>();
@@ -238,7 +240,7 @@ function removeAssignment(key: string): void {
 </script>
 
 <template>
-  <div class="step-editor__grid">
+  <div v-if="!definitionOnly" class="step-editor__grid">
     <label>
       <EditorFieldLabel
         :label="t('nextTimeline.skillEditing.buffId')"
@@ -352,7 +354,7 @@ function removeAssignment(key: string): void {
   </div>
 
   <fieldset class="buff-definition">
-    <legend>
+    <legend v-if="!definitionOnly">
       <label class="step-editor__check">
         <input
           type="checkbox"
@@ -493,7 +495,7 @@ function removeAssignment(key: string): void {
     />
   </fieldset>
 
-  <fieldset class="buff-assignments">
+  <fieldset v-if="!definitionOnly" class="buff-assignments">
     <legend>
       <EditorFieldLabel
         :label="t('nextTimeline.skillEditing.buffAssignments')"

@@ -182,6 +182,7 @@ class AuxiliaryActionSource:
     targetValidatorTypes: tuple[str, ...] = ()
     targetPostProcessorTypes: tuple[str, ...] = ()
     sequenceIndex: int = -1
+    autoFinishByAction: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -400,10 +401,25 @@ class TimedTimelineJumpSource:
     actionPath: tuple[str, ...]
     conditionActionTypes: tuple[str, ...]
     directConditions: tuple["ConditionSource", ...] = ()
+    # 与 directConditions 一一对应；True 表示原生 NotNextCheckAction 只反转该项。
+    directConditionNegated: tuple[bool, ...] = ()
+    # OrConditionAction 逐项执行 SequenceAction：组内全满足，组间任一满足。
+    directAnyConditions: tuple[tuple["ConditionSource", ...], ...] = ()
+    directAnyConditionNegated: tuple[tuple[bool, ...], ...] = ()
     directConditionsSupported: bool = False
     isOnlySequenceAction: bool = False
     isOnlyBranchAction: bool = False
     isRootContainerOnlySequenceAction: bool = False
+    sequenceIndex: int = -1
+
+
+@dataclass(frozen=True)
+class TimedTimelineFinishSource:
+    """根 SkillData 对当前技能时间轴的显式终止。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
     sequenceIndex: int = -1
 
 
@@ -556,6 +572,30 @@ class BuffDefinitionSource:
     useTimeDilationDt: bool = False
     onlyUseSelfTimeDilation: bool = False
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()
+    comboQteActions: tuple["BuffComboQteSource", ...] = ()
+    pauseTimeActions: tuple["BuffPauseTimeSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffComboQteSource:
+    """原生 ShowComboRingQte 与其有效期 Buff、成功写入之间的闭环。"""
+
+    actionIndex: int
+    earlyDuration: ScalarSource
+    activeDuration: ScalarSource
+    activeTimerBuffId: str
+    triggerMutation: BlackboardMutationSource
+
+
+@dataclass(frozen=True)
+class BuffPauseTimeSource:
+    """Buff Ability 事件对当前实例计时状态的显式赋值。"""
+
+    event: Literal["OnBeforeCastSkill", "OnFinishedBuff"]
+    priority: int
+    paused: bool
+    skillIds: tuple[str, ...] = ()
+    buffIds: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -621,6 +661,14 @@ class BuffDamageScaleProcessorSource:
 
 
 @dataclass(frozen=True)
+class BuffInstantAttributeProcessorSource:
+    targetSide: str
+    attributeType: str
+    slot: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
 class BuffDamageNumberComparisonSource:
     left: ScalarSource
     comparison: str
@@ -634,7 +682,9 @@ class BuffDamageModifierSource:
     targetGroupKey: str
     tagQueryType: str
     tagIds: tuple[int, ...]
-    processors: tuple[BuffDamageScaleProcessorSource, ...]
+    processors: tuple[
+        BuffDamageScaleProcessorSource | BuffInstantAttributeProcessorSource, ...
+    ]
     ownerControlled: bool = False
     damageTagMatch: str | None = None
     damageTags: tuple[str, ...] = ()
@@ -999,6 +1049,7 @@ class SkillCooldownAdjustmentPayload:
 class HealPayload:
     healType: str
     healer: str
+    alwaysNext: bool
     target: "TargetReferenceSource"
     # `None` 表示 DefiniteValueCalculation，治疗量直接取 addition。
     attribute: str | None
@@ -1519,3 +1570,6 @@ class SkillSource:
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
     skillReplacements: tuple[TimedSkillReplacementSource, ...] = ()
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()
+    timelineJumps: tuple[TimedTimelineJumpSource, ...] = ()
+    timelineJumpControlFlowActions: tuple[ConditionalActionSource, ...] = ()
+    timelineFinishes: tuple[TimedTimelineFinishSource, ...] = ()

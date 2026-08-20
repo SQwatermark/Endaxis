@@ -154,6 +154,20 @@ export class TimelineActionProcessor {
     }
   }
 
+  /** 原生 InterruptCurSkillAction：结束活动项并丢弃全部尚未开始的时间轴项。 */
+  finish(currentFrame: number, context: CombatExecutionContext): void {
+    if (this.#starting !== null) {
+      this.#startingCrossedByJump = true;
+      this.#startingJumpDestination = currentFrame;
+    }
+    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
+      const indexedAction = this.#active[index]!;
+      this.#active.splice(index, 1);
+      this.#end(indexedAction, currentFrame, context);
+    }
+    this.#nextPendingIndex = this.#actions.length;
+  }
+
   end(currentFrame: number, context: CombatExecutionContext): void {
     for (const indexedAction of this.#active) this.#end(indexedAction, currentFrame, context);
     this.#active.length = 0;

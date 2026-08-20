@@ -221,6 +221,35 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     expect(snapshots.attacker.electricDamageIncrease).toBeCloseTo(0.32);
   });
 
+  it('把运行时 Buff 的暴击属性修正叠加到静态面板', () => {
+    const attributes = createOperatorAttackAttributes(panel);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'criticalRate',
+        attributeModifierValues('addition', 0.25),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'criticalDamageIncrease',
+        attributeModifierValues('addition', 0.5),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext(),
+      electricDamage,
+      attributes,
+    );
+
+    expect(snapshots.attacker.criticalRate).toBeCloseTo(panel.criticalRate + 0.25);
+    expect(snapshots.attacker.criticalDamageIncrease).toBeCloseTo(panel.criticalDamage + 0.5);
+  });
+
   it('缺少已解析面板时明确失败', () => {
     expect(() =>
       resolveStaticPlayerDamageSnapshots(

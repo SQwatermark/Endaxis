@@ -161,6 +161,40 @@ describe('SkillRuntime', () => {
     );
   });
 
+  it('时间轴自终止丢弃未来调度且不改写局部帧', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'timeline-finish-fixture',
+      timelineBlockFrames: 10,
+      scheduledSequences: [
+        {
+          startFrame: 2,
+          sequence: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+        },
+        {
+          startFrame: 8,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'future', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(2);
+
+    expect(fixture.runtime.state).toBe('ended');
+    expect(fixture.runtime.passedFrames).toBe(2);
+    expect(fixture.operations.execute).not.toHaveBeenCalled();
+    expect(fixture.receipt.entries).toContainEqual(
+      expect.objectContaining({ event: 'SkillTimelineFinished' }),
+    );
+  });
+
   it('只在调度区间内响应技能临时监听事件，并在中断时立即注销', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'listener-fixture',

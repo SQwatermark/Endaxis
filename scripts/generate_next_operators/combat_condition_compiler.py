@@ -387,6 +387,13 @@ def compile_combat_condition(
         target = getattr(health, "characterTeamSelectionRole", None)
         if (
             target is None
+            and buff_owner_target is not None
+            and health.targetSource == "Source"
+            and not health.targetGroupKey
+        ):
+            target = "buffSource"
+        if (
+            target is None
             and action is not None
             and health.targetSource == "Context"
             and health.targetGroupKey
@@ -666,12 +673,50 @@ def compile_combat_condition_group(
     ability_entity_current_target: bool = False,
     buff_ability_damage_event: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    negated: tuple[bool, ...] = (),
+    any_groups: tuple[tuple[ConditionSource, ...], ...] = (),
+    any_group_negated: tuple[tuple[bool, ...], ...] = (),
     *,
     services: CombatConditionServices,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
+    if any_groups:
+        if conditions:
+            raise ValueError(f"{path}: cannot combine direct conditions with any groups")
+        if any_group_negated and len(any_group_negated) != len(any_groups):
+            raise ValueError(f"{path}: any-group negation flags do not match group count")
+        compiled_groups = [
+            compile_combat_condition_group(
+                group,
+                f"{path}.any[{index}]",
+                action,
+                target_group_writes,
+                root_skill_context,
+                input_target,
+                skill_has_output_damage,
+                ability_entity_current_target,
+                buff_ability_damage_event,
+                buff_owner_target,
+                (
+                    any_group_negated[index]
+                    if any_group_negated
+                    else ()
+                ),
+                services=services,
+            )
+            for index, group in enumerate(any_groups)
+        ]
+        lines = ["{", "  kind: 'any',", "  conditions: ["]
+        for condition in compiled_groups:
+            condition_lines = condition.splitlines()
+            lines.extend(f"    {line}" for line in condition_lines[:-1])
+            lines.append(f"    {condition_lines[-1]},")
+        lines.extend(["  ],", "}"])
+        return "\n".join(lines)
     if not conditions:
         raise ValueError(f"{path}: empty condition group")
+    if negated and len(negated) != len(conditions):
+        raise ValueError(f"{path}: negation flags do not match condition count")
     compiled = [
         compile_combat_condition(
             condition,
@@ -688,6 +733,23 @@ def compile_combat_condition_group(
         )
         for index, condition in enumerate(conditions)
     ]
+    if negated:
+        compiled = [
+            (
+                "\n".join(
+                    [
+                        "{",
+                        "  kind: 'not',",
+                        f"  condition: {condition.splitlines()[0]}",
+                        *[f"  {line}" for line in condition.splitlines()[1:]],
+                        "}",
+                    ]
+                )
+                if is_negated
+                else condition
+            )
+            for condition, is_negated in zip(compiled, negated, strict=True)
+        ]
     if len(compiled) == 1:
         return compiled[0]
     lines = ["{", "  kind: 'all',", "  conditions: ["]

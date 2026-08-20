@@ -173,7 +173,7 @@ function templateDefinition(): SkillDefinition {
 }
 
 describe('skillDefinitionEditorViewModel', () => {
-  it('新建能力实体步骤提供可释放且可递归编辑的合法默认定义', () => {
+  it('新建能力实体步骤只提供待选择的干员级蓝图引用', () => {
     const draft = createSkillEditorDraft(templateDefinition(), undefined);
     const step = createSkillEditorStep(draft, 'spawnAbilityEntity');
     const withStep = replaceSkillEditorStep(draft, 0, 0, step);
@@ -182,9 +182,6 @@ describe('skillDefinitionEditorViewModel', () => {
       kind: 'spawnAbilityEntity',
       parameters: {
         abilityEntityId: 'custom-ability-entity',
-        definition: {
-          lifetime: { kind: 'limited', durationSeconds: 10 },
-        },
         dieWhenSourceDies: false,
       },
     });

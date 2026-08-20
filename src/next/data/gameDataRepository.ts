@@ -12,7 +12,11 @@ import type {
   GearSetDefinition,
   WeaponDefinition,
 } from '../core/game-data/equipmentDefinition';
-import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
+import type {
+  OperatorBuffDefinitions,
+  OperatorAbilityEntityDefinitions,
+  OperatorDefinition,
+} from '../core/game-data/operatorDefinition';
 import type { EnemyDefinition } from '../core/game-data/enemyDefinition';
 import {
   akekuri,
@@ -38,12 +42,16 @@ import {
   sharedWeaponDefinitions,
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
+import { generatedCommonBuffDefinitions } from './operators/generated/commonBuffDefinitions.generated';
+import { generatedCommonAbilityEntityDefinitions } from './operators/generated/commonAbilityEntityDefinitions.generated';
 
 /** 游戏数据内容发生任何会影响项目解析的变化时必须显式更新。 */
 export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-v1';
 
 export interface GameDataRepositoryInput {
   readonly revision: string;
+  readonly commonBuffDefinitions?: OperatorBuffDefinitions;
+  readonly commonAbilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   readonly operators?: readonly OperatorDefinition[];
   readonly weapons?: readonly WeaponDefinition[];
   readonly gears?: readonly GearDefinition[];
@@ -73,6 +81,10 @@ export function createGameDataRepository(
 ): GameDataRepository & GameDataBrowser {
   if (input.revision.length === 0) throw new Error('game data revision must not be empty');
   const operatorList = Object.freeze([...(input.operators ?? [])]);
+  const commonBuffDefinitions = Object.freeze({ ...(input.commonBuffDefinitions ?? {}) });
+  const commonAbilityEntityDefinitions = Object.freeze({
+    ...(input.commonAbilityEntityDefinitions ?? {}),
+  });
   const weaponList = Object.freeze([...(input.weapons ?? [])]);
   const gearList = Object.freeze([...(input.gears ?? [])]);
   const gearSetList = Object.freeze([...(input.gearSets ?? [])]);
@@ -86,6 +98,8 @@ export function createGameDataRepository(
 
   return Object.freeze({
     revision: input.revision,
+    getCommonBuffDefinitions: () => commonBuffDefinitions,
+    getCommonAbilityEntityDefinitions: () => commonAbilityEntityDefinitions,
     getOperators: () => operatorList,
     getWeapons: () => weaponList,
     getGears: () => gearList,
@@ -103,6 +117,8 @@ export function createGameDataRepository(
 /** 当前正式进入 Next 的默认数据仓库；其他数据迁移完成后必须在这里显式注册。 */
 export const nextGameDataRepository = createGameDataRepository({
   revision: NEXT_GAME_DATA_REVISION,
+  commonBuffDefinitions: generatedCommonBuffDefinitions,
+  commonAbilityEntityDefinitions: generatedCommonAbilityEntityDefinitions,
   operators: [
     perlica,
     arcane,

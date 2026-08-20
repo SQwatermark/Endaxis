@@ -35,6 +35,9 @@ function createEquippedScenario(): ScenarioDocument {
       skillLevels: { basicAttack: 12, battleSkill: 11 },
       talentStates: { talent1: 2 },
       baseStatOverrides: { attack: 1234 },
+      customAbilityEntityDefinitions: {
+        'custom-orb': { lifetime: { kind: 'limited', durationSeconds: 6 } },
+      },
     },
     weapon: {
       weaponSlug: weapon.slug,
@@ -78,6 +81,9 @@ describe('projectTrackLoadoutBuilds', () => {
     expect(projected.operator?.skillLevels).toEqual({ basicAttack: 12, battleSkill: 11 });
     expect(projected.operator?.talentStates).toEqual({ talent1: 2 });
     expect(projected.operator?.baseStatOverrides).toEqual({ attack: 1234 });
+    expect(projected.operator?.customAbilityEntityDefinitions).toEqual({
+      'custom-orb': { lifetime: { kind: 'limited', durationSeconds: 6 } },
+    });
     expect(projected.weapon).toMatchObject({
       weaponSlug: weapon.slug,
       level: 80,
@@ -107,10 +113,17 @@ describe('projectTrackLoadoutBuilds', () => {
     const projected = projectTrackLoadoutBuilds(scenario, 0, repository);
 
     scenario.tracks[0]!.operator!.skillLevels.basicAttack = 1;
+    (scenario.tracks[0]!.operator!.customAbilityEntityDefinitions as Record<string, unknown>)[
+      'custom-orb'
+    ] = { lifetime: { kind: 'infinite' } };
     scenario.tracks[0]!.weapon!.traitLevels[0] = 9;
     scenario.tracks[0]!.gears.armor!.artificingLevels[0] = 3;
 
     expect(projected.operator?.skillLevels.basicAttack).toBe(12);
+    expect(projected.operator?.customAbilityEntityDefinitions?.['custom-orb']?.lifetime).toEqual({
+      kind: 'limited',
+      durationSeconds: 6,
+    });
     expect(projected.weapon?.traitLevels).toEqual([3, 4, 5]);
     expect(projected.gears.armor?.artificingLevels).toEqual([1, 2]);
   });

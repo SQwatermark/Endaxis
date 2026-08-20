@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0030_zhuangfy_attack1',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -39,6 +40,7 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0030_zhuangfy_attack2',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -166,6 +168,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0030_zhuangfy_attack3',
     timelineBlockFrames: 26,
     scheduledSequences: [
       scheduled(
@@ -247,6 +250,7 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0030_zhuangfy_attack4',
     timelineBlockFrames: 17,
     scheduledSequences: [
       scheduled(
@@ -325,6 +329,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0030_zhuangfy_attack5',
     timelineBlockFrames: 50,
     scheduledSequences: [
       scheduled(
@@ -416,6 +421,7 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'enhancedBasicAttack1',
+    sourceSkillId: 'chr_0030_zhuangfy_attack1_ult',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -449,6 +455,7 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
 export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'enhancedBasicAttack2',
+    sourceSkillId: 'chr_0030_zhuangfy_attack2_ult',
     timelineBlockFrames: 27,
     scheduledSequences: [
       scheduled(
@@ -482,6 +489,7 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
 export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'enhancedBasicAttack3',
+    sourceSkillId: 'chr_0030_zhuangfy_attack3_ult',
     timelineBlockFrames: 60,
     scheduledSequences: [
       scheduled(
@@ -553,6 +561,7 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
 export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0030_zhuangfy_power_attack',
     timelineBlockFrames: 41,
     availability: { kind: 'targetStaggered', target: 'enemy' },
     scheduledSequences: [
@@ -591,6 +600,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0030_zhuangfy_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -614,6 +624,7 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0030_zhuangfy_combo_skill',
     timelineBlockFrames: 25,
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
     scheduledSequences: [
@@ -754,6 +765,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
 export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'enhancedComboSkill',
+    sourceSkillId: 'chr_0030_zhuangfy_combo_skill_ult',
     timelineBlockFrames: 25,
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
     scheduledSequences: [
@@ -881,6 +893,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
 export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0030_zhuangfy_ultimate_skill',
     timelineBlockFrames: 91,
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 240 }],

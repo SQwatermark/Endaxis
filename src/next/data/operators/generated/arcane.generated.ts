@@ -1137,7 +1137,8 @@ export const arcaneGeneratedSource = {
               },
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 7
+              "sequenceIndex": 7,
+              "autoFinishByAction": true
             }
           ],
           "resourceGains": [],
@@ -2542,7 +2543,8 @@ export const arcaneGeneratedSource = {
               },
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 7
+              "sequenceIndex": 7,
+              "autoFinishByAction": true
             }
           ],
           "resourceGains": [],
@@ -4486,6 +4488,9 @@ export const arcaneGeneratedSource = {
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": false,
@@ -4511,6 +4516,9 @@ export const arcaneGeneratedSource = {
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": true,
@@ -7650,7 +7658,8 @@ export const arcaneGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 0
+          "sequenceIndex": 0,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 2,
@@ -7698,7 +7707,8 @@ export const arcaneGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 0
+          "sequenceIndex": 0,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -7719,7 +7729,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -7753,7 +7764,8 @@ export const arcaneGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "autoFinishByAction": false
         }
       ],
       "targetGroupWrites": [
@@ -13630,7 +13642,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 9,
@@ -13647,7 +13660,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 9,
@@ -13664,7 +13678,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 9,
@@ -13681,7 +13696,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 0,
@@ -13702,7 +13718,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 14
+          "sequenceIndex": 14,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 9,
@@ -13911,7 +13928,8 @@ export const arcaneGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [
@@ -17502,7 +17520,10 @@ export const arcaneGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack1",
@@ -18593,7 +18614,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -20713,7 +20737,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -22298,7 +22325,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -23214,7 +23244,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 56
+          "sequenceIndex": 56,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -23794,7 +23825,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -25490,7 +25524,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -26570,7 +26607,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 30
+          "sequenceIndex": 30,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -26591,7 +26629,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 31
+          "sequenceIndex": 31,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -26844,7 +26883,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -27423,7 +27465,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -27647,7 +27692,8 @@ export const arcaneGeneratedSource = {
             "SpellInfliction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": null
         }
       ],
       "blackboardCalculations": [],
@@ -28891,7 +28937,10 @@ export const arcaneGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -30549,7 +30598,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 41,
@@ -30570,7 +30620,8 @@ export const arcaneGeneratedSource = {
             "IfElseAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30587,7 +30638,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30604,7 +30656,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30621,7 +30674,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30638,7 +30692,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30655,7 +30710,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30672,7 +30728,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30689,7 +30746,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 41,
@@ -30706,7 +30764,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 13
+          "sequenceIndex": 13,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 47,
@@ -30751,7 +30810,8 @@ export const arcaneGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 15
+          "sequenceIndex": 15,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -30772,7 +30832,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -30944,7 +31005,8 @@ export const arcaneGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 0
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -33190,7 +33252,10 @@ export const arcaneGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "arcana",
@@ -34964,7 +35029,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -34985,7 +35051,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 23
+          "sequenceIndex": 23,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 59,
@@ -35006,7 +35073,8 @@ export const arcaneGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 24
+          "sequenceIndex": 24,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -37321,7 +37389,10 @@ export const arcaneGeneratedSource = {
           "revertedSkillId": ""
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

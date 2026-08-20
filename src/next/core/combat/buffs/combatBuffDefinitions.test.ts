@@ -353,6 +353,53 @@ describe('compileCombatBuffDefinitions', () => {
     );
   });
 
+  it('parses a dynamic instant attribute damage processor', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-instant-damage-attribute',
+      buffs: [
+        {
+          id: 'buff.rossi.ultimate-critical-damage',
+          stackingType: 'refresh',
+          blackboard: { critical_damage_up_to_bleed: 0.2 },
+          damageModifiers: [
+            {
+              enabledSide: 'attacker',
+              condition: {
+                kind: 'eventDamageTagsMatch',
+                match: 'hasAll',
+                tags: ['ultimateSkill'],
+              },
+              processors: [
+                {
+                  kind: 'instantAttribute',
+                  targetSide: 'attacker',
+                  attribute: 'criticalDamageIncrease',
+                  values: {
+                    slot: 'baseAddition',
+                    value: { blackboardKey: 'critical_damage_up_to_bleed' },
+                  },
+                  attributeTiming: 'runtime',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(document.buffs[0]?.damageModifiers?.[0]?.processors[0]).toEqual({
+      kind: 'instantAttribute',
+      targetSide: 'attacker',
+      attribute: 'criticalDamageIncrease',
+      values: {
+        slot: 'baseAddition',
+        value: { blackboardKey: 'critical_damage_up_to_bleed' },
+      },
+      attributeTiming: 'runtime',
+    });
+  });
+
   it('refreshes registered attribute modifiers from the current buff blackboard on trigger', () => {
     const document = parseCombatBuffDefinitionsDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,

@@ -98,9 +98,12 @@ function createContext(): CombatOperationExecutorContext {
   };
 }
 
-function createEnvironment(enemy: CombatEnemyProgram = testEnemy): StandardPlayerDamageEnvironment {
+function createEnvironment(
+  enemy: CombatEnemyProgram = testEnemy,
+  criticalSample = 1,
+): StandardPlayerDamageEnvironment {
   return new StandardPlayerDamageEnvironment({
-    criticalSamples: { nextCriticalSample: () => 1 },
+    criticalSamples: { nextCriticalSample: () => criticalSample },
     resolveNonRandomRuntimeSnapshot: () => ({
       runtimeExtensionMultiplier: 1,
       appliesIgniteDamageMultiplier: false,
@@ -109,6 +112,29 @@ function createEnvironment(enemy: CombatEnemyProgram = testEnemy): StandardPlaye
     enemyVitals: createEnemyCombatVitals(enemy),
   });
 }
+
+it('publishes takeCriticalDamage only for a critical health-damage result', () => {
+  const reached: string[] = [];
+  const nonCritical = createEnvironment(testEnemy, 1);
+  nonCritical
+    .eventsFor('enemy')
+    .registerAction('takeCriticalDamage', 0, () => reached.push('non-critical'));
+  expect(
+    nonCritical.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep),
+  ).toBe(true);
+
+  const critical = createEnvironment(testEnemy, 0);
+  critical.eventsFor('enemy').registerAction('takeCriticalDamage', 0, ({ payload }) => {
+    const result = (payload as { result: { isCritical: boolean } }).result;
+    expect(result.isCritical).toBe(true);
+    reached.push('critical');
+  });
+  expect(critical.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep)).toBe(
+    true,
+  );
+
+  expect(reached).toEqual(['critical']);
+});
 
 function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
   const document: CombatBuffDefinitionsDocument = {

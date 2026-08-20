@@ -43,6 +43,8 @@ export interface TimelineLoadoutEditorOptions {
   readonly selectedTrack: Ref<TrackIndex>;
   readonly clearTimelineSelection: () => void;
   readonly gameData: TimelineGameData;
+  /** 项目级自定义定义变更时，使仅依赖场景文档的投影重新计算。 */
+  readonly definitionRevision?: Readonly<Ref<number>>;
   /** 创建轨道等持久化身份时的稳定 ID 分配器。 */
   readonly ids: TimelineDocumentIdAllocator;
 }
@@ -60,11 +62,12 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     options.session.commit(commandName, command);
   }
 
-  const loadoutModels = computed(() =>
-    options.scenario.value.tracks.map((_, trackIndex) =>
+  const loadoutModels = computed(() => {
+    void options.definitionRevision?.value;
+    return options.scenario.value.tracks.map((_, trackIndex) =>
       projectTrackLoadoutBuilds(options.scenario.value, trackIndex as TrackIndex, options.gameData),
-    ),
-  );
+    );
+  });
   const selectedLoadoutModel = computed(() => loadoutModels.value[options.selectedTrack.value]!);
   const selectedWeaponSlug = computed(() => {
     const track = options.scenario.value.tracks[options.selectedTrack.value];
@@ -100,6 +103,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
     readonly panels: ReadonlyMap<TrackIndex, ResolvedOperatorPanel>;
     readonly error: string | null;
   }>(() => {
+    void options.definitionRevision?.value;
     try {
       return {
         panels: new Map(

@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from source_models import BuffDefinitionSource, ScalarSource
+from source_models import (
+    BuffDamageScaleProcessorSource,
+    BuffDefinitionSource,
+    BuffInstantAttributeProcessorSource,
+    ScalarSource,
+)
 from source_utils import ts_inline_literal
 
 
@@ -36,6 +41,8 @@ ATTRIBUTE_SLOTS = {
 
 # 原生 AttributeType 名称到 Next 伤害快照属性的已审计映射。
 BUFF_ATTRIBUTE_RUNTIME_KEYS = {
+    "CriticalRate": "criticalRate",
+    "CriticalDamageIncrease": "criticalDamageIncrease",
     "NormalAttackDamageIncrease": "normalAttackDamageIncrease",
     "NormalSkillDamageIncrease": "normalSkillDamageIncrease",
     "PhysicalDamageIncrease": "physicalDamageIncrease",
@@ -72,6 +79,8 @@ BEHAVIOR_FIELDS = (
     "buffBlackboardReads",
     "buffFinishes",
     "eventActions",
+    "comboQteActions",
+    "pauseTimeActions",
     "igniteEventActions",
     "resourceGains",
     "combatActions",
@@ -129,6 +138,19 @@ def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:
         not modifier.tagIds
         and any(processor.zone == "VulnerableDmgIncreace" for processor in modifier.processors)
         for modifier in source.damageModifiers
+    )
+
+
+def _skill_replacements_are_manual_slot_presentation(source: BuffDefinitionSource) -> bool:
+    """手动放置连携形态时，结束 Buff 后恢复 ComboSkill 槽位不改变模拟行为。"""
+    return bool(source.skillReplacements) and all(
+        replacement.eventSource == "buff"
+        and replacement.event == "OnBuffFinish"
+        and replacement.skillSlot == "ComboSkill"
+        and replacement.skillSource.targetSource == "Owner"
+        and not replacement.skillSource.targetGroupKey
+        and replacement.lifeTimeType == "Infinite"
+        for replacement in source.skillReplacements
     )
 
 
@@ -196,8 +218,14 @@ def compile_inline_buff_definition(
                     or compile_event_responses is not None
                 )
             )
+            or (field == "comboQteActions" and compile_event_responses is not None)
+            or (field == "pauseTimeActions" and compile_event_responses is not None)
             or (field in SCHEDULE_BEHAVIOR_FIELDS and compile_scheduled_sequences is not None)
             or (field == "auraActions" and compile_event_responses is not None)
+            or (
+                field == "skillReplacements"
+                and _skill_replacements_are_manual_slot_presentation(source)
+            )
         )
     )
     if unsupported:
@@ -236,7 +264,7 @@ def compile_inline_buff_definition(
             [
                 f"triggerIntervalSeconds: {_compile_scalar(lifecycle.triggerInterval)},",
                 f"waitFirstTriggerInterval: {ts_inline_literal(lifecycle.waitFirstTriggerInterval)},",
-                f"maxTriggerCount: {_require_fixed_integer(lifecycle.maxTriggerCount, f'{path}.maxTriggerCount')},",
+                f"maxTriggerCount: {_compile_integer_operand(lifecycle.maxTriggerCount, f'{path}.maxTriggerCount')},",
             ]
         )
     if source.applyTagIds:
@@ -374,6 +402,31 @@ def compile_inline_buff_definition(
                 fields.extend(["      ],", "    },"])
             fields.append("    processors: [")
             for processor in modifier.processors:
+                if isinstance(processor, BuffInstantAttributeProcessorSource) or hasattr(
+                    processor, "targetSide"
+                ):
+                    attribute = BUFF_ATTRIBUTE_RUNTIME_KEYS.get(
+                        processor.attributeType, processor.attributeType
+                    )
+                    fields.extend(
+                        [
+                            "      {",
+                            "        kind: 'instantAttribute',",
+                            f"        targetSide: {ts_inline_literal(DAMAGE_SIDES[processor.targetSide])},",
+                            f"        attribute: {ts_inline_literal(attribute)},",
+                            "        values: {",
+                            f"          slot: {ts_inline_literal(ATTRIBUTE_SLOTS[processor.slot])},",
+                            f"          value: {_compile_scalar(processor.value)},",
+                            "        },",
+                            "        attributeTiming: 'runtime',",
+                            "      },",
+                        ]
+                    )
+                    continue
+                if not isinstance(processor, BuffDamageScaleProcessorSource) and not hasattr(
+                    processor, "zone"
+                ):
+                    raise TypeError(f"{path}: unsupported damage processor source")
                 zone = DAMAGE_SCALE_ZONES.get(processor.zone)
                 if zone is None:
                     raise ValueError(
@@ -443,4 +496,12 @@ def _compile_non_negative_integer(source: ScalarSource, field: str) -> str:
         return "{ blackboardKey: " + ts_inline_literal(source.blackboardKey) + " }"
     if not float(source.value).is_integer() or source.value < 0:
         raise ValueError(f"{field} requires a non-negative integer value")
+    return str(int(source.value))
+
+
+def _compile_integer_operand(source: ScalarSource, field: str) -> str:
+    if source.blackboardKey is not None:
+        return "{ blackboardKey: " + ts_inline_literal(source.blackboardKey) + " }"
+    if not float(source.value).is_integer():
+        raise ValueError(f"{field} requires an integer value")
     return str(int(source.value))

@@ -39,7 +39,11 @@ describe('arclight generated operator', () => {
 
   it('keeps the stack-triggered party electric damage buff as converted runtime behavior', () => {
     const battleSkill = findSkill('battleSkill');
-    const source = JSON.stringify(battleSkill);
+    const source = JSON.stringify([
+      battleSkill,
+      arclightGeneratedOperator.buffDefinitions?.buff_chr_0007_ikut_normal_skill_extra_count,
+      arclightGeneratedOperator.buffDefinitions?.buff_chr_0007_ikut_atk_buff_talent,
+    ]);
 
     expect(source).toContain('enhanceChanged');
     expect(source).toContain('electricDamageIncrease');
@@ -56,7 +60,10 @@ describe('arclight generated operator', () => {
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('missing AbilityEntity spawn');
 
     expect(spawn.parameters.inheritActionBlackboard).toBe(true);
-    expect(spawn.parameters.definition.childSkill?.scheduledSequences.map(sequence => sequence.startFrame)).toEqual([
+    const definition = arclightGeneratedOperator.abilityEntityDefinitions?.[
+      spawn.parameters.abilityEntityId
+    ];
+    expect(definition?.childSkill?.scheduledSequences.map(sequence => sequence.startFrame)).toEqual([
       7, 63,
     ]);
     expect(ultimate.scheduledSequences.map(sequence => sequence.startFrame)).not.toEqual(

@@ -1749,7 +1749,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -2569,7 +2572,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -3084,7 +3090,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -3862,7 +3871,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -4302,7 +4314,8 @@ export const akekuriGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 24
+          "sequenceIndex": 24,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -4323,7 +4336,8 @@ export const akekuriGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 28
+          "sequenceIndex": 28,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -4487,7 +4501,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -4953,7 +4970,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -5793,7 +5813,10 @@ export const akekuriGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -8008,7 +8031,10 @@ export const akekuriGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -8633,7 +8659,8 @@ export const akekuriGeneratedSource = {
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
           "targetFinderType": "CharacterTeamFinder",
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 1,
@@ -8673,7 +8700,8 @@ export const akekuriGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 1,
@@ -8731,7 +8759,8 @@ export const akekuriGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 12
+          "sequenceIndex": 12,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -8752,7 +8781,8 @@ export const akekuriGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 18
+          "sequenceIndex": 18,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -9482,7 +9512,10 @@ export const akekuriGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

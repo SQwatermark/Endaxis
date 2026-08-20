@@ -6,6 +6,7 @@ import { branch, percentage, percentages, scheduled, sequence, step, withSkillBl
 export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0002_endminm_combo_skill',
     timelineBlockFrames: 24,
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
     scheduledSequences: [
@@ -50,12 +51,6 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0003_endminf_combo_skill_tutorial_marker',
-            definition: {
-              stackingType: 'unique',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 1,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -70,311 +65,6 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
               }, '10:comboSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[2]11:actionOrder2:38'),
               step('applyBuff', {
                 buffId: 'buff_common_originum_frozen',
-                definition: {
-                  stackingType: 'stack',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  applyTagIds: [889346577],
-                  blackboard: {
-                    'atk_scale_trigger': 0,
-                    'atk_up_dynamic': 0,
-                    'duration': 9999,
-                    'duration_dynamic': 0,
-                    'endmin_usp': 0,
-                    'teammate_ratio': 0,
-                  },
-                  igniteEventResponses: [
-                    {
-                      igniteType: 'EndminUlt',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['ultimateSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '46:buff_common_originum_frozen:ignite:EndminUlt:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'enemy',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential3'] },
-                          desiredKey: 'usp',
-                          outputKey: 'endmin_usp',
-                        }),
-                        step('changeResourceByActionValue', {
-                          resource: 'ultimateEnergy',
-                          amount: { kind: 'blackboard', key: 'endmin_usp' },
-                          recipient: 'caster',
-                          ignoreUltimateEnergyGainMultiplier: true,
-                        }),
-                      ),
-                    },
-                    {
-                      igniteType: 'PhysicalStatus',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '51:buff_common_originum_frozen:ignite:PhysicalStatus:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:24'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                      ),
-                    },
-                    {
-                      igniteType: 'NoGuard',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '44:buff_common_originum_frozen:ignite:NoGuard:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:35'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                      ),
-                    },
-                  ],
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
@@ -419,6 +109,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
 export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkillFemale',
+    sourceSkillId: 'chr_0003_endminf_combo_skill',
     timelineBlockFrames: 23,
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
     scheduledSequences: [
@@ -463,12 +154,6 @@ export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboa
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0003_endminf_combo_skill_tutorial_marker',
-            definition: {
-              stackingType: 'unique',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 1,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -483,311 +168,6 @@ export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboa
               }, '16:comboSkillFemale11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[2]11:actionOrder2:36'),
               step('applyBuff', {
                 buffId: 'buff_common_originum_frozen',
-                definition: {
-                  stackingType: 'stack',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  applyTagIds: [889346577],
-                  blackboard: {
-                    'atk_scale_trigger': 0,
-                    'atk_up_dynamic': 0,
-                    'duration': 9999,
-                    'duration_dynamic': 0,
-                    'endmin_usp': 0,
-                    'teammate_ratio': 0,
-                  },
-                  igniteEventResponses: [
-                    {
-                      igniteType: 'EndminUlt',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['ultimateSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '46:buff_common_originum_frozen:ignite:EndminUlt:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'enemy',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential3'] },
-                          desiredKey: 'usp',
-                          outputKey: 'endmin_usp',
-                        }),
-                        step('changeResourceByActionValue', {
-                          resource: 'ultimateEnergy',
-                          amount: { kind: 'blackboard', key: 'endmin_usp' },
-                          recipient: 'caster',
-                          ignoreUltimateEnergyGainMultiplier: true,
-                        }),
-                      ),
-                    },
-                    {
-                      igniteType: 'PhysicalStatus',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '51:buff_common_originum_frozen:ignite:PhysicalStatus:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:24'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                      ),
-                    },
-                    {
-                      igniteType: 'NoGuard',
-                      finishAfterIgnited: true,
-                      sequence: sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                        }, '44:buff_common_originum_frozen:ignite:NoGuard:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:35'),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'atk_up',
-                          outputKey: 'atk_up_dynamic',
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-                          desiredKey: 'duration',
-                          outputKey: 'duration_dynamic',
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                        step('readBuffBlackboard', {
-                          target: 'caster',
-                          query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-                          desiredKey: 'ratio',
-                          outputKey: 'teammate_ratio',
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_up_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'blackboard', key: 'teammate_ratio' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'duration_dynamic',
-                          operation: 'multiply',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                          definition: {
-                            stackingType: 'stack',
-                            priority: 0,
-                            maxStackCount: 1,
-                            durationSeconds: { blackboardKey: 'duration' },
-                            blackboard: {
-                              'atk_up': 0.1,
-                              'duration': 10,
-                            },
-                            attributeModifiers: [
-                              {
-                                attribute: 'Atk',
-                                slot: 'baseMultiplier',
-                                value: { blackboardKey: 'atk_up' },
-                              },
-                            ],
-                          },
-                          target: 'partyExceptCaster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-                            'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-                          },
-                        }),
-                      ),
-                    },
-                  ],
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
@@ -832,6 +212,7 @@ export const endministratorComboSkillFemale: SkillDefinition = withSkillBlackboa
 export const endministratorBasicAttackMale1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackMale1',
+    sourceSkillId: 'chr_0002_endminm_attack1',
     timelineBlockFrames: 9,
     scheduledSequences: [
       scheduled(
@@ -867,6 +248,7 @@ export const endministratorBasicAttackMale1: SkillDefinition = withSkillBlackboa
 export const endministratorBasicAttackMale2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackMale2',
+    sourceSkillId: 'chr_0002_endminm_attack2',
     timelineBlockFrames: 12,
     scheduledSequences: [
       scheduled(
@@ -902,6 +284,7 @@ export const endministratorBasicAttackMale2: SkillDefinition = withSkillBlackboa
 export const endministratorBasicAttackMale3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackMale3',
+    sourceSkillId: 'chr_0002_endminm_attack3',
     timelineBlockFrames: 17,
     scheduledSequences: [
       scheduled(
@@ -964,6 +347,7 @@ export const endministratorBasicAttackMale3: SkillDefinition = withSkillBlackboa
 export const endministratorBasicAttackMale4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackMale4',
+    sourceSkillId: 'chr_0002_endminm_attack4',
     timelineBlockFrames: 32,
     scheduledSequences: [
       scheduled(
@@ -1070,6 +454,7 @@ export const endministratorBasicAttackMale4: SkillDefinition = withSkillBlackboa
 export const endministratorBasicAttackMale5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackMale5',
+    sourceSkillId: 'chr_0002_endminm_attack5',
     timelineBlockFrames: 25,
     scheduledSequences: [
       scheduled(
@@ -1123,6 +508,7 @@ export const endministratorBasicAttackMale5: SkillDefinition = withSkillBlackboa
 export const endministratorFinisherMale: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisherMale',
+    sourceSkillId: 'chr_0002_endminm_power_attack',
     timelineBlockFrames: 27,
     scheduledSequences: [
       scheduled(
@@ -1130,36 +516,24 @@ export const endministratorFinisherMale: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        47,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        27,
       ),
       scheduled(
         9,
@@ -1201,6 +575,7 @@ export const endministratorFinisherMale: SkillDefinition = withSkillBlackboard(
 export const endministratorPlungingAttackMale: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttackMale',
+    sourceSkillId: 'chr_0002_endminm_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -1236,6 +611,7 @@ export const endministratorPlungingAttackMale: SkillDefinition = withSkillBlackb
 export const endministratorBasicAttackFemale1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackFemale1',
+    sourceSkillId: 'chr_0003_endminf_attack1',
     timelineBlockFrames: 9,
     scheduledSequences: [
       scheduled(
@@ -1271,6 +647,7 @@ export const endministratorBasicAttackFemale1: SkillDefinition = withSkillBlackb
 export const endministratorBasicAttackFemale2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackFemale2',
+    sourceSkillId: 'chr_0003_endminf_attack2',
     timelineBlockFrames: 12,
     scheduledSequences: [
       scheduled(
@@ -1306,6 +683,7 @@ export const endministratorBasicAttackFemale2: SkillDefinition = withSkillBlackb
 export const endministratorBasicAttackFemale3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackFemale3',
+    sourceSkillId: 'chr_0003_endminf_attack3',
     timelineBlockFrames: 17,
     scheduledSequences: [
       scheduled(
@@ -1368,6 +746,7 @@ export const endministratorBasicAttackFemale3: SkillDefinition = withSkillBlackb
 export const endministratorBasicAttackFemale4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackFemale4',
+    sourceSkillId: 'chr_0003_endminf_attack4',
     timelineBlockFrames: 32,
     scheduledSequences: [
       scheduled(
@@ -1474,6 +853,7 @@ export const endministratorBasicAttackFemale4: SkillDefinition = withSkillBlackb
 export const endministratorBasicAttackFemale5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttackFemale5',
+    sourceSkillId: 'chr_0003_endminf_attack5',
     timelineBlockFrames: 25,
     scheduledSequences: [
       scheduled(
@@ -1527,6 +907,7 @@ export const endministratorBasicAttackFemale5: SkillDefinition = withSkillBlackb
 export const endministratorFinisherFemale: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisherFemale',
+    sourceSkillId: 'chr_0003_endminf_power_attack2',
     timelineBlockFrames: 27,
     scheduledSequences: [
       scheduled(
@@ -1534,36 +915,24 @@ export const endministratorFinisherFemale: SkillDefinition = withSkillBlackboard
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        47,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        27,
       ),
       scheduled(
         9,
@@ -1605,6 +974,7 @@ export const endministratorFinisherFemale: SkillDefinition = withSkillBlackboard
 export const endministratorPlungingAttackFemale: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttackFemale',
+    sourceSkillId: 'chr_0003_endminf_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -1640,6 +1010,7 @@ export const endministratorPlungingAttackFemale: SkillDefinition = withSkillBlac
 export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0002_endminm_normal_skill',
     timelineBlockFrames: 24,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -1774,12 +1145,6 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                definition: {
-                  stackingType: 'unlimited',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: 0.1,
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -1801,6 +1166,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
 export const endministratorBattleSkillFemale: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkillFemale',
+    sourceSkillId: 'chr_0003_endminf_normal_skill',
     timelineBlockFrames: 24,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -1935,12 +1301,6 @@ export const endministratorBattleSkillFemale: SkillDefinition = withSkillBlackbo
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                definition: {
-                  stackingType: 'unlimited',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: 0.1,
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -1962,6 +1322,7 @@ export const endministratorBattleSkillFemale: SkillDefinition = withSkillBlackbo
 export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0002_endminm_ultimate_skill',
     timelineBlockFrames: 56,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
@@ -2052,12 +1413,6 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                definition: {
-                  stackingType: 'unlimited',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: 0.1,
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2077,6 +1432,7 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
 export const endministratorUltimateFemale: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateFemale',
+    sourceSkillId: 'chr_0003_endminf_ultimate_skill',
     timelineBlockFrames: 56,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
@@ -2167,12 +1523,6 @@ export const endministratorUltimateFemale: SkillDefinition = withSkillBlackboard
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                definition: {
-                  stackingType: 'unlimited',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: 0.1,
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2217,6 +1567,92 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: [endministratorUltimate, endministratorUltimateFemale] },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: [endministratorComboSkill, endministratorComboSkillFemale] },
   ],
+  buffDefinitions: {
+    'buff_chr_0003_endminf_combo_skill_tutorial_marker': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0003_endminf_talent_1_tirgger': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_up': 0.1,
+        'duration': 10,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk_up' },
+        },
+      ],
+    },
+    'buff_chr_0003_endminf_potential5_trigger': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.1,
+    },
+    'buff_chr_0003_endminf_potential1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atb_return': 50,
+      },
+    },
+    'buff_chr_0003_endminf_potential2': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'ratio': 0.5,
+      },
+    },
+    'buff_chr_0003_endminf_potential5': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'cd_minus': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventBuffIdMatch',
+                  buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
+                },
+                sequence(
+                  step('adjustSkillCooldown', {
+                    target: 'caster',
+                    skill: { kind: 'id', skillId: 'chr_0003_endminf_combo_skill' },
+                    operation: 'reduce',
+                    basis: 'absoluteSeconds',
+                    value: { kind: 'blackboard', key: 'cd_minus' },
+                  }),
+                  step('adjustSkillCooldown', {
+                    target: 'caster',
+                    skill: { kind: 'id', skillId: 'chr_0002_endminm_combo_skill' },
+                    operation: 'reduce',
+                    basis: 'absoluteSeconds',
+                    value: { kind: 'blackboard', key: 'cd_minus' },
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+  },
   talents: [
     {
       key: 'talent1',
@@ -2236,14 +1672,6 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0003_endminf_potential1',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            blackboard: {
-              'atb_return': 50,
-            },
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
@@ -2258,14 +1686,6 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0003_endminf_potential2',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            blackboard: {
-              'ratio': 0.5,
-            },
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
@@ -2290,45 +1710,6 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0003_endminf_potential5',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            blackboard: {
-              'cd_minus': 0,
-            },
-            abilityEventResponses: [
-              {
-                event: 'addedBuff',
-                priority: 0,
-                sequence:
-                  sequence(
-                    branch(
-                      {
-                        kind: 'eventBuffIdMatch',
-                        buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
-                      },
-                      sequence(
-                        step('adjustSkillCooldown', {
-                          target: 'caster',
-                          skill: { kind: 'id', skillId: 'chr_0003_endminf_combo_skill' },
-                          operation: 'reduce',
-                          basis: 'absoluteSeconds',
-                          value: { kind: 'blackboard', key: 'cd_minus' },
-                        }),
-                        step('adjustSkillCooldown', {
-                          target: 'caster',
-                          skill: { kind: 'id', skillId: 'chr_0002_endminm_combo_skill' },
-                          operation: 'reduce',
-                          basis: 'absoluteSeconds',
-                          value: { kind: 'blackboard', key: 'cd_minus' },
-                        }),
-                      ),
-                    ),
-                  ),
-              },
-            ],
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {

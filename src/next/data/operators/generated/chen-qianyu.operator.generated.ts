@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0005_chen_attack1',
     timelineBlockFrames: 14,
     scheduledSequences: [
       scheduled(
@@ -66,6 +67,7 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0005_chen_attack2',
     timelineBlockFrames: 10,
     scheduledSequences: [
       scheduled(
@@ -101,6 +103,7 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0005_chen_attack3',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -161,6 +164,7 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0005_chen_attack4',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -221,6 +225,7 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0005_chen_attack5',
     timelineBlockFrames: 32,
     scheduledSequences: [
       scheduled(
@@ -274,6 +279,7 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0005_chen_power_attack',
     timelineBlockFrames: 30,
     scheduledSequences: [
       scheduled(
@@ -281,36 +287,24 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [782082172, -104052028, -886962248],
-              blackboard: {
-                'duration': 9999,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        50,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        30,
       ),
       scheduled(
         5,
@@ -346,6 +340,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
 export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0005_chen_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -369,6 +364,7 @@ export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0005_chen_normal_skill',
     timelineBlockFrames: 25,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -399,6 +395,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
 export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0005_chen_combo_skill',
     timelineBlockFrames: 23,
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
     scheduledSequences: [
@@ -486,6 +483,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
 export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0005_chen_ultimate_skill',
     timelineBlockFrames: 112,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 70 }],
@@ -653,6 +651,37 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: chenQianyuComboSkill },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: chenQianyuUltimate },
   ],
+  buffDefinitions: {
+    'buff_chr_0005_chen_potential_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'extra_dmg': 0,
+        'hp_remain': 0.5,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          condition: {
+            kind: 'targetHealthCompare',
+            target: 'enemy',
+            valueType: 'ratio',
+            operator: 'less',
+            value: { blackboardKey: 'hp_remain' },
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'attacker',
+              zone: 'normal',
+              addition: { blackboardKey: 'extra_dmg' },
+            },
+          ],
+        },
+      ],
+    },
+  },
   talents: [
     {
       key: 'talent1',
@@ -672,35 +701,6 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
       initializationSequence: sequence(
         step('applyBuff', {
           buffId: 'buff_chr_0005_chen_potential_1',
-          definition: {
-            stackingType: 'unique',
-            priority: 0,
-            maxStackCount: 1,
-            blackboard: {
-              'extra_dmg': 0,
-              'hp_remain': 0.5,
-            },
-            damageModifiers: [
-              {
-                enabledSide: 'attacker',
-                condition: {
-                  kind: 'targetHealthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'less',
-                  value: { blackboardKey: 'hp_remain' },
-                },
-                processors: [
-                  {
-                    kind: 'damageScale',
-                    side: 'attacker',
-                    zone: 'normal',
-                    addition: { blackboardKey: 'extra_dmg' },
-                  },
-                ],
-              },
-            ],
-          },
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {

@@ -125,6 +125,21 @@ describe('TimelineActionProcessor', () => {
     expect(processor.isComplete).toBe(false);
   });
 
+  it('finishes the timeline by discarding pending actions', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([
+      timelineAction(2, 'current', events),
+      timelineAction(10, 'future', events),
+    ]);
+    processor.reset(context);
+    processor.tick(2, 1 / 30, context);
+
+    processor.finish(2, context);
+
+    expect(events).toEqual(['current:execute', 'current:tick', 'current:end']);
+    expect(processor.isComplete).toBe(true);
+  });
+
   it('ticks an active ranged action until its inclusive end frame', () => {
     const events: string[] = [];
     const processor = new TimelineActionProcessor([rangedTimelineAction(2, 4, 'ranged', events)]);

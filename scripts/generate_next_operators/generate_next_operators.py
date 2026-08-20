@@ -7,7 +7,7 @@ import json
 import math
 import re
 import textwrap
-from collections import Counter
+from collections import Counter, OrderedDict
 from dataclasses import asdict, fields, is_dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -77,6 +77,8 @@ from operator_definition_renderer import (
     OperatorDefinitionRendererServices,
     render_operator_definition as render_operator_definition_backend,
 )
+from operator_buff_linker import render_shared_buff_definitions_module
+from operator_ability_entity_linker import render_shared_ability_entity_definitions_module
 from generation_pipeline import (
     GenerationPipelineServices,
     run_generation as run_generation_backend,
@@ -144,6 +146,7 @@ from skill_action_fact_parser import (
     SkillActionFactParserServices,
     parse_auxiliary_actions as parse_auxiliary_actions_backend,
     parse_blackboard_runtime_actions as parse_blackboard_runtime_actions_backend,
+    parse_timeline_finishes as parse_timeline_finishes_backend,
     parse_timeline_jumps as parse_timeline_jumps_backend,
 )
 
@@ -167,6 +170,7 @@ from source_models import (
     ProjectileLaunchSource,
     TimedIntervalDamageSource,
     TimedAbilityEntityFinishSource,
+    TimedTimelineFinishSource,
     TimedTimelineJumpSource,
     AbilityEntityHitSource,
     AbilityEntityTimeDilationTargetSource,
@@ -450,7 +454,10 @@ def serialize_audit_value(value: Any) -> Any:
             {
                 field.name: getattr(value, field.name)
                 for field in fields(value)
-                if field.name != "intervalDamageHits" or value.intervalDamageHits
+                if not (
+                    field.name in {"intervalDamageHits", "comboQteActions", "pauseTimeActions"}
+                    and not getattr(value, field.name)
+                )
             }
         )
     if hasattr(value, "__dataclass_fields__"):
@@ -1414,6 +1421,8 @@ def _make_skill_source_builder_services() -> SkillSourceBuilderServices:
         parse_time_dilations=parse_time_dilations,
         parse_timed_skill_replacements=parse_timed_skill_replacements,
         parse_timeline=parse_timeline,
+        parse_timeline_finishes=parse_timeline_finishes,
+        parse_timeline_jumps=parse_timeline_jumps,
         resolve_ability_entity_hits=resolve_ability_entity_hits,
         resolve_conditional_aura_ability_entity_children=resolve_conditional_aura_ability_entity_children,
         resolve_conditional_projectile_triggers=resolve_conditional_projectile_triggers,
@@ -1462,7 +1471,7 @@ def compile_progression_buff_definition(
     buff_definitions: dict[str, BuffDefinitionSource],
 ) -> str:
     """编译施法者养成 Buff，并复用统一的内联生命周期动作链。"""
-    has_event_sequences = any(
+    has_event_sequences = bool(getattr(source, "comboQteActions", ())) or any(
         sequence.actions
         for event in source.eventActions
         for sequence in event.sequences
@@ -1496,6 +1505,8 @@ def _make_generation_pipeline_services() -> GenerationPipelineServices:
         render_compiled_skills=render_compiled_skills,
         render_operator_definition=render_operator_definition,
         render_report=render_report,
+        render_shared_buff_definitions_module=render_shared_buff_definitions_module,
+        render_shared_ability_entity_definitions_module=render_shared_ability_entity_definitions_module,
         render_typescript=render_typescript,
         resolve_operator_buff_definitions_for_stage=resolve_operator_buff_definitions_for_stage,
         resolve_passive_buff_definitions=resolve_passive_buff_definitions,
@@ -1962,6 +1973,7 @@ def collect_created_buff_ids(value: Any, source_name: str) -> tuple[str, ...]:
 def _make_buff_definition_parser_services() -> BuffDefinitionParserServices:
     return BuffDefinitionParserServices(
         comparison_operator_map=COMPARISON_OPERATOR_MAP,
+        damage_type_map=DAMAGE_TYPE_MAP,
         decode_damage_decorate_mask=decode_damage_decorate_mask,
         collect_created_buff_ids=collect_created_buff_ids,
         load_projected_skill_data=load_projected_skill_data,
@@ -2174,8 +2186,28 @@ def _nested_buff_targets(node: Any) -> dict[str, set[str]]:
 def _operator_root_buff_ids(skills: tuple[SkillSource, ...]) -> set[str]:
     result = {buff_id for skill in skills for buff_id in skill.referencedBuffIds}
     for skill in skills:
+        result.update(
+            buff_id
+            for buff_id, targets in _nested_projectile_buff_targets(skill).items()
+            if "Source" in targets
+        )
         result.update(_nested_aura_buff_ids(skill))
         result.update(collect_nested_conditional_buff_ids(skill))
+    return result
+
+
+def _nested_projectile_buff_targets(node: Any) -> dict[str, set[str]]:
+    """收集会被根调度提升的投射物子技能 Buff，不包含未迁移能力实体子图。"""
+    result: dict[str, set[str]] = {}
+    for child in (
+        *getattr(node, "projectileTriggeredSkills", ()),
+        *getattr(node, "nestedProjectileTriggeredSkills", ()),
+    ):
+        for action in getattr(child, "auxiliaryActions", ()):
+            if action.actionType == "CreateBuffAction":
+                result.setdefault(action.sourceId, set()).add(action.targetSource)
+        for buff_id, targets in _nested_projectile_buff_targets(child).items():
+            result.setdefault(buff_id, set()).update(targets)
     return result
 
 
@@ -2613,6 +2645,12 @@ def parse_timeline_jumps(
         inherited_blackboard,
         services=_make_skill_action_fact_parser_services(),
     )
+
+
+def parse_timeline_finishes(
+    root: dict[str, Any], source_name: str
+) -> tuple[TimedTimelineFinishSource, ...]:
+    return parse_timeline_finishes_backend(root, source_name)
 
 
 def parse_buff_source_death_finish(
@@ -3761,6 +3799,9 @@ NATIVE_DAMAGE_FEATURE_BITS = {
     134217728: "shatter",
     268435456: "dot",
     536870912: "remainArea",
+    # 1.4.4 DamageDecorateMask.TalentDamage；Rossi 的天赋额外伤害单独使用该位，
+    # 普攻流血跳伤则与 Dot 组合为 0x90000000。
+    2147483648: "talentDamage",
 }
 
 IMPLIED_DAMAGE_TAG_PARENTS = {
@@ -3846,6 +3887,9 @@ def compile_combat_condition_group(
     ability_entity_current_target: bool = False,
     buff_ability_damage_event: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    negated: tuple[bool, ...] = (),
+    any_groups: tuple[tuple[ConditionSource, ...], ...] = (),
+    any_group_negated: tuple[tuple[bool, ...], ...] = (),
 ) -> str:
     """兼容既有调用方的条件组编译入口。"""
 
@@ -3860,6 +3904,9 @@ def compile_combat_condition_group(
         ability_entity_current_target,
         buff_ability_damage_event,
         buff_owner_target,
+        negated,
+        any_groups,
+        any_group_negated,
         services=_make_combat_condition_services(),
     )
 
@@ -6045,6 +6092,7 @@ def timeline_jump_outer_condition(
         and jump.isRootContainerOnlySequenceAction
         and not jump.conditionActionTypes
         and not jump.directConditions
+        and not jump.directAnyConditions
     ):
         return None
     for condition in getattr(hit, "conditionalActions", ()):
@@ -6081,15 +6129,21 @@ def timeline_jump_can_compile(
         getattr(jump, "actionPath", ()) == expected_path
         and getattr(jump, "isOnlySequenceAction", False)
         and getattr(jump, "directConditionsSupported", False)
-        and getattr(jump, "directConditions", ())
+        and (
+            getattr(jump, "directConditions", ())
+            or getattr(jump, "directAnyConditions", ())
+        )
     ):
         try:
             compile_combat_condition_group(
                 getattr(jump, "directConditions"),
                 "timelineJump.condition",
-                root_skill_context=False,
+                root_skill_context=hit is None,
                 input_target=input_target,
                 ability_entity_current_target=hit is not None,
+                negated=getattr(jump, "directConditionNegated", ()),
+                any_groups=getattr(jump, "directAnyConditions", ()),
+                any_group_negated=getattr(jump, "directAnyConditionNegated", ()),
             )
         except ValueError:
             return False
@@ -7011,6 +7065,7 @@ def _make_resolved_sequence_services() -> ResolvedSequenceServices:
         ),
         steps=ResolvedSequenceStepServices(
             compile_conditional_action_ir=_compile_conditional_action_ir,
+            compile_combat_condition_group=compile_combat_condition_group,
             compile_ability_entity_child_skill=compile_ability_entity_child_skill,
             compile_aura_action=compile_aura_action,
             compile_blackboard_calculation=compile_blackboard_calculation,
@@ -7074,6 +7129,7 @@ def compile_skill_entries(
     skills: list[SkillSource],
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     skill_slot_replacement_relations: Iterable[dict[str, Any]] = (),
+    simulation_no_effect_buff_ids: Iterable[str] = (),
 ) -> tuple[list[tuple[SkillSource, str]], set[str]]:
     entries = require_list(operator.get("skills"), f"{operator.get('slug')}.skills")
     replacement_relations = tuple(skill_slot_replacement_relations)
@@ -7084,6 +7140,22 @@ def compile_skill_entries(
         if config is None:
             continue
         config = require_dict(config, f"{skill.key}.compile")
+        inherited_no_effect_ids = tuple(simulation_no_effect_buff_ids)
+        if inherited_no_effect_ids:
+            config = {
+                **config,
+                "simulationNoEffectBuffIds": list(
+                    dict.fromkeys(
+                        [
+                            *require_list(
+                                config.get("simulationNoEffectBuffIds", []),
+                                f"{skill.key}.compile.simulationNoEffectBuffIds",
+                            ),
+                            *inherited_no_effect_ids,
+                        ]
+                    )
+                ),
+            }
         kind = config.get("kind")
         has_slot_relation = any(
             relation["baseSkillKey"] == skill.key
@@ -7346,6 +7418,7 @@ def render_compiled_skills(
     buff_definitions: tuple[BuffDefinitionSource, ...] | None = None,
     entity_blackboard_initializers: list[dict[str, Any]] | None = None,
     skill_slot_replacement_relations: list[dict[str, Any]] | None = None,
+    simulation_no_effect_buff_ids: Iterable[str] = (),
 ) -> str:
     definitions_by_id = (
         None
@@ -7370,6 +7443,7 @@ def render_compiled_skills(
         skills,
         definitions_by_id,
         replacement_relations,
+        simulation_no_effect_buff_ids,
     )
     helper_imports = collect_definition_helpers(compiled, damage_type_factories)
     type_imports = (
@@ -7976,6 +8050,9 @@ def render_operator_definition(
     buff_definitions: tuple[BuffDefinitionSource, ...] = (),
     passive_skills: dict[str, PassiveSkillSource] | None = None,
     entity_blackboard_initializers: list[dict[str, Any]] | None = None,
+    shared_buff_definitions: OrderedDict[str, str] | None = None,
+    shared_ability_entity_definitions: OrderedDict[str, str] | None = None,
+    simulation_no_effect_buff_ids: Iterable[str] = (),
 ) -> str:
     return render_operator_definition_backend(
         operator,
@@ -7988,6 +8065,9 @@ def render_operator_definition(
         passive_skills,
         entity_blackboard_initializers,
         services=_make_operator_definition_renderer_services(),
+        shared_buff_definitions=shared_buff_definitions,
+        shared_ability_entity_definitions=shared_ability_entity_definitions,
+        simulation_no_effect_buff_ids=simulation_no_effect_buff_ids,
     )
 def render_report(
     operator: dict[str, Any],

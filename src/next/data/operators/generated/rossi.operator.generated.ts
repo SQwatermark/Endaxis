@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0028_wulfa_attack1',
     timelineBlockFrames: 9,
     scheduledSequences: [
       scheduled(
@@ -41,6 +42,7 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0028_wulfa_attack2',
     timelineBlockFrames: 12,
     scheduledSequences: [
       scheduled(
@@ -80,6 +82,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0028_wulfa_attack3',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -134,8 +137,21 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0028_wulfa_attack4',
     timelineBlockFrames: 36,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            { kind: 'casterControlled' },
+            sequence(),
+            sequence(
+              step('jumpTimeline', { destinationFrame: 189 }),
+            ),
+          ),
+        ),
+      ),
       scheduled(
         6,
         sequence(
@@ -255,6 +271,12 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
             ),
           ),
+        ),
+      ),
+      scheduled(
+        188,
+        sequence(
+          step('finishTimeline', {}),
         ),
       ),
       scheduled(
@@ -389,6 +411,7 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0028_wulfa_attack5',
     timelineBlockFrames: 31,
     scheduledSequences: [
       scheduled(
@@ -448,6 +471,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const rossiFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0028_wulfa_power_attack',
     timelineBlockFrames: 66,
     scheduledSequences: [
       scheduled(
@@ -455,36 +479,24 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_powerattack_resumecombo',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'End_Early': 0,
-                'duration': 10,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        65,
       ),
       scheduled(
         0,
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        65,
       ),
       scheduled(
         6,
@@ -544,6 +556,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
 export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0028_wulfa_plunging_attack_end',
     timelineBlockFrames: 21,
     scheduledSequences: [
       scheduled(
@@ -579,6 +592,7 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0028_wulfa_normal_skill',
     timelineBlockFrames: 38,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -724,6 +738,21 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         37,
         sequence(
+          step('jumpTimeline', {
+            destinationFrame: 215,
+            condition: {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'FollowAttackTrigger' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 0.9 },
+            },
+          }),
+        ),
+        40,
+      ),
+      scheduled(
+        37,
+        sequence(
           branch(
             {
               kind: 'actionValueCompare',
@@ -735,74 +764,17 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_tut_normalskill_failure',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'atk_scale': 0.3,
-                    'damage_interval': 1,
-                    'duration': 1,
-                    'poise': 0,
-                    'posie': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      10,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:01:1'),
-                      ),
-                    ),
-                    scheduled(
-                      12,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:11:1'),
-                      ),
-                    ),
-                    scheduled(
-                      15,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:21:1'),
-                      ),
-                    ),
-                    scheduled(
-                      18,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:31:1'),
-                      ),
-                    ),
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
             ),
           ),
+        ),
+      ),
+      scheduled(
+        214,
+        sequence(
+          step('finishTimeline', {}),
         ),
       ),
       scheduled(
@@ -820,181 +792,23 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_defup',
-            definition: {
-              stackingType: 'refresh',
-              timeClock: 'global',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_cd': 1.5,
-                'damage_interval': 1,
-                'damage_up': 0.12,
-                'defup': -0.5,
-                'duration': 5,
-                'extra_atk_scale': 1.5,
-                'heal_scale': 0.2,
-                'poise': 0,
-                'posie': 0,
-                'talent2_burning_damage_scale': 1.5,
-                'talent_2': 0,
-              },
-              damageModifiers: [
-                {
-                  enabledSide: 'defender',
-                  processors: [
-                    {
-                      kind: 'damageScale',
-                      side: 'defender',
-                      zone: 'product',
-                      addition: { blackboardKey: 'defup' },
-                    },
-                  ],
-                },
-              ],
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        272,
       ),
       scheduled(
         230,
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_smarttarget',
-            definition: {
-              stackingType: 'refresh',
-              timeClock: 'global',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_cd': 1.5,
-                'damage_interval': 1,
-                'duration': 2,
-                'extra_atk_scale': 1.5,
-                'poise': 0,
-                'posie': 0,
-                'talent_2': 0,
-              },
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           }),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_wolf_timer',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'duration': 3,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -1003,13 +817,249 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         230,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0.5 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                  operator: 'equal',
+                  value: { kind: 'constant', value: 1 },
+                },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_1_1' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_2_1' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: false,
+                        blackboardAssignments: {
+                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                          'talent_2': { kind: 'constant', value: 1 },
+                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                        },
+                      }),
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
+                        ),
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 0 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_1' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                        ),
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_2' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                            ),
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 0 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    sequence(
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            sequence(
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1054,13 +1104,542 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         230,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:16'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_tut_normalskill_success',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0.5 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                  operator: 'equal',
+                  value: { kind: 'constant', value: 1 },
+                },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_1_1' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_2_1' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: false,
+                        blackboardAssignments: {
+                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                          'talent_2': { kind: 'constant', value: 1 },
+                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                        },
+                      }),
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:16'),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:22'),
+                        ),
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 0 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:26'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_1' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:34'),
+                        ),
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_2' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:40'),
+                            ),
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 0 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:44'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    sequence(
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:47'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            sequence(
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]11:failActions10:actionData3:[0]11:actionOrder2:89'),
+            ),
+          ),
+        ),
+        230,
+      ),
+      scheduled(
+        230,
+        sequence(
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp_2' },
+            recipient: 'caster',
+          }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_upgrade' },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb_return' },
+                recipient: 'team',
+                spGainKind: 'refund',
+                spGainSource: 'skill',
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                reason: 'early',
+              }),
+            ),
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                reason: 'early',
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        230,
+        sequence(
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0.5 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                  operator: 'equal',
+                  value: { kind: 'constant', value: 1 },
+                },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_1_1' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_2_1' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: false,
+                        blackboardAssignments: {
+                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                          'talent_2': { kind: 'constant', value: 1 },
+                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                        },
+                      }),
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
+                        ),
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 0 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_1' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                        ),
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_2' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                            ),
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 0 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    sequence(
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            sequence(
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1105,64 +1684,249 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         230,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
-        ),
-      ),
-      scheduled(
-        230,
-        sequence(
-          step('changeResourceByActionValue', {
-            resource: 'ultimateEnergy',
-            amount: { kind: 'blackboard', key: 'usp_2' },
-            recipient: 'caster',
-          }),
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'potential_upgrade' },
-              operator: 'equal',
-              right: { kind: 'constant', value: 1 },
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0.5 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                  operator: 'equal',
+                  value: { kind: 'constant', value: 1 },
+                },
+              ],
             },
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb_return' },
-                recipient: 'team',
-                spGainKind: 'refund',
-                spGainSource: 'skill',
-              }),
-              step('finishBuffsById', {
-                target: 'caster',
-                buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
-                reason: 'early',
-              }),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_1_1' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_2_1' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: false,
+                        blackboardAssignments: {
+                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                          'talent_2': { kind: 'constant', value: 1 },
+                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                        },
+                      }),
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
+                        ),
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 0 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0.5 },
+                    },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_2_1' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                              'talent_2': { kind: 'constant', value: 1 },
+                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                        ),
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_2' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                            ),
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 0 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    sequence(
+                      step('dealDamage', {
+                        damageType: 'heat',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                    ),
+                  ),
+                ),
+              ),
             ),
             sequence(
-              step('finishBuffsById', {
-                target: 'caster',
-                buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
-                reason: 'early',
-              }),
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
             ),
           ),
-        ),
-      ),
-      scheduled(
-        230,
-        sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
         ),
       ),
       scheduled(
@@ -1220,13 +1984,23 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     'usp_1': 15,
     'usp_2': 10,
     'atb_return': 10,
+    'bleed_critical_damage_interval': 2,
+    'bleed_critical_damage_scale': 1,
+    'damage_up': 0,
+    'heal_scale': 0.2,
     'potential_upgrade': 0,
+    'talent2_burning_damage_scale': 1.5,
+    'talent_1_1': 0,
+    'talent_1_2': 0,
+    'talent_2_1': 0,
+    'talent_2_2': 0,
   },
 );
 
 export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill2',
+    sourceSkillId: 'chr_0028_wulfa_combo_2_skill',
     timelineBlockFrames: 37,
     cooldownFrames: [450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 420],
     scheduledSequences: [
@@ -1250,12 +2024,6 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_usecount',
-            definition: {
-              stackingType: 'enhanceAndOverwriteDuration',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: 10,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -1271,19 +2039,12 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_cannottrigger',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'duration': 10,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        45,
       ),
       scheduled(
         0,
@@ -1306,94 +2067,12 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_defup',
-            definition: {
-              stackingType: 'refresh',
-              timeClock: 'global',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_cd': 1.5,
-                'damage_interval': 1,
-                'damage_up': 0.12,
-                'defup': -0.5,
-                'duration': 5,
-                'extra_atk_scale': 1.5,
-                'heal_scale': 0.2,
-                'poise': 0,
-                'posie': 0,
-                'talent2_burning_damage_scale': 1.5,
-                'talent_2': 0,
-              },
-              damageModifiers: [
-                {
-                  enabledSide: 'defender',
-                  processors: [
-                    {
-                      kind: 'damageScale',
-                      side: 'defender',
-                      zone: 'product',
-                      addition: { blackboardKey: 'defup' },
-                    },
-                  ],
-                },
-              ],
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        65,
       ),
       scheduled(
         13,
@@ -1475,6 +2154,17 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
             left: { kind: 'blackboard', key: 'atk_scale' },
             right: { kind: 'constant', value: 0.1 },
           }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_combo_2_damagewait',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'atk_scale': { kind: 'blackboard', key: 'atk_scale_once' },
+              'trigger_times': { kind: 'constant', value: 3 },
+              'damage_interval': { kind: 'constant', value: 0.125 },
+              'duration': { kind: 'constant', value: 0.3 },
+            },
+          }),
           step('calculateActionValue', {
             key: 'count',
             operation: 'add',
@@ -1508,6 +2198,40 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'count' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'can_trigger_combo' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+              ],
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'time_succeed': { kind: 'blackboard', key: 'time_succeed' },
+                },
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        37,
+        sequence(
+          branch(
+            {
               kind: 'actionValueCompare',
               left: { kind: 'blackboard', key: 'can_trigger_combo' },
               operator: 'greaterOrEqual',
@@ -1520,6 +2244,11 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 operation: 'set',
                 basis: 'absoluteSeconds',
                 value: { kind: 'constant', value: 0 },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0028_wulfa_combo_usetimer',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
               }),
             ),
             sequence(
@@ -1550,12 +2279,14 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     'poise': 0,
     'usp': 10,
     'cam_shoulderoffset_X': 0,
+    'time_succeed': 0.4,
   },
 );
 
 export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill3',
+    sourceSkillId: 'chr_0028_wulfa_combo_3_skill',
     timelineBlockFrames: 52,
     scheduledSequences: [
       scheduled(
@@ -1563,12 +2294,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_usecount',
-            definition: {
-              stackingType: 'enhanceAndOverwriteDuration',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: 10,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -1644,6 +2369,64 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 operation: 'assign',
                 value: { kind: 'constant', value: 0 },
               }),
+              step('jumpTimeline', { destinationFrame: 212 }),
+            ),
+          ),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'EntityBB_Combo_QTE_Trigger' },
+              operator: 'greater',
+              right: { kind: 'constant', value: 0.5 },
+            },
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0028_wulfa_combo_2_qte_timer', 'buff_chr_0028_wulfa_combo_2_qte_timerlistening'],
+                reason: 'early',
+              }),
+              step('modifyActionValue', {
+                key: 'timing_success',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
+              step('startTimeDilation', {
+                scope: 'global',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 0,
+                priority: 50,
+                curve: { kind: 'inline', keys: [{ time: 0, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.8, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
+                finishByAction: false,
+                ignoredTargets: ['caster'],
+              }),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'potential_1' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  step('calculateActionValue', {
+                    key: 'atk_scale_s',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'atk_scale_s' },
+                    right: { kind: 'blackboard', key: 'potential_atk_multiply' },
+                  }),
+                ),
+              ),
+            ),
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0028_wulfa_combo_2_qte_timer', 'buff_chr_0028_wulfa_combo_2_qte_timerlistening'],
+                reason: 'early',
+              }),
+              step('modifyActionValue', {
+                key: 'timing_success',
+                operation: 'assign',
+                value: { kind: 'constant', value: 0 },
+              }),
             ),
           ),
         ),
@@ -1653,32 +2436,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'critical_damage_inc': 0.15,
-                'critical_rate': 0.1,
-                'duration': 10,
-                'usp_stage_1': 0.35,
-                'usp_stage_2': 0.7,
-                'usp_stage_3': 1,
-              },
-              attributeModifiers: [
-                {
-                  attribute: 'CriticalRate',
-                  slot: 'baseAddition',
-                  value: { blackboardKey: 'critical_rate' },
-                },
-                {
-                  attribute: 'CriticalDamageIncrease',
-                  slot: 'baseAddition',
-                  value: { blackboardKey: 'critical_damage_inc' },
-                },
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
@@ -1694,19 +2451,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_cannottrigger',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'duration': 10,
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        40,
       ),
       scheduled(
         0,
@@ -1729,94 +2479,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_defup',
-            definition: {
-              stackingType: 'refresh',
-              timeClock: 'global',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_cd': 1.5,
-                'damage_interval': 1,
-                'damage_up': 0.12,
-                'defup': -0.5,
-                'duration': 5,
-                'extra_atk_scale': 1.5,
-                'heal_scale': 0.2,
-                'poise': 0,
-                'posie': 0,
-                'talent2_burning_damage_scale': 1.5,
-                'talent_2': 0,
-              },
-              damageModifiers: [
-                {
-                  enabledSide: 'defender',
-                  processors: [
-                    {
-                      kind: 'damageScale',
-                      side: 'defender',
-                      zone: 'product',
-                      addition: { blackboardKey: 'defup' },
-                    },
-                  ],
-                },
-              ],
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        60,
       ),
       scheduled(
         29,
@@ -1844,30 +2512,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                definition: {
-                  stackingType: 'stack',
-                  priority: 0,
-                  maxStackCount: 4,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 10,
-                  },
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 count: { kind: 'blackboard', key: 'buff_stack' },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 10,
-                  },
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -1901,30 +2551,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                    definition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 4,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 10,
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     count: { kind: 'blackboard', key: 'buff_stack' },
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                    definition: {
-                      stackingType: 'refresh',
-                      priority: 0,
-                      maxStackCount: 3,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 10,
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -1958,30 +2590,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                        definition: {
-                          stackingType: 'stack',
-                          priority: 0,
-                          maxStackCount: 4,
-                          durationSeconds: { blackboardKey: 'duration' },
-                          blackboard: {
-                            'duration': 10,
-                          },
-                        },
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                         count: { kind: 'blackboard', key: 'buff_stack' },
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                        definition: {
-                          stackingType: 'refresh',
-                          priority: 0,
-                          maxStackCount: 3,
-                          durationSeconds: { blackboardKey: 'duration' },
-                          blackboard: {
-                            'duration': 10,
-                          },
-                        },
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                       }),
@@ -2015,30 +2629,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                            definition: {
-                              stackingType: 'stack',
-                              priority: 0,
-                              maxStackCount: 4,
-                              durationSeconds: { blackboardKey: 'duration' },
-                              blackboard: {
-                                'duration': 10,
-                              },
-                            },
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                             count: { kind: 'blackboard', key: 'buff_stack' },
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                            definition: {
-                              stackingType: 'refresh',
-                              priority: 0,
-                              maxStackCount: 3,
-                              durationSeconds: { blackboardKey: 'duration' },
-                              blackboard: {
-                                'duration': 10,
-                              },
-                            },
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           }),
@@ -2087,397 +2683,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_physical_no_guard',
-                definition: {
-                  stackingType: 'enhanceAndRefresh',
-                  priority: 100,
-                  maxStackCount: 4,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  applyTagIds: [1075718177],
-                  blackboard: {
-                    'atk_scale': 0,
-                    'count': 0,
-                    'duration': 20,
-                    'skip_handle_cryst_break': 0,
-                  },
-                  lifecycleSequences: {
-                    start: sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            definition: {
-                              stackingType: 'stack',
-                              priority: 0,
-                              maxStackCount: 1,
-                              durationSeconds: 10,
-                              triggerIntervalSeconds: 0,
-                              waitFirstTriggerInterval: true,
-                              maxTriggerCount: 1,
-                              blackboard: {
-                                'atk_scale': 0,
-                                'count': 0,
-                              },
-                              lifecycleSequences: {
-                                start: sequence(
-                                  step('readBuffBlackboard', {
-                                    target: 'enemy',
-                                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
-                                    desiredKey: 'count',
-                                    outputKey: 'count',
-                                  }),
-                                  step('finishBuffsByTag', {
-                                    target: 'enemy',
-                                    tagQueryType: 'hasAny',
-                                    buffTagIds: [1535684437],
-                                    reason: 'early',
-                                  }),
-                                  step('applyBuff', {
-                                    buffId: 'buff_common_cryst_triggered_physical_break',
-                                    definition: {
-                                      stackingType: 'unlimited',
-                                      priority: 0,
-                                      maxStackCount: 0,
-                                      durationSeconds: 5,
-                                      applyTagIds: [-615023885],
-                                      blackboard: {
-                                        'atk_scale': 0,
-                                      },
-                                      lifecycleSequences: {
-                                        start: sequence(
-                                          step('dealDamage', {
-                                            damageType: 'physical',
-                                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                                            tags: [],
-                                            features: ['shatter'],
-                                          }, '50:buff_common_cryst_triggered_physical_break:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:0'),
-                                        ),
-                                      },
-                                    },
-                                    target: 'enemy',
-                                    inheritSourceSkillCastInfo: true,
-                                    blackboardAssignments: {
-                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
-                                    },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'actionValueCompare',
-                                      left: { kind: 'blackboard', key: 'count' },
-                                      operator: 'equal',
-                                      right: { kind: 'constant', value: 0 },
-                                    },
-                                    sequence(
-                                      step('startTimeDilation', {
-                                        scope: 'entity',
-                                        durationSeconds: { kind: 'constant', value: 0.1 },
-                                        slot: 1464849466,
-                                        priority: 15,
-                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                        finishByAction: false,
-                                        targets: ['caster', 'caster'],
-                                      }),
-                                    ),
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'actionValueCompare',
-                                          left: { kind: 'blackboard', key: 'count' },
-                                          operator: 'equal',
-                                          right: { kind: 'constant', value: 1 },
-                                        },
-                                        sequence(
-                                          step('startTimeDilation', {
-                                            scope: 'entity',
-                                            durationSeconds: { kind: 'constant', value: 0.1 },
-                                            slot: 1464849466,
-                                            priority: 10,
-                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                            finishByAction: false,
-                                            targets: ['caster', 'caster'],
-                                          }),
-                                        ),
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'actionValueCompare',
-                                              left: { kind: 'blackboard', key: 'count' },
-                                              operator: 'equal',
-                                              right: { kind: 'constant', value: 2 },
-                                            },
-                                            sequence(
-                                              step('startTimeDilation', {
-                                                scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.25 },
-                                                slot: 1464849466,
-                                                priority: 20,
-                                                curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                finishByAction: false,
-                                                targets: ['caster', 'caster'],
-                                              }),
-                                            ),
-                                            sequence(
-                                              branch(
-                                                {
-                                                  kind: 'actionValueCompare',
-                                                  left: { kind: 'blackboard', key: 'count' },
-                                                  operator: 'equal',
-                                                  right: { kind: 'constant', value: 3 },
-                                                },
-                                                sequence(
-                                                  step('startTimeDilation', {
-                                                    scope: 'entity',
-                                                    durationSeconds: { kind: 'constant', value: 0.5 },
-                                                    slot: 1464849466,
-                                                    priority: 20,
-                                                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                    finishByAction: false,
-                                                    targets: ['caster', 'caster'],
-                                                  }),
-                                                ),
-                                                sequence(
-                                                  branch(
-                                                    {
-                                                      kind: 'actionValueCompare',
-                                                      left: { kind: 'blackboard', key: 'count' },
-                                                      operator: 'equal',
-                                                      right: { kind: 'constant', value: 4 },
-                                                    },
-                                                    sequence(
-                                                      step('startTimeDilation', {
-                                                        scope: 'entity',
-                                                        durationSeconds: { kind: 'constant', value: 0.65 },
-                                                        slot: 1464849466,
-                                                        priority: 20,
-                                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                        finishByAction: false,
-                                                        targets: ['caster', 'caster'],
-                                                      }),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              },
-                            },
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      ),
-                    ),
-                    finish: sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_physical_no_guard_fake',
-                        definition: {
-                          stackingType: 'refresh',
-                          priority: 100,
-                          maxStackCount: 1,
-                          durationSeconds: { blackboardKey: 'duration' },
-                          applyTagIds: [-508362979],
-                          blackboard: {
-                            'duration': 1,
-                          },
-                        },
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                    afterEnhance: sequence(
-                      step('igniteBuffs', {
-                        target: 'enemy',
-                        source: 'currentBuffSource',
-                        igniteType: 'NoGuard',
-                      }),
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            definition: {
-                              stackingType: 'stack',
-                              priority: 0,
-                              maxStackCount: 1,
-                              durationSeconds: 10,
-                              triggerIntervalSeconds: 0,
-                              waitFirstTriggerInterval: true,
-                              maxTriggerCount: 1,
-                              blackboard: {
-                                'atk_scale': 0,
-                                'count': 0,
-                              },
-                              lifecycleSequences: {
-                                start: sequence(
-                                  step('readBuffBlackboard', {
-                                    target: 'enemy',
-                                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
-                                    desiredKey: 'count',
-                                    outputKey: 'count',
-                                  }),
-                                  step('finishBuffsByTag', {
-                                    target: 'enemy',
-                                    tagQueryType: 'hasAny',
-                                    buffTagIds: [1535684437],
-                                    reason: 'early',
-                                  }),
-                                  step('applyBuff', {
-                                    buffId: 'buff_common_cryst_triggered_physical_break',
-                                    definition: {
-                                      stackingType: 'unlimited',
-                                      priority: 0,
-                                      maxStackCount: 0,
-                                      durationSeconds: 5,
-                                      applyTagIds: [-615023885],
-                                      blackboard: {
-                                        'atk_scale': 0,
-                                      },
-                                      lifecycleSequences: {
-                                        start: sequence(
-                                          step('dealDamage', {
-                                            damageType: 'physical',
-                                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                                            tags: [],
-                                            features: ['shatter'],
-                                          }, '50:buff_common_cryst_triggered_physical_break:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:0'),
-                                        ),
-                                      },
-                                    },
-                                    target: 'enemy',
-                                    inheritSourceSkillCastInfo: true,
-                                    blackboardAssignments: {
-                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
-                                    },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'actionValueCompare',
-                                      left: { kind: 'blackboard', key: 'count' },
-                                      operator: 'equal',
-                                      right: { kind: 'constant', value: 0 },
-                                    },
-                                    sequence(
-                                      step('startTimeDilation', {
-                                        scope: 'entity',
-                                        durationSeconds: { kind: 'constant', value: 0.1 },
-                                        slot: 1464849466,
-                                        priority: 15,
-                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                        finishByAction: false,
-                                        targets: ['caster', 'caster'],
-                                      }),
-                                    ),
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'actionValueCompare',
-                                          left: { kind: 'blackboard', key: 'count' },
-                                          operator: 'equal',
-                                          right: { kind: 'constant', value: 1 },
-                                        },
-                                        sequence(
-                                          step('startTimeDilation', {
-                                            scope: 'entity',
-                                            durationSeconds: { kind: 'constant', value: 0.1 },
-                                            slot: 1464849466,
-                                            priority: 10,
-                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                            finishByAction: false,
-                                            targets: ['caster', 'caster'],
-                                          }),
-                                        ),
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'actionValueCompare',
-                                              left: { kind: 'blackboard', key: 'count' },
-                                              operator: 'equal',
-                                              right: { kind: 'constant', value: 2 },
-                                            },
-                                            sequence(
-                                              step('startTimeDilation', {
-                                                scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.25 },
-                                                slot: 1464849466,
-                                                priority: 20,
-                                                curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                finishByAction: false,
-                                                targets: ['caster', 'caster'],
-                                              }),
-                                            ),
-                                            sequence(
-                                              branch(
-                                                {
-                                                  kind: 'actionValueCompare',
-                                                  left: { kind: 'blackboard', key: 'count' },
-                                                  operator: 'equal',
-                                                  right: { kind: 'constant', value: 3 },
-                                                },
-                                                sequence(
-                                                  step('startTimeDilation', {
-                                                    scope: 'entity',
-                                                    durationSeconds: { kind: 'constant', value: 0.5 },
-                                                    slot: 1464849466,
-                                                    priority: 20,
-                                                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                    finishByAction: false,
-                                                    targets: ['caster', 'caster'],
-                                                  }),
-                                                ),
-                                                sequence(
-                                                  branch(
-                                                    {
-                                                      kind: 'actionValueCompare',
-                                                      left: { kind: 'blackboard', key: 'count' },
-                                                      operator: 'equal',
-                                                      right: { kind: 'constant', value: 4 },
-                                                    },
-                                                    sequence(
-                                                      step('startTimeDilation', {
-                                                        scope: 'entity',
-                                                        durationSeconds: { kind: 'constant', value: 0.65 },
-                                                        slot: 1464849466,
-                                                        priority: 20,
-                                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                        finishByAction: false,
-                                                        targets: ['caster', 'caster'],
-                                                      }),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              },
-                            },
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      ),
-                    ),
-                  },
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2587,69 +2792,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_tut_comboskill_success',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'atk_scale': 0.3,
-                    'damage_interval': 1,
-                    'duration': 1,
-                    'poise': 0,
-                    'posie': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      10,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:01:1'),
-                      ),
-                    ),
-                    scheduled(
-                      12,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:11:1'),
-                      ),
-                    ),
-                    scheduled(
-                      15,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:21:1'),
-                      ),
-                    ),
-                    scheduled(
-                      18,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:31:1'),
-                      ),
-                    ),
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2657,69 +2799,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'atk_scale': 0.3,
-                    'damage_interval': 1,
-                    'duration': 1,
-                    'poise': 0,
-                    'posie': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      10,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
-                      ),
-                    ),
-                    scheduled(
-                      12,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
-                      ),
-                    ),
-                    scheduled(
-                      15,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
-                      ),
-                    ),
-                    scheduled(
-                      18,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
-                      ),
-                    ),
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2741,69 +2820,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'atk_scale': 0.3,
-                    'damage_interval': 1,
-                    'duration': 1,
-                    'poise': 0,
-                    'posie': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      10,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
-                      ),
-                    ),
-                    scheduled(
-                      12,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
-                      ),
-                    ),
-                    scheduled(
-                      15,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
-                      ),
-                    ),
-                    scheduled(
-                      18,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
-                      ),
-                    ),
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -2811,72 +2827,17 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           ),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_interval': 1,
-                'duration': 1,
-                'poise': 0,
-                'posie': 0,
-              },
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
+        ),
+        59,
+      ),
+      scheduled(
+        211,
+        sequence(
+          step('finishTimeline', {}),
         ),
       ),
       scheduled(
@@ -2884,32 +2845,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'critical_damage_inc': 0.15,
-                'critical_rate': 0.1,
-                'duration': 10,
-                'usp_stage_1': 0.35,
-                'usp_stage_2': 0.7,
-                'usp_stage_3': 1,
-              },
-              attributeModifiers: [
-                {
-                  attribute: 'CriticalRate',
-                  slot: 'baseAddition',
-                  value: { blackboardKey: 'critical_rate' },
-                },
-                {
-                  attribute: 'CriticalDamageIncrease',
-                  slot: 'baseAddition',
-                  value: { blackboardKey: 'critical_damage_inc' },
-                },
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
@@ -2941,94 +2876,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_defup',
-            definition: {
-              stackingType: 'refresh',
-              timeClock: 'global',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_cd': 1.5,
-                'damage_interval': 1,
-                'damage_up': 0.12,
-                'defup': -0.5,
-                'duration': 5,
-                'extra_atk_scale': 1.5,
-                'heal_scale': 0.2,
-                'poise': 0,
-                'posie': 0,
-                'talent2_burning_damage_scale': 1.5,
-                'talent_2': 0,
-              },
-              damageModifiers: [
-                {
-                  enabledSide: 'defender',
-                  processors: [
-                    {
-                      kind: 'damageScale',
-                      side: 'defender',
-                      zone: 'product',
-                      addition: { blackboardKey: 'defup' },
-                    },
-                  ],
-                },
-              ],
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        259,
       ),
       scheduled(
         227,
@@ -3056,30 +2909,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                definition: {
-                  stackingType: 'stack',
-                  priority: 0,
-                  maxStackCount: 4,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 10,
-                  },
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 count: { kind: 'blackboard', key: 'buff_stack' },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 10,
-                  },
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -3113,30 +2948,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                    definition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 4,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 10,
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     count: { kind: 'blackboard', key: 'buff_stack' },
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                    definition: {
-                      stackingType: 'refresh',
-                      priority: 0,
-                      maxStackCount: 3,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      blackboard: {
-                        'duration': 10,
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -3170,30 +2987,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                        definition: {
-                          stackingType: 'stack',
-                          priority: 0,
-                          maxStackCount: 4,
-                          durationSeconds: { blackboardKey: 'duration' },
-                          blackboard: {
-                            'duration': 10,
-                          },
-                        },
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                         count: { kind: 'blackboard', key: 'buff_stack' },
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                        definition: {
-                          stackingType: 'refresh',
-                          priority: 0,
-                          maxStackCount: 3,
-                          durationSeconds: { blackboardKey: 'duration' },
-                          blackboard: {
-                            'duration': 10,
-                          },
-                        },
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                       }),
@@ -3227,30 +3026,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
-                            definition: {
-                              stackingType: 'stack',
-                              priority: 0,
-                              maxStackCount: 4,
-                              durationSeconds: { blackboardKey: 'duration' },
-                              blackboard: {
-                                'duration': 10,
-                              },
-                            },
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                             count: { kind: 'blackboard', key: 'buff_stack' },
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
-                            definition: {
-                              stackingType: 'refresh',
-                              priority: 0,
-                              maxStackCount: 3,
-                              durationSeconds: { blackboardKey: 'duration' },
-                              blackboard: {
-                                'duration': 10,
-                              },
-                            },
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           }),
@@ -3378,69 +3159,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
-                definition: {
-                  stackingType: 'refresh',
-                  priority: 0,
-                  maxStackCount: 3,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'atk_scale': 0.3,
-                    'damage_interval': 1,
-                    'duration': 1,
-                    'poise': 0,
-                    'posie': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      10,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
-                      ),
-                    ),
-                    scheduled(
-                      12,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
-                      ),
-                    ),
-                    scheduled(
-                      15,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
-                      ),
-                    ),
-                    scheduled(
-                      18,
-                      sequence(
-                        step('dealDamage', {
-                          damageType: 'physical',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['comboSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'posie' },
-                        }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
-                      ),
-                    ),
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -3448,73 +3166,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           ),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish',
-            definition: {
-              stackingType: 'refresh',
-              priority: 0,
-              maxStackCount: 3,
-              durationSeconds: { blackboardKey: 'duration' },
-              blackboard: {
-                'atk_scale': 0.3,
-                'damage_interval': 1,
-                'duration': 1,
-                'poise': 0,
-                'posie': 0,
-              },
-              scheduledSequences: [
-                scheduled(
-                  10,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:01:1'),
-                  ),
-                ),
-                scheduled(
-                  12,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:11:1'),
-                  ),
-                ),
-                scheduled(
-                  15,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:21:1'),
-                  ),
-                ),
-                scheduled(
-                  18,
-                  sequence(
-                    step('dealDamage', {
-                      damageType: 'physical',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['comboSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'posie' },
-                    }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:31:1'),
-                  ),
-                ),
-              ],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        257,
       ),
     ],
   },
@@ -3542,6 +3199,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
 export const rossiUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0028_wulfa_ultimate_skill',
     timelineBlockFrames: 156,
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 110 }],
@@ -3614,6 +3272,21 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        58,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+            blackboardAssignments: {
+              'critical_damage_up_to_bleed': { kind: 'blackboard', key: 'crit_damage_up_to_bleed' },
+            },
+          }),
+        ),
+        208,
+      ),
+      scheduled(
         63,
         sequence(
           step('dealDamage', {
@@ -3663,19 +3336,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_ult_stopenemy',
-                    definition: {
-                      stackingType: 'refresh',
-                      priority: 0,
-                      maxStackCount: 4,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      applyTagIds: [430405417],
-                      blackboard: {
-                        'duration': 1.5,
-                        'usp_stage_1': 0.35,
-                        'usp_stage_2': 0.7,
-                        'usp_stage_3': 1,
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4171,6 +3831,1265 @@ export const rossiGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: [rossiComboSkill2, rossiComboSkill3] },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: rossiUltimate },
   ],
+  buffDefinitions: {
+    'buff_chr_0028_wulfa_powerattack_resumecombo': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'End_Early': 0,
+        'duration': 10,
+      },
+    },
+    'buff_chr_0028_wulfa_tut_normalskill_failure': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_failure12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_failure11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_normal_defup': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_cd': 1.5,
+        'damage_interval': 1,
+        'damage_up': 0.12,
+        'defup': -0.5,
+        'duration': 5,
+        'extra_atk_scale': 1.5,
+        'heal_scale': 0.2,
+        'poise': 0,
+        'posie': 0,
+        'talent2_burning_damage_scale': 1.5,
+        'talent_2': 0,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'product',
+              addition: { blackboardKey: 'defup' },
+            },
+          ],
+        },
+      ],
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_defup12:buffInterval32:buff_chr_0028_wulfa_normal_defup11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_normal_smarttarget': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_cd': 1.5,
+        'damage_interval': 1,
+        'duration': 2,
+        'extra_atk_scale': 1.5,
+        'poise': 0,
+        'posie': 0,
+        'talent_2': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '38:buff_chr_0028_wulfa_normal_smarttarget12:buffInterval38:buff_chr_0028_wulfa_normal_smarttarget11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_normal_wolf_timer': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 3,
+      },
+    },
+    'buff_chr_0028_wulfa_normal_bleed_effect': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_cd': 1.5,
+        'damage_interval': 1,
+        'duration': 0.9,
+        'extra_atk_scale': 1.5,
+        'poise': 0,
+        'posie': 0,
+        'talent_2': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '39:buff_chr_0028_wulfa_normal_bleed_effect12:buffInterval39:buff_chr_0028_wulfa_normal_bleed_effect11:actionOrder1:11:01:2'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '39:buff_chr_0028_wulfa_normal_bleed_effect12:buffInterval39:buff_chr_0028_wulfa_normal_bleed_effect11:actionOrder1:11:11:2'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '39:buff_chr_0028_wulfa_normal_bleed_effect12:buffInterval39:buff_chr_0028_wulfa_normal_bleed_effect11:actionOrder1:11:21:2'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '39:buff_chr_0028_wulfa_normal_bleed_effect12:buffInterval39:buff_chr_0028_wulfa_normal_bleed_effect11:actionOrder1:11:31:2'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_talent2_heal_effect': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0.5,
+        'interval': 0.3,
+      },
+    },
+    'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'burning_damage_scale': 1.5,
+        'damage_cd': 1.5,
+        'damage_interval': 1,
+        'duration': 1.2,
+        'heal_scale': 0.05,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            branch(
+              {
+                kind: 'buffStackCompare',
+                target: 'enemy',
+                tagQueryType: 'hasAny',
+                buffTagIds: [-1110095722],
+                operator: 'greater',
+                value: { kind: 'constant', value: 0.5 },
+              },
+              sequence(
+                step('calculateActionValue', {
+                  key: 'atk_scale',
+                  operation: 'multiply',
+                  left: { kind: 'blackboard', key: 'atk_scale' },
+                  right: { kind: 'blackboard', key: 'burning_damage_scale' },
+                }),
+                step('calculateActionValue', {
+                  key: 'heal_scale',
+                  operation: 'multiply',
+                  left: { kind: 'blackboard', key: 'heal_scale' },
+                  right: { kind: 'blackboard', key: 'burning_damage_scale' },
+                }),
+                step('dealDamage', {
+                  damageType: 'heat',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                  tags: [],
+                  features: ['talentDamage'],
+                }, '50:buff_chr_0028_wulfa_normal_bleed_crit_extra_damage11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:4'),
+                step('heal', {
+                  target: 'buffSource',
+                  alwaysNext: false,
+                  attribute: 'intellect',
+                  multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                  addition: { kind: 'constant', value: 0 },
+                  tagIds: [],
+                }),
+                branch(
+                  {
+                    kind: 'all',
+                    conditions: [
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0028_wulfa_talent2_heal_effect'],
+                        operator: 'equal',
+                        value: { kind: 'constant', value: 0 },
+                      },
+                      {
+                        kind: 'healthCompare',
+                        target: 'buffSource',
+                        valueType: 'ratio',
+                        operator: 'less',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                    ],
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0028_wulfa_talent2_heal_effect',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ),
+              sequence(
+                step('dealDamage', {
+                  damageType: 'heat',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                  tags: [],
+                  features: ['talentDamage'],
+                }, '50:buff_chr_0028_wulfa_normal_bleed_crit_extra_damage11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:11'),
+                step('heal', {
+                  target: 'buffSource',
+                  alwaysNext: false,
+                  attribute: 'intellect',
+                  multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                  addition: { kind: 'constant', value: 0 },
+                  tagIds: [],
+                }),
+                branch(
+                  {
+                    kind: 'all',
+                    conditions: [
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0028_wulfa_talent2_heal_effect'],
+                        operator: 'equal',
+                        value: { kind: 'constant', value: 0 },
+                      },
+                      {
+                        kind: 'healthCompare',
+                        target: 'buffSource',
+                        valueType: 'ratio',
+                        operator: 'less',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                    ],
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0028_wulfa_talent2_heal_effect',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_normal_bleed': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      triggerIntervalSeconds: { blackboardKey: 'damage_interval' },
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_cd': 1.5,
+        'damage_interval': 1,
+        'damage_up': 0.12,
+        'duration': 1,
+        'extra_atk_scale': 1.5,
+        'heal_scale': 0.2,
+        'poise': 0,
+        'posie': 0,
+        'talent2_burning_damage_scale': 1.5,
+        'talent_2': 0,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['physical'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'normal',
+              addition: { blackboardKey: 'damage_up' },
+            },
+          ],
+        },
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['heat'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'normal',
+              addition: { blackboardKey: 'damage_up' },
+            },
+          ],
+        },
+      ],
+      lifecycleSequences: {
+        trigger: sequence(
+          step('dealDamage', {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: [],
+            features: ['dot', 'talentDamage'],
+          }, '42:buff_chr_0028_wulfa_normal_bleed:trigger:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_normal_bleed_effect',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+      },
+      abilityEventResponses: [
+        {
+          event: 'takeCriticalDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_2' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0.5 },
+                },
+                sequence(
+                  branch(
+                    { kind: 'eventSourceMatchesBuffSource' },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'eventDamageTagsMatch',
+                          match: 'hasAny',
+                          tags: ['normalSkill', 'ultimateSkill', 'comboSkill'],
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: false,
+                            blackboardAssignments: {
+                              'atk_scale': { kind: 'blackboard', key: 'extra_atk_scale' },
+                              'damage_cd': { kind: 'blackboard', key: 'damage_cd' },
+                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                              'burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                            },
+                          }),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_bleed12:buffInterval32:buff_chr_0028_wulfa_normal_bleed11:actionOrder2:101:02:11'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_bleed12:buffInterval32:buff_chr_0028_wulfa_normal_bleed11:actionOrder2:101:12:11'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_bleed12:buffInterval32:buff_chr_0028_wulfa_normal_bleed11:actionOrder2:101:22:11'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '32:buff_chr_0028_wulfa_normal_bleed12:buffInterval32:buff_chr_0028_wulfa_normal_bleed11:actionOrder2:101:32:11'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_tut_normalskill_success': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_success12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_success11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_success12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_success11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_success12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_success11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '43:buff_chr_0028_wulfa_tut_normalskill_success12:buffInterval43:buff_chr_0028_wulfa_tut_normalskill_success11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_usecount': {
+      stackingType: 'enhanceAndOverwriteDuration',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: 10,
+    },
+    'buff_chr_0028_wulfa_combo_cannottrigger': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 10,
+      },
+    },
+    'buff_chr_0028_wulfa_combo_2_damage': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      triggerIntervalSeconds: { blackboardKey: 'damage_interval' },
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: { blackboardKey: 'trigger_times' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 0.1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+        'trigger_times': 3,
+      },
+      lifecycleSequences: {
+        trigger: sequence(
+          step('dealDamage', {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['comboSkill'],
+            features: ['canBreakWeakness'],
+          }, '44:buff_chr_0028_wulfa_combo_2_damage:trigger:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:0'),
+        ),
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval34:buff_chr_0028_wulfa_combo_2_damage11:actionOrder1:41:01:5'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval34:buff_chr_0028_wulfa_combo_2_damage11:actionOrder1:41:11:5'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval34:buff_chr_0028_wulfa_combo_2_damage11:actionOrder1:41:21:5'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval34:buff_chr_0028_wulfa_combo_2_damage11:actionOrder1:41:31:5'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_2_damagewait': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 0.1,
+        'duration': 3,
+        'poise': 0,
+        'posie': 0,
+        'trigger_times': 3,
+      },
+      lifecycleSequences: {
+        finish: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0028_wulfa_combo_2_damage',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+              'poise': { kind: 'blackboard', key: 'poise' },
+              'trigger_times': { kind: 'blackboard', key: 'trigger_times' },
+              'damage_interval': { kind: 'blackboard', key: 'damage_interval' },
+            },
+          }),
+        ),
+      },
+    },
+    'buff_chr_0028_wulfa_combo_2_qte_timer': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0.5,
+      },
+    },
+    'buff_chr_0028_wulfa_tut_comboskill_failure': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_failure12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_failure11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_2_qte_timerlistening': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 6,
+        'time_succeed': 0.5,
+        'time_warning': 0.5,
+      },
+      abilityEventResponses: [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: sequence(
+            branch(
+            {
+              kind: 'all',
+              conditions: [
+                { kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0028_wulfa_combo_2_qte_timer'],
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+              ],
+            },
+            sequence(
+                step('modifyActionValue', {
+                  key: 'EntityBB_Combo_QTE_Trigger',
+                  operation: 'assign',
+                  value: { kind: 'constant', value: 1 },
+                }),
+            ),
+            ),
+          ),
+        },
+        {
+          event: 'finishedBuff',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0028_wulfa_powerattack_resumecombo'] },
+              sequence(
+                step('setCurrentBuffTimePaused', {
+                  paused: false,
+                }),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventSkillIdIn', skillIds: ['chr_0028_wulfa_power_attack'] },
+              sequence(
+                step('setCurrentBuffTimePaused', {
+                  paused: true,
+                }),
+              ),
+            ),
+          ),
+        },
+      ],
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('modifyActionValue', {
+              key: 'EntityBB_Combo_QTE_Trigger',
+              operation: 'assign',
+              value: { kind: 'constant', value: 0 },
+            }),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0028_wulfa_combo_2_qte_timer',
+              target: 'caster',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: {
+                'duration': { kind: 'blackboard', key: 'time_succeed' },
+              },
+            }),
+          ),
+        ),
+        scheduled(
+          35,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
+              target: 'caster',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: {
+                'duration': { kind: 'constant', value: 0.2 },
+              },
+            }),
+            step('finishBuffsById', {
+              target: 'caster',
+              buffIds: ['buff_train_output_succbuff_or_failbuff_by_id'],
+              reason: 'early',
+            }),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_usetimer': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'End_Early': 0,
+        'duration': 6,
+        'need_set_cd': 1,
+      },
+      lifecycleSequences: {
+        finish: sequence(
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0028_wulfa_combo_usecount'],
+            reason: 'other',
+          }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'need_set_cd' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 0.5 },
+            },
+            sequence(
+              step('adjustSkillCooldown', {
+                target: 'caster',
+                skill: { kind: 'id', skillId: 'chr_0028_wulfa_combo_2_skill' },
+                operation: 'set',
+                basis: 'baseDurationRatio',
+                value: { kind: 'constant', value: 1 },
+              }),
+            ),
+          ),
+        ),
+      },
+      abilityEventResponses: [
+        {
+          event: 'finishedBuff',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0028_wulfa_powerattack_resumecombo'] },
+              sequence(
+                step('setCurrentBuffTimePaused', {
+                  paused: false,
+                }),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventSkillIdIn', skillIds: ['chr_0028_wulfa_power_attack'] },
+              sequence(
+                step('setCurrentBuffTimePaused', {
+                  paused: true,
+                }),
+              ),
+            ),
+          ),
+        },
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_criticalrate': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'critical_damage_inc': 0.15,
+        'critical_rate': 0.1,
+        'duration': 10,
+        'usp_stage_1': 0.35,
+        'usp_stage_2': 0.7,
+        'usp_stage_3': 1,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'criticalRate',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'critical_rate' },
+        },
+        {
+          attribute: 'criticalDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'critical_damage_inc' },
+        },
+      ],
+    },
+    'buff_chr_0028_wulfa_combo_inflictnum': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 4,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 10,
+      },
+    },
+    'buff_chr_0028_wulfa_combo_hasinflict': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 10,
+      },
+    },
+    'buff_chr_0028_wulfa_tut_comboskill_success': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '42:buff_chr_0028_wulfa_tut_comboskill_success12:buffInterval42:buff_chr_0028_wulfa_tut_comboskill_success11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_tut_comboskill_finish': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_scale': 0.3,
+        'damage_interval': 1,
+        'duration': 1,
+        'poise': 0,
+        'posie': 0,
+      },
+      scheduledSequences: [
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:01:1'),
+          ),
+        ),
+        scheduled(
+          12,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:11:1'),
+          ),
+        ),
+        scheduled(
+          15,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:21:1'),
+          ),
+        ),
+        scheduled(
+          18,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'posie' },
+            }, '41:buff_chr_0028_wulfa_tut_comboskill_finish12:buffInterval41:buff_chr_0028_wulfa_tut_comboskill_finish11:actionOrder1:01:31:1'),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'critical_damage_up_to_bleed': 0.2,
+        'duration': 5,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          condition: {
+            kind: 'eventDamageTagsMatch',
+            match: 'hasAll',
+            tags: ['ultimateSkill'],
+          },
+          processors: [
+            {
+              kind: 'instantAttribute',
+              targetSide: 'attacker',
+              attribute: 'criticalDamageIncrease',
+              values: {
+                slot: 'baseAddition',
+                value: { blackboardKey: 'critical_damage_up_to_bleed' },
+              },
+              attributeTiming: 'runtime',
+            },
+          ],
+        },
+      ],
+    },
+    'buff_chr_0028_wulfa_ult_stopenemy': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 4,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTagIds: [430405417],
+      blackboard: {
+        'duration': 1.5,
+        'usp_stage_1': 0.35,
+        'usp_stage_2': 0.7,
+        'usp_stage_3': 1,
+      },
+    },
+  },
   talents: [
     {
       key: 'talent1',
@@ -4329,5 +5248,5 @@ export const rossiGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'comboSkill2', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
 };

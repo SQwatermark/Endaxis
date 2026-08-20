@@ -323,6 +323,73 @@ def parse_timeline_jump_condition(
         )
     if condition_type == "CheckHp":
         return _parse_hp_condition(condition, path, inherited_blackboard)
+    if condition_type == "CompareFloat":
+        return ConditionSource(
+            sourceType=condition_type,
+            supported=True,
+            comparison=str(condition.get("compare", "")),
+            left=parse_scalar(
+                condition.get("valueA"), f"{path}.valueA", inherited_blackboard
+            ),
+            right=parse_scalar(
+                condition.get("valueB"), f"{path}.valueB", inherited_blackboard
+            ),
+            skillTypes=(),
+        )
+    if condition_type == "CheckMainCharacterCondition":
+        target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+        target_source = str(target.get("targetSource", ""))
+        target_group_key = str(target.get("targetGroupKey", ""))
+        return ConditionSource(
+            sourceType=condition_type,
+            supported=target_source in {"Owner", "Source"} and not target_group_key,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            mainOperator=MainOperatorConditionSource(
+                targetSource=target_source,
+                targetGroupKey=target_group_key,
+            ),
+        )
+    if condition_type == "CheckTimedMarkerCondition":
+        target = require_dict(condition.get("checkTarget"), f"{path}.checkTarget")
+        marker_id = condition.get("id")
+        blackboard_key = condition.get("blackboardKey")
+        if not isinstance(marker_id, str):
+            raise ValueError(f"{path}.id: expected string")
+        if not isinstance(blackboard_key, str):
+            raise ValueError(f"{path}.blackboardKey: expected string")
+        use_blackboard_key = require_bool(
+            condition.get("useBlackboardKey"), f"{path}.useBlackboardKey"
+        )
+        return_true_if_missing = require_bool(
+            condition.get("returnTrueIfNotExists"),
+            f"{path}.returnTrueIfNotExists",
+        )
+        target_source = str(target.get("targetSource", ""))
+        target_group_key = str(target.get("targetGroupKey", ""))
+        return ConditionSource(
+            sourceType=condition_type,
+            supported=(
+                not use_blackboard_key
+                and bool(marker_id)
+                and target_source in {"Owner", "Source"}
+                and not target_group_key
+            ),
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            timedMarker=TimedMarkerConditionSource(
+                targetSource=target_source,
+                targetGroupKey=target_group_key,
+                markerId=marker_id,
+                blackboardKey=blackboard_key,
+                useBlackboardKey=use_blackboard_key,
+                returnTrueIfNotExists=return_true_if_missing,
+            ),
+        )
     raise ValueError(f"{path}: unsupported timeline jump condition {condition_type!r}")
 
 

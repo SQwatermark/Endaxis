@@ -465,6 +465,17 @@ def compile_conditional_branch_action(
     if heal is not None:
         target_role: str | None = None
         if (
+            current_buff_environment
+            and heal.target.targetSource == "Source"
+            and not heal.target.targetGroupKey
+            and heal.target.finderType is None
+            and not heal.target.validatorTypes
+            and not heal.target.postProcessorTypes
+        ):
+            # Buff 生命周期 Context 会携带实例真实 sourceId；不能把 Source
+            # 静态折叠成宿主或根技能施法者。
+            target_role = "buffSource"
+        elif (
             heal.target.targetSource == "MainCharacter"
             and not heal.target.targetGroupKey
             and heal.target.finderType is None
@@ -517,6 +528,7 @@ def compile_conditional_branch_action(
             [
                 "step('heal', {",
                 f"  target: {ts_inline_literal(target_role)},",
+                f"  alwaysNext: {ts_inline_literal(heal.alwaysNext)},",
                 *calculation_lines,
                 f"  tagIds: {ts_inline_literal(heal.tagIds)},",
                 "})",

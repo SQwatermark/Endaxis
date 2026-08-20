@@ -426,6 +426,9 @@ def compile_ability_entity_child_skill(
                 root_skill_context=False,
                 input_target=input_target,
                 ability_entity_current_target=True,
+                negated=jump.directConditionNegated,
+                any_groups=jump.directAnyConditions,
+                any_group_negated=jump.directAnyConditionNegated,
             )
             condition_lines = condition.splitlines()
             condition_lines[0] = f"  condition: {condition_lines[0]}"

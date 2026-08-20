@@ -207,6 +207,23 @@ class TimelineJumpStep extends CombatStep {
   }
 }
 
+class TimelineFinishStep extends CombatStep {
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'finishTimeline' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    this.runtime.hooks.stepReached?.(this.step);
+    const request = this.operationContext.requestTimelineFinish;
+    if (request === undefined) throw new Error('finishTimeline requires a timeline host');
+    request();
+  }
+}
+
 class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
 
@@ -285,6 +302,9 @@ export class CombatActionSequenceRuntime {
         if (step.kind === 'conditional') return new ConditionalStep(step, this, operationContext);
         if (step.kind === 'jumpTimeline') {
           return new TimelineJumpStep(step, this, operationContext);
+        }
+        if (step.kind === 'finishTimeline') {
+          return new TimelineFinishStep(step, this, operationContext);
         }
         if (step.kind === 'once') return new OnceStep(step, this, operationContext);
         if (step.kind === 'repeatEachTick') {

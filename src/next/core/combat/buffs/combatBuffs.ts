@@ -192,6 +192,7 @@ export class CombatBuff<Key extends string> {
   #enabled = false;
   #finished = false;
   #finishing = false;
+  #timePaused = false;
   #finishable = true;
   #appliedExtendTags = false;
   #finishReason: BuffFinishReason | null = null;
@@ -277,6 +278,10 @@ export class CombatBuff<Key extends string> {
 
   get isFinishable(): boolean {
     return this.#finishable;
+  }
+
+  get isTimePaused(): boolean {
+    return this.#timePaused;
   }
 
   get enhanceCount(): number {
@@ -373,6 +378,7 @@ export class CombatBuff<Key extends string> {
         ? deltaTime
         : resolveBuffTickDelta(this.definition.timeClock ?? 'default', deltaTime);
     if (!Number.isFinite(resolvedDeltaTime)) throw new TypeError('buff delta time must be finite');
+    if (this.#timePaused) return;
     const elapsed = Math.max(0, resolvedDeltaTime);
     this.#passedTime += elapsed;
     if (this.#enabled) {
@@ -382,6 +388,11 @@ export class CombatBuff<Key extends string> {
     if (this.#remainingDuration === null) return;
     this.#remainingDuration -= elapsed;
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
+  }
+
+  /** PauseBuffTime 只冻结当前 Buff 的生命周期、周期触发与挂载时间轴。 */
+  setTimePaused(paused: boolean): void {
+    this.#timePaused = paused;
   }
 
   /** 恢复可结束时，原生仅在剩余时长已经小于 0 的情况下补发到期结束。 */

@@ -2034,6 +2034,7 @@ export const emberGeneratedSource = {
               "heal": {
                 "healType": "Normal",
                 "healer": "ActionSource",
+                "alwaysNext": true,
                 "target": {
                   "targetSource": "InstantSearch",
                   "targetGroupKey": "",
@@ -2239,6 +2240,7 @@ export const emberGeneratedSource = {
               "heal": {
                 "healType": "Normal",
                 "healer": "ActionSource",
+                "alwaysNext": true,
                 "target": {
                   "targetSource": "Context",
                   "targetGroupKey": "CureTarget",
@@ -3435,6 +3437,7 @@ export const emberGeneratedSource = {
               "heal": {
                 "healType": "Normal",
                 "healer": "ActionSource",
+                "alwaysNext": true,
                 "target": {
                   "targetSource": "InstantSearch",
                   "targetGroupKey": "",
@@ -3674,6 +3677,7 @@ export const emberGeneratedSource = {
               "heal": {
                 "healType": "Normal",
                 "healer": "ActionSource",
+                "alwaysNext": true,
                 "target": {
                   "targetSource": "Context",
                   "targetGroupKey": "CureTarget",
@@ -3923,7 +3927,10 @@ export const emberGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack1",
@@ -4407,7 +4414,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -4927,7 +4937,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -5382,7 +5395,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -6093,7 +6109,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -6534,7 +6553,8 @@ export const emberGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 22
+          "sequenceIndex": 22,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -6555,7 +6575,8 @@ export const emberGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 30
+          "sequenceIndex": 30,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -6719,7 +6740,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -7193,7 +7217,10 @@ export const emberGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -10185,7 +10212,10 @@ export const emberGeneratedSource = {
         }
       ],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -10709,7 +10739,8 @@ export const emberGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -10730,7 +10761,8 @@ export const emberGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -11329,7 +11361,10 @@ export const emberGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

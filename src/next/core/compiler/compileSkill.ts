@@ -12,11 +12,14 @@ import type {
   SkillType,
   StatusModifierDefinition,
   AbilityEntityChildSkillDefinition,
+  AbilityEntityDefinition,
+  OperatorAbilityEntityDefinitions,
 } from '../game-data/operatorDefinition';
 import type {
   CompiledAbilityEntityChildSkillProgram,
   CompiledSkillProgram,
   ResolvedActionSequence,
+  ResolvedAbilityEntityDefinition,
   ResolvedCombatStep,
   ResolvedSkillBuffDefinition,
   ResolvedStatusModifier,
@@ -30,9 +33,19 @@ export interface CompileSkillInput {
   readonly skillType: SkillType;
   readonly skillLevel: number;
   readonly skill: SkillDefinition;
+  readonly abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
+}
+
+interface AbilityEntityCompileContext {
+  readonly source: OperatorAbilityEntityDefinitions;
+  readonly compiled: Record<string, ResolvedAbilityEntityDefinition>;
+  readonly compiling: Set<string>;
 }
 
 function resolveLevelValue(value: LevelValues, skillLevel: number, path: string): number {
+  if (skillLevel === 0 && typeof value !== 'number') {
+    throw new TypeError(`${path} must not depend on a skill level inside an operator Buff`);
+  }
   const resolved = typeof value === 'number' ? value : value[skillLevel - 1];
   if (resolved === undefined) {
     throw new RangeError(`${path} has no value for skill level ${skillLevel}`);
@@ -94,6 +107,7 @@ function resolveStep(
   step: CombatStepDefinition,
   skillLevel: number,
   path: string,
+  abilityEntities?: AbilityEntityCompileContext,
 ): ResolvedCombatStep {
   const keyed = step.key === undefined ? {} : { key: step.key };
   switch (step.kind) {
@@ -115,44 +129,55 @@ function resolveStep(
             step.parameters.childSkill,
             skillLevel,
             `${path}.parameters.childSkill`,
+            abilityEntities,
           ),
         },
       };
     case 'jumpTimeline':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'finishTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
       return {
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'repeatEachTick':
       return {
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'spawnAbilityEntity': {
-      const { childSkill, ...definition } = step.parameters.definition;
+      const { definition: inlineDefinition, ...parameters } = step.parameters;
+      if (inlineDefinition === undefined) {
+        if (abilityEntities === undefined) {
+          throw new Error(
+            `${path}: AbilityEntity '${parameters.abilityEntityId}' has no definition`,
+          );
+        }
+        compileReferencedAbilityEntity(
+          parameters.abilityEntityId,
+          skillLevel,
+          `${path}.parameters.abilityEntityId`,
+          abilityEntities,
+        );
+        return { ...keyed, kind: step.kind, parameters };
+      }
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
-          ...step.parameters,
-          definition: {
-            ...definition,
-            ...(childSkill === undefined
-              ? {}
-              : {
-                  childSkill: compileAbilityEntityChildSkill(
-                    childSkill,
-                    skillLevel,
-                    `${path}.parameters.definition.childSkill`,
-                  ),
-                }),
-          },
+          ...parameters,
+          definition: compileAbilityEntityDefinition(
+            inlineDefinition,
+            skillLevel,
+            `${path}.parameters.definition`,
+            abilityEntities,
+          ),
         },
       };
     }
@@ -246,6 +271,9 @@ function resolveStep(
           step.parameters.amount === undefined
             ? {
                 target: step.parameters.target,
+                ...(step.parameters.alwaysNext === undefined
+                  ? {}
+                  : { alwaysNext: step.parameters.alwaysNext }),
                 attribute: step.parameters.attribute,
                 multiplier: resolveLevelValueOrActionOperand(
                   step.parameters.multiplier,
@@ -261,6 +289,9 @@ function resolveStep(
               }
             : {
                 target: step.parameters.target,
+                ...(step.parameters.alwaysNext === undefined
+                  ? {}
+                  : { alwaysNext: step.parameters.alwaysNext }),
                 amount: resolveLevelValueOrActionOperand(
                   step.parameters.amount,
                   skillLevel,
@@ -350,17 +381,29 @@ function resolveStep(
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        whenTrue: compileActionSequence(step.whenTrue, skillLevel, `${path}.whenTrue`),
+        whenTrue: resolveActionSequence(
+          step.whenTrue,
+          skillLevel,
+          `${path}.whenTrue`,
+          abilityEntities,
+        ),
         ...(step.whenFalse === undefined
           ? {}
-          : { whenFalse: compileActionSequence(step.whenFalse, skillLevel, `${path}.whenFalse`) }),
+          : {
+              whenFalse: resolveActionSequence(
+                step.whenFalse,
+                skillLevel,
+                `${path}.whenFalse`,
+                abilityEntities,
+              ),
+            }),
       };
     case 'once':
       return {
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        body: compileActionSequence(step.body, skillLevel, `${path}.body`),
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'readBuffBlackboard':
       return {
@@ -404,6 +447,8 @@ function resolveStep(
     case 'finishBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishCurrentBuff':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'setCurrentBuffTimePaused':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'igniteBuffs':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -471,6 +516,7 @@ function resolveStep(
                   definition,
                   skillLevel,
                   `${path}.parameters.definition`,
+                  abilityEntities,
                 ),
               }),
         },
@@ -500,6 +546,7 @@ function resolveStep(
               response.sequence,
               skillLevel,
               `${path}.parameters.responses[${index}].sequence`,
+              abilityEntities,
             ),
           })),
         },
@@ -511,6 +558,7 @@ function resolveSkillBuffDefinition(
   definition: SkillBuffDefinition,
   skillLevel: number,
   path: string,
+  abilityEntities?: AbilityEntityCompileContext,
 ): ResolvedSkillBuffDefinition {
   const {
     scheduledSequences,
@@ -531,6 +579,7 @@ function resolveSkillBuffDefinition(
               scheduled.sequence,
               skillLevel,
               `${path}.scheduledSequences[${index}].sequence`,
+              abilityEntities,
             ),
           })),
         }),
@@ -540,7 +589,12 @@ function resolveSkillBuffDefinition(
           lifecycleSequences: Object.fromEntries(
             Object.entries(lifecycleSequences).map(([key, sequence]) => [
               key,
-              compileActionSequence(sequence, skillLevel, `${path}.lifecycleSequences.${key}`),
+              compileActionSequence(
+                sequence,
+                skillLevel,
+                `${path}.lifecycleSequences.${key}`,
+                abilityEntities,
+              ),
             ]),
           ),
         }),
@@ -554,6 +608,7 @@ function resolveSkillBuffDefinition(
               response.sequence,
               skillLevel,
               `${path}.abilityEventResponses[${index}].sequence`,
+              abilityEntities,
             ),
           })),
         }),
@@ -567,10 +622,27 @@ function resolveSkillBuffDefinition(
               response.sequence,
               skillLevel,
               `${path}.igniteEventResponses[${index}].sequence`,
+              abilityEntities,
             ),
           })),
         }),
   };
+}
+
+/** 按技能等级编译干员级 Buff 蓝图；其中的后代 applyBuff 仍只保留 ID。 */
+export function compileOperatorBuffDefinitions(
+  definitions: Readonly<Record<string, SkillBuffDefinition>> | undefined,
+): Readonly<Record<string, ResolvedSkillBuffDefinition>> {
+  if (definitions === undefined) return {};
+  return Object.fromEntries(
+    Object.entries(definitions).map(([buffId, definition]) => {
+      if (buffId.length === 0) throw new Error('operator buff definition ID must not be empty');
+      return [
+        buffId,
+        resolveSkillBuffDefinition(definition, 0, `buffDefinitions.${JSON.stringify(buffId)}`),
+      ];
+    }),
+  );
 }
 
 /** 将任意定义来源的等级化动作序列解析为运行时序列。 */
@@ -578,18 +650,76 @@ export function compileActionSequence(
   sequence: ActionSequenceDefinition,
   skillLevel: number,
   path = 'sequence',
+  abilityEntities?: AbilityEntityCompileContext,
+): ResolvedActionSequence {
+  return resolveActionSequence(sequence, skillLevel, path, abilityEntities);
+}
+
+function resolveActionSequence(
+  sequence: ActionSequenceDefinition,
+  skillLevel: number,
+  path: string,
+  abilityEntities?: AbilityEntityCompileContext,
 ): ResolvedActionSequence {
   return {
     steps: sequence.steps.map((step, index) =>
-      resolveStep(step, skillLevel, `${path}.steps[${index}]`),
+      resolveStep(step, skillLevel, `${path}.steps[${index}]`, abilityEntities),
     ),
   };
+}
+
+function compileAbilityEntityDefinition(
+  definition: AbilityEntityDefinition,
+  skillLevel: number,
+  path: string,
+  abilityEntities?: AbilityEntityCompileContext,
+): ResolvedAbilityEntityDefinition {
+  return {
+    lifetime: definition.lifetime,
+    ...(definition.childSkill === undefined
+      ? {}
+      : {
+          childSkill: compileAbilityEntityChildSkill(
+            definition.childSkill,
+            skillLevel,
+            `${path}.childSkill`,
+            abilityEntities,
+          ),
+        }),
+  };
+}
+
+function compileReferencedAbilityEntity(
+  abilityEntityId: string,
+  skillLevel: number,
+  path: string,
+  context: AbilityEntityCompileContext,
+): void {
+  if (context.compiled[abilityEntityId] !== undefined || context.compiling.has(abilityEntityId)) {
+    return;
+  }
+  const definition = context.source[abilityEntityId];
+  if (definition === undefined) {
+    throw new Error(`${path}: AbilityEntity definition '${abilityEntityId}' does not exist`);
+  }
+  context.compiling.add(abilityEntityId);
+  try {
+    context.compiled[abilityEntityId] = compileAbilityEntityDefinition(
+      definition,
+      skillLevel,
+      `abilityEntityDefinitions.${JSON.stringify(abilityEntityId)}`,
+      context,
+    );
+  } finally {
+    context.compiling.delete(abilityEntityId);
+  }
 }
 
 function compileAbilityEntityChildSkill(
   childSkill: AbilityEntityChildSkillDefinition,
   skillLevel: number,
   path: string,
+  abilityEntities?: AbilityEntityCompileContext,
 ): CompiledAbilityEntityChildSkillProgram {
   return {
     skillId: childSkill.skillId,
@@ -606,6 +736,7 @@ function compileAbilityEntityChildSkill(
         scheduled.sequence,
         skillLevel,
         `${path}.scheduledSequences[${index}].sequence`,
+        abilityEntities,
       ),
     })),
   };
@@ -659,10 +790,21 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
   if (cooldownFrames !== undefined && (!Number.isInteger(cooldownFrames) || cooldownFrames <= 0)) {
     throw new RangeError(`skill '${input.skill.key}' must use positive integer cooldownFrames`);
   }
-  return {
+  const abilityEntities: AbilityEntityCompileContext | undefined =
+    input.abilityEntityDefinitions === undefined
+      ? undefined
+      : {
+          source: input.abilityEntityDefinitions,
+          compiled: {},
+          compiling: new Set(),
+        };
+  const program: CompiledSkillProgram = {
     operatorId: input.operatorId,
     skillGroupKey: input.skillGroupKey,
     skillId: input.skill.key,
+    ...(input.skill.sourceSkillId === undefined
+      ? {}
+      : { sourceSkillId: input.skill.sourceSkillId }),
     skillType: input.skillType,
     skillLevel: input.skillLevel,
     initialBlackboard,
@@ -677,7 +819,11 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
         scheduled.sequence,
         input.skillLevel,
         `scheduledSequences[${index}].sequence`,
+        abilityEntities,
       ),
     })),
   };
+  return abilityEntities === undefined || Object.keys(abilityEntities.compiled).length === 0
+    ? program
+    : { ...program, abilityEntityDefinitions: abilityEntities.compiled };
 }

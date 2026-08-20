@@ -10,7 +10,10 @@ const scaleAttributes = Object.fromEntries(
   DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
 ) as unknown as DamageScaleAttributeSnapshot;
 
-function createContext(damageType: 'physical' | 'lifeDrain' = 'physical') {
+function createContext(
+  damageType: 'physical' | 'lifeDrain' = 'physical',
+  addInstantAttributeModifier: PlayerDamageContext['addInstantAttributeModifier'] = () => undefined,
+) {
   const snapshots: PlayerDamageAttributeSnapshots = {
     attacker: {
       ...scaleAttributes,
@@ -44,13 +47,55 @@ function createContext(damageType: 'physical' | 'lifeDrain' = 'physical') {
     ports: {
       captureAttributeSnapshots: () => snapshots,
       applyModifiers: () => undefined,
-      addInstantAttributeModifier: () => undefined,
+      addInstantAttributeModifier,
       clearInstantAttributeModifiers: () => undefined,
     },
   });
 }
 
 describe('DamageModifier', () => {
+  it('resolves a Buff value into a one-hit instant attribute modifier', () => {
+    const addInstantAttributeModifier = vi.fn();
+    const context = createContext('physical', addInstantAttributeModifier);
+    const modifier = new DamageModifier(
+      'operator',
+      {
+        enabledSide: 'attacker',
+        condition: {
+          kind: 'eventDamageTagsMatch',
+          match: 'hasAll',
+          tags: ['ultimateSkill'],
+        },
+        processors: [
+          {
+            kind: 'instantAttribute',
+            targetSide: 'attacker',
+            attribute: 'criticalDamageIncrease',
+            values: {
+              slot: 'baseAddition',
+              value: { blackboardKey: 'critical_damage_up_to_bleed' },
+            },
+            attributeTiming: 'runtime',
+          },
+        ],
+      },
+      value =>
+        typeof value === 'number'
+          ? value
+          : value.blackboardKey === 'critical_damage_up_to_bleed'
+            ? 0.2
+            : 0,
+    );
+
+    modifier.apply('beforeCalculation', 'attacker', context, () => true);
+
+    expect(addInstantAttributeModifier).toHaveBeenCalledWith('attacker', {
+      attribute: 'criticalDamageIncrease',
+      values: expect.objectContaining({ baseAddition: 0.2 }),
+      timing: 'runtime',
+    });
+  });
+
   it('evaluates composite event conditions and Buff-instance blackboard comparisons', () => {
     const context = createContext();
     const evaluateCondition = vi.fn(() => true);

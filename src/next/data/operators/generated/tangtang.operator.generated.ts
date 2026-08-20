@@ -6,6 +6,7 @@ import { branch, forEachContextTarget, once, percentage, percentages, scheduled,
 export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0027_tangtang_attack1',
     timelineBlockFrames: 7,
     scheduledSequences: [
       scheduled(
@@ -29,6 +30,7 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0027_tangtang_attack2',
     timelineBlockFrames: 18,
     scheduledSequences: [
       scheduled(
@@ -83,6 +85,7 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0027_tangtang_attack3',
     timelineBlockFrames: 26,
     scheduledSequences: [
       scheduled(
@@ -198,6 +201,7 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0027_tangtang_attack4',
     timelineBlockFrames: 24,
     scheduledSequences: [
       scheduled(
@@ -243,6 +247,7 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0027_tangtang_attack5',
     timelineBlockFrames: 36,
     scheduledSequences: [
       scheduled(
@@ -303,6 +308,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0027_tangtang_power_attack',
     timelineBlockFrames: 48,
     scheduledSequences: [
       scheduled(
@@ -310,16 +316,12 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        33,
       ),
       scheduled(
         9,
@@ -355,6 +357,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
 export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0027_tangtang_plunging_attack_end',
     timelineBlockFrames: 16,
     scheduledSequences: [
       scheduled(
@@ -419,6 +422,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0027_tangtang_normal_skill',
     timelineBlockFrames: 50,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -428,31 +432,12 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0027_tangtang_skillappear',
-            definition: {
-              stackingType: 'stack',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: -1,
-              lifecycleSequences: {
-                finish: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0027_tangtang_skillappear_effect',
-                    definition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 1,
-                      durationSeconds: 1,
-                    },
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-              },
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        24,
       ),
       scheduled(
         11,
@@ -497,12 +482,6 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                         sequence(
                           step('applyBuff', {
                             buffId: 'buff_chr_0027_tangtang_water_wake',
-                            definition: {
-                              stackingType: 'unique',
-                              priority: 0,
-                              maxStackCount: 1,
-                              durationSeconds: 0.1,
-                            },
                             target: 'currentAbilityEntity',
                             inheritSourceSkillCastInfo: true,
                           }),
@@ -551,3721 +530,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('spawnAbilityEntity', {
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
-                definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                  skillId: 'chr_0027_tangtang_normal_skill_abilityentitymove',
-                  blackboard: {
-                    'atk_scale': 0.1,
-                    'atk_scale_03': 0,
-                    'duration': 5,
-                    'hit_cnt': 4,
-                    'hit_cntmax': 10,
-                    'hit_duration': 5,
-                    'poise': 5,
-                    'poise_tornado': 0,
-                    'water_cnt': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      12,
-                      sequence(
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'water_cnt' },
-                            operator: 'greater',
-                            right: { kind: 'constant', value: 0 },
-                          },
-                          sequence(
-                            branch(
-                              {
-                                kind: 'actionValueCompare',
-                                left: { kind: 'blackboard', key: 'water_cnt' },
-                                operator: 'greaterOrEqual',
-                                right: { kind: 'constant', value: 2 },
-                              },
-                              sequence(
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('modifyActionValue', {
-                                  key: 'water_cnt',
-                                  operation: 'assign',
-                                  value: { kind: 'constant', value: 0 },
-                                }),
-                              ),
-                              sequence(
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0.2,
-                                      'dmg_up_water_ult': 0,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0.2,
-                                      'dmg_up_water_ult': 0,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('modifyActionValue', {
-                                  key: 'water_cnt',
-                                  operation: 'assign',
-                                  value: { kind: 'constant', value: 0 },
-                                }),
-                              ),
-                            ),
-                          ),
-                          sequence(
-                            step('spawnAbilityEntity', {
-                              abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
-                              definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                skillId: 'chr_0027_tangtang_normal_skill_water_projhit',
-                                blackboard: {
-                                  'atb': 0,
-                                  'atk_scale_1': 0,
-                                  'atk_scale_2': 0,
-                                  'atk_water': 0,
-                                  'dmg_up_water_ult': 0.3,
-                                  'duration': 5,
-                                  'hit_cnt': 4,
-                                  'hit_cntmax': 10,
-                                  'hit_duration': 5,
-                                  'hit_spelllnflictionmax_01': 1,
-                                  'poise_tornado': 0,
-                                  'potential3': 0,
-                                  'potential5': 0,
-                                  'talent2': 0,
-                                  'talent2_ultskill': 0,
-                                  'tornado_atk_scale01': 0,
-                                },
-                                scheduledSequences: [
-                                  scheduled(
-                                    0,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    8,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    16,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    24,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    32,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    39,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    47,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    55,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    63,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    71,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    79,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    86,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    90,
-                                    sequence(
-                                      step('finishCurrentAbilityEntity', {}),
-                                    ),
-                                  ),
-                                ],
-                              } },
-                              dieWhenSourceDies: false,
-                              inheritActionBlackboard: true,
-                              target: 'caster',
-                            }),
-                            step('modifyActionValue', {
-                              key: 'water_cnt',
-                              operation: 'assign',
-                              value: { kind: 'constant', value: 0 },
-                            }),
-                          ),
-                        ),
-                      ),
-                    ),
-                    scheduled(
-                      298,
-                      sequence(
-                        step('finishCurrentAbilityEntity', {}),
-                      ),
-                    ),
-                  ],
-                } },
-                dieWhenSourceDies: false,
+                                dieWhenSourceDies: false,
                 inheritActionBlackboard: true,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove',
@@ -4274,3721 +539,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('spawnAbilityEntity', {
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
-                definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                  skillId: 'chr_0027_tangtang_normal_skill_abilityentitymove',
-                  blackboard: {
-                    'atk_scale': 0.1,
-                    'atk_scale_03': 0,
-                    'duration': 5,
-                    'hit_cnt': 4,
-                    'hit_cntmax': 10,
-                    'hit_duration': 5,
-                    'poise': 5,
-                    'poise_tornado': 0,
-                    'water_cnt': 0,
-                  },
-                  scheduledSequences: [
-                    scheduled(
-                      12,
-                      sequence(
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'water_cnt' },
-                            operator: 'greater',
-                            right: { kind: 'constant', value: 0 },
-                          },
-                          sequence(
-                            branch(
-                              {
-                                kind: 'actionValueCompare',
-                                left: { kind: 'blackboard', key: 'water_cnt' },
-                                operator: 'greaterOrEqual',
-                                right: { kind: 'constant', value: 2 },
-                              },
-                              sequence(
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0,
-                                      'dmg_up_water_ult': 0.3,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'rate_spellvulnerable_02': 0.1,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('modifyActionValue', {
-                                  key: 'water_cnt',
-                                  operation: 'assign',
-                                  value: { kind: 'constant', value: 0 },
-                                }),
-                              ),
-                              sequence(
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0.2,
-                                      'dmg_up_water_ult': 0,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('spawnAbilityEntity', {
-                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
-                                  definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                    skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
-                                    blackboard: {
-                                      'atb': 0,
-                                      'atk_scale_1': 0,
-                                      'atk_scale_2': 0.2,
-                                      'dmg_up_water_ult': 0,
-                                      'duration': 5,
-                                      'duration_spellvulnerable': 10,
-                                      'hit_cnt': 4,
-                                      'hit_cntmax': 10,
-                                      'hit_duration': 3,
-                                      'hit_spelllnflictionmax02': 1,
-                                      'hit_spellvulnerablemax': 1,
-                                      'poise_tornado': 0,
-                                      'potential3': 0,
-                                      'potential5': 0,
-                                      'rate_spellvulnerable': 0.05,
-                                      'talent2_ultskill': 0,
-                                      'tornado_atk_scale01': 0,
-                                      'tornado_atk_scale02': 0,
-                                      'tornado_atk_scale03': 0,
-                                    },
-                                    scheduledSequences: [
-                                      scheduled(
-                                        0,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        8,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        16,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        24,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        32,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        39,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        47,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        55,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        63,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        71,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        79,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        86,
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
-                                            },
-                                            sequence(
-                                              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                              }),
-                                            ),
-                                          ),
-                                          branch(
-                                            {
-                                              kind: 'buffIdStackCompare',
-                                              target: 'enemy',
-                                              buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
-                                              sameSourceSkillCast: true,
-                                              operator: 'less',
-                                              value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
-                                            },
-                                            sequence(
-                                              step('applyBuff', {
-                                                buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
-                                                target: 'enemy',
-                                                inheritSourceSkillCastInfo: true,
-                                                blackboardAssignments: {
-                                                  'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
-                                                  'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                                                },
-                                              }),
-                                            ),
-                                          ),
-                                          step('dealDamage', {
-                                            damageType: 'cryo',
-                                            attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                            tags: ['normalSkill'],
-                                            features: ['canBreakWeakness'],
-                                            stagger: 0,
-                                          }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
-                                        ),
-                                      ),
-                                      scheduled(
-                                        90,
-                                        sequence(
-                                          step('finishCurrentAbilityEntity', {}),
-                                        ),
-                                      ),
-                                    ],
-                                  } },
-                                  dieWhenSourceDies: false,
-                                  inheritActionBlackboard: true,
-                                  target: 'caster',
-                                }),
-                                step('modifyActionValue', {
-                                  key: 'water_cnt',
-                                  operation: 'assign',
-                                  value: { kind: 'constant', value: 0 },
-                                }),
-                              ),
-                            ),
-                          ),
-                          sequence(
-                            step('spawnAbilityEntity', {
-                              abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
-                              definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-                                skillId: 'chr_0027_tangtang_normal_skill_water_projhit',
-                                blackboard: {
-                                  'atb': 0,
-                                  'atk_scale_1': 0,
-                                  'atk_scale_2': 0,
-                                  'atk_water': 0,
-                                  'dmg_up_water_ult': 0.3,
-                                  'duration': 5,
-                                  'hit_cnt': 4,
-                                  'hit_cntmax': 10,
-                                  'hit_duration': 5,
-                                  'hit_spelllnflictionmax_01': 1,
-                                  'poise_tornado': 0,
-                                  'potential3': 0,
-                                  'potential5': 0,
-                                  'talent2': 0,
-                                  'talent2_ultskill': 0,
-                                  'tornado_atk_scale01': 0,
-                                },
-                                scheduledSequences: [
-                                  scheduled(
-                                    0,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    8,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    16,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    24,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    32,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    39,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    47,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    55,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    63,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    71,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    79,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    86,
-                                    sequence(
-                                      branch(
-                                        {
-                                          kind: 'buffIdStackCompare',
-                                          target: 'enemy',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                          sameSourceSkillCast: true,
-                                          operator: 'less',
-                                          value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                        },
-                                        sequence(
-                                          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                          step('applyBuff', {
-                                            buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                            target: 'enemy',
-                                            inheritSourceSkillCastInfo: true,
-                                          }),
-                                        ),
-                                      ),
-                                      step('dealDamage', {
-                                        damageType: 'cryo',
-                                        attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                                        tags: ['normalSkill'],
-                                        features: ['canBreakWeakness'],
-                                        stagger: 0,
-                                      }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-                                    ),
-                                  ),
-                                  scheduled(
-                                    90,
-                                    sequence(
-                                      step('finishCurrentAbilityEntity', {}),
-                                    ),
-                                  ),
-                                ],
-                              } },
-                              dieWhenSourceDies: false,
-                              inheritActionBlackboard: true,
-                              target: 'caster',
-                            }),
-                            step('modifyActionValue', {
-                              key: 'water_cnt',
-                              operation: 'assign',
-                              value: { kind: 'constant', value: 0 },
-                            }),
-                          ),
-                        ),
-                      ),
-                    ),
-                    scheduled(
-                      298,
-                      sequence(
-                        step('finishCurrentAbilityEntity', {}),
-                      ),
-                    ),
-                  ],
-                } },
-                dieWhenSourceDies: false,
+                                dieWhenSourceDies: false,
                 inheritActionBlackboard: true,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove_1',
@@ -8109,6 +660,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
 export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0027_tangtang_combo_skill',
     timelineBlockFrames: 31,
     cooldownFrames: [420, 420, 420, 420, 420, 420, 420, 420, 390, 390, 390, 360],
     scheduledSequences: [
@@ -8173,292 +725,12 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                   sequence(
                     step('spawnAbilityEntity', {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                      definition: { lifetime: { kind: 'limited', durationSeconds: 62 }, childSkill: {
-                        skillId: 'chr_0027_tangtang_combo_skill_water',
-                        blackboard: {
-                          'atk_scale_water': 1,
-                          'duration_talent1buff': 3,
-                          'max_stack': 0,
-                          'potential1': 0,
-                          'potential3_duration': 0,
-                          'potential5': 0,
-                          'potential5_dmg_up_water_ult': 0,
-                          'range_talent1buff': 5,
-                          'ratio_speed': 0.2,
-                          'ratio_speedreduction': 0.8,
-                          'talent1_speed': 0,
-                          'talent2_ultskill': 0,
-                          'tornado_atk_scale01': 0,
-                          'tornado_atk_scale02': 0,
-                          'tornado_atk_scale03': 0,
-                        },
-                        scheduledSequences: [
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1500,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_wake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1515,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_ultskillwake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'enemy',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterdebuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: 0,
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterdebuff' },
-                                    applyTagIds: [1925762097],
-                                    blackboard: {
-                                      'duration_waterdebuff': 30,
-                                      'ratio_speedreduction': 0.7,
-                                    },
-                                  },
-                                  target: 'enemy',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                  },
-                                }),
-                              ),
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'partyExceptCaster',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: { blackboardKey: 'ratio_speed' },
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterbuff' },
-                                    blackboard: {
-                                      'duration_waterbuff': 30,
-                                      'ratio_speed': 0.1,
-                                    },
-                                    lifecycleSequences: {
-                                      start: sequence(
-                                        step('finishBuffsById', {
-                                          target: 'caster',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                          reason: 'other',
-                                        }),
-                                        step('applyBuff', {
-                                          buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_vfx',
-                                          definition: {
-                                            stackingType: 'enhance',
-                                            priority: 0,
-                                            maxStackCount: 1,
-                                            durationSeconds: 1,
-                                          },
-                                          target: 'caster',
-                                          inheritSourceSkillCastInfo: true,
-                                        }),
-                                      ),
-                                    },
-                                  },
-                                  target: 'partyExceptCaster',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speed': { kind: 'blackboard', key: 'ratio_speed' },
-                                  },
-                                }),
-                              ),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            900,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
-                                definition: {
-                                  stackingType: 'highPriority',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: { blackboardKey: 'duration_talent1buff' },
-                                  applyTagIds: [1925762097],
-                                  blackboard: {
-                                    'duration_talent1buff': 3,
-                                    'ratio_speedreduction': 0.7,
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  'duration_talent1buff': { kind: 'blackboard', key: 'duration_talent1buff' },
-                                  'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ultskill_center_abilityentity', abilityEntityIds: ['abilityentity_chr_0027_tangtang_ultskill'] }),
-                              branch(
-                                {
-                                  kind: 'all',
-                                  conditions: [
-                                    { kind: 'singleEnemyPresent' },
-                                    {
-                                      kind: 'contextTargetCountCompare',
-                                      contextKey: 'ultskill_center_abilityentity',
-                                      operator: 'greaterOrEqual',
-                                      value: 1,
-                                    },
-                                  ],
-                                },
-                                sequence(
-                                  sequence(
-                                    branch(
-                                      {
-                                        kind: 'buffIdStackCompare',
-                                        target: 'enemy',
-                                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                        sameSourceSkillCast: true,
-                                        operator: 'less',
-                                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                      },
-                                      sequence(
-                                        branch(
-                                          {
-                                            kind: 'buffIdStackCompare',
-                                            target: 'enemy',
-                                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
-                                            sameSourceSkillCast: true,
-                                            operator: 'greaterOrEqual',
-                                            value: { kind: 'blackboard', key: 'hit_cnt' },
-                                          },
-                                          sequence(
-                                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                            step('applyBuff', {
-                                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                              definition: {
-                                                stackingType: 'unlimited',
-                                                priority: 0,
-                                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
-                                                durationSeconds: { blackboardKey: 'hit_spellduration' },
-                                                blackboard: {
-                                                  'hit_spellduration': 6,
-                                                  'hit_spelllnflictionmax': 2,
-                                                },
-                                              },
-                                              target: 'enemy',
-                                              inheritSourceSkillCastInfo: true,
-                                            }),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    step('dealDamage', {
-                                      damageType: 'cryo',
-                                      attackScale: percentage(0),
-                                      tags: ['normalSkill'],
-                                      features: ['canBreakWeakness'],
-                                      stagger: 0,
-                                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
-                                  ),
-                                  step('finishBuffsById', {
-                                    target: 'caster',
-                                    buffIds: ['buff_chr_0027_tangtang_water'],
-                                    reason: 'other',
-                                    count: { kind: 'constant', value: 1 },
-                                  }),
-                                ),
-                              ),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                        ],
-                      } },
-                      dieWhenSourceDies: false,
+                                            dieWhenSourceDies: false,
                       inheritActionBlackboard: true,
                       saveToContextKey: 'water_abilityentity02',
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0027_tangtang_water',
-                      definition: {
-                        stackingType: 'stack',
-                        priority: 0,
-                        maxStackCount: { blackboardKey: 'water_stack' },
-                        durationSeconds: { blackboardKey: 'duration_water' },
-                        blackboard: {
-                          'duration_water': 30,
-                          'water_stack': 2,
-                        },
-                      },
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
@@ -8516,292 +788,12 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                   sequence(
                     step('spawnAbilityEntity', {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                      definition: { lifetime: { kind: 'limited', durationSeconds: 62 }, childSkill: {
-                        skillId: 'chr_0027_tangtang_combo_skill_water',
-                        blackboard: {
-                          'atk_scale_water': 1,
-                          'duration_talent1buff': 3,
-                          'max_stack': 0,
-                          'potential1': 0,
-                          'potential3_duration': 0,
-                          'potential5': 0,
-                          'potential5_dmg_up_water_ult': 0,
-                          'range_talent1buff': 5,
-                          'ratio_speed': 0.2,
-                          'ratio_speedreduction': 0.8,
-                          'talent1_speed': 0,
-                          'talent2_ultskill': 0,
-                          'tornado_atk_scale01': 0,
-                          'tornado_atk_scale02': 0,
-                          'tornado_atk_scale03': 0,
-                        },
-                        scheduledSequences: [
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1500,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_wake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1515,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_ultskillwake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'enemy',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterdebuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: 0,
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterdebuff' },
-                                    applyTagIds: [1925762097],
-                                    blackboard: {
-                                      'duration_waterdebuff': 30,
-                                      'ratio_speedreduction': 0.7,
-                                    },
-                                  },
-                                  target: 'enemy',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                  },
-                                }),
-                              ),
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'partyExceptCaster',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: { blackboardKey: 'ratio_speed' },
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterbuff' },
-                                    blackboard: {
-                                      'duration_waterbuff': 30,
-                                      'ratio_speed': 0.1,
-                                    },
-                                    lifecycleSequences: {
-                                      start: sequence(
-                                        step('finishBuffsById', {
-                                          target: 'caster',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                          reason: 'other',
-                                        }),
-                                        step('applyBuff', {
-                                          buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_vfx',
-                                          definition: {
-                                            stackingType: 'enhance',
-                                            priority: 0,
-                                            maxStackCount: 1,
-                                            durationSeconds: 1,
-                                          },
-                                          target: 'caster',
-                                          inheritSourceSkillCastInfo: true,
-                                        }),
-                                      ),
-                                    },
-                                  },
-                                  target: 'partyExceptCaster',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speed': { kind: 'blackboard', key: 'ratio_speed' },
-                                  },
-                                }),
-                              ),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            900,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
-                                definition: {
-                                  stackingType: 'highPriority',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: { blackboardKey: 'duration_talent1buff' },
-                                  applyTagIds: [1925762097],
-                                  blackboard: {
-                                    'duration_talent1buff': 3,
-                                    'ratio_speedreduction': 0.7,
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  'duration_talent1buff': { kind: 'blackboard', key: 'duration_talent1buff' },
-                                  'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ultskill_center_abilityentity', abilityEntityIds: ['abilityentity_chr_0027_tangtang_ultskill'] }),
-                              branch(
-                                {
-                                  kind: 'all',
-                                  conditions: [
-                                    { kind: 'singleEnemyPresent' },
-                                    {
-                                      kind: 'contextTargetCountCompare',
-                                      contextKey: 'ultskill_center_abilityentity',
-                                      operator: 'greaterOrEqual',
-                                      value: 1,
-                                    },
-                                  ],
-                                },
-                                sequence(
-                                  sequence(
-                                    branch(
-                                      {
-                                        kind: 'buffIdStackCompare',
-                                        target: 'enemy',
-                                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                        sameSourceSkillCast: true,
-                                        operator: 'less',
-                                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                      },
-                                      sequence(
-                                        branch(
-                                          {
-                                            kind: 'buffIdStackCompare',
-                                            target: 'enemy',
-                                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
-                                            sameSourceSkillCast: true,
-                                            operator: 'greaterOrEqual',
-                                            value: { kind: 'blackboard', key: 'hit_cnt' },
-                                          },
-                                          sequence(
-                                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                            step('applyBuff', {
-                                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                              definition: {
-                                                stackingType: 'unlimited',
-                                                priority: 0,
-                                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
-                                                durationSeconds: { blackboardKey: 'hit_spellduration' },
-                                                blackboard: {
-                                                  'hit_spellduration': 6,
-                                                  'hit_spelllnflictionmax': 2,
-                                                },
-                                              },
-                                              target: 'enemy',
-                                              inheritSourceSkillCastInfo: true,
-                                            }),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    step('dealDamage', {
-                                      damageType: 'cryo',
-                                      attackScale: percentage(0),
-                                      tags: ['normalSkill'],
-                                      features: ['canBreakWeakness'],
-                                      stagger: 0,
-                                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
-                                  ),
-                                  step('finishBuffsById', {
-                                    target: 'caster',
-                                    buffIds: ['buff_chr_0027_tangtang_water'],
-                                    reason: 'other',
-                                    count: { kind: 'constant', value: 1 },
-                                  }),
-                                ),
-                              ),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                        ],
-                      } },
-                      dieWhenSourceDies: false,
+                                            dieWhenSourceDies: false,
                       inheritActionBlackboard: true,
                       saveToContextKey: 'water_abilityentity01',
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0027_tangtang_water',
-                      definition: {
-                        stackingType: 'stack',
-                        priority: 0,
-                        maxStackCount: { blackboardKey: 'water_stack' },
-                        durationSeconds: { blackboardKey: 'duration_water' },
-                        blackboard: {
-                          'duration_water': 30,
-                          'water_stack': 2,
-                        },
-                      },
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
@@ -8833,292 +825,12 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                   sequence(
                     step('spawnAbilityEntity', {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                      definition: { lifetime: { kind: 'limited', durationSeconds: 62 }, childSkill: {
-                        skillId: 'chr_0027_tangtang_combo_skill_water',
-                        blackboard: {
-                          'atk_scale_water': 1,
-                          'duration_talent1buff': 3,
-                          'max_stack': 0,
-                          'potential1': 0,
-                          'potential3_duration': 0,
-                          'potential5': 0,
-                          'potential5_dmg_up_water_ult': 0,
-                          'range_talent1buff': 5,
-                          'ratio_speed': 0.2,
-                          'ratio_speedreduction': 0.8,
-                          'talent1_speed': 0,
-                          'talent2_ultskill': 0,
-                          'tornado_atk_scale01': 0,
-                          'tornado_atk_scale02': 0,
-                          'tornado_atk_scale03': 0,
-                        },
-                        scheduledSequences: [
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1500,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_wake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1515,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_ultskillwake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'enemy',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterdebuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: 0,
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterdebuff' },
-                                    applyTagIds: [1925762097],
-                                    blackboard: {
-                                      'duration_waterdebuff': 30,
-                                      'ratio_speedreduction': 0.7,
-                                    },
-                                  },
-                                  target: 'enemy',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                  },
-                                }),
-                              ),
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'partyExceptCaster',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: { blackboardKey: 'ratio_speed' },
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterbuff' },
-                                    blackboard: {
-                                      'duration_waterbuff': 30,
-                                      'ratio_speed': 0.1,
-                                    },
-                                    lifecycleSequences: {
-                                      start: sequence(
-                                        step('finishBuffsById', {
-                                          target: 'caster',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                          reason: 'other',
-                                        }),
-                                        step('applyBuff', {
-                                          buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_vfx',
-                                          definition: {
-                                            stackingType: 'enhance',
-                                            priority: 0,
-                                            maxStackCount: 1,
-                                            durationSeconds: 1,
-                                          },
-                                          target: 'caster',
-                                          inheritSourceSkillCastInfo: true,
-                                        }),
-                                      ),
-                                    },
-                                  },
-                                  target: 'partyExceptCaster',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speed': { kind: 'blackboard', key: 'ratio_speed' },
-                                  },
-                                }),
-                              ),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            900,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
-                                definition: {
-                                  stackingType: 'highPriority',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: { blackboardKey: 'duration_talent1buff' },
-                                  applyTagIds: [1925762097],
-                                  blackboard: {
-                                    'duration_talent1buff': 3,
-                                    'ratio_speedreduction': 0.7,
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  'duration_talent1buff': { kind: 'blackboard', key: 'duration_talent1buff' },
-                                  'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ultskill_center_abilityentity', abilityEntityIds: ['abilityentity_chr_0027_tangtang_ultskill'] }),
-                              branch(
-                                {
-                                  kind: 'all',
-                                  conditions: [
-                                    { kind: 'singleEnemyPresent' },
-                                    {
-                                      kind: 'contextTargetCountCompare',
-                                      contextKey: 'ultskill_center_abilityentity',
-                                      operator: 'greaterOrEqual',
-                                      value: 1,
-                                    },
-                                  ],
-                                },
-                                sequence(
-                                  sequence(
-                                    branch(
-                                      {
-                                        kind: 'buffIdStackCompare',
-                                        target: 'enemy',
-                                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                        sameSourceSkillCast: true,
-                                        operator: 'less',
-                                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                      },
-                                      sequence(
-                                        branch(
-                                          {
-                                            kind: 'buffIdStackCompare',
-                                            target: 'enemy',
-                                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
-                                            sameSourceSkillCast: true,
-                                            operator: 'greaterOrEqual',
-                                            value: { kind: 'blackboard', key: 'hit_cnt' },
-                                          },
-                                          sequence(
-                                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                            step('applyBuff', {
-                                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                              definition: {
-                                                stackingType: 'unlimited',
-                                                priority: 0,
-                                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
-                                                durationSeconds: { blackboardKey: 'hit_spellduration' },
-                                                blackboard: {
-                                                  'hit_spellduration': 6,
-                                                  'hit_spelllnflictionmax': 2,
-                                                },
-                                              },
-                                              target: 'enemy',
-                                              inheritSourceSkillCastInfo: true,
-                                            }),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    step('dealDamage', {
-                                      damageType: 'cryo',
-                                      attackScale: percentage(0),
-                                      tags: ['normalSkill'],
-                                      features: ['canBreakWeakness'],
-                                      stagger: 0,
-                                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
-                                  ),
-                                  step('finishBuffsById', {
-                                    target: 'caster',
-                                    buffIds: ['buff_chr_0027_tangtang_water'],
-                                    reason: 'other',
-                                    count: { kind: 'constant', value: 1 },
-                                  }),
-                                ),
-                              ),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                        ],
-                      } },
-                      dieWhenSourceDies: false,
+                                            dieWhenSourceDies: false,
                       inheritActionBlackboard: true,
                       saveToContextKey: 'water_abilityentity02',
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0027_tangtang_water',
-                      definition: {
-                        stackingType: 'stack',
-                        priority: 0,
-                        maxStackCount: { blackboardKey: 'water_stack' },
-                        durationSeconds: { blackboardKey: 'duration_water' },
-                        blackboard: {
-                          'duration_water': 30,
-                          'water_stack': 2,
-                        },
-                      },
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
@@ -9176,292 +888,12 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                   sequence(
                     step('spawnAbilityEntity', {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                      definition: { lifetime: { kind: 'limited', durationSeconds: 62 }, childSkill: {
-                        skillId: 'chr_0027_tangtang_combo_skill_water',
-                        blackboard: {
-                          'atk_scale_water': 1,
-                          'duration_talent1buff': 3,
-                          'max_stack': 0,
-                          'potential1': 0,
-                          'potential3_duration': 0,
-                          'potential5': 0,
-                          'potential5_dmg_up_water_ult': 0,
-                          'range_talent1buff': 5,
-                          'ratio_speed': 0.2,
-                          'ratio_speedreduction': 0.8,
-                          'talent1_speed': 0,
-                          'talent2_ultskill': 0,
-                          'tornado_atk_scale01': 0,
-                          'tornado_atk_scale02': 0,
-                          'tornado_atk_scale03': 0,
-                        },
-                        scheduledSequences: [
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1500,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_wake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              step('jumpTimeline', {
-                                destinationFrame: 1515,
-                                condition: {
-                                  kind: 'buffIdStackCompare',
-                                  target: 'currentAbilityEntity',
-                                  buffIds: ['buff_chr_0027_tangtang_water_ultskillwake'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 1 },
-                                },
-                              }),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            0,
-                            sequence(
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'enemy',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterdebuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: 0,
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterdebuff' },
-                                    applyTagIds: [1925762097],
-                                    blackboard: {
-                                      'duration_waterdebuff': 30,
-                                      'ratio_speedreduction': 0.7,
-                                    },
-                                  },
-                                  target: 'enemy',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                  },
-                                }),
-                              ),
-                              sequence(
-                                step('finishBuffsById', {
-                                  target: 'partyExceptCaster',
-                                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                  reason: 'other',
-                                }),
-                                step('applyBuff', {
-                                  buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
-                                  definition: {
-                                    stackingType: 'highPriority',
-                                    priority: { blackboardKey: 'ratio_speed' },
-                                    maxStackCount: 1,
-                                    durationSeconds: { blackboardKey: 'duration_waterbuff' },
-                                    blackboard: {
-                                      'duration_waterbuff': 30,
-                                      'ratio_speed': 0.1,
-                                    },
-                                    lifecycleSequences: {
-                                      start: sequence(
-                                        step('finishBuffsById', {
-                                          target: 'caster',
-                                          buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                                          reason: 'other',
-                                        }),
-                                        step('applyBuff', {
-                                          buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_vfx',
-                                          definition: {
-                                            stackingType: 'enhance',
-                                            priority: 0,
-                                            maxStackCount: 1,
-                                            durationSeconds: 1,
-                                          },
-                                          target: 'caster',
-                                          inheritSourceSkillCastInfo: true,
-                                        }),
-                                      ),
-                                    },
-                                  },
-                                  target: 'partyExceptCaster',
-                                  inheritSourceSkillCastInfo: true,
-                                  finishByAction: true,
-                                  blackboardAssignments: {
-                                    'ratio_speed': { kind: 'blackboard', key: 'ratio_speed' },
-                                  },
-                                }),
-                              ),
-                            ),
-                            1500,
-                          ),
-                          scheduled(
-                            900,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishBuffsById', {
-                                target: 'caster',
-                                buffIds: ['buff_chr_0027_tangtang_water'],
-                                reason: 'other',
-                                count: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                          scheduled(
-                            1500,
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
-                                definition: {
-                                  stackingType: 'highPriority',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: { blackboardKey: 'duration_talent1buff' },
-                                  applyTagIds: [1925762097],
-                                  blackboard: {
-                                    'duration_talent1buff': 3,
-                                    'ratio_speedreduction': 0.7,
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  'duration_talent1buff': { kind: 'blackboard', key: 'duration_talent1buff' },
-                                  'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
-                                },
-                              }),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ultskill_center_abilityentity', abilityEntityIds: ['abilityentity_chr_0027_tangtang_ultskill'] }),
-                              branch(
-                                {
-                                  kind: 'all',
-                                  conditions: [
-                                    { kind: 'singleEnemyPresent' },
-                                    {
-                                      kind: 'contextTargetCountCompare',
-                                      contextKey: 'ultskill_center_abilityentity',
-                                      operator: 'greaterOrEqual',
-                                      value: 1,
-                                    },
-                                  ],
-                                },
-                                sequence(
-                                  sequence(
-                                    branch(
-                                      {
-                                        kind: 'buffIdStackCompare',
-                                        target: 'enemy',
-                                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                                        sameSourceSkillCast: true,
-                                        operator: 'less',
-                                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                                      },
-                                      sequence(
-                                        branch(
-                                          {
-                                            kind: 'buffIdStackCompare',
-                                            target: 'enemy',
-                                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
-                                            sameSourceSkillCast: true,
-                                            operator: 'greaterOrEqual',
-                                            value: { kind: 'blackboard', key: 'hit_cnt' },
-                                          },
-                                          sequence(
-                                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                                            step('applyBuff', {
-                                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                                              definition: {
-                                                stackingType: 'unlimited',
-                                                priority: 0,
-                                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
-                                                durationSeconds: { blackboardKey: 'hit_spellduration' },
-                                                blackboard: {
-                                                  'hit_spellduration': 6,
-                                                  'hit_spelllnflictionmax': 2,
-                                                },
-                                              },
-                                              target: 'enemy',
-                                              inheritSourceSkillCastInfo: true,
-                                            }),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    step('dealDamage', {
-                                      damageType: 'cryo',
-                                      attackScale: percentage(0),
-                                      tags: ['normalSkill'],
-                                      features: ['canBreakWeakness'],
-                                      stagger: 0,
-                                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
-                                  ),
-                                  step('finishBuffsById', {
-                                    target: 'caster',
-                                    buffIds: ['buff_chr_0027_tangtang_water'],
-                                    reason: 'other',
-                                    count: { kind: 'constant', value: 1 },
-                                  }),
-                                ),
-                              ),
-                            ),
-                          ),
-                          scheduled(
-                            1515,
-                            sequence(
-                              step('finishCurrentAbilityEntity', {}),
-                            ),
-                          ),
-                        ],
-                      } },
-                      dieWhenSourceDies: false,
+                                            dieWhenSourceDies: false,
                       inheritActionBlackboard: true,
                       saveToContextKey: 'water_abilityentity01',
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0027_tangtang_water',
-                      definition: {
-                        stackingType: 'stack',
-                        priority: 0,
-                        maxStackCount: { blackboardKey: 'water_stack' },
-                        durationSeconds: { blackboardKey: 'duration_water' },
-                        blackboard: {
-                          'duration_water': 30,
-                          'water_stack': 2,
-                        },
-                      },
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
@@ -9524,15 +956,13 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     'duration_water': 30,
     'poise': 10,
     'usp': 10,
-    'duration_talent1buff': 0,
-    'ratio_speed': 0,
-    'ratio_speedreduction': 0,
   },
 );
 
 export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0027_tangtang_ultimate_skill',
     timelineBlockFrames: 85,
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
@@ -9628,7 +1058,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         76,
         sequence(
-          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0027_tangtang_ultskill', definition: { lifetime: { kind: 'limited', durationSeconds: 10 } }, dieWhenSourceDies: false, inheritActionBlackboard: true }),
+          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0027_tangtang_ultskill',  dieWhenSourceDies: false, inheritActionBlackboard: true }),
         ),
       ),
       scheduled(
@@ -9783,6 +1213,4032 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: tangtangUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: tangtangComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0027_tangtang_skillappear_effect': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0027_tangtang_skillappear': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: -1,
+      lifecycleSequences: {
+        finish: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0027_tangtang_skillappear_effect',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+      },
+    },
+    'buff_chr_0027_tangtang_water_wake': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.1,
+    },
+    'buff_chr_0027_tangtang_water': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: { blackboardKey: 'water_stack' },
+      durationSeconds: { blackboardKey: 'duration_water' },
+      blackboard: {
+        'duration_water': 30,
+        'water_stack': 2,
+      },
+    },
+  },
+  abilityEntityDefinitions: {
+    'abilityentity_chr_0027_tangtang_normal_skill_03': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0,
+          'dmg_up_water_ult': 0.3,
+          'duration': 5,
+          'duration_spellvulnerable': 10,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 3,
+          'hit_spelllnflictionmax02': 1,
+          'hit_spellvulnerablemax': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'rate_spellvulnerable': 0.05,
+          'rate_spellvulnerable_02': 0.1,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill_03_02': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0,
+          'dmg_up_water_ult': 0.3,
+          'duration': 5,
+          'duration_spellvulnerable': 10,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 3,
+          'hit_spelllnflictionmax02': 1,
+          'hit_spellvulnerablemax': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'rate_spellvulnerable': 0.05,
+          'rate_spellvulnerable_02': 0.1,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill_03_03': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0,
+          'dmg_up_water_ult': 0.3,
+          'duration': 5,
+          'duration_spellvulnerable': 10,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 3,
+          'hit_spelllnflictionmax02': 1,
+          'hit_spellvulnerablemax': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'rate_spellvulnerable': 0.05,
+          'rate_spellvulnerable_02': 0.1,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill_02': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0.2,
+          'dmg_up_water_ult': 0,
+          'duration': 5,
+          'duration_spellvulnerable': 10,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 3,
+          'hit_spelllnflictionmax02': 1,
+          'hit_spellvulnerablemax': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'rate_spellvulnerable': 0.05,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill_02_02': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0.2,
+          'dmg_up_water_ult': 0,
+          'duration': 5,
+          'duration_spellvulnerable': 10,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 3,
+          'hit_spelllnflictionmax02': 1,
+          'hit_spellvulnerablemax': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'rate_spellvulnerable': 0.05,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax02' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_normalskill_spellvulnerable'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spellvulnerablemax' },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+                      'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                    },
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_water_projhit',
+        blackboard: {
+          'atb': 0,
+          'atk_scale_1': 0,
+          'atk_scale_2': 0,
+          'atk_water': 0,
+          'dmg_up_water_ult': 0.3,
+          'duration': 5,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 5,
+          'hit_spelllnflictionmax_01': 1,
+          'poise_tornado': 0,
+          'potential3': 0,
+          'potential5': 0,
+          'talent2': 0,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            8,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            16,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            24,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            32,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            39,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            47,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            55,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            63,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            71,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            79,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            86,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                  sameSourceSkillCast: true,
+                  operator: 'less',
+                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                },
+                sequence(
+                  step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('dealDamage', {
+                damageType: 'cryo',
+                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 0,
+              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+          ),
+          scheduled(
+            90,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_normal_skill_move': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0027_tangtang_normal_skill_abilityentitymove',
+        blackboard: {
+          'atk_scale': 0.1,
+          'atk_scale_03': 0,
+          'duration': 5,
+          'hit_cnt': 4,
+          'hit_cntmax': 10,
+          'hit_duration': 5,
+          'poise': 5,
+          'poise_tornado': 0,
+          'water_cnt': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            12,
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'water_cnt' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'water_cnt' },
+                      operator: 'greaterOrEqual',
+                      right: { kind: 'constant', value: 2 },
+                    },
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
+                                                          dieWhenSourceDies: false,
+                        inheritActionBlackboard: true,
+                        target: 'caster',
+                      }),
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
+                                                          dieWhenSourceDies: false,
+                        inheritActionBlackboard: true,
+                        target: 'caster',
+                      }),
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
+                                                          dieWhenSourceDies: false,
+                        inheritActionBlackboard: true,
+                        target: 'caster',
+                      }),
+                      step('modifyActionValue', {
+                        key: 'water_cnt',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 0 },
+                      }),
+                    ),
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
+                                                          dieWhenSourceDies: false,
+                        inheritActionBlackboard: true,
+                        target: 'caster',
+                      }),
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
+                                                          dieWhenSourceDies: false,
+                        inheritActionBlackboard: true,
+                        target: 'caster',
+                      }),
+                      step('modifyActionValue', {
+                        key: 'water_cnt',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 0 },
+                      }),
+                    ),
+                  ),
+                ),
+                sequence(
+                  step('spawnAbilityEntity', {
+                    abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
+                                                  dieWhenSourceDies: false,
+                    inheritActionBlackboard: true,
+                    target: 'caster',
+                  }),
+                  step('modifyActionValue', {
+                    key: 'water_cnt',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 0 },
+                  }),
+                ),
+              ),
+            ),
+          ),
+          scheduled(
+            298,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_comboskill_water': { lifetime: { kind: 'limited', durationSeconds: 62 }, childSkill: {
+        skillId: 'chr_0027_tangtang_combo_skill_water',
+        blackboard: {
+          'atk_scale_water': 1,
+          'duration_talent1buff': 3,
+          'max_stack': 0,
+          'potential1': 0,
+          'potential3_duration': 0,
+          'potential5': 0,
+          'potential5_dmg_up_water_ult': 0,
+          'range_talent1buff': 5,
+          'ratio_speed': 0.2,
+          'ratio_speedreduction': 0.8,
+          'talent1_speed': 0,
+          'talent2_ultskill': 0,
+          'tornado_atk_scale01': 0,
+          'tornado_atk_scale02': 0,
+          'tornado_atk_scale03': 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('jumpTimeline', {
+                destinationFrame: 1500,
+                condition: {
+                  kind: 'buffIdStackCompare',
+                  target: 'currentAbilityEntity',
+                  buffIds: ['buff_chr_0027_tangtang_water_wake'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+              }),
+            ),
+            1500,
+          ),
+          scheduled(
+            0,
+            sequence(
+              step('jumpTimeline', {
+                destinationFrame: 1515,
+                condition: {
+                  kind: 'buffIdStackCompare',
+                  target: 'currentAbilityEntity',
+                  buffIds: ['buff_chr_0027_tangtang_water_ultskillwake'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+              }),
+            ),
+            1500,
+          ),
+          scheduled(
+            0,
+            sequence(
+              sequence(
+                step('finishBuffsById', {
+                  target: 'enemy',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterdebuff_outaura'],
+                  reason: 'other',
+                }),
+                step('applyBuff', {
+                  buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
+                  definition: {
+                    stackingType: 'highPriority',
+                    priority: 0,
+                    maxStackCount: 1,
+                    durationSeconds: { blackboardKey: 'duration_waterdebuff' },
+                    applyTagIds: [1925762097],
+                    blackboard: {
+                      'duration_waterdebuff': 30,
+                      'ratio_speedreduction': 0.7,
+                    },
+                  },
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: true,
+                  finishByAction: true,
+                  blackboardAssignments: {
+                    'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
+                  },
+                }),
+              ),
+              sequence(
+                step('finishBuffsById', {
+                  target: 'partyExceptCaster',
+                  buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
+                  reason: 'other',
+                }),
+                step('applyBuff', {
+                  buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
+                  definition: {
+                    stackingType: 'highPriority',
+                    priority: { blackboardKey: 'ratio_speed' },
+                    maxStackCount: 1,
+                    durationSeconds: { blackboardKey: 'duration_waterbuff' },
+                    blackboard: {
+                      'duration_waterbuff': 30,
+                      'ratio_speed': 0.1,
+                    },
+                    lifecycleSequences: {
+                      start: sequence(
+                        step('finishBuffsById', {
+                          target: 'caster',
+                          buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
+                          reason: 'other',
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_vfx',
+                          definition: {
+                            stackingType: 'enhance',
+                            priority: 0,
+                            maxStackCount: 1,
+                            durationSeconds: 1,
+                          },
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                        }),
+                      ),
+                    },
+                  },
+                  target: 'partyExceptCaster',
+                  inheritSourceSkillCastInfo: true,
+                  finishByAction: true,
+                  blackboardAssignments: {
+                    'ratio_speed': { kind: 'blackboard', key: 'ratio_speed' },
+                  },
+                }),
+              ),
+            ),
+            1500,
+          ),
+          scheduled(
+            900,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0027_tangtang_water'],
+                reason: 'other',
+                count: { kind: 'constant', value: 1 },
+              }),
+            ),
+          ),
+          scheduled(
+            1500,
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0027_tangtang_water'],
+                reason: 'other',
+                count: { kind: 'constant', value: 1 },
+              }),
+            ),
+          ),
+          scheduled(
+            1500,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+          scheduled(
+            1500,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
+                definition: {
+                  stackingType: 'highPriority',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration_talent1buff' },
+                  applyTagIds: [1925762097],
+                  blackboard: {
+                    'duration_talent1buff': 3,
+                    'ratio_speedreduction': 0.7,
+                  },
+                },
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration_talent1buff': { kind: 'blackboard', key: 'duration_talent1buff' },
+                  'ratio_speedreduction': { kind: 'blackboard', key: 'ratio_speedreduction' },
+                },
+              }),
+            ),
+          ),
+          scheduled(
+            1515,
+            sequence(
+              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ultskill_center_abilityentity', abilityEntityIds: ['abilityentity_chr_0027_tangtang_ultskill'] }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'singleEnemyPresent' },
+                    {
+                      kind: 'contextTargetCountCompare',
+                      contextKey: 'ultskill_center_abilityentity',
+                      operator: 'greaterOrEqual',
+                      value: 1,
+                    },
+                  ],
+                },
+                sequence(
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'enemy',
+                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                        sameSourceSkillCast: true,
+                        operator: 'less',
+                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                      },
+                      sequence(
+                        branch(
+                          {
+                            kind: 'buffIdStackCompare',
+                            target: 'enemy',
+                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                            sameSourceSkillCast: true,
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'blackboard', key: 'hit_cnt' },
+                          },
+                          sequence(
+                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                              definition: {
+                                stackingType: 'unlimited',
+                                priority: 0,
+                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                                durationSeconds: { blackboardKey: 'hit_spellduration' },
+                                blackboard: {
+                                  'hit_spellduration': 6,
+                                  'hit_spelllnflictionmax': 2,
+                                },
+                              },
+                              target: 'enemy',
+                              inheritSourceSkillCastInfo: true,
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                    step('dealDamage', {
+                      damageType: 'cryo',
+                      attackScale: percentage(0),
+                      tags: ['normalSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: 0,
+                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
+                  ),
+                  step('finishBuffsById', {
+                    target: 'caster',
+                    buffIds: ['buff_chr_0027_tangtang_water'],
+                    reason: 'other',
+                    count: { kind: 'constant', value: 1 },
+                  }),
+                ),
+              ),
+            ),
+          ),
+          scheduled(
+            1515,
+            sequence(
+              step('finishCurrentAbilityEntity', {}),
+            ),
+          ),
+        ],
+    } },
+    'abilityentity_chr_0027_tangtang_ultskill': { lifetime: { kind: 'limited', durationSeconds: 10 } },
+  },
   talents: [
     {
       key: 'talent1',

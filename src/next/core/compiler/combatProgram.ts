@@ -4,6 +4,7 @@
  */
 import type {
   ActionValueOperand,
+  AbilityEntityDefinition,
   CombatCondition,
   CombatEventTrigger,
   ComboSkillPriority,
@@ -81,6 +82,12 @@ export interface CompiledAbilityEntityChildSkillProgram {
   readonly timelineActions: readonly CompiledTimelineAction[];
 }
 
+/** 已按引用技能等级展开、可供逻辑能力实体运行时创建实例的蓝图。 */
+export interface ResolvedAbilityEntityDefinition {
+  readonly lifetime: AbilityEntityDefinition['lifetime'];
+  readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
+}
+
 export interface ResolvedCombatStepParameters {
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
@@ -92,12 +99,7 @@ export interface ResolvedCombatStepParameters {
     readonly childSkill: CompiledAbilityEntityChildSkillProgram;
   };
   spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'definition'> & {
-    readonly definition: Omit<
-      CombatStepParameters['spawnAbilityEntity']['definition'],
-      'childSkill'
-    > & {
-      readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
-    };
+    readonly definition?: ResolvedAbilityEntityDefinition;
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
@@ -127,6 +129,7 @@ export interface ResolvedCombatStepParameters {
   dealStagger: { value: number | ActionValueOperand };
   heal: {
     target: CombatStepParameters['heal']['target'];
+    alwaysNext?: boolean;
     tagIds: readonly number[];
   } & (
     | {
@@ -150,6 +153,7 @@ export interface ResolvedCombatStepParameters {
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
   finishCurrentBuff: CombatStepParameters['finishCurrentBuff'];
+  setCurrentBuffTimePaused: CombatStepParameters['setCurrentBuffTimePaused'];
   igniteBuffs: CombatStepParameters['igniteBuffs'];
   adjustSkillCooldown: CombatStepParameters['adjustSkillCooldown'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
@@ -190,6 +194,7 @@ export interface ResolvedCombatStepParameters {
   };
   consumeStatus: CombatStepParameters['consumeStatus'];
   jumpTimeline: CombatStepParameters['jumpTimeline'];
+  finishTimeline: CombatStepParameters['finishTimeline'];
   conditional: { condition: CombatCondition };
   once: CombatStepParameters['once'];
   repeatEachTick: CombatStepParameters['repeatEachTick'];
@@ -233,7 +238,15 @@ export type ResolvedCombatStep = {
 /** 条件、once 与 Context 迭代由序列运行时解释，其余步骤交给操作链。 */
 export type ResolvedCombatOperationStep = Exclude<
   ResolvedCombatStep,
-  { kind: 'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget' | 'jumpTimeline' }
+  {
+    kind:
+      | 'conditional'
+      | 'once'
+      | 'repeatEachTick'
+      | 'forEachContextTarget'
+      | 'jumpTimeline'
+      | 'finishTimeline';
+  }
 >;
 
 /** 已解析且严格保持声明顺序的同步操作序列。 */
@@ -288,6 +301,7 @@ export interface CompiledSkillProgram {
   readonly castId?: string;
   readonly skillGroupKey: string;
   readonly skillId: string;
+  readonly sourceSkillId?: string;
   readonly skillType: SkillType;
   readonly skillLevel: number;
   /** 已按技能等级解析；每次释放复制到该运行实例的动作黑板。 */
@@ -299,6 +313,8 @@ export interface CompiledSkillProgram {
   readonly costs: readonly CompiledSkillCost[];
   readonly statModifiers?: CompiledSkillStatModifiers;
   readonly timelineActions: readonly CompiledTimelineAction[];
+  /** 当前技能等级下实际引用到的能力实体闭包；支持子技能递归生成同一蓝图。 */
+  readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
 }
 
 /** 一个稳定技能组可在释放之间切换的已编译技能身份。 */

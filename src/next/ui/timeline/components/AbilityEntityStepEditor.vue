@@ -5,11 +5,12 @@
  * VFS 模板只属于生成证据；这里直接修改当前技能组件树中的 definition。
  * 子技能复用统一调度序列和战斗步骤编辑器，并通过异步组件打断递归导入环。
  */
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, inject, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
   COMBAT_TARGETS,
+  type AbilityEntityDefinition,
   type AbilityEntityChildSkillDefinition,
   type ActionValueOperand,
   type CombatStepDefinition,
@@ -21,6 +22,7 @@ import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
+import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
 
 const RecursiveScheduledSequenceEditor = defineAsyncComponent(
   () => import('./ScheduledSequenceEditor.vue'),
@@ -33,12 +35,53 @@ const props = defineProps<{
   skillLevel: number;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
+  definitionOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
+const providedAbilityEntityIds = inject(
+  ABILITY_ENTITY_IDS_KEY,
+  computed(() => []),
+);
+const abilityEntityIds = computed(() => {
+  const values = new Set(providedAbilityEntityIds.value);
+  if (props.step.parameters.abilityEntityId.length > 0) {
+    values.add(props.step.parameters.abilityEntityId);
+  }
+  return [...values].sort();
+});
+const editsInlineDefinition = computed(
+  () => props.definitionOnly === true || props.step.parameters.definition !== undefined,
+);
+const selectedChildSequenceIndex = ref(0);
 
 const assignments = computed(() =>
   Object.entries(props.step.parameters.blackboardAssignments ?? {}),
+);
+const editableDefinition = computed<AbilityEntityDefinition>(
+  () =>
+    props.step.parameters.definition ?? {
+      lifetime: { kind: 'infinite' as const },
+    },
+);
+const selectedChildSequence = computed(
+  () => editableDefinition.value.childSkill?.scheduledSequences[selectedChildSequenceIndex.value],
+);
+
+watch(
+  () => editableDefinition.value.childSkill?.scheduledSequences.length ?? 0,
+  length => {
+    selectedChildSequenceIndex.value = Math.max(
+      0,
+      Math.min(selectedChildSequenceIndex.value, length - 1),
+    );
+  },
+);
+watch(
+  () => props.step.parameters.abilityEntityId,
+  () => {
+    selectedChildSequenceIndex.value = 0;
+  },
 );
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
@@ -81,15 +124,15 @@ function setLifetimeKind(event: Event): void {
   update({
     ...props.step.parameters,
     definition: {
-      ...props.step.parameters.definition,
+      ...editableDefinition.value,
       lifetime:
         kind === 'infinite'
           ? { kind }
           : {
               kind,
               durationSeconds:
-                props.step.parameters.definition.lifetime.kind === 'limited'
-                  ? props.step.parameters.definition.lifetime.durationSeconds
+                editableDefinition.value.lifetime.kind === 'limited'
+                  ? editableDefinition.value.lifetime.durationSeconds
                   : 10,
             },
     },
@@ -97,13 +140,13 @@ function setLifetimeKind(event: Event): void {
 }
 
 function setLifetimeDuration(event: Event): void {
-  if (props.step.parameters.definition.lifetime.kind !== 'limited') return;
+  if (editableDefinition.value.lifetime.kind !== 'limited') return;
   const durationSeconds = Number((event.target as HTMLInputElement).value);
   if (!Number.isFinite(durationSeconds) || durationSeconds < 0) return;
   update({
     ...props.step.parameters,
     definition: {
-      ...props.step.parameters.definition,
+      ...editableDefinition.value,
       lifetime: { kind: 'limited', durationSeconds },
     },
   });
@@ -165,7 +208,7 @@ function setAssignment(key: string, value: ActionValueOperand): void {
 }
 
 function setChildSkill(childSkill: AbilityEntityChildSkillDefinition | undefined): void {
-  const definition = { ...props.step.parameters.definition };
+  const definition = { ...editableDefinition.value };
   if (childSkill === undefined) delete definition.childSkill;
   else definition.childSkill = childSkill;
   update({ ...props.step.parameters, definition });
@@ -180,13 +223,13 @@ function toggleChildSkill(event: Event): void {
 }
 
 function setChildSkillId(event: Event): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined) return;
   setChildSkill({ ...childSkill, skillId: (event.target as HTMLInputElement).value });
 }
 
 function setChildBlackboard(blackboard: Readonly<Record<string, LevelValues>>): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined) return;
   const next = { ...childSkill };
   if (Object.keys(blackboard).length === 0) delete next.blackboard;
@@ -195,7 +238,7 @@ function setChildBlackboard(blackboard: Readonly<Record<string, LevelValues>>): 
 }
 
 function replaceChildSequence(index: number, sequence: ScheduledSequenceDefinition): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined || childSkill.scheduledSequences[index] === undefined) return;
   const scheduledSequences = [...childSkill.scheduledSequences];
   scheduledSequences[index] = sequence;
@@ -203,8 +246,9 @@ function replaceChildSequence(index: number, sequence: ScheduledSequenceDefiniti
 }
 
 function appendChildSequence(): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined) return;
+  selectedChildSequenceIndex.value = childSkill.scheduledSequences.length;
   setChildSkill({
     ...childSkill,
     scheduledSequences: [
@@ -215,7 +259,7 @@ function appendChildSequence(): void {
 }
 
 function moveChildSequence(index: number, offset: -1 | 1): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined) return;
   const target = index + offset;
   if (target < 0 || target >= childSkill.scheduledSequences.length) return;
@@ -224,11 +268,12 @@ function moveChildSequence(index: number, offset: -1 | 1): void {
     scheduledSequences[target]!,
     scheduledSequences[index]!,
   ];
+  selectedChildSequenceIndex.value = target;
   setChildSkill({ ...childSkill, scheduledSequences });
 }
 
 function duplicateChildSequence(index: number): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   const sequence = childSkill?.scheduledSequences[index];
   if (childSkill === undefined || sequence === undefined || props.duplicateStep === undefined)
     return;
@@ -238,29 +283,36 @@ function duplicateChildSequence(index: number): void {
   };
   const scheduledSequences = [...childSkill.scheduledSequences];
   scheduledSequences.splice(index + 1, 0, copy);
+  selectedChildSequenceIndex.value = index + 1;
   setChildSkill({ ...childSkill, scheduledSequences });
 }
 
 function removeChildSequence(index: number): void {
-  const childSkill = props.step.parameters.definition.childSkill;
+  const childSkill = editableDefinition.value.childSkill;
   if (childSkill === undefined) return;
+  const scheduledSequences = childSkill.scheduledSequences.filter((_, i) => i !== index);
+  selectedChildSequenceIndex.value = Math.max(
+    0,
+    Math.min(selectedChildSequenceIndex.value, scheduledSequences.length - 1),
+  );
   setChildSkill({
     ...childSkill,
-    scheduledSequences: childSkill.scheduledSequences.filter((_, i) => i !== index),
+    scheduledSequences,
   });
 }
 </script>
 
 <template>
   <div class="ability-entity-editor">
-    <div class="step-editor__grid">
+    <div v-if="!definitionOnly" class="step-editor__grid">
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.abilityEntityId')" />
-        <input
-          type="text"
+        <select
           :value="step.parameters.abilityEntityId"
-          @input="setText('abilityEntityId', $event)"
-        />
+          @change="setText('abilityEntityId', $event)"
+        >
+          <option v-for="id in abilityEntityIds" :key="id" :value="id">{{ id }}</option>
+        </select>
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.abilityEntityTarget')" />
@@ -297,12 +349,19 @@ function removeChildSequence(index: number): void {
       </label>
     </div>
 
-    <fieldset>
+    <p
+      v-if="!definitionOnly && !editsInlineDefinition"
+      class="ability-entity-editor__reference-hint"
+    >
+      {{ t('nextTimeline.skillEditing.abilityEntityManagedAtOperator') }}
+    </p>
+
+    <fieldset v-if="editsInlineDefinition">
       <legend>{{ t('nextTimeline.skillEditing.abilityEntityDefinition') }}</legend>
       <div class="step-editor__grid ability-entity-editor__definition">
         <label>
           <EditorFieldLabel :label="t('nextTimeline.skillEditing.abilityEntityLifetime')" />
-          <select :value="step.parameters.definition.lifetime.kind" @change="setLifetimeKind">
+          <select :value="editableDefinition.lifetime.kind" @change="setLifetimeKind">
             <option value="limited">
               {{ t('nextTimeline.skillEditing.abilityEntityLifetimeLimited') }}
             </option>
@@ -311,20 +370,20 @@ function removeChildSequence(index: number): void {
             </option>
           </select>
         </label>
-        <label v-if="step.parameters.definition.lifetime.kind === 'limited'">
+        <label v-if="editableDefinition.lifetime.kind === 'limited'">
           <EditorFieldLabel :label="t('nextTimeline.skillEditing.durationSeconds')" />
           <input
             type="number"
             min="0"
             step="0.01"
-            :value="step.parameters.definition.lifetime.durationSeconds"
+            :value="editableDefinition.lifetime.durationSeconds"
             @input="setLifetimeDuration"
           />
         </label>
       </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset v-if="!definitionOnly">
       <legend>
         <label class="step-editor__check">
           <input
@@ -343,7 +402,7 @@ function removeChildSequence(index: number): void {
       />
     </fieldset>
 
-    <fieldset>
+    <fieldset v-if="!definitionOnly">
       <legend>{{ t('nextTimeline.skillEditing.abilityEntityAssignments') }}</legend>
       <div v-for="[key, value] in assignments" :key="key" class="ability-entity-editor__assignment">
         <input type="text" :value="key" @change="renameAssignment(key, $event)" />
@@ -361,31 +420,33 @@ function removeChildSequence(index: number): void {
       </button>
     </fieldset>
 
-    <fieldset>
+    <fieldset v-if="editsInlineDefinition">
       <legend>
         <label class="step-editor__check">
           <input
             type="checkbox"
-            :checked="step.parameters.definition.childSkill !== undefined"
+            :checked="editableDefinition.childSkill !== undefined"
             @change="toggleChildSkill"
           />
           {{ t('nextTimeline.skillEditing.abilityEntityChildSkill') }}
         </label>
       </legend>
-      <template v-if="step.parameters.definition.childSkill">
+      <template v-if="editableDefinition.childSkill">
         <div class="step-editor__grid">
           <label>
             <EditorFieldLabel :label="t('nextTimeline.skillEditing.abilityEntityChildSkillId')" />
             <input
               type="text"
-              :value="step.parameters.definition.childSkill.skillId"
+              :value="editableDefinition.childSkill.skillId"
               @input="setChildSkillId"
             />
           </label>
         </div>
         <SkillBlackboardEditor
-          :blackboard="step.parameters.definition.childSkill.blackboard ?? {}"
+          :blackboard="editableDefinition.childSkill.blackboard ?? {}"
           :skill-level="skillLevel"
+          collapsible
+          initially-collapsed
           @update="setChildBlackboard"
         />
         <div class="ability-entity-editor__heading">
@@ -394,34 +455,71 @@ function removeChildSequence(index: number): void {
             <el-icon><Plus /></el-icon>
           </button>
         </div>
-        <div v-if="createStep && duplicateStep" class="ability-entity-editor__sequences">
+        <div
+          v-if="
+            createStep &&
+            duplicateStep &&
+            editableDefinition.childSkill.scheduledSequences.length > 0
+          "
+          class="ability-entity-editor__timeline-workspace"
+        >
+          <aside class="ability-entity-editor__sequence-list">
+            <button
+              v-for="(sequence, index) in editableDefinition.childSkill.scheduledSequences"
+              :key="index"
+              type="button"
+              :class="{ active: index === selectedChildSequenceIndex }"
+              @click="selectedChildSequenceIndex = index"
+            >
+              <strong>{{
+                t('nextTimeline.skillEditing.sequenceItem', { index: index + 1 })
+              }}</strong>
+              <span>
+                {{ sequence.startFrame }}–{{ sequence.endFrame ?? '∞' }} ·
+                {{
+                  t('nextTimeline.skillEditing.abilityEntitySequenceStepCount', {
+                    count: sequence.sequence.steps.length,
+                  })
+                }}
+              </span>
+            </button>
+          </aside>
           <RecursiveScheduledSequenceEditor
-            v-for="(sequence, index) in step.parameters.definition.childSkill.scheduledSequences"
-            :key="index"
-            :sequence="sequence"
+            v-if="selectedChildSequence"
+            :key="selectedChildSequenceIndex"
+            :sequence="selectedChildSequence"
             :skill-level="skillLevel"
-            :title="t('nextTimeline.skillEditing.sequenceItem', { index: index + 1 })"
+            :title="
+              t('nextTimeline.skillEditing.sequenceItem', {
+                index: selectedChildSequenceIndex + 1,
+              })
+            "
             :create-step="createStep"
             :duplicate-step="duplicateStep"
-            @update="replaceChildSequence(index, $event)"
+            @update="replaceChildSequence(selectedChildSequenceIndex, $event)"
           >
             <template #actions>
-              <button type="button" :disabled="index === 0" @click="moveChildSequence(index, -1)">
+              <button
+                type="button"
+                :disabled="selectedChildSequenceIndex === 0"
+                @click="moveChildSequence(selectedChildSequenceIndex, -1)"
+              >
                 <el-icon><ArrowUp /></el-icon>
               </button>
               <button
                 type="button"
                 :disabled="
-                  index === step.parameters.definition.childSkill!.scheduledSequences.length - 1
+                  selectedChildSequenceIndex ===
+                  editableDefinition.childSkill!.scheduledSequences.length - 1
                 "
-                @click="moveChildSequence(index, 1)"
+                @click="moveChildSequence(selectedChildSequenceIndex, 1)"
               >
                 <el-icon><ArrowDown /></el-icon>
               </button>
-              <button type="button" @click="duplicateChildSequence(index)">
+              <button type="button" @click="duplicateChildSequence(selectedChildSequenceIndex)">
                 <el-icon><CopyDocument /></el-icon>
               </button>
-              <button type="button" @click="removeChildSequence(index)">
+              <button type="button" @click="removeChildSequence(selectedChildSequenceIndex)">
                 <el-icon><Delete /></el-icon>
               </button>
             </template>
@@ -434,6 +532,7 @@ function removeChildSequence(index: number): void {
 
 <style scoped>
 .ability-entity-editor {
+  container-type: inline-size;
   padding-bottom: 1px;
 }
 .ability-entity-editor__heading {
@@ -442,6 +541,14 @@ function removeChildSequence(index: number): void {
   justify-content: space-between;
   gap: 12px;
   margin: 10px 0;
+}
+.ability-entity-editor__reference-hint {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-left: 2px solid var(--ea-gold);
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg-muted);
+  font-size: 12px;
 }
 .ability-entity-editor button {
   min-width: 30px;
@@ -454,9 +561,42 @@ function removeChildSequence(index: number): void {
   background: var(--ea-fill-input, #16161a);
   color: var(--ea-fg);
 }
-.ability-entity-editor__sequences {
+.ability-entity-editor__timeline-workspace {
   display: grid;
-  gap: 10px;
+  min-width: 0;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.ability-entity-editor__sequence-list {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.ability-entity-editor__sequence-list > button {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  padding: 10px 12px;
+  text-align: left;
+}
+.ability-entity-editor__sequence-list > button.active {
+  border-color: var(--ea-gold);
+  background: var(--ea-active-fill);
+  box-shadow: inset 3px 0 0 var(--ea-gold);
+}
+.ability-entity-editor__sequence-list strong,
+.ability-entity-editor__sequence-list span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ability-entity-editor__sequence-list span {
+  color: var(--ea-fg-muted);
+  font-size: 11px;
 }
 .ability-entity-editor__assignment > input {
   width: 100%;
@@ -487,6 +627,14 @@ function removeChildSequence(index: number): void {
   justify-content: space-between;
 }
 .ability-entity-editor :deep(.scheduled-sequence-editor) {
-  margin-bottom: 10px;
+  min-width: 0;
+}
+@container (max-width: 980px) {
+  .ability-entity-editor__timeline-workspace {
+    grid-template-columns: 1fr;
+  }
+  .ability-entity-editor__sequence-list {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
 }
 </style>

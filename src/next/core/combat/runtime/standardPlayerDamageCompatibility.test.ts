@@ -24,10 +24,34 @@ function program(sequence: ResolvedActionSequence): CompiledSkillProgram {
 function operator(
   sequence: ResolvedActionSequence,
   equipmentEventHandlerCount = 0,
+  withPanel = false,
 ): CombatOperatorProgram {
   return {
     operatorId: 'operator:1',
     skills: [program(sequence)],
+    ...(withPanel
+      ? {
+          panel: {
+            operatorId: 'operator:1',
+            level: 1,
+            attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+            attack: 700,
+            attackBeforeAttributeScalar: 700,
+            mainAttribute: 'intellect' as const,
+            secondaryAttribute: 'will' as const,
+            health: 5000,
+            defense: 0,
+            criticalRate: 0.15,
+            criticalDamage: 0.6,
+            artsIntensity: 0,
+            ultimateEnergyGainEfficiency: 1,
+            skillCooldownReduction: 0,
+            staggerDamagePercent: 0,
+            combatModifiers: [],
+            receipt: [],
+          },
+        }
+      : {}),
     equipmentContributions:
       equipmentEventHandlerCount === 0
         ? []
@@ -242,6 +266,45 @@ describe('standardPlayerDamageCompatibility', () => {
     );
 
     expect(issues).toEqual([]);
+  });
+
+  it('accepts operator healing and health checks only when runtime vitals are assembled', () => {
+    const sequence: ResolvedActionSequence = {
+      steps: [
+        {
+          kind: 'heal',
+          parameters: {
+            target: 'buffSource',
+            attribute: 'will',
+            multiplier: { kind: 'constant', value: 1 },
+            addition: 0,
+            tagIds: [],
+          },
+        },
+        {
+          kind: 'conditional',
+          parameters: {
+            condition: {
+              kind: 'healthCompare',
+              target: 'buffSource',
+              valueType: 'ratio',
+              operator: 'less',
+              value: { kind: 'constant', value: 1 },
+            },
+          },
+          whenTrue: { steps: [] },
+        },
+      ],
+    };
+
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence, 0, true))),
+    ).toEqual([]);
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence))).map(
+        issue => issue.code,
+      ),
+    ).toEqual(['unsupported-step', 'unsupported-condition']);
   });
 
   it('recursively reports unsupported branches and nested conditions in stable order', () => {

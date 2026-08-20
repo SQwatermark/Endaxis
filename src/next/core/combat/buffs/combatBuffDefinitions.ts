@@ -138,12 +138,26 @@ export interface CombatBuffDefinitionAttributeModifier {
 }
 
 /** 外部和内联 Buff 定义中可序列化的伤害处理器。 */
-export type CombatBuffDefinitionDamageProcessor = {
-  readonly kind: 'damageScale';
-  readonly side: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['side'];
-  readonly zone: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['zone'];
-  readonly addition: DamageModifierNumber;
-};
+export type CombatBuffDefinitionDamageProcessor =
+  | {
+      readonly kind: 'damageScale';
+      readonly side: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['side'];
+      readonly zone: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['zone'];
+      readonly addition: DamageModifierNumber;
+    }
+  | {
+      readonly kind: 'instantAttribute';
+      readonly targetSide: Extract<
+        DamageProcessorDefinition,
+        { readonly kind: 'instantAttribute' }
+      >['targetSide'];
+      readonly attribute: string;
+      readonly values: Extract<
+        DamageProcessorDefinition,
+        { readonly kind: 'instantAttribute' }
+      >['values'];
+      readonly attributeTiming: 'runtime';
+    };
 
 /** Buff 激活期间向伤害生命周期注册的一项纯数据修正。 */
 export interface CombatBuffDefinitionDamageModifier {
@@ -562,20 +576,42 @@ function parseDamageModifierProcessor(
   path: string,
 ): CombatBuffDefinitionDamageProcessor {
   const processor = requireObject(input, path);
-  if (processor.kind !== 'damageScale') {
-    throw new Error(`${path}.kind: unsupported damage processor '${String(processor.kind)}'`);
+  if (processor.kind === 'damageScale') {
+    requireOnlyKeys(processor, path, ['kind', 'side', 'zone', 'addition']);
+    const addition = parseDefinitionNumberOperand(processor.addition, `${path}.addition`);
+    return {
+      kind: 'damageScale',
+      side: requireEnum(processor.side, DAMAGE_SCALE_SIDES, `${path}.side`),
+      zone: requireEnum(processor.zone, DAMAGE_SCALE_ZONES, `${path}.zone`),
+      addition,
+    };
   }
-  requireOnlyKeys(processor, path, ['kind', 'side', 'zone', 'addition']);
-  const addition =
-    typeof processor.addition === 'number' && Number.isFinite(processor.addition)
-      ? processor.addition
-      : parseBlackboardReference(processor.addition, `${path}.addition`);
-  return {
-    kind: 'damageScale',
-    side: requireEnum(processor.side, DAMAGE_SCALE_SIDES, `${path}.side`),
-    zone: requireEnum(processor.zone, DAMAGE_SCALE_ZONES, `${path}.zone`),
-    addition,
-  };
+  if (processor.kind === 'instantAttribute') {
+    requireOnlyKeys(processor, path, [
+      'kind',
+      'targetSide',
+      'attribute',
+      'values',
+      'attributeTiming',
+    ]);
+    const values = requireObject(processor.values, `${path}.values`);
+    requireOnlyKeys(values, `${path}.values`, ['slot', 'value']);
+    return {
+      kind: 'instantAttribute',
+      targetSide: requireEnum(processor.targetSide, DAMAGE_MODIFIER_SIDES, `${path}.targetSide`),
+      attribute: requireNonEmptyString(processor.attribute, `${path}.attribute`),
+      values: {
+        slot: requireEnum(values.slot, ATTRIBUTE_MODIFIER_SLOTS, `${path}.values.slot`),
+        value: parseDefinitionNumberOperand(values.value, `${path}.values.value`),
+      },
+      attributeTiming: requireEnum(
+        processor.attributeTiming,
+        ['runtime'] as const,
+        `${path}.attributeTiming`,
+      ),
+    };
+  }
+  throw new Error(`${path}.kind: unsupported damage processor '${String(processor.kind)}'`);
 }
 
 function parseOptionalSpellBurst(

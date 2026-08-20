@@ -34,6 +34,12 @@ export type CombatSemanticEvent =
       readonly buffTagIds: readonly number[];
     }
   | {
+      readonly kind: 'buffFinished';
+      readonly targetId: string;
+      readonly buffId: string;
+      readonly sourceId: string;
+    }
+  | {
       readonly kind: 'airborneOutput';
       readonly sourceOperatorId: string;
       readonly targetId: string;

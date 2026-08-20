@@ -96,6 +96,7 @@ function projectSkillCast(
   skillCast: SkillCastDocument,
   resolved: ResolvedSkillDefinition | null,
   issues: string[],
+  abilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
 ): TimelineSkillCastViewModel {
   const source = skillCast.source;
   const skillType = resolved?.group.skillType ?? null;
@@ -108,7 +109,10 @@ function projectSkillCast(
     durationFrames: resolved !== null ? resolved.definition.timelineBlockFrames : 0,
     source: skillCast.source,
     skillType,
-    hitMarkers: resolved !== null ? projectCastHitMarkers(skillCast, resolved.definition) : [],
+    hitMarkers:
+      resolved !== null
+        ? projectCastHitMarkers(skillCast, resolved.definition, abilityEntityDefinitions)
+        : [],
     disabled: skillCast.presentation?.disabled ?? false,
     locked: skillCast.presentation?.locked ?? false,
     edited: skillCast.customDefinition !== undefined,
@@ -173,7 +177,7 @@ function projectTrack(
       operator !== null && operatorInstance !== null
         ? resolveEffectiveSkillDefinition(skillCast, operator)
         : null;
-    return projectSkillCast(skillCast, resolved, issues);
+    return projectSkillCast(skillCast, resolved, issues, operator?.abilityEntityDefinitions);
   });
 
   return {

@@ -1508,6 +1508,9 @@
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -1878,6 +1881,9 @@
       "timelineBlockFrames": 22,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -2368,6 +2374,9 @@
       "timelineBlockFrames": 23,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -3288,6 +3297,9 @@
       "timelineBlockFrames": 40,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -4841,6 +4853,9 @@
           "sequenceIndex": 8
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -4862,7 +4877,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -4883,7 +4899,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -5444,6 +5461,9 @@
           "sequenceIndex": 2
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -5887,6 +5907,9 @@
           "sequenceIndex": 12
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -6128,6 +6151,7 @@
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -6272,6 +6296,7 @@
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -6359,6 +6384,7 @@
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -6453,7 +6479,8 @@
             "CreateBuffAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 29,
@@ -6474,7 +6501,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -6534,7 +6562,8 @@
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 96
+              "sequenceIndex": 96,
+              "autoFinishByAction": true
             }
           ],
           "resourceGains": [],
@@ -7501,6 +7530,9 @@
           "sequenceIndex": 5
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 48,
@@ -7641,6 +7673,7 @@
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -7785,6 +7818,7 @@
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -7872,6 +7906,7 @@
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -7968,7 +8003,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -8661,6 +8697,9 @@
           "sequenceIndex": 8
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -8680,7 +8719,8 @@
             "AuraAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 0,
@@ -8701,7 +8741,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],

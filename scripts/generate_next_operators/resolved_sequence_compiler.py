@@ -29,6 +29,8 @@ from source_models import (
     SkillEventListenerSource,
     SkillSource,
     TimedInflictionSource,
+    TimedTimelineFinishSource,
+    TimedTimelineJumpSource,
     TimedKeywordActionSource,
     TimedResourceGainSource,
     TimedTimeDilationSource,
@@ -133,6 +135,7 @@ class ResolvedSequenceStepServices:
     """具体 DSL 步骤编译服务。"""
 
     compile_conditional_action_ir: Callable[..., Any]
+    compile_combat_condition_group: Callable[..., Any]
     compile_ability_entity_child_skill: Callable[..., Any]
     compile_aura_action: Callable[..., Any]
     compile_blackboard_calculation: Callable[..., Any]
@@ -206,6 +209,7 @@ def compile_resolved_sequence(
     target_group_write_guarantees_single_enemy = analysis.target_group_write_guarantees_single_enemy
     validate_unmodeled_buff_ids = analysis.validate_unmodeled_buff_ids
     _compile_conditional_action_ir = steps.compile_conditional_action_ir
+    compile_combat_condition_group = steps.compile_combat_condition_group
     compile_ability_entity_child_skill = steps.compile_ability_entity_child_skill
     compile_aura_action = steps.compile_aura_action
     compile_blackboard_calculation = steps.compile_blackboard_calculation
@@ -1195,6 +1199,32 @@ def compile_resolved_sequence(
                 root_skill_context=item.sourcePath == (skill.skillId,),
                 input_target=item.inputTarget,
             ).splitlines()
+        elif item.itemType == "timelineJump":
+            payload = cast(TimedTimelineJumpSource, item.payload)
+            condition_lines: list[str] = []
+            if payload.directConditions or payload.directAnyConditions:
+                condition = compile_combat_condition_group(
+                    payload.directConditions,
+                    f"{skill.key}.schedule[{schedule_index}].timelineJump.condition",
+                    root_skill_context=True,
+                    input_target="enemy",
+                    negated=payload.directConditionNegated,
+                    any_groups=payload.directAnyConditions,
+                    any_group_negated=payload.directAnyConditionNegated,
+                )
+                condition_lines = condition.splitlines()
+                condition_lines[0] = f"  condition: {condition_lines[0]}"
+                condition_lines[1:] = [f"  {line}" for line in condition_lines[1:]]
+                condition_lines[-1] += ","
+            step_lines = [
+                "step('jumpTimeline', {",
+                f"  destinationFrame: {payload.destFrame},",
+                *condition_lines,
+                "})",
+            ]
+        elif item.itemType == "timelineFinish":
+            cast(TimedTimelineFinishSource, item.payload)
+            step_lines = ["step('finishTimeline', {})"]
         elif item.itemType == "auraAction":
             payload = cast(AuraActionSource, item.payload)
             step_lines = compile_aura_action(
@@ -1227,29 +1257,40 @@ def compile_resolved_sequence(
                 for line in step_lines
             )
         entry_lines.append("        ),")
-        end_frames = {
-            cast(
-                BuffHoldSource
-                | SkillEventListenerSource
-                | TimedTimeDilationSource
-                | EveryFrameActionSource
-                | AuraActionSource,
-                item.payload,
-            ).endFrame
-            for item, _ in entries
-            if item.itemType in {"buffHold", "eventListener", "timeDilation"}
-            or (
-                item.itemType == "condition"
-                and (
-                    isinstance(item.payload, EveryFrameActionSource)
-                    or conditional_action_contains_aura(
-                        cast(ConditionalActionSource, item.payload),
-                        getattr(skill, "auraActions", ()),
+        end_frames: set[int] = set()
+        for item, _ in entries:
+            if item.itemType == "buffApplication":
+                application = cast(AuxiliaryActionSource, item.payload)
+                if application.autoFinishByAction is True:
+                    end_frames.add(
+                        item.frame + application.endFrame - application.startFrame
+                    )
+                continue
+            if (
+                item.itemType in {"buffHold", "eventListener", "timeDilation", "timelineJump"}
+                or (
+                    item.itemType == "condition"
+                    and (
+                        isinstance(item.payload, EveryFrameActionSource)
+                        or conditional_action_contains_aura(
+                            cast(ConditionalActionSource, item.payload),
+                            getattr(skill, "auraActions", ()),
+                        )
                     )
                 )
-            )
-            or item.itemType == "auraAction"
-        }
+                or item.itemType == "auraAction"
+            ):
+                end_frames.add(
+                    cast(
+                        BuffHoldSource
+                        | SkillEventListenerSource
+                        | TimedTimeDilationSource
+                        | TimedTimelineJumpSource
+                        | EveryFrameActionSource
+                        | AuraActionSource,
+                        item.payload,
+                    ).endFrame
+                )
         if len(end_frames) > 1:
             raise ValueError(
                 f"{skill.key}: one native sequence has conflicting end frames {sorted(end_frames)}"
@@ -1261,6 +1302,7 @@ def compile_resolved_sequence(
     fields = [
             "  {",
             f"    key: {ts_inline_literal(skill.key)},",
+            f"    sourceSkillId: {ts_inline_literal(skill.skillId)},",
             f"    timelineBlockFrames: {skill.timelineBlockFrames},",
     ]
     availability = config.get("availability")

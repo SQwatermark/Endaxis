@@ -2712,6 +2712,9 @@
       "timelineBlockFrames": 7,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -2928,6 +2931,9 @@
       "timelineBlockFrames": 18,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -3665,6 +3671,9 @@
           "sequenceIndex": 11
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -4852,6 +4861,9 @@
           "sequenceIndex": 11
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -5153,6 +5165,9 @@
       "timelineBlockFrames": 36,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -5722,6 +5737,9 @@
           "sequenceIndex": 7
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -5743,7 +5761,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 24
+          "sequenceIndex": 24,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -5764,7 +5783,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 25
+          "sequenceIndex": 25,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -5975,6 +5995,9 @@
           "sequenceIndex": 4
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "intervalDamageHits": [
         {
           "startFrame": 3,
@@ -6782,6 +6805,9 @@
           "sequenceIndex": 12
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 27,
@@ -36853,7 +36879,8 @@
                       "blackboardAssignments": {},
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 2
+                      "sequenceIndex": 2,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -66045,7 +66072,8 @@
                       "blackboardAssignments": {},
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 2
+                      "sequenceIndex": 2,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -66310,7 +66338,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 26
+          "sequenceIndex": 26,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -67540,6 +67569,9 @@
           "sequenceIndex": 6
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 26,
@@ -68101,6 +68133,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -68152,6 +68189,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -73092,6 +73134,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -73143,6 +73190,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -77944,6 +77996,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -77995,6 +78052,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -82935,6 +82997,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -82986,6 +83053,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -87832,6 +87904,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -87883,6 +87960,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -92823,6 +92905,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -92874,6 +92961,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -97675,6 +97767,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -97726,6 +97823,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -102666,6 +102768,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -102717,6 +102824,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -107629,6 +107741,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -107680,6 +107797,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -112620,6 +112742,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -112671,6 +112798,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -117472,6 +117604,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -117523,6 +117660,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -122463,6 +122605,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -122514,6 +122661,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -127360,6 +127512,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -127411,6 +127568,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -132351,6 +132513,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -132402,6 +132569,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -137203,6 +137375,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -137254,6 +137431,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -142194,6 +142376,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -142245,6 +142432,11 @@
                                                         "deckAttributeCompare": null
                                                       }
                                                     ],
+                                                    "directConditionNegated": [
+                                                      false
+                                                    ],
+                                                    "directAnyConditions": [],
+                                                    "directAnyConditionNegated": [],
                                                     "directConditionsSupported": true,
                                                     "isOnlySequenceAction": true,
                                                     "isOnlyBranchAction": true,
@@ -147089,6 +147281,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -147140,6 +147337,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -152040,6 +152242,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -152091,6 +152298,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -156848,6 +157060,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -156899,6 +157116,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -161799,6 +162021,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -161850,6 +162077,11 @@
                                             "deckAttributeCompare": null
                                           }
                                         ],
+                                        "directConditionNegated": [
+                                          false
+                                        ],
+                                        "directAnyConditions": [],
+                                        "directAnyConditionNegated": [],
                                         "directConditionsSupported": true,
                                         "isOnlySequenceAction": true,
                                         "isOnlyBranchAction": true,
@@ -167118,6 +167350,9 @@
       "timelineBlockFrames": 85,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 76,
@@ -167723,6 +167958,9 @@
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": false,
@@ -167936,7 +168174,8 @@
                       },
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 17
+                      "sequenceIndex": 17,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -169110,6 +169349,9 @@
                       ],
                       "conditionActionTypes": [],
                       "directConditions": [],
+                      "directConditionNegated": [],
+                      "directAnyConditions": [],
+                      "directAnyConditionNegated": [],
                       "directConditionsSupported": false,
                       "isOnlySequenceAction": false,
                       "isOnlyBranchAction": false,
@@ -169323,7 +169565,8 @@
                       },
                       "nestedCombatActions": [],
                       "buffSourceContextKey": "",
-                      "sequenceIndex": 17
+                      "sequenceIndex": 17,
+                      "autoFinishByAction": false
                     }
                   ],
                   "resourceGains": [],
@@ -169987,7 +170230,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -170615,6 +170859,9 @@
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": false,
@@ -170828,7 +171075,8 @@
               },
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 17
+              "sequenceIndex": 17,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],

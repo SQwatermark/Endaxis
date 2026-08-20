@@ -8,6 +8,31 @@ import type { CombatOperationContext } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 
 describe('AbilityEntityOperationExecutor', () => {
+  it('resolves an ID-only spawn from the current compiled skill definition table', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor(
+      'arclight',
+      entities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      abilityEntityId =>
+        abilityEntityId === 'pulse'
+          ? { lifetime: { kind: 'limited', durationSeconds: 5 } }
+          : undefined,
+    );
+
+    expect(
+      executor.execute(
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: { abilityEntityId: 'pulse', dieWhenSourceDies: false },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toBe(true);
+    expect(entities.findOwnerSpawned({ ownerId: 'arclight' })).toHaveLength(1);
+  });
+
   it('spawns from operands and writes the resulting handle to Context', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {

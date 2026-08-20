@@ -12,7 +12,10 @@ import { lastRiteGeneratedOperator } from '../../data/operators/generated/last-r
 import { estellaGeneratedOperator } from '../../data/operators/generated/estella.operator.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
-import type { OperatorUpgradeDefinition } from '../game-data/operatorDefinition';
+import type {
+  OperatorDefinition,
+  OperatorUpgradeDefinition,
+} from '../game-data/operatorDefinition';
 import { compileOperatorDefinitionSkills } from './compileScenarioTimeline';
 import {
   applyOperatorUpgradeSkillPatches,
@@ -53,6 +56,32 @@ function program(
     costs: [{ resource, value }],
     timelineActions: [],
   };
+}
+
+function hydrateOperatorBuffReferences<T>(value: T, operator: OperatorDefinition): T {
+  if (Array.isArray(value)) {
+    return value.map(item => hydrateOperatorBuffReferences(item, operator)) as T;
+  }
+  if (value === null || typeof value !== 'object') return value;
+  const source = value as Record<string, unknown>;
+  const hydrated = Object.fromEntries(
+    Object.entries(source).map(([key, child]) => [
+      key,
+      hydrateOperatorBuffReferences(child, operator),
+    ]),
+  );
+  if (source.kind === 'applyBuff') {
+    const parameters = source.parameters as Record<string, unknown> | undefined;
+    const buffId = parameters?.buffId;
+    const definition = typeof buffId === 'string' ? operator.buffDefinitions?.[buffId] : undefined;
+    if (definition !== undefined) {
+      hydrated.parameters = {
+        ...(hydrated.parameters as Record<string, unknown>),
+        definition: hydrateOperatorBuffReferences(definition, operator),
+      };
+    }
+  }
+  return hydrated as T;
 }
 
 describe('operator upgrade compilation', () => {
@@ -118,7 +147,9 @@ describe('operator upgrade compilation', () => {
       item => item.key === 'potential:potential5',
     );
 
-    expect(program?.sequence.steps[0]).toMatchObject({
+    expect(
+      hydrateOperatorBuffReferences(program?.sequence.steps[0], endministratorGeneratedOperator),
+    ).toMatchObject({
       kind: 'applyBuff',
       parameters: {
         buffId: 'buff_chr_0003_endminf_potential5',
@@ -170,7 +201,9 @@ describe('operator upgrade compilation', () => {
       item => item.key === 'potential:potential5',
     );
 
-    expect(program?.sequence.steps[0]).toMatchObject({
+    expect(
+      hydrateOperatorBuffReferences(program?.sequence.steps[0], estellaGeneratedOperator),
+    ).toMatchObject({
       kind: 'applyBuff',
       parameters: {
         buffId: 'buff_chr_0021_whiten_potential_5',
@@ -276,7 +309,9 @@ describe('operator upgrade compilation', () => {
       resolveActiveOperatorUpgrades(arclightBuild, arclightGeneratedOperator),
     );
     expect(initialization).toHaveLength(1);
-    expect(initialization[0]).toMatchObject({
+    expect(
+      hydrateOperatorBuffReferences(initialization[0], arclightGeneratedOperator),
+    ).toMatchObject({
       key: 'potential:potential5',
       sequence: {
         steps: [
@@ -553,7 +588,7 @@ describe('operator upgrade compilation', () => {
       { source: 'potential', level: 1, definition: perlica.potentials[2]! },
     ]);
 
-    expect(programs).toMatchObject([
+    expect(hydrateOperatorBuffReferences(programs, perlica)).toMatchObject([
       {
         key: 'potential:attackAfterElectrification:0',
         event: { kind: 'reactionApplied', reaction: 'electrification' },

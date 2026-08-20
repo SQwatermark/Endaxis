@@ -8,6 +8,9 @@ from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+from collections import OrderedDict
+
+from operator_ability_entity_linker import link_operator_ability_entity_definitions
 
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 
@@ -17,6 +20,7 @@ from generate_next_operators import (
     collect_conditional_blackboard_keys,
     collect_compiled_blackboard_keys,
     collect_unresolved_combat_actions,
+    decode_damage_decorate_mask,
     collect_referenced_buff_ids,
     collect_resolved_damage_hits,
     collect_resolved_schedule,
@@ -187,6 +191,7 @@ from generate_next_operators import (
     render_skill_groups,
     parse_base_passive_skill_ids,
     serialize_audit_value,
+    target_reference_is_plain,
     walk_actions,
     walk_single_enemy_actions,
     walk_unconditional_actions,
@@ -194,6 +199,7 @@ from generate_next_operators import (
 from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
 from time_dilation_parser import parse_time_dilation_target
 from action_payload_parser import parse_heal_payload
+from buff_definition_parser import parse_buff_combo_qte_actions, parse_buff_pause_time_actions
 from resolved_sequence_compiler import (
     ability_entity_child_is_inert,
     projectile_ability_entities_are_condition_projections,
@@ -3647,6 +3653,35 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("inheritSourceSkillCastInfo: true", source)
 
+    def test_buff_application_only_projects_action_duration_on_root_timeline(self) -> None:
+        action = AuxiliaryActionSource(
+            startFrame=0,
+            endFrame=30,
+            actionIndex=0,
+            actionType="CreateBuffAction",
+            sourceId="buff_fixture",
+            classification=None,
+            targetSource="Owner",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionOwner",
+            inheritSourceSkillCastInfo=False,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+            autoFinishByAction=True,
+        )
+
+        root_source = compile_buff_application(action, "fixture.root")
+        nested_source = compile_buff_application(
+            action,
+            "fixture.nested",
+            root_skill_context=False,
+            current_ability_entity_owner=True,
+        )
+
+        self.assertIn("finishByAction: true", root_source)
+        self.assertNotIn("finishByAction", nested_source)
+
     def test_root_skill_buff_application_folds_owner_to_caster(self) -> None:
         action = AuxiliaryActionSource(
             startFrame=0,
@@ -4225,6 +4260,41 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             tuple(definition.buffId for definition in definitions),
             ("buff.entity-aura",),
+        )
+
+    def test_operator_buff_definitions_include_promoted_projectile_source_buffs_only(self) -> None:
+        application = SimpleNamespace(
+            actionType="CreateBuffAction",
+            sourceId="buff.projectile",
+            targetSource="Source",
+        )
+        projectile = SimpleNamespace(
+            auxiliaryActions=(application,),
+            projectileTriggeredSkills=(),
+            nestedProjectileTriggeredSkills=(),
+        )
+        ability_entity = SimpleNamespace(
+            auxiliaryActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    sourceId="buff.entity",
+                    targetSource="Source",
+                ),
+            )
+        )
+        skill = SimpleNamespace(
+            referencedBuffIds=(),
+            projectileTriggeredSkills=(projectile,),
+            nestedProjectileTriggeredSkills=(),
+            abilityEntityHits=(ability_entity,),
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            definitions = resolve_operator_buff_definitions((skill,), Path(directory))
+
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.projectile",),
         )
 
     def test_operator_buff_definitions_skip_explicitly_omitted_references(self) -> None:
@@ -5750,6 +5820,27 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'healthCompare'", compiled)
         self.assertIn("target: 'enemy'", compiled)
 
+    def test_health_condition_resolves_plain_source_to_dynamic_buff_source(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckHp",
+            health=SimpleNamespace(
+                targetSource="Source",
+                targetGroupKey="",
+                comparison="LT",
+                isRatio=True,
+                value=ScalarSource(1, None, None),
+            ),
+        )
+
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            buff_owner_target="enemy",
+        )
+
+        self.assertIn("kind: 'healthCompare'", compiled)
+        self.assertIn("target: 'buffSource'", compiled)
+
     def test_buff_stack_by_tag_preserves_target_and_dynamic_threshold(self) -> None:
         root = {
             "actionGroupData": {
@@ -6066,6 +6157,102 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].enabledSide, "Defender")
         self.assertEqual(modifiers[0].processors[0].zone, "ProdCalcZone")
         self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "defup")
+
+    def test_buff_damage_type_modifier_is_preserved(self) -> None:
+        modifiers, unsupported = parse_buff_damage_modifiers(
+            {
+                "damageModifier": [
+                    {
+                        "enableSide": "Defender",
+                        "condition": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckDamageType+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 0,
+                                    "damageType": "Fire",
+                                }
+                            ],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "damageProcessors": [
+                            {
+                                "$type": "Example.DamageScaleProcessor, Example",
+                                "side": "Defender",
+                                "zoneName": "NormalCalcZone",
+                                "addition": {
+                                    "useBlackboardKey": True,
+                                    "value": 0,
+                                    "blackboardKey": "damage_up",
+                                },
+                            }
+                        ],
+                    }
+                ]
+            },
+            "buff.test",
+            {"damage_up": (0.2,)},
+        )
+
+        self.assertEqual(unsupported, 0)
+        self.assertEqual(modifiers[0].damageTypes, ("heat",))
+        self.assertEqual(modifiers[0].processors[0].zone, "NormalCalcZone")
+
+    def test_buff_damage_mask_instant_attribute_modifier_is_preserved(self) -> None:
+        modifiers, unsupported = parse_buff_damage_modifiers(
+            {
+                "damageModifier": [
+                    {
+                        "enableSide": "Attacker",
+                        "condition": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckDamageDecorateMask+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 0,
+                                    "checkType": "HasAll",
+                                    "mask": 512,
+                                }
+                            ],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "damageProcessors": [
+                            {
+                                "$type": "Example.InstantModifyAttribute, Example",
+                                "modifyTargetSide": "Attacker",
+                                "modifier": {
+                                    "modifyAttributeType": "Specific",
+                                    "attributeType": "CriticalDamageIncrease",
+                                    "formulaItem": "BaseAddition",
+                                    "param": {
+                                        "useBlackboardKey": True,
+                                        "value": 0,
+                                        "blackboardKey": "critical_damage_up_to_bleed",
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ]
+            },
+            "buff.test",
+            {"critical_damage_up_to_bleed": (0.2,)},
+        )
+
+        self.assertEqual(unsupported, 0)
+        self.assertEqual(modifiers[0].damageTags, ("ultimateSkill",))
+        self.assertEqual(modifiers[0].damageTagMatch, "hasAll")
+        processor = modifiers[0].processors[0]
+        self.assertEqual(processor.targetSide, "Attacker")
+        self.assertEqual(processor.attributeType, "CriticalDamageIncrease")
+        self.assertEqual(processor.slot, "BaseAddition")
+        self.assertEqual(processor.value.blackboardKey, "critical_damage_up_to_bleed")
 
     def test_buff_owner_query_uses_the_actual_buff_host(self) -> None:
         condition = SimpleNamespace(
@@ -9211,6 +9398,36 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must consume conditional actions"):
             compile_skill_entries(operator, [skill])
 
+    def test_operator_level_no_effect_buffs_are_merged_into_every_skill_config(self) -> None:
+        skill = SimpleNamespace(key="attack", conditionalActions=())
+        operator = {
+            "slug": "fixture",
+            "skills": [
+                {
+                    "key": "attack",
+                    "compile": {
+                        "kind": "resolvedSequence",
+                        "simulationNoEffectBuffIds": ["buff.skill"],
+                    },
+                }
+            ],
+        }
+
+        with patch(
+            "generate_next_operators.compile_resolved_sequence",
+            return_value="sequence(),",
+        ) as compiler:
+            compile_skill_entries(
+                operator,
+                [skill],
+                simulation_no_effect_buff_ids=("buff.operator", "buff.common"),
+            )
+
+        self.assertEqual(
+            compiler.call_args.args[1]["simulationNoEffectBuffIds"],
+            ["buff.skill", "buff.operator", "buff.common"],
+        )
+
     def test_buff_event_slots_keep_their_trigger_and_created_buff_references(self) -> None:
         buff = {
             "lifeType": "Limited",
@@ -9862,6 +10079,155 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(actions[0].sourceId, "fake_target")
         self.assertEqual(actions[0].classification, "nonCombatAbilityEntity")
 
+    def test_combo_qte_parser_closes_timer_and_success_blackboard_evidence(self) -> None:
+        buff = {
+            "timelineActions": [
+                {
+                    "_startFrame": 0,
+                    "_endFrame": 180,
+                    "_sequenceActionData": {
+                        "actionData": [
+                            {
+                                "$type": "Example.ShowComboRingQte+Data, Example",
+                                "isEnable": True,
+                                "serverActionIndex": 6,
+                                "earlyDuration": {
+                                    "useBlackboardKey": True,
+                                    "value": 0,
+                                    "blackboardKey": "time_warning",
+                                },
+                                "activeDuration": {
+                                    "useBlackboardKey": True,
+                                    "value": 0,
+                                    "blackboardKey": "time_succeed",
+                                },
+                                "triggeredAction": {
+                                    "actionData": [
+                                        {
+                                            "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                            "isEnable": True,
+                                            "serverActionIndex": 7,
+                                            "key": "EntityBB_Combo_QTE_Trigger",
+                                            "operation": "Assign",
+                                            "directValue": True,
+                                            "value": {
+                                                "useBlackboardKey": False,
+                                                "value": 1,
+                                                "blackboardKey": "",
+                                            },
+                                            "calculationTarget": target_settings_fixture("Owner"),
+                                        }
+                                    ]
+                                },
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+        timer = SimpleNamespace(
+            actionType="CreateBuffAction",
+            targetSource="Owner",
+            targetGroupKey="",
+            sourceId="buff.qte-active",
+            blackboardAssignments={
+                "duration": ScalarSource(0, "time_succeed", (0.5,))
+            },
+        )
+
+        actions = parse_buff_combo_qte_actions(
+            buff,
+            "buff.qte.json",
+            {"time_warning": (0.5,), "time_succeed": (0.5,)},
+            (timer,),
+            services=SimpleNamespace(
+                walk_actions=walk_actions,
+                target_reference_is_plain=target_reference_is_plain,
+            ),
+        )
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(actions[0].activeTimerBuffId, "buff.qte-active")
+        self.assertEqual(actions[0].triggerMutation.key, "EntityBB_Combo_QTE_Trigger")
+        self.assertEqual(actions[0].triggerMutation.value.value, 1)
+
+    def test_buff_pause_time_actions_preserve_exact_event_identity(self) -> None:
+        def sequence(guard: dict, paused: bool) -> dict:
+            return {
+                "actionData": [
+                    guard,
+                    {
+                        "$type": "Example.PauseBuffTime+Data, Example",
+                        "isEnable": True,
+                        "priorityLevel": "Default",
+                        "priorityOffset": 0,
+                        "serverActionIndex": 2,
+                        "isPaused": paused,
+                    },
+                ],
+                "onlyExecuteWhenSourceIsMainChar": False,
+                "onlyExecuteWhenSourceIsGuard": False,
+            }
+
+        base = {
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 1,
+        }
+        buff = {
+            "abilityEventAction": [
+                {
+                    "abilityEvent": "OnBeforeCastSkill",
+                    "actions": [
+                        sequence(
+                            {
+                                **base,
+                                "$type": "Example.Conditions.CheckSkillId+Data, Example",
+                                "skillIdList": [
+                                    {
+                                        "useBlackboardKey": False,
+                                        "value": "chr_fixture_power_attack",
+                                        "blackboardKey": "",
+                                    }
+                                ],
+                            },
+                            True,
+                        )
+                    ],
+                },
+                {
+                    "abilityEvent": "OnFinishedBuff",
+                    "actions": [
+                        sequence(
+                            {
+                                **base,
+                                "$type": "Example.Conditions.CheckBuffIdInContextAdvanced+Data, Example",
+                                "checkType": "Id",
+                                "buffIdList": [
+                                    {
+                                        "useBlackboardKey": False,
+                                        "value": "buff.resume",
+                                        "blackboardKey": "",
+                                    }
+                                ],
+                                "query": {"queryType": "HasAny", "tags": []},
+                                "blackboardKey": "",
+                            },
+                            False,
+                        )
+                    ],
+                },
+            ]
+        }
+
+        actions = parse_buff_pause_time_actions(buff, "buff.timer.json")
+
+        self.assertEqual(actions[0].skillIds, ("chr_fixture_power_attack",))
+        self.assertTrue(actions[0].paused)
+        self.assertEqual(actions[1].buffIds, ("buff.resume",))
+        self.assertFalse(actions[1].paused)
+
     def test_logical_ability_entity_spawn_compiles_runtime_identity_fields(self) -> None:
         payload = AbilityEntitySpawnPayload(
             "ability_entity",
@@ -10471,6 +10837,215 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertTrue(jump.directConditionsSupported)
         self.assertTrue(timeline_jump_can_compile(jump, SimpleNamespace()))
         self.assertIn("target: 'currentAbilityEntity'", compiled)
+
+    def test_timeline_jump_not_next_negates_only_following_main_operator_check(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 89,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 6,
+                                    "isEnable": True,
+                                    "destFrame": 89,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.NotNextCheckAction+Data, Example",
+                                                "serverActionIndex": 7,
+                                                "isEnable": True,
+                                            },
+                                            {
+                                                "$type": "Example.CheckMainCharacterCondition+Data, Example",
+                                                "serverActionIndex": 8,
+                                                "isEnable": True,
+                                                "checkTarget": {
+                                                    "targetSource": "Source",
+                                                    "targetGroupKey": "",
+                                                },
+                                            },
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        jump = parse_timeline_jumps(root, "fixture.json")[0]
+        compiled = compile_combat_condition_group(
+            jump.directConditions,
+            "fixture.jump",
+            negated=jump.directConditionNegated,
+        )
+
+        self.assertEqual(
+            jump.conditionActionTypes,
+            ("NotNextCheckAction", "CheckMainCharacterCondition"),
+        )
+        self.assertEqual(jump.directConditionNegated, (True,))
+        self.assertTrue(jump.directConditionsSupported)
+        self.assertTrue(timeline_jump_can_compile(jump))
+        self.assertIn("kind: 'not'", compiled)
+        self.assertIn("kind: 'casterControlled'", compiled)
+
+    def test_timeline_jump_rejects_dangling_not_next(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 89,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 6,
+                                    "isEnable": True,
+                                    "destFrame": 89,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.NotNextCheckAction+Data, Example",
+                                                "serverActionIndex": 7,
+                                                "isEnable": True,
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        jump = parse_timeline_jumps(root, "fixture.json")[0]
+
+        self.assertFalse(jump.directConditionsSupported)
+        self.assertEqual(jump.directConditions, ())
+        self.assertEqual(jump.directConditionNegated, ())
+        self.assertFalse(timeline_jump_can_compile(jump))
+
+    def test_timeline_jump_compiles_or_condition_sequence_groups(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 16,
+                        "_endFrame": 116,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.JumpToAction+Data, Example",
+                                    "serverActionIndex": 100,
+                                    "isEnable": True,
+                                    "destFrame": 116,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.OrConditionAction+Data, Example",
+                                                "serverActionIndex": 101,
+                                                "isEnable": True,
+                                                "conditionList": [
+                                                    {
+                                                        "actionData": [
+                                                            {
+                                                                "$type": "Example.CheckTimedMarkerCondition+Data, Example",
+                                                                "serverActionIndex": 102,
+                                                                "isEnable": True,
+                                                                "checkTarget": {
+                                                                    "targetSource": "Owner",
+                                                                    "targetGroupKey": "",
+                                                                },
+                                                                "id": "skillEnd",
+                                                                "blackboardKey": "",
+                                                                "useBlackboardKey": False,
+                                                                "returnTrueIfNotExists": False,
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "actionData": [
+                                                            {
+                                                                "$type": "Example.CompareFloat+Data, Example",
+                                                                "serverActionIndex": 103,
+                                                                "isEnable": True,
+                                                                "valueA": {
+                                                                    "useBlackboardKey": True,
+                                                                    "value": 0,
+                                                                    "blackboardKey": "EntityBB_SwordNum",
+                                                                },
+                                                                "compare": "Equals",
+                                                                "valueB": {
+                                                                    "useBlackboardKey": False,
+                                                                    "value": 0,
+                                                                    "blackboardKey": "",
+                                                                },
+                                                            }
+                                                        ]
+                                                    },
+                                                ],
+                                            }
+                                        ]
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        jump = parse_timeline_jumps(root, "fixture.json")[0]
+        compiled = compile_combat_condition_group(
+            jump.directConditions,
+            "fixture.jump",
+            root_skill_context=True,
+            any_groups=jump.directAnyConditions,
+            any_group_negated=jump.directAnyConditionNegated,
+        )
+
+        self.assertEqual(jump.conditionActionTypes, ("OrConditionAction",))
+        self.assertEqual(len(jump.directAnyConditions), 2)
+        self.assertEqual(jump.directAnyConditionNegated, ((False,), (False,)))
+        self.assertTrue(jump.directConditionsSupported)
+        self.assertTrue(timeline_jump_can_compile(jump))
+        self.assertIn("kind: 'any'", compiled)
+        self.assertIn("markerId: 'skillEnd'", compiled)
+        self.assertIn("key: 'EntityBB_SwordNum'", compiled)
+        schedule = collect_resolved_schedule(
+            SimpleNamespace(
+                key="battleSkill",
+                skillId="fixture",
+                directDamageHits=(),
+                intervalDamageHits=(),
+                projectileTriggeredSkills=(),
+                abilityEntityHits=(),
+                timelineJumps=(jump,),
+                timelineJumpControlFlowActions=(),
+                timelineFinishes=(),
+                auxiliaryActions=(),
+                conditionalActions=(),
+                blackboardCalculations=(),
+                blackboardMutations=(),
+                buffBlackboardReads=(),
+                buffFinishes=(),
+                buffHolds=(),
+                resourceGains=(),
+                inflictions=(),
+                eventListeners=(),
+                timeDilations=(),
+                keywordActions=(),
+            )
+        )
+        self.assertEqual(tuple(item.itemType for item in schedule), ("timelineJump",))
 
     def test_outer_if_else_jump_is_one_shot_only_for_the_exact_success_path(self) -> None:
         condition_path = (
@@ -12826,6 +13401,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'eventDamageFeaturesMatch'", compiled)
         self.assertIn("features: ['airborne']", compiled)
 
+    def test_damage_mask_preserves_rossi_dot_and_talent_damage_bits(self) -> None:
+        tags, features = decode_damage_decorate_mask(2415919104, "fixture.rossiBleed")
+
+        self.assertEqual(tags, ())
+        self.assertEqual(features, ("dot", "talentDamage"))
+
     def test_damage_mask_condition_preserves_dot_area_exclusion(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckDamageDecorateMask",
@@ -13473,6 +14054,113 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("afterEnhance: sequence(", after_enhance)
 
+        trigger_event = SimpleNamespace(**{**vars(event), "event": "OnBuffTrigger"})
+        trigger_source = SimpleNamespace(
+            buffId="owner-buff",
+            blackboard=(),
+            eventActions=(trigger_event,),
+            sourceDeathFinish=None,
+        )
+        trigger = compile_inline_buff_event_responses(
+            trigger_source,
+            "owner-buff.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={"after-finish": after_finish},
+        )
+
+        self.assertIn("trigger: sequence(", trigger)
+
+    def test_buff_finish_plain_target_reuses_enemy_host(self) -> None:
+        application = SimpleNamespace(
+            buffs=(SimpleNamespace(buffId="after-finish", blackboardAssignments={}),),
+            targetSource="Target",
+            targetGroupKey="",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            buffSourceContextKey="",
+            inheritSourceSkillCastInfo=True,
+            targetFinderType=None,
+            targetValidatorTypes=(),
+            targetPostProcessorTypes=(),
+        )
+        action = SimpleNamespace(
+            actionType="CreateBuffAction",
+            actionIndex=0,
+            actionPath=("buffEventAction", "0", "actions", "actionData", "0"),
+            serverActionIndex=0,
+            buffApplication=application,
+        )
+        event = SimpleNamespace(
+            eventSource="buff",
+            event="OnBuffFinish",
+            damageUnits=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("CreateBuffAction",),
+                    combatActions=(),
+                    buffApplications=(application,),
+                    actions=(action,),
+                    priority=0,
+                ),
+            ),
+        )
+        after_finish = SimpleNamespace(
+            buffId="after-finish",
+            sourceAvailable=True,
+            lifecycle=SimpleNamespace(
+                hasStackEffects=False,
+                stackingType="Refresh",
+                stackingIdentifierType="Id",
+                stackingKey="",
+                priority=ScalarSource(0, None, None),
+                negatePriority=False,
+                maxStackCount=ScalarSource(1, None, None),
+                lifeType="Limited",
+                duration=ScalarSource(1, None, None),
+                triggerInterval=ScalarSource(-1, None, None),
+                waitFirstTriggerInterval=True,
+                maxTriggerCount=ScalarSource(0, None, None),
+            ),
+            unparsedPayloads=(),
+            sourceDeathFinish=None,
+            applyTagIds=(),
+            extendTagIds=(),
+            blackboard=(),
+            attributeModifiers=(),
+            damageModifiers=(),
+            eventActions=(),
+            directDamageHits=(),
+            intervalDamageHits=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            resourceGains=(),
+            combatActions=(),
+            auraActions=(),
+            auxiliaryActions=(),
+            skillReplacements=(),
+        )
+        source = SimpleNamespace(
+            buffId="owner-buff",
+            blackboard=(),
+            eventActions=(event,),
+            sourceDeathFinish=None,
+        )
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "owner-buff.eventActions",
+            buff_owner_target="enemy",
+            buff_definitions={"after-finish": after_finish},
+        )
+
+        self.assertIn("finish: sequence(", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+
     def test_buff_local_timeline_compiles_on_instance_frames(self) -> None:
         calculation = SimpleNamespace(
             startFrame=2,
@@ -13653,6 +14341,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("key: 'duration_water'", compiled)
         with self.assertRaisesRegex(ValueError, "unsupported timed marker target"):
             compile_conditional_branch_action(branch, "water.markerWithoutProvenance")
+
+
+class OperatorAbilityEntityLinkerTests(unittest.TestCase):
+    def test_extracts_nested_definitions_and_keeps_instance_parameters(self) -> None:
+        source = """step('spawnAbilityEntity', {
+  abilityEntityId: 'abilityentity_chr_parent',
+  definition: { lifetime: { kind: 'infinite' }, childSkill: {
+    skillId: 'child',
+    scheduledSequences: [scheduled(0, sequence(
+      step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_child', definition: { lifetime: { kind: 'limited', durationSeconds: 2 } }, dieWhenSourceDies: false }),
+    ))],
+  } },
+  dieWhenSourceDies: false,
+  inheritActionBlackboard: true,
+})"""
+
+        linked, operator_definitions, shared = link_operator_ability_entity_definitions(
+            [source], OrderedDict()
+        )
+
+        self.assertNotIn("definition:", linked[0])
+        self.assertIn("inheritActionBlackboard: true", linked[0])
+        self.assertEqual(
+            list(operator_definitions),
+            ["abilityentity_chr_child", "abilityentity_chr_parent"],
+        )
+        self.assertIn("abilityEntityId: 'abilityentity_chr_child'", operator_definitions["abilityentity_chr_parent"])
+        self.assertNotIn("definition:", operator_definitions["abilityentity_chr_parent"])
+        self.assertEqual(shared, {})
+
+    def test_rejects_conflicting_definitions_for_the_same_identity(self) -> None:
+        sources = [
+            "step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_same', definition: { lifetime: { kind: 'infinite' } }, dieWhenSourceDies: false })",
+            "step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_same', definition: { lifetime: { kind: 'limited', durationSeconds: 1 } }, dieWhenSourceDies: false })",
+        ]
+        with self.assertRaisesRegex(ValueError, "multiple definitions"):
+            link_operator_ability_entity_definitions(sources)
 
 
 if __name__ == "__main__":

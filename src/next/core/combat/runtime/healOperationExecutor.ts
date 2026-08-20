@@ -19,7 +19,7 @@ export interface HealOperationDependencies {
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly resolveSourceAttribute: (attribute: OperatorAttribute) => number;
-  readonly resolveTarget: (target: HealTarget) => ResolvedHealTarget;
+  readonly resolveTarget: (target: HealTarget, buffSourceId?: string) => ResolvedHealTarget;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -28,7 +28,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
-    const target = this.dependencies.resolveTarget(step.parameters.target);
+    const target = this.dependencies.resolveTarget(step.parameters.target, context?.buffSourceId);
     const definiteAmount = step.parameters.amount;
     const attribute = definiteAmount === undefined ? step.parameters.attribute : undefined;
     const multiplier =

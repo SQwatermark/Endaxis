@@ -3,16 +3,19 @@
  * 技能逻辑编辑的独立工作区。属性面板只负责打开它；草稿、保存和取消均在弹窗边界内完成。
  * 弹窗关闭不会写场景，只有 save 事件会把完整定义交给编辑器命令层校验。
  */
+import { computed, provide } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
+import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
 
-defineProps<{
+const props = defineProps<{
   visible: boolean;
   title: string;
   templateDefinition: SkillDefinition | null;
   customDefinition: SkillDefinition | undefined;
   skillLevel: number;
+  abilityEntityIds?: readonly string[];
 }>();
 
 const emit = defineEmits<{
@@ -21,6 +24,10 @@ const emit = defineEmits<{
   reset: [];
 }>();
 const { t } = useI18n({ useScope: 'global' });
+provide(
+  ABILITY_ENTITY_IDS_KEY,
+  computed(() => props.abilityEntityIds ?? []),
+);
 
 const labels = () => ({
   section: t('nextTimeline.skillEditing.section'),

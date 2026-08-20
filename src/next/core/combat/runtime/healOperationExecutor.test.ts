@@ -94,6 +94,43 @@ describe('HealOperationExecutor', () => {
     });
   });
 
+  it('passes the current Buff source identity to a buffSource heal target', () => {
+    const target = vitals(800);
+    const reached: Array<[string, string | undefined]> = [];
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:runtime',
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      resolveSourceAttribute: () => 100,
+      resolveTarget: (role, buffSourceId) => {
+        reached.push([role, buffSourceId]);
+        return { operatorId: buffSourceId ?? '<missing>', vitals: target };
+      },
+      delegate: terminal,
+    });
+
+    executor.execute(
+      {
+        kind: 'heal',
+        parameters: {
+          target: 'buffSource',
+          attribute: 'will',
+          multiplier: 1,
+          addition: 0,
+          alwaysNext: false,
+          tagIds: [],
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        buffSourceId: 'operator:original-source',
+      },
+    );
+
+    expect(reached).toEqual([['buffSource', 'operator:original-source']]);
+    expect(target.health).toBe(900);
+  });
+
   it('applies a definite blackboard amount without reading an attribute', () => {
     const target = vitals(700);
     const receipt = new CombatReceiptCollector();

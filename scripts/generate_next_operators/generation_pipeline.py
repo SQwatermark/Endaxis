@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -24,6 +25,8 @@ class GenerationPipelineServices:
     render_compiled_skills: Callable[..., Any]
     render_operator_definition: Callable[..., Any]
     render_report: Callable[..., Any]
+    render_shared_buff_definitions_module: Callable[..., Any]
+    render_shared_ability_entity_definitions_module: Callable[..., Any]
     render_typescript: Callable[..., Any]
     resolve_operator_buff_definitions_for_stage: Callable[..., Any]
     resolve_passive_buff_definitions: Callable[..., Any]
@@ -43,6 +46,8 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
     render_compiled_skills = services.render_compiled_skills
     render_operator_definition = services.render_operator_definition
     render_report = services.render_report
+    render_shared_buff_definitions_module = services.render_shared_buff_definitions_module
+    render_shared_ability_entity_definitions_module = services.render_shared_ability_entity_definitions_module
     render_typescript = services.render_typescript
     resolve_operator_buff_definitions_for_stage = services.resolve_operator_buff_definitions_for_stage
     resolve_passive_buff_definitions = services.resolve_passive_buff_definitions
@@ -50,6 +55,29 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
     write_or_check = services.write_or_check
     args = parse_args()
     manifest = require_dict(json.loads(args.manifest.read_text(encoding="utf-8")), str(args.manifest))
+    global_simulation_no_effect_buff_ids = tuple(
+        str(value)
+        for value in require_list(
+            manifest.get("simulationNoEffectBuffIds", []),
+            "simulationNoEffectBuffIds",
+        )
+    )
+    if len(global_simulation_no_effect_buff_ids) != len(
+        set(global_simulation_no_effect_buff_ids)
+    ):
+        raise ValueError("simulationNoEffectBuffIds: duplicate Buff id")
+    invalid_global_ignores = sorted(
+        buff_id
+        for buff_id in global_simulation_no_effect_buff_ids
+        if buff_id.startswith("buff_chr_")
+    )
+    if invalid_global_ignores:
+        raise ValueError(
+            "simulationNoEffectBuffIds: character Buffs belong in an operator config: "
+            f"{invalid_global_ignores}"
+        )
+    shared_buff_definitions: OrderedDict[str, str] = OrderedDict()
+    shared_ability_entity_definitions: OrderedDict[str, str] = OrderedDict()
     patch_path = args.tables / "SkillPatchTable.json"
     patch_table = require_dict(json.loads(patch_path.read_text(encoding="utf-8")), str(patch_path))
     table_names = (
@@ -76,6 +104,25 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source, patch_table)
             for entry in require_list(operator["skills"], f"{slug}.skills")
         ]
+        operator_simulation_no_effect_buff_ids = tuple(
+            str(value)
+            for value in require_list(
+                operator.get("simulationNoEffectBuffIds", []),
+                f"{slug}.simulationNoEffectBuffIds",
+            )
+        )
+        if len(operator_simulation_no_effect_buff_ids) != len(
+            set(operator_simulation_no_effect_buff_ids)
+        ):
+            raise ValueError(f"{slug}.simulationNoEffectBuffIds: duplicate Buff id")
+        inherited_simulation_no_effect_buff_ids = tuple(
+            dict.fromkeys(
+                [
+                    *global_simulation_no_effect_buff_ids,
+                    *operator_simulation_no_effect_buff_ids,
+                ]
+            )
+        )
         char_id = str(operator["charId"])
         output_stage = operator.get("outputStage", "complete")
         if output_stage not in {"audit", "complete"}:
@@ -90,7 +137,9 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             parse_base_passive_skill_ids(operator),
         )
         buff_source_dir = args.source.parent / "BuffData"
-        skipped_buff_definition_ids: set[str] = set()
+        skipped_buff_definition_ids: set[str] = set(
+            inherited_simulation_no_effect_buff_ids
+        )
         for skill_index, raw_skill in enumerate(
             require_list(operator["skills"], f"{slug}.skills")
         ):
@@ -219,6 +268,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
                     skill_slot_replacement_relations=derive_skill_slot_replacement_relations(
                         skills, audited_buff_definitions
                     ),
+                    simulation_no_effect_buff_ids=inherited_simulation_no_effect_buff_ids,
                 ),
                 args.check,
             )
@@ -238,6 +288,9 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
                 buff_definitions,
                 renderable_passive_skills,
                 entity_blackboard_initializers,
+                shared_buff_definitions,
+                shared_ability_entity_definitions,
+                inherited_simulation_no_effect_buff_ids,
             ),
             args.check,
         )
@@ -248,3 +301,16 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             str(item.get("slug")) for item in require_list(manifest.get("operators"), "operators") if isinstance(item, dict)
         )
         raise ValueError(f"unknown operators: {', '.join(sorted(missing))}")
+    if not selected:
+        write_or_check(
+            args.output / "commonBuffDefinitions.generated.ts",
+            render_shared_buff_definitions_module(shared_buff_definitions),
+            args.check,
+        )
+        write_or_check(
+            args.output / "commonAbilityEntityDefinitions.generated.ts",
+            render_shared_ability_entity_definitions_module(
+                shared_ability_entity_definitions
+            ),
+            args.check,
+        )

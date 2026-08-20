@@ -31,7 +31,10 @@ import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
 import type { ScheduledExternalCombatEventInput } from '../combat/runtime/externalCombatEventRuntime';
 
-type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'>;
+type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'> &
+  Partial<
+    Pick<GameDataRepository, 'getCommonBuffDefinitions' | 'getCommonAbilityEntityDefinitions'>
+  >;
 
 /**
  * 已编译技能之外、单个干员进入战斗所需的可变运行时依赖。
@@ -171,7 +174,11 @@ export function compileScenarioRuntimeAssembly(
   options: CompileScenarioRuntimeAssemblyOptions,
 ): CombatRuntimeAssemblyOptions {
   const builds = resolveScenarioBuilds(scenario, options.index);
-  const timeline = compileResolvedScenarioTimeline(builds);
+  const timeline = compileResolvedScenarioTimeline(
+    builds,
+    options.index.getCommonBuffDefinitions?.(),
+    options.index.getCommonAbilityEntityDefinitions?.(),
+  );
   const panels = new Map(
     resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
   );
@@ -195,6 +202,7 @@ export function compileScenarioRuntimeAssembly(
             operator.operatorId,
             build.operatorInstance,
             build.operator,
+            options.index.getCommonAbilityEntityDefinitions?.(),
           ),
         };
       }),

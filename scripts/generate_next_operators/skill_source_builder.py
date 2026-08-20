@@ -44,6 +44,8 @@ class SkillSourceBuilderServices:
     parse_time_dilations: Callable[..., Any]
     parse_timed_skill_replacements: Callable[..., Any]
     parse_timeline: Callable[..., Any]
+    parse_timeline_finishes: Callable[..., Any]
+    parse_timeline_jumps: Callable[..., Any]
     resolve_ability_entity_hits: Callable[..., Any]
     resolve_conditional_aura_ability_entity_children: Callable[..., Any]
     resolve_conditional_projectile_triggers: Callable[..., Any]
@@ -86,6 +88,8 @@ def parse_skill(
     parse_time_dilations = services.parse_time_dilations
     parse_timed_skill_replacements = services.parse_timed_skill_replacements
     parse_timeline = services.parse_timeline
+    parse_timeline_finishes = services.parse_timeline_finishes
+    parse_timeline_jumps = services.parse_timeline_jumps
     resolve_ability_entity_hits = services.resolve_ability_entity_hits
     resolve_conditional_aura_ability_entity_children = services.resolve_conditional_aura_ability_entity_children
     resolve_conditional_projectile_triggers = services.resolve_conditional_projectile_triggers
@@ -147,6 +151,36 @@ def parse_skill(
             (skill_id,),
             resolved_blackboard,
         )
+    )
+
+    def contains_timeline_jump(action: Any) -> bool:
+        def branch_contains_jump(branch: Any) -> bool:
+            if getattr(branch, "timelineJumpDestinationFrame", None) is not None:
+                return True
+            nested = getattr(branch, "nestedCondition", None)
+            if nested is not None and contains_timeline_jump(nested):
+                return True
+            return any(
+                branch_contains_jump(child)
+                for child in (getattr(branch, "onceActions", None) or ())
+            )
+
+        return any(
+            branch_contains_jump(branch)
+            for branch in (*action.succeedActions, *action.failActions)
+        )
+
+    timeline_jump_control_flow_actions = tuple(
+        action
+        for action in parse_conditional_actions(
+            root,
+            source_name,
+            resolved_blackboard,
+            consumed_root_timed_markers,
+            include_for_each_sequence_guards=True,
+            include_ordered_timeline_jumps=True,
+        )
+        if contains_timeline_jump(action)
     )
     blackboard_mutations, buff_blackboard_reads, buff_finishes = parse_blackboard_runtime_actions(
         root, source_name, resolved_blackboard
@@ -244,4 +278,7 @@ def parse_skill(
         skillReplacements=parse_timed_skill_replacements(
             root, source_name, resolved_blackboard
         ),
+        timelineJumps=parse_timeline_jumps(root, source_name, resolved_blackboard),
+        timelineJumpControlFlowActions=timeline_jump_control_flow_actions,
+        timelineFinishes=parse_timeline_finishes(root, source_name),
     )

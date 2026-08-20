@@ -249,6 +249,51 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('resolves an id-only application from the operator Buff blueprint table', () => {
+    const applied: unknown[] = [];
+    const definition = {
+      stackingType: 'refresh' as const,
+      priority: 0,
+      maxStackCount: 1,
+    };
+    const target = {
+      ownerId: 'caster',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      resolveBuffDefinition: buffId => (buffId === 'operator-mark' ? definition : undefined),
+      delegate,
+    });
+
+    expect(
+      executor.execute({
+        kind: 'applyBuff',
+        parameters: { buffId: 'operator-mark', target: 'caster' },
+      }),
+    ).toBe(true);
+    expect(applied).toEqual([
+      {
+        buffId: 'operator-mark',
+        definition,
+        sourceId: 'operator',
+        blackboardValues: {},
+      },
+    ]);
+  });
+
   it('applies a party Buff to every resolved operator target', () => {
     const appliedTo: string[] = [];
     const createTarget = (ownerId: string) => ({

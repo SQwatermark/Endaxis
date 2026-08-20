@@ -2400,7 +2400,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 6,
@@ -2421,7 +2422,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": false
         }
       ],
       "targetGroupWrites": [
@@ -5053,7 +5055,128 @@
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "heat"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "electric"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "cryo"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
       "directDamageHits": [],
       "inflictions": [],
       "conditionalActions": [],
@@ -5452,12 +5575,7 @@
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "damageModifier",
-          "entryCount": 4
-        }
-      ],
+      "unparsedPayloads": [],
       "auraActions": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
@@ -5711,6 +5829,9 @@
       "timelineBlockFrames": 15,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -6117,6 +6238,9 @@
       "timelineBlockFrames": 15,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 2,
@@ -8295,6 +8419,9 @@
       "timelineBlockFrames": 26,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 14,
@@ -9210,6 +9337,9 @@
       "timelineBlockFrames": 17,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 11,
@@ -10869,6 +10999,9 @@
       "timelineBlockFrames": 50,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 20,
@@ -13665,6 +13798,9 @@
           "sequenceIndex": 10
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 12,
@@ -19282,6 +19418,9 @@
           "sequenceIndex": 9
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 10,
@@ -24881,6 +25020,9 @@
       "timelineBlockFrames": 60,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 3,
@@ -26156,7 +26298,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -26690,6 +26833,9 @@
           "sequenceIndex": 11
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [
         {
@@ -26711,7 +26857,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 18
+          "sequenceIndex": 18,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -26732,7 +26879,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -26962,6 +27110,9 @@
           "sequenceIndex": 6
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [],
       "auxiliaryActions": [],
       "blackboardCalculations": [],
@@ -27168,6 +27319,107 @@
       "timelineBlockFrames": 45,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 16,
+          "endFrame": 116,
+          "destFrame": 116,
+          "actionIndex": 100,
+          "actionPath": [
+            "timelineActions[19]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "OrConditionAction"
+          ],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [
+            [
+              {
+                "sourceType": "CheckTimedMarkerCondition",
+                "supported": true,
+                "comparison": null,
+                "left": null,
+                "right": null,
+                "skillTypes": [],
+                "entityCount": null,
+                "buffStack": null,
+                "health": null,
+                "mainOperator": null,
+                "enemyRank": null,
+                "targetIdentity": null,
+                "distance": null,
+                "entityTag": null,
+                "timedMarker": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "markerId": "skillEnd",
+                  "blackboardKey": "",
+                  "useBlackboardKey": false,
+                  "returnTrueIfNotExists": false
+                },
+                "globalCooldown": null,
+                "skillHasHit": null,
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "abilityEntityDuration": null,
+                "deckAttributeCompare": null
+              }
+            ],
+            [
+              {
+                "sourceType": "CompareFloat",
+                "supported": true,
+                "comparison": "Equals",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "EntityBB_SwordNum",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "skillTypes": [],
+                "entityCount": null,
+                "buffStack": null,
+                "health": null,
+                "mainOperator": null,
+                "enemyRank": null,
+                "targetIdentity": null,
+                "distance": null,
+                "entityTag": null,
+                "timedMarker": null,
+                "globalCooldown": null,
+                "skillHasHit": null,
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "abilityEntityDuration": null,
+                "deckAttributeCompare": null
+              }
+            ]
+          ],
+          "directAnyConditionNegated": [
+            [
+              false
+            ],
+            [
+              false
+            ]
+          ],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 19
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -30948,6 +31200,19 @@
             "actionData",
             "[0]"
           ]
+        },
+        {
+          "frame": 16,
+          "actionOrder": [
+            100
+          ],
+          "sequenceOrder": [
+            19
+          ],
+          "itemType": "timelineJump",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill"
+          ]
         }
       ],
       "blackboardKeys": [
@@ -31271,6 +31536,107 @@
       "timelineBlockFrames": 30,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
       "directDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 16,
+          "endFrame": 100,
+          "destFrame": 100,
+          "actionIndex": 84,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "OrConditionAction"
+          ],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [
+            [
+              {
+                "sourceType": "CheckTimedMarkerCondition",
+                "supported": true,
+                "comparison": null,
+                "left": null,
+                "right": null,
+                "skillTypes": [],
+                "entityCount": null,
+                "buffStack": null,
+                "health": null,
+                "mainOperator": null,
+                "enemyRank": null,
+                "targetIdentity": null,
+                "distance": null,
+                "entityTag": null,
+                "timedMarker": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "markerId": "skillEnd",
+                  "blackboardKey": "",
+                  "useBlackboardKey": false,
+                  "returnTrueIfNotExists": false
+                },
+                "globalCooldown": null,
+                "skillHasHit": null,
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "abilityEntityDuration": null,
+                "deckAttributeCompare": null
+              }
+            ],
+            [
+              {
+                "sourceType": "CompareFloat",
+                "supported": true,
+                "comparison": "Equals",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "EntityBB_SwordNum",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "skillTypes": [],
+                "entityCount": null,
+                "buffStack": null,
+                "health": null,
+                "mainOperator": null,
+                "enemyRank": null,
+                "targetIdentity": null,
+                "distance": null,
+                "entityTag": null,
+                "timedMarker": null,
+                "globalCooldown": null,
+                "skillHasHit": null,
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "abilityEntityDuration": null,
+                "deckAttributeCompare": null
+              }
+            ]
+          ],
+          "directAnyConditionNegated": [
+            [
+              false
+            ],
+            [
+              false
+            ]
+          ],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 13
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -37058,7 +37424,8 @@
             "SwitchAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "autoFinishByAction": null
         }
       ],
       "blackboardCalculations": [
@@ -37259,6 +37626,9 @@
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": true,
@@ -37751,7 +38121,8 @@
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 6
+              "sequenceIndex": 6,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -38062,6 +38433,19 @@
           "itemType": "blackboardCalculation",
           "sourcePath": [
             "chr_0030_zhuangfy_normal_skill_ult_abilityrange"
+          ]
+        },
+        {
+          "frame": 16,
+          "actionOrder": [
+            84
+          ],
+          "sequenceOrder": [
+            13
+          ],
+          "itemType": "timelineJump",
+          "sourcePath": [
+            "chr_0030_zhuangfy_normal_skill_ult"
           ]
         },
         {
@@ -38977,6 +39361,9 @@
           "sequenceIndex": 12
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 24,
@@ -39938,6 +40325,9 @@
           "sequenceIndex": 14
         }
       ],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 24,
@@ -40681,6 +41071,9 @@
       "timelineBlockFrames": 91,
       "blockBoundarySource": "exclusiveFrame+1",
       "directDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": [],
       "conditionalActions": [
         {
           "startFrame": 0,
@@ -40780,7 +41173,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 0,
@@ -40797,7 +41191,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 78,
@@ -40855,7 +41250,8 @@
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -40876,7 +41272,8 @@
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 15
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],

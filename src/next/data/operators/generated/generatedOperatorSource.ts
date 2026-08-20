@@ -101,6 +101,8 @@ export interface GeneratedAuxiliaryActionSource extends GeneratedNativeSequenceM
   readonly inheritSourceSkillCastInfo: boolean | null;
   readonly blackboardAssignments: Readonly<Record<string, GeneratedScalarSource>>;
   readonly nestedCombatActions: readonly string[];
+  /** CreateBuffAction 是否在承载动作区间结束时结束本次创建的实例。 */
+  readonly autoFinishByAction?: boolean | null;
   /** InstantSearch 目标使用的原生 finder 类型。 */
   readonly targetFinderType?: string;
 }
@@ -246,6 +248,12 @@ export interface GeneratedTimedTimelineJumpSource extends GeneratedNativeSequenc
   readonly conditionActionTypes: readonly string[];
   /** 复用条件中间层解析成功的直接条件；未知类型保持空数组并由支持标记阻塞。 */
   readonly directConditions: readonly GeneratedConditionSource[];
+  /** 与 directConditions 一一对应；true 表示原生 NotNextCheckAction 仅反转该项。 */
+  readonly directConditionNegated: readonly boolean[];
+  /** OrConditionAction 的分支；每个内层数组是一个原生 SequenceAction。 */
+  readonly directAnyConditions: readonly (readonly GeneratedConditionSource[])[];
+  /** 与 directAnyConditions 的分支和分支内条件一一对应。 */
+  readonly directAnyConditionNegated: readonly (readonly boolean[])[];
   readonly directConditionsSupported: boolean;
   /** 跳转是其所在原生 Sequence 的唯一启用根动作。 */
   readonly isOnlySequenceAction: boolean;
@@ -370,6 +378,26 @@ export interface GeneratedBuffDefinitionSource {
   readonly targetGroupWrites?: readonly GeneratedTargetGroupWriteSource[];
   /** Buff 启用期间对角色稳定技能槽的原生替换关系；尚未接入运行时选择。 */
   readonly skillReplacements?: readonly GeneratedBuffSkillReplacementSource[];
+  /** ShowComboRingQte 的提示/有效时长、有效期 Buff 与成功写入闭环。 */
+  readonly comboQteActions?: readonly GeneratedBuffComboQteSource[];
+  /** 当前 Buff 实例在 Ability 事件边界上的暂停/恢复赋值。 */
+  readonly pauseTimeActions?: readonly GeneratedBuffPauseTimeSource[];
+}
+
+export interface GeneratedBuffComboQteSource {
+  readonly actionIndex: number;
+  readonly earlyDuration: GeneratedScalarSource;
+  readonly activeDuration: GeneratedScalarSource;
+  readonly activeTimerBuffId: string;
+  readonly triggerMutation: GeneratedBlackboardMutationSource;
+}
+
+export interface GeneratedBuffPauseTimeSource {
+  readonly event: 'OnBeforeCastSkill' | 'OnFinishedBuff';
+  readonly priority: number;
+  readonly paused: boolean;
+  readonly skillIds: readonly string[];
+  readonly buffIds: readonly string[];
 }
 
 export interface GeneratedBuffSkillReplacementSource {
@@ -437,6 +465,14 @@ export interface GeneratedBuffDamageScaleProcessorSource {
   readonly addition: GeneratedScalarSource;
 }
 
+/** 伤害结算单次快照中的原生即时属性修正。 */
+export interface GeneratedBuffInstantAttributeProcessorSource {
+  readonly targetSide: 'Attacker' | 'Defender';
+  readonly attributeType: string;
+  readonly slot: GeneratedBuffAttributeModifierSource['slot'];
+  readonly value: GeneratedScalarSource;
+}
+
 /** 原生伤害修正及其目标标签条件；标签使用有符号 CRC-32 ID。 */
 export interface GeneratedBuffDamageModifierSource {
   readonly enabledSide: 'Attacker' | 'Defender';
@@ -444,7 +480,10 @@ export interface GeneratedBuffDamageModifierSource {
   readonly targetGroupKey: string;
   readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
   readonly tagIds: readonly number[];
-  readonly processors: readonly GeneratedBuffDamageScaleProcessorSource[];
+  readonly processors: readonly (
+    | GeneratedBuffDamageScaleProcessorSource
+    | GeneratedBuffInstantAttributeProcessorSource
+  )[];
   readonly ownerControlled: boolean;
   readonly damageTagMatch: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | null;
   readonly damageTags: readonly string[];
@@ -956,6 +995,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly heal?: {
     readonly healType: string;
     readonly healer: string;
+    readonly alwaysNext: boolean;
     readonly target: GeneratedTargetReferenceSource;
     readonly attribute: string | null;
     readonly multiplier: GeneratedScalarSource;
@@ -963,6 +1003,7 @@ export interface GeneratedConditionalBranchActionSource {
     readonly tagIds: readonly number[];
   };
   readonly keywordAction?: GeneratedTimedKeywordActionSource;
+  readonly timelineJumpDestinationFrame?: number;
   /** 仅在该条件分支被选中后开始的时间膨胀动作。 */
   readonly timeDilation?: GeneratedTimedTimeDilationSource;
 }
@@ -1227,6 +1268,30 @@ export interface GeneratedSkillSource {
   readonly timelineActions: readonly GeneratedTimelineActionSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly intervalDamageHits?: readonly GeneratedTimedIntervalDamageSource[];
+  readonly timelineJumps?: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly destFrame: number;
+    readonly actionIndex: number;
+    readonly actionPath: readonly string[];
+    readonly conditionActionTypes: readonly string[];
+    readonly directConditions: readonly GeneratedConditionSource[];
+    readonly directConditionNegated: readonly boolean[];
+    readonly directAnyConditions: readonly (readonly GeneratedConditionSource[])[];
+    readonly directAnyConditionNegated: readonly (readonly boolean[])[];
+    readonly directConditionsSupported: boolean;
+    readonly isOnlySequenceAction: boolean;
+    readonly isOnlyBranchAction: boolean;
+    readonly isRootContainerOnlySequenceAction: boolean;
+    readonly sequenceIndex: number;
+  }[];
+  readonly timelineJumpControlFlowActions?: readonly GeneratedConditionalActionSource[];
+  readonly timelineFinishes?: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly actionIndex: number;
+    readonly sequenceIndex: number;
+  }[];
   readonly conditionalActions: readonly GeneratedConditionalActionSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
   readonly auxiliaryActions: readonly GeneratedAuxiliaryActionSource[];

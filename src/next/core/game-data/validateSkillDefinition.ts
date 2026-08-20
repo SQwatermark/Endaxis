@@ -547,6 +547,9 @@ function validateCombatCondition(
         });
       }
       break;
+    case 'eventSkillIdIn':
+      validateNonEmptyStringArray(record.skillIds, `${path}.skillIds`, out);
+      break;
     case 'eventBuffIdMatch':
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       break;
@@ -724,6 +727,32 @@ function validateAbilityEntityChildSkill(
   }
 }
 
+/** 严格验证可独立保存在干员层级的能力实体蓝图。 */
+export function validateAbilityEntityDefinition(
+  value: unknown,
+  path = '$',
+): SkillDefinitionValidationIssue[] {
+  const out: SkillDefinitionValidationIssue[] = [];
+  const definition = asRecord(value, path, out);
+  if (definition === null) return out;
+  const lifetimePath = `${path}.lifetime`;
+  const lifetime = asRecord(definition.lifetime, lifetimePath, out);
+  if (lifetime !== null) {
+    if (lifetime.kind !== 'limited' && lifetime.kind !== 'infinite') {
+      push(out, `${lifetimePath}.kind`, "expected 'limited' or 'infinite'");
+    } else if (lifetime.kind === 'limited') {
+      const duration = requireFiniteNumber(lifetime, 'durationSeconds', lifetimePath, out);
+      if (duration !== null && duration < 0) {
+        push(out, `${lifetimePath}.durationSeconds`, 'expected a non-negative number');
+      }
+    }
+  }
+  if (definition.childSkill !== undefined) {
+    validateAbilityEntityChildSkill(definition.childSkill, `${path}.childSkill`, out);
+  }
+  return out;
+}
+
 function validateCombatStep(
   value: unknown,
   path: string,
@@ -788,24 +817,12 @@ function validateCombatStep(
     case 'spawnAbilityEntity': {
       requireString(parameters, 'abilityEntityId', `${path}.parameters`, out);
       const definitionPath = `${path}.parameters.definition`;
-      const definition = asRecord(parameters.definition, definitionPath, out);
-      if (definition !== null) {
-        const lifetimePath = `${definitionPath}.lifetime`;
-        const lifetime = asRecord(definition.lifetime, lifetimePath, out);
-        if (lifetime !== null) {
-          if (lifetime.kind !== 'limited' && lifetime.kind !== 'infinite') {
-            push(out, `${lifetimePath}.kind`, "expected 'limited' or 'infinite'");
-          } else if (lifetime.kind === 'limited') {
-            const duration = requireFiniteNumber(lifetime, 'durationSeconds', lifetimePath, out);
-            if (duration !== null && duration < 0) {
-              push(out, `${lifetimePath}.durationSeconds`, 'expected a non-negative number');
-            }
-          }
-        }
-      }
-      if (definition?.childSkill !== undefined) {
-        validateAbilityEntityChildSkill(definition.childSkill, `${definitionPath}.childSkill`, out);
-      }
+      const definition =
+        parameters.definition === undefined
+          ? null
+          : asRecord(parameters.definition, definitionPath, out);
+      if (definition !== null)
+        out.push(...validateAbilityEntityDefinition(definition, definitionPath));
       if (parameters.inheritActionBlackboard !== undefined) {
         requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
       }
@@ -938,6 +955,9 @@ function validateCombatStep(
       break;
     case 'heal':
       requireEnum(parameters, 'target', HEAL_TARGETS_SET, `${path}.parameters`, out);
+      if (parameters.alwaysNext !== undefined) {
+        requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
+      }
       if (parameters.amount === undefined) {
         requireEnum(parameters, 'attribute', OPERATOR_ATTRIBUTES_SET, `${path}.parameters`, out);
         validateLevelValuesOrActionValueOperand(
@@ -1062,7 +1082,14 @@ function validateCombatStep(
                       push(out, `${responsePath}.${key}`, 'unknown Buff ability event field');
                     }
                   }
-                  if (response.event !== 'beforeTakeDamage' && response.event !== 'outputDamage') {
+                  if (
+                    response.event !== 'beforeTakeDamage' &&
+                    response.event !== 'takeCriticalDamage' &&
+                    response.event !== 'outputDamage' &&
+                    response.event !== 'beforeCastSkill' &&
+                    response.event !== 'addedBuff' &&
+                    response.event !== 'finishedBuff'
+                  ) {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }
                   requireInteger(response, 'priority', responsePath, out);
@@ -1237,6 +1264,9 @@ function validateCombatStep(
       break;
     case 'finishCurrentBuff':
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      break;
+    case 'setCurrentBuffTimePaused':
+      requireBoolean(parameters, 'paused', `${path}.parameters`, out);
       break;
     case 'igniteBuffs':
       requireEnum(parameters, 'target', COMBAT_TARGETS_SET, `${path}.parameters`, out);
@@ -1472,6 +1502,8 @@ function validateCombatStep(
           currentTargetAvailable,
         );
       }
+      break;
+    case 'finishTimeline':
       break;
     case 'conditional':
       validateCombatCondition(

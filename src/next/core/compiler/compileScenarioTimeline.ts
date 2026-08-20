@@ -16,13 +16,17 @@ import type {
 } from './combatProgram';
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
-import type { LevelValues, OperatorDefinition } from '../game-data/operatorDefinition';
+import type {
+  LevelValues,
+  OperatorBuffDefinitions,
+  OperatorDefinition,
+} from '../game-data/operatorDefinition';
 import type {
   OperatorInstanceDocument,
   ScenarioDocument,
   SkillCastDocument,
 } from '../project/schema';
-import { compileSkill } from './compileSkill';
+import { compileOperatorBuffDefinitions, compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
   compileOperatorInitializationPrograms,
@@ -68,14 +72,16 @@ function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedComba
     case 'forEachContextTarget':
       return { ...step, body: bindSequenceHitIds(step.body, castId) };
     case 'spawnAbilityEntity': {
-      const childSkill = step.parameters.definition.childSkill;
+      const definition = step.parameters.definition;
+      if (definition === undefined) return step;
+      const childSkill = definition.childSkill;
       if (childSkill === undefined) return step;
       return {
         ...step,
         parameters: {
           ...step.parameters,
           definition: {
-            ...step.parameters.definition,
+            ...definition,
             childSkill: bindChildSkillHitIds(childSkill, castId),
           },
         },
@@ -118,6 +124,21 @@ function bindProgramHitIds(program: CompiledSkillProgram, castId: string): Compi
       ...action,
       sequence: bindSequenceHitIds(action.sequence, castId),
     })),
+    ...(program.abilityEntityDefinitions === undefined
+      ? {}
+      : {
+          abilityEntityDefinitions: Object.fromEntries(
+            Object.entries(program.abilityEntityDefinitions).map(([id, definition]) => [
+              id,
+              definition.childSkill === undefined
+                ? definition
+                : {
+                    ...definition,
+                    childSkill: bindChildSkillHitIds(definition.childSkill, castId),
+                  },
+            ]),
+          ),
+        }),
   };
 }
 
@@ -127,7 +148,10 @@ export interface CompiledScenarioTimeline {
   readonly inputs: readonly ScheduledSkillInput[];
 }
 
-type OperatorIndex = Pick<GameDataRepository, 'getOperator'>;
+type OperatorIndex = Pick<GameDataRepository, 'getOperator'> &
+  Partial<
+    Pick<GameDataRepository, 'getCommonBuffDefinitions' | 'getCommonAbilityEntityDefinitions'>
+  >;
 
 function requireOperator(
   build: OperatorInstanceDocument,
@@ -199,6 +223,7 @@ function compileCastSkillPrograms(
   cast: SkillCastDocument,
   resolved: ResolvedSkillDefinition,
   level: number,
+  abilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'],
 ): readonly CompiledSkillProgram[] {
   const definition = resolved.definition;
   const definitions = [definition, ...(resolved.group.replacementSkills ?? [])];
@@ -210,6 +235,7 @@ function compileCastSkillPrograms(
         skillType: resolved.group.skillType,
         skillLevel: level,
         skill,
+        abilityEntityDefinitions,
       }),
       cast.id,
     ),
@@ -244,7 +270,22 @@ export function compileOperatorDefinitionSkills(
   trackId: string,
   build: OperatorInstanceDocument,
   operator: OperatorDefinition,
+  commonAbilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'] = {},
 ): readonly CompiledSkillProgram[] {
+  const duplicateAbilityEntityIds = [
+    ...Object.keys(operator.abilityEntityDefinitions ?? {}),
+    ...Object.keys(build.customAbilityEntityDefinitions ?? {}),
+  ].filter(id => id in commonAbilityEntityDefinitions);
+  if (duplicateAbilityEntityIds.length > 0) {
+    throw new Error(
+      `operator '${operator.slug}' duplicates shared AbilityEntity definitions: ${[...new Set(duplicateAbilityEntityIds)].join(', ')}`,
+    );
+  }
+  const abilityEntityDefinitions = {
+    ...commonAbilityEntityDefinitions,
+    ...operator.abilityEntityDefinitions,
+    ...build.customAbilityEntityDefinitions,
+  };
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
     const definitions = [
@@ -258,6 +299,7 @@ export function compileOperatorDefinitionSkills(
         skillType: group.skillType,
         skillLevel,
         skill,
+        abilityEntityDefinitions,
       });
     });
   });
@@ -272,12 +314,29 @@ interface ResolvedTimelineTrack {
 
 function compileResolvedTimelineTracks(
   tracks: readonly ResolvedTimelineTrack[],
+  commonBuffDefinitions?: OperatorBuffDefinitions,
+  commonAbilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'] = {},
 ): CompiledScenarioTimeline {
   const operators: CombatOperatorProgram[] = [];
   const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
   let order = 0;
+  const compiledCommonBuffDefinitions = compileOperatorBuffDefinitions(commonBuffDefinitions);
 
   for (const { track, operatorInstance, operator } of tracks) {
+    const duplicateAbilityEntityIds = [
+      ...Object.keys(operator.abilityEntityDefinitions ?? {}),
+      ...Object.keys(operatorInstance.customAbilityEntityDefinitions ?? {}),
+    ].filter(id => id in commonAbilityEntityDefinitions);
+    if (duplicateAbilityEntityIds.length > 0) {
+      throw new Error(
+        `operator '${operator.slug}' duplicates shared AbilityEntity definitions: ${[...new Set(duplicateAbilityEntityIds)].join(', ')}`,
+      );
+    }
+    const abilityEntityDefinitions = {
+      ...commonAbilityEntityDefinitions,
+      ...operator.abilityEntityDefinitions,
+      ...operatorInstance.customAbilityEntityDefinitions,
+    };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
     const skills: CompiledSkillProgram[] = [];
     for (const cast of track.skillCasts) {
@@ -289,7 +348,9 @@ function compileResolvedTimelineTracks(
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
-      skills.push(...compileCastSkillPrograms(track.id, cast, resolved, level));
+      skills.push(
+        ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
+      );
       pendingInputs.push({
         frame: cast.placement.startFrame,
         operatorId: track.id,
@@ -300,14 +361,31 @@ function compileResolvedTimelineTracks(
       order += 1;
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
+    const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades);
+    const compiledOperatorBuffDefinitions = compileOperatorBuffDefinitions(
+      operator.buffDefinitions,
+    );
+    const duplicateBuffIds = Object.keys(compiledOperatorBuffDefinitions).filter(
+      buffId => buffId in compiledCommonBuffDefinitions,
+    );
+    if (duplicateBuffIds.length > 0) {
+      throw new Error(
+        `operator '${operator.slug}' duplicates shared Buff definitions: ${duplicateBuffIds.join(', ')}`,
+      );
+    }
+    const buffDefinitions = {
+      ...compiledCommonBuffDefinitions,
+      ...compiledOperatorBuffDefinitions,
+    };
     operators.push({
       operatorId: track.id,
+      ...(Object.keys(buffDefinitions).length === 0 ? {} : { buffDefinitions }),
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       skillSlotGroups: compileSkillSlotGroups(operator),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
       passivePrograms: compileOperatorPassivePrograms(activeUpgrades),
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
-      skills: applyOperatorUpgradeSkillPatches(skills, activeUpgrades),
+      skills: compiledSkills,
     });
   }
 
@@ -321,13 +399,19 @@ function compileResolvedTimelineTracks(
 /** 使用 Build Resolver 的共享结果编译每个技能释放的程序和时间轴输入。 */
 export function compileResolvedScenarioTimeline(
   builds: readonly ResolvedScenarioBuild[],
+  commonBuffDefinitions?: OperatorBuffDefinitions,
+  commonAbilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
 ): CompiledScenarioTimeline {
   const tracks = builds.map(build => ({
     track: build.track,
     operatorInstance: build.operatorInstance,
     operator: build.operator,
   }));
-  return compileResolvedTimelineTracks(tracks);
+  return compileResolvedTimelineTracks(
+    tracks,
+    commonBuffDefinitions,
+    commonAbilityEntityDefinitions,
+  );
 }
 
 /**
@@ -357,5 +441,9 @@ export function compileScenarioTimeline(
     const operator = requireOperator(operatorInstance, index);
     tracks.push({ track, operatorInstance, operator });
   });
-  return compileResolvedTimelineTracks(tracks);
+  return compileResolvedTimelineTracks(
+    tracks,
+    index.getCommonBuffDefinitions?.(),
+    index.getCommonAbilityEntityDefinitions?.(),
+  );
 }

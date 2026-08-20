@@ -121,11 +121,100 @@ def compile_inline_buff_event_responses(
     start_sequences: list[CompiledNode] = []
     enable_sequences: list[CompiledNode] = []
     finish_sequences: list[CompiledNode] = []
+    trigger_sequences: list[CompiledNode] = []
     after_enhance_sequences: list[CompiledNode] = []
     ability_response_lines: list[str] = []
     ability_response_count = 0
+    for qte_index, qte in enumerate(getattr(source, "comboQteActions", ())):
+        mutation = services.compile_blackboard_mutation(
+            qte.triggerMutation,
+            f"{path}.comboQteActions[{qte_index}].triggerMutation",
+        )
+        mutation_lines = indent_source(mutation, 10)
+        mutation_lines[-1] += ","
+        ability_response_lines.extend(
+            [
+                "  {",
+                "    event: 'beforeCastSkill',",
+                "    priority: 0,",
+                "    sequence: sequence(",
+                "      branch(",
+                "      {",
+                "        kind: 'all',",
+                "        conditions: [",
+                "          { kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] },",
+                "          {",
+                "            kind: 'buffIdStackCompare',",
+                "            target: 'caster',",
+                f"            buffIds: [{ts_inline_literal(qte.activeTimerBuffId)}],",
+                "            operator: 'greaterOrEqual',",
+                "            value: 1,",
+                "          },",
+                "        ],",
+                "      },",
+                "      sequence(",
+                *mutation_lines,
+                "      ),",
+                "      ),",
+                "    ),",
+                "  },",
+            ]
+        )
+        ability_response_count += 1
+    for pause_index, pause in enumerate(getattr(source, "pauseTimeActions", ())):
+        if pause.event == "OnBeforeCastSkill" and pause.skillIds and not pause.buffIds:
+            event_name = "beforeCastSkill"
+            condition = (
+                "{ kind: 'eventSkillIdIn', skillIds: "
+                + ts_inline_literal(pause.skillIds)
+                + " }"
+            )
+        elif pause.event == "OnFinishedBuff" and pause.buffIds and not pause.skillIds:
+            event_name = "finishedBuff"
+            condition = (
+                "{ kind: 'eventBuffIdMatch', buffIds: "
+                + ts_inline_literal(pause.buffIds)
+                + " }"
+            )
+        else:
+            raise ValueError(f"{path}.pauseTimeActions[{pause_index}]: invalid event identity")
+        ability_response_lines.extend(
+            [
+                "  {",
+                f"    event: {ts_inline_literal(event_name)},",
+                f"    priority: {pause.priority},",
+                "    sequence: sequence(",
+                "      branch(",
+                f"        {condition},",
+                "        sequence(",
+                "          step('setCurrentBuffTimePaused', {",
+                f"            paused: {ts_inline_literal(pause.paused)},",
+                "          }),",
+                "        ),",
+                "      ),",
+                "    ),",
+                "  },",
+            ]
+        )
+        ability_response_count += 1
     for event_index, event in enumerate(source.eventActions):
         if not event.sequences:
+            continue
+        if (
+            event.eventSource == "ability"
+            and (
+                (
+                    event.event == "OnTrulyExitFight"
+                    and event.orderedActionTypes
+                    == ("ModifyDynamicBlackboard", "FinishBuffAdvanced")
+                )
+                or (
+                    event.event == "OnRemoveAllPendingComboSkill"
+                    and event.orderedActionTypes == ("FinishBuffAdvanced",)
+                )
+            )
+        ):
+            # 标准木桩模拟没有离战或清空候选连携事件；保留审计事实但不伪造触发点。
             continue
         event_path = f"{path}[{event_index}]"
         damage_tags: list[str] = []
@@ -171,6 +260,7 @@ def compile_inline_buff_event_responses(
                 event.eventSource == "buff" and event.event == "DuringBuffEnable"
             )
             is_finish = event.eventSource == "buff" and event.event == "OnBuffFinish"
+            is_trigger = event.eventSource == "buff" and event.event == "OnBuffTrigger"
             is_after_enhance = (
                 event.eventSource == "buff" and event.event == "OnBuffAfterTryEnhanced"
             )
@@ -179,6 +269,9 @@ def compile_inline_buff_event_responses(
             )
             is_output_damage = (
                 event.eventSource == "ability" and event.event == "OnOutputDamage"
+            )
+            is_take_critical_damage = (
+                event.eventSource == "ability" and event.event == "OnTakeCriticalDamage"
             )
             is_before_cast_skill = (
                 event.eventSource == "ability" and event.event == "OnBeforeCastSkill"
@@ -195,7 +288,7 @@ def compile_inline_buff_event_responses(
                 target_group_writes=getattr(event, "runtimeTargetGroupWrites", ()),
                 input_target=(
                     "enemy"
-                    if is_enable and buff_owner_target == "enemy"
+                    if event.eventSource == "buff" and buff_owner_target == "enemy"
                     else None
                 ),
                 step_key_prefix=(
@@ -205,8 +298,11 @@ def compile_inline_buff_event_responses(
                         f"{source.buffId}:start:{sequence_index}"
                         if is_start
                         else (
-                            f"{source.buffId}:finish:{sequence_index}"
-                            if is_finish
+                        f"{source.buffId}:finish:{sequence_index}"
+                        if is_finish
+                        else (
+                            f"{source.buffId}:trigger:{sequence_index}"
+                            if is_trigger
                             else (
                                 f"{source.buffId}:afterEnhance:{sequence_index}"
                                 if is_after_enhance
@@ -214,18 +310,26 @@ def compile_inline_buff_event_responses(
                                     f"{source.buffId}:beforeTakeDamage:{sequence_index}"
                                     if is_before_take_damage
                                     else (
+                                        f"{source.buffId}:takeCriticalDamage:{sequence_index}"
+                                        if is_take_critical_damage
+                                        else (
                                         f"{source.buffId}:outputDamage:{sequence_index}"
                                         if is_output_damage
                                         else f"{source.buffId}:beforeCastSkill:{sequence_index}"
+                                        )
                                     )
                                 )
+                            )
                             )
                         )
                     )
                 ),
                 buff_definitions=buff_definitions,
                 buff_ability_damage_event=(
-                    is_before_take_damage or is_output_damage or is_before_cast_skill
+                    is_before_take_damage
+                    or is_take_critical_damage
+                    or is_output_damage
+                    or is_before_cast_skill
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
@@ -248,11 +352,15 @@ def compile_inline_buff_event_responses(
             if is_finish:
                 finish_sequences.append(compiled)
                 continue
+            if is_trigger:
+                trigger_sequences.append(compiled)
+                continue
             if is_after_enhance:
                 after_enhance_sequences.append(compiled)
                 continue
             if not (
                 is_before_take_damage
+                or is_take_critical_damage
                 or is_output_damage
                 or is_before_cast_skill
                 or is_added_buff
@@ -264,6 +372,8 @@ def compile_inline_buff_event_responses(
             event_name = (
                 "beforeTakeDamage"
                 if is_before_take_damage
+                else "takeCriticalDamage"
+                if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
                 else "beforeCastSkill"
@@ -284,7 +394,11 @@ def compile_inline_buff_event_responses(
             )
             ability_response_count += 1
     lifecycle_sequences = (
-        enable_sequences or start_sequences or finish_sequences or after_enhance_sequences
+        enable_sequences
+        or start_sequences
+        or finish_sequences
+        or trigger_sequences
+        or after_enhance_sequences
     )
     if lifecycle_sequences and getattr(source, "sourceDeathFinish", None) is not None:
         raise ValueError(f"{path}: unsupported mixed Buff lifecycle and source-death events")
@@ -297,6 +411,7 @@ def compile_inline_buff_event_responses(
             ("enable", enable_sequences),
             ("start", start_sequences),
             ("finish", finish_sequences),
+            ("trigger", trigger_sequences),
             ("afterEnhance", after_enhance_sequences),
         ):
             if not sequences:
@@ -560,6 +675,12 @@ def compile_inline_buff_scheduled_sequences(
     compiled: list[tuple[int, int, int, list[str]]] = []
 
     for index, action in enumerate(source.auxiliaryActions):
+        if (
+            action.actionType == "SpawnAbilityEntity"
+            and action.classification == "nonCombatAbilityEntity"
+            and not action.nestedCombatActions
+        ):
+            continue
         if action.actionType != "CreateBuffAction":
             raise ValueError(f"{path}.auxiliaryActions[{index}]: unsupported {action.actionType}")
         if action.classification == "skillCostUltimateEnergyGain":
@@ -768,6 +889,13 @@ def compile_inline_buff_scheduled_sequences(
     )
     if source.auxiliaryActions:
         covered_actions.add("CreateBuffAction")
+    if any(
+        action.actionType == "SpawnAbilityEntity"
+        and action.classification == "nonCombatAbilityEntity"
+        and not action.nestedCombatActions
+        for action in source.auxiliaryActions
+    ):
+        covered_actions.add("SpawnAbilityEntity")
     if source.directDamageHits:
         covered_actions.add("DamageAction")
     if getattr(source, "intervalDamageHits", ()):

@@ -12,6 +12,7 @@ import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
 import NextOperatorPanelDialog from './components/NextOperatorPanelDialog.vue';
 import NextOperatorBuildDialog from './components/NextOperatorBuildDialog.vue';
+import OperatorDefinitionWorkspaceDialog from './components/OperatorDefinitionWorkspaceDialog.vue';
 import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
@@ -42,7 +43,7 @@ import { PROJECT_FPS, type ScenarioDocument, type TrackIndex } from '../../core/
 import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
-import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
+import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 import {
   projectTimelineEditor,
@@ -104,7 +105,10 @@ import {
   removeTimelineConnection,
   type TimelineConnectionPort,
 } from './timelineConnections';
-import { type TimelineHitMarkerView } from './timelineHitProjection';
+import {
+  shouldDisplayTimelineHitMarker,
+  type TimelineHitMarkerView,
+} from './timelineHitProjection';
 import {
   projectHitEffectsByCast,
   projectTimelineHitActualFrames,
@@ -131,6 +135,9 @@ const connectionToolEnabled = ref(false);
 const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
 const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
 const showSkillDefinitionEditor = ref(false);
+const showOperatorDefinitionWorkspace = ref(false);
+const customOperatorDefinitions = shallowRef<Record<string, OperatorDefinition>>({});
+const operatorDefinitionRevision = ref(0);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const hoveredCastId = ref<string | null>(null);
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
@@ -203,6 +210,17 @@ function commitScenario(
   return scenarioSession.commit(commandName, command);
 }
 
+/** 项目级定义覆盖端口；干员实例仍只保存养成与配装状态。 */
+const editorGameDataRepository = {
+  ...nextGameDataRepository,
+  getOperator: (slug: string) =>
+    customOperatorDefinitions.value[slug] ?? nextGameDataRepository.getOperator(slug),
+  getOperators: () =>
+    nextGameDataRepository
+      .getOperators()
+      .map(definition => customOperatorDefinitions.value[definition.slug] ?? definition),
+};
+
 const {
   operatorDialogTrack,
   weaponDialogTrack,
@@ -240,7 +258,8 @@ const {
   session: scenarioSession,
   selectedTrack,
   clearTimelineSelection,
-  gameData: nextGameDataRepository,
+  gameData: editorGameDataRepository,
+  definitionRevision: operatorDefinitionRevision,
   ids,
 });
 const {
@@ -252,13 +271,16 @@ const {
 } = useTimelineEnemyEditor({
   scenario,
   session: scenarioSession,
-  gameData: nextGameDataRepository,
+  gameData: editorGameDataRepository,
   fps: PROJECT_FPS,
 });
-const viewModel = computed(() => projectTimelineEditor(scenario.value, nextGameDataRepository));
+const viewModel = computed(() => {
+  void operatorDefinitionRevision.value;
+  return projectTimelineEditor(scenario.value, editorGameDataRepository);
+});
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
 const simulationService = new ScenarioSimulationService({
-  index: nextGameDataRepository,
+  index: editorGameDataRepository,
   repositoryRevision: nextGameDataRepository.revision,
   resources: {
     sharedSpGain: { baseGainEfficiency: 1 },
@@ -280,6 +302,43 @@ const {
   scenario,
   service: simulationService,
 });
+const selectedOperatorBaseDefinition = computed(() => {
+  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
+  return slug === undefined ? null : nextGameDataRepository.getOperator(slug);
+});
+const selectedOperatorCustomDefinition = computed(() => {
+  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
+  return slug === undefined ? undefined : customOperatorDefinitions.value[slug];
+});
+const selectedOperatorDefinitionSkillLevel = computed(() =>
+  Math.max(1, ...Object.values(selectedLoadoutModel.value.operator?.skillLevels ?? {})),
+);
+
+function openOperatorDefinitionWorkspace(): void {
+  if (selectedOperatorBaseDefinition.value !== null) showOperatorDefinitionWorkspace.value = true;
+}
+
+function saveOperatorDefinition(definition: OperatorDefinition): void {
+  customOperatorDefinitions.value = {
+    ...customOperatorDefinitions.value,
+    [definition.slug]: definition,
+  };
+  operatorDefinitionRevision.value += 1;
+  simulationService.clearCache();
+  void simulateNow();
+}
+
+function resetOperatorDefinition(): void {
+  const slug = selectedOperatorBaseDefinition.value?.slug;
+  if (slug === undefined || customOperatorDefinitions.value[slug] === undefined) return;
+  const next = { ...customOperatorDefinitions.value };
+  delete next[slug];
+  customOperatorDefinitions.value = next;
+  operatorDefinitionRevision.value += 1;
+  showOperatorDefinitionWorkspace.value = false;
+  simulationService.clearCache();
+  void simulateNow();
+}
 const panelDialogOperator = computed(() => {
   const trackIndex = panelDialogTrack.value;
   return trackIndex === null
@@ -297,7 +356,7 @@ const selectedCastModel = computed(() => {
       candidate => candidate.id === selectedCastId.value,
     );
     if (castModel !== undefined && cast !== undefined) {
-      const operator = nextGameDataRepository.getOperator(trackModel.operatorSlug ?? '');
+      const operator = editorGameDataRepository.getOperator(trackModel.operatorSlug ?? '');
       const template =
         operator === null ? null : resolveSkillTemplateDefinition(cast, operator).definition;
       const diffCount =
@@ -324,6 +383,22 @@ const selectedCastModel = computed(() => {
     }
   }
   return null;
+});
+const commonAbilityEntityDefinitions =
+  nextGameDataRepository.getCommonAbilityEntityDefinitions?.() ?? {};
+const selectedCastAbilityEntityIds = computed(() => {
+  const selected = selectedCastModel.value;
+  if (selected === null) return Object.keys(commonAbilityEntityDefinitions).sort();
+  const track = scenario.value.tracks[selected.trackIndex];
+  const operator =
+    track?.operator === null || track?.operator === undefined
+      ? null
+      : editorGameDataRepository.getOperator(track.operator.operatorSlug);
+  return Object.keys({
+    ...commonAbilityEntityDefinitions,
+    ...(operator?.abilityEntityDefinitions ?? {}),
+    ...(track?.operator?.customAbilityEntityDefinitions ?? {}),
+  }).sort();
 });
 const skillCastActualStartFrames = computed(() =>
   simulationRun.value === null
@@ -485,7 +560,7 @@ const GAUGE_ELEMENT_COLORS: Readonly<Record<string, string>> = {
 function gaugeColorFor(trackIndex: TrackIndex): string {
   const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
   const element =
-    operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug)?.element;
+    operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug)?.element;
   return element === undefined || element === null
     ? '#00e5ff'
     : (GAUGE_ELEMENT_COLORS[element] ?? '#00e5ff');
@@ -543,20 +618,19 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   if (castModel === undefined) return [];
   const effects = castHitEffects.value.get(castId);
   const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
-  return (
-    castModel.hitMarkers
-      // 条件分支里的命中只在真的触发过时才显示，和旧版一致。
-      .filter(marker => !marker.conditional || (effects !== undefined && effects.has(marker.hitId)))
-      .map(marker => ({
-        stepKey: marker.stepKey,
-        hitId: marker.hitId,
-        leftPx:
-          ((hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset) -
-            publishedStartFrame) *
-          pxPerFrame.value,
-        ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
-      }))
-  );
+  return castModel.hitMarkers
+    .filter(marker =>
+      shouldDisplayTimelineHitMarker(marker, simulationRun.value !== null, hitActualFrames.value),
+    )
+    .map(marker => ({
+      stepKey: marker.stepKey,
+      hitId: marker.hitId,
+      leftPx:
+        ((hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset) -
+          publishedStartFrame) *
+        pxPerFrame.value,
+      ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
+    }));
 }
 
 const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
@@ -685,7 +759,7 @@ function skillDisplayIcon(skillType: string, operatorSlug: string | null): strin
   if (skillType === 'battleSkill') return `/operators/${operatorSlug}/battle.webp`;
   if (skillType === 'comboSkill') return `/operators/${operatorSlug}/combo.webp`;
   if (skillType === 'ultimate') return `/operators/${operatorSlug}/ultimate.webp`;
-  const weaponType = nextGameDataRepository.getOperator(operatorSlug)?.weaponType ?? 'sword';
+  const weaponType = editorGameDataRepository.getOperator(operatorSlug)?.weaponType ?? 'sword';
   return (
     {
       sword: '/icons/icon_attack_sword.webp',
@@ -884,7 +958,8 @@ function placeGroup(
   trackIndex = selectedTrack.value,
 ): void {
   const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
-  const operator = operatorSlug === null ? null : nextGameDataRepository.getOperator(operatorSlug);
+  const operator =
+    operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug);
   if (operator === null) return;
   const result = placeSkillGroup({
     scenario: scenario.value,
@@ -1869,7 +1944,7 @@ function setPanelDialogVisible(visible: boolean): void {
   />
   <OperatorSelectionDialog
     :visible="operatorDialogTrack !== null"
-    :operators="nextGameDataRepository.getOperators()"
+    :operators="editorGameDataRepository.getOperators()"
     :selected-slugs="
       viewModel.tracks.flatMap(track => (track.operatorSlug === null ? [] : [track.operatorSlug]))
     "
@@ -1925,8 +2000,21 @@ function setPanelDialogVisible(visible: boolean): void {
   <NextOperatorBuildDialog
     :visible="showOperatorBuildDialog"
     :operator="selectedLoadoutModel.operator"
+    :custom-definition="selectedOperatorCustomDefinition"
     @update:visible="showOperatorBuildDialog = $event"
     @change="updateOperatorBuild"
+    @edit-definition="openOperatorDefinitionWorkspace"
+  />
+  <OperatorDefinitionWorkspaceDialog
+    v-if="selectedOperatorBaseDefinition"
+    :visible="showOperatorDefinitionWorkspace"
+    :base-definition="selectedOperatorBaseDefinition"
+    :custom-definition="selectedOperatorCustomDefinition"
+    :common-ability-entity-definitions="commonAbilityEntityDefinitions"
+    :skill-level="selectedOperatorDefinitionSkillLevel"
+    @update:visible="showOperatorDefinitionWorkspace = $event"
+    @save="saveOperatorDefinition"
+    @reset="resetOperatorDefinition"
   />
   <NextGearLoadoutBuildDialog
     :visible="showGearBuildDialog"
@@ -1947,6 +2035,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :template-definition="selectedCastModel?.templateDefinition ?? null"
     :custom-definition="selectedCastModel?.cast.customDefinition"
     :skill-level="selectedCastModel?.skillLevel ?? 1"
+    :ability-entity-ids="selectedCastAbilityEntityIds"
     @update:visible="showSkillDefinitionEditor = $event"
     @save="saveSelectedCastDefinition"
     @reset="resetSelectedCastDefinition"

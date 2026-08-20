@@ -1,4 +1,5 @@
 {
+  "simulationNoEffectBuffIds": [],
   "operators": [
     {
       "slug": "perlica",
@@ -571,11 +572,7 @@
             "kind": "resolvedSequence",
             "tags": ["normalSkill"],
             "costResource": "sp",
-            "unmodeledBuffIds": [
-              "buff_chr_0028_wulfa_normal_bleed",
-              "buff_chr_0028_wulfa_tut_normalskill_success"
-            ],
-            "skipBuffDefinitionResolutionIds": ["buff_chr_0028_wulfa_normal_bleed"]
+            "unmodeledBuffIds": []
           }
         },
         {
@@ -586,11 +583,7 @@
             "kind": "resolvedSequence",
             "tags": ["comboSkill"],
             "usePatchCooldown": true,
-            "unmodeledBuffIds": [
-              "buff_chr_0028_wulfa_combo_2_damagewait",
-              "buff_chr_0028_wulfa_combo_2_qte_timerlistening",
-              "buff_chr_0028_wulfa_combo_usetimer"
-            ]
+            "unmodeledBuffIds": []
           }
         },
         {
@@ -612,12 +605,12 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": [
+            "simulationNoEffectBuffIds": [
+              "buff_common_damage_immune_ult_skill",
               "buff_chr_0028_wulfa_ult_addtional_battleshape",
-              "buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed",
               "buff_chr_0028_wulfa_ult_stopenemy_elite"
             ],
+            "unmodeledBuffIds": [],
             "skipBuffDefinitionResolutionIds": ["buff_chr_0028_wulfa_ult_stopenemy_elite"]
           }
         }

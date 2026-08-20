@@ -2403,7 +2403,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 6,
@@ -2424,7 +2425,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 6
+          "sequenceIndex": 6,
+          "autoFinishByAction": false
         }
       ],
       "targetGroupWrites": [
@@ -5056,7 +5058,128 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
-      "damageModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "heat"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "electric"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "cryo"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
       "directDamageHits": [],
       "inflictions": [],
       "conditionalActions": [],
@@ -5455,12 +5578,7 @@ export const zhuangFangyiGeneratedSource = {
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "damageModifier",
-          "entryCount": 4
-        }
-      ],
+      "unparsedPayloads": [],
       "auraActions": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
@@ -6197,7 +6315,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -8545,7 +8666,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -9619,7 +9743,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -11415,7 +11542,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -14888,7 +15018,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "enhancedBasicAttack1",
@@ -22238,7 +22371,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "enhancedBasicAttack2",
@@ -29574,7 +29710,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "enhancedBasicAttack3",
@@ -31018,7 +31157,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -31785,7 +31925,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -32095,7 +32238,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 18
+          "sequenceIndex": 18,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -32116,7 +32260,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -32237,7 +32382,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -32694,7 +32842,10 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -39097,7 +39248,85 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 16,
+          "endFrame": 116,
+          "destFrame": 116,
+          "actionIndex": 100,
+          "actionPath": [
+            "timelineActions[19]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "OrConditionAction"
+          ],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [
+            [
+              {
+                "sourceType": "CheckTimedMarkerCondition",
+                "supported": true,
+                "comparison": null,
+                "left": null,
+                "right": null,
+                "skillTypes": [],
+                "timedMarker": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "markerId": "skillEnd",
+                  "blackboardKey": "",
+                  "useBlackboardKey": false,
+                  "returnTrueIfNotExists": false
+                },
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "deckAttributeCompare": null
+              }
+            ],
+            [
+              {
+                "sourceType": "CompareFloat",
+                "supported": true,
+                "comparison": "Equals",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "EntityBB_SwordNum",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "skillTypes": [],
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "deckAttributeCompare": null
+              }
+            ]
+          ],
+          "directAnyConditionNegated": [
+            [
+              false
+            ],
+            [
+              false
+            ]
+          ],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 19
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "enhancedBattleSkill",
@@ -45147,7 +45376,8 @@ export const zhuangFangyiGeneratedSource = {
             "SwitchAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 11
+          "sequenceIndex": 11,
+          "autoFinishByAction": null
         }
       ],
       "blackboardCalculations": [
@@ -45332,6 +45562,9 @@ export const zhuangFangyiGeneratedSource = {
               ],
               "conditionActionTypes": [],
               "directConditions": [],
+              "directConditionNegated": [],
+              "directAnyConditions": [],
+              "directAnyConditionNegated": [],
               "directConditionsSupported": false,
               "isOnlySequenceAction": false,
               "isOnlyBranchAction": true,
@@ -45824,7 +46057,8 @@ export const zhuangFangyiGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 6
+              "sequenceIndex": 6,
+              "autoFinishByAction": false
             }
           ],
           "resourceGains": [],
@@ -48397,7 +48631,85 @@ export const zhuangFangyiGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 16,
+          "endFrame": 100,
+          "destFrame": 100,
+          "actionIndex": 84,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "OrConditionAction"
+          ],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [
+            [
+              {
+                "sourceType": "CheckTimedMarkerCondition",
+                "supported": true,
+                "comparison": null,
+                "left": null,
+                "right": null,
+                "skillTypes": [],
+                "timedMarker": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "markerId": "skillEnd",
+                  "blackboardKey": "",
+                  "useBlackboardKey": false,
+                  "returnTrueIfNotExists": false
+                },
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "deckAttributeCompare": null
+              }
+            ],
+            [
+              {
+                "sourceType": "CompareFloat",
+                "supported": true,
+                "comparison": "Equals",
+                "left": {
+                  "value": 0.0,
+                  "blackboardKey": "EntityBB_SwordNum",
+                  "levelValues": null
+                },
+                "right": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "skillTypes": [],
+                "damageDecorateMask": null,
+                "contextBuffId": null,
+                "deckAttributeCompare": null
+              }
+            ]
+          ],
+          "directAnyConditionNegated": [
+            [
+              false
+            ],
+            [
+              false
+            ]
+          ],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 13
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -50167,7 +50479,10 @@ export const zhuangFangyiGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "enhancedComboSkill",
@@ -51593,7 +51908,10 @@ export const zhuangFangyiGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -52024,7 +52342,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 3
+          "sequenceIndex": 3,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 0,
@@ -52041,7 +52360,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": null,
-          "sequenceIndex": 4
+          "sequenceIndex": 4,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 78,
@@ -52099,7 +52419,8 @@ export const zhuangFangyiGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 0,
@@ -52120,7 +52441,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 15
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -52518,7 +52840,10 @@ export const zhuangFangyiGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

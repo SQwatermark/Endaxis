@@ -9,6 +9,7 @@ import { endministratorGeneratedOperator } from '../data/operators/generated/end
 import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
 import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
 import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
+import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
@@ -402,7 +403,7 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
-  it('runs Rossi claw-mark Buff interval damage through production simulation', () => {
+  it('does not run Rossi conditional follow-up without the required enemy Buff tag', () => {
     const scenario = createEmptyScenario('scenario:generated-rossi-claw-mark', '洛茜爪印样本');
     scenario.battle.durationFrames = 300;
     scenario.battle.resourceRules = {
@@ -462,9 +463,394 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_normal_defup') &&
         String(entry.data?.stepKey).includes('buffInterval'),
     );
-    expect(clawMarkDamage).toHaveLength(4);
-    expect(clawMarkDamage.every(entry => entry.sourceId === 'track:rossi')).toBe(true);
-    expect(clawMarkDamage.map(entry => entry.frame)).toEqual([225, 227, 230, 233]);
+    expect(clawMarkDamage).toEqual([]);
+
+    const tutorialSuccessDamage = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_tut_normalskill_success') &&
+        String(entry.data?.stepKey).includes('buffInterval'),
+    );
+    expect(tutorialSuccessDamage).toEqual([]);
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'SkillTimelineFinished' && entry.sourceId === 'track:rossi',
+      ),
+    ).toBe(true);
+  });
+
+  it('runs Rossi attack 4 on the controlled and off-field native timeline branches', () => {
+    const simulate = (controlled: boolean) => {
+      const scenario = createEmptyScenario(
+        `scenario:rossi-attack4-${controlled ? 'controlled' : 'off-field'}`,
+        '洛茜第四段普攻主控分支',
+      );
+      const rossiTrack = controlled ? 0 : 1;
+      if (!controlled) {
+        scenario.tracks[0] = {
+          id: 'track:anchor',
+          operator: {
+            operatorSlug: perlica.slug,
+            level: 90,
+            promoted: true,
+            potential: 0,
+            trustLevel: 4,
+            skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+            talentStates: {},
+          },
+          weapon: null,
+          gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+          initialState: { ultimateEnergy: 0 },
+          skillCasts: [],
+        };
+      }
+      scenario.tracks[rossiTrack] = {
+        id: 'track:rossi',
+        operator: {
+          operatorSlug: rossiGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: rossiTrack as 0 | 1,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack4',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:rossi-attack4` },
+      }).scenario;
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 220,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(0)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getOperator: slug =>
+              slug === rossiGeneratedOperator.slug
+                ? rossiGeneratedOperator
+                : slug === perlica.slug
+                  ? perlica
+                  : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+      return result.receiptEntries
+        .filter(
+          entry =>
+            entry.event === 'DamageApplied' &&
+            entry.sourceId === 'track:rossi' &&
+            String(entry.data?.stepKey).includes('basicAttack4'),
+        )
+        .map(entry => entry.frame);
+    };
+
+    expect(simulate(true)).toEqual([6, 8, 13, 15, 23]);
+    expect(simulate(false)).toEqual([6, 9, 14, 16, 24]);
+  });
+
+  it('runs Rossi delayed combo Buff trigger and local interval damage', () => {
+    const scenario = createEmptyScenario(
+      'scenario:generated-rossi-combo-delay',
+      '洛茜连携延迟伤害',
+    );
+    scenario.battle.durationFrames = 120;
+    scenario.tracks[0] = {
+      id: 'track:rossi',
+      operator: {
+        operatorSlug: rossiGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: rossiGeneratedOperator,
+      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill2',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:rossi-combo` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 80,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    const delayedDamage = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_combo_2_damage'),
+    );
+    expect(delayedDamage).toHaveLength(7);
+    expect(delayedDamage.every(entry => entry.sourceId === 'track:rossi')).toBe(true);
+    expect(
+      delayedDamage.filter(entry => String(entry.data?.stepKey).includes(':trigger:')),
+    ).toHaveLength(3);
+    expect(
+      delayedDamage.filter(entry => String(entry.data?.stepKey).includes('buffInterval')),
+    ).toHaveLength(4);
+  });
+
+  it('runs Rossi ultimate with its conditional critical-damage Buff', () => {
+    const scenario = createEmptyScenario('scenario:generated-rossi-ultimate', '洛茜终结技');
+    scenario.battle.durationFrames = 300;
+    scenario.tracks[0] = {
+      id: 'track:rossi',
+      operator: {
+        operatorSlug: rossiGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 100 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: rossiGeneratedOperator,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:rossi-ultimate` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 260,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(0)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:rossi',
+      ),
+    ).toBe(true);
+  });
+
+  it('uses Rossi QTE active timer as the precise-link input boundary', () => {
+    const simulate = (comboSkill3StartFrame: number) => {
+      const scenario = createEmptyScenario(
+        `scenario:generated-rossi-qte-${comboSkill3StartFrame}`,
+        '洛茜精准衔接',
+      );
+      scenario.battle.durationFrames = 180;
+      scenario.tracks[0] = {
+        id: 'track:rossi',
+        operator: {
+          operatorSlug: rossiGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const afterFirstStage = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill2',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:rossi-qte-first` },
+      }).scenario;
+      const placed = placeSkillGroup({
+        scenario: afterFirstStage,
+        trackIndex: 0,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill3',
+        startFrame: comboSkill3StartFrame,
+        ids: { allocate: kind => `${kind}:rossi-qte-second-${comboSkill3StartFrame}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 150,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(80).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    };
+
+    const inside = simulate(55);
+    const outside = simulate(75);
+
+    expect(
+      inside.receiptEntries.some(
+        entry =>
+          entry.event === 'TimeDilationStarted' &&
+          entry.sourceId === 'track:rossi' &&
+          entry.data?.priority === 50,
+      ),
+    ).toBe(true);
+    expect(
+      outside.receiptEntries.some(
+        entry => entry.event === 'TimeDilationStarted' && entry.data?.priority === 50,
+      ),
+    ).toBe(false);
+  });
+
+  it('pauses Rossi combo timers for the native power-attack action interval', () => {
+    const simulate = (withPowerAttack: boolean) => {
+      const scenario = createEmptyScenario(
+        `scenario:generated-rossi-combo-pause-${withPowerAttack}`,
+        '洛茜连携计时暂停',
+      );
+      scenario.battle.durationFrames = 420;
+      scenario.tracks[0] = {
+        id: 'track:rossi',
+        operator: {
+          operatorSlug: rossiGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill2',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:rossi-pause-combo` },
+      }).scenario;
+      if (withPowerAttack) {
+        placed = placeSkillGroup({
+          scenario: placed,
+          trackIndex: 0,
+          operator: rossiGeneratedOperator,
+          skillGroupKey: 'finisher',
+          skillKey: 'finisher',
+          startFrame: 60,
+          ids: { allocate: kind => `${kind}:rossi-pause-power` },
+        }).scenario;
+      }
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 380,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(120).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+      return result.receiptEntries.find(
+        entry =>
+          entry.event === 'BuffFinished' &&
+          entry.data?.buffId === 'buff_chr_0028_wulfa_combo_usetimer' &&
+          entry.data?.reason === 'lifetime',
+      )?.frame;
+    };
+
+    const normalFinishFrame = simulate(false);
+    const pausedFinishFrame = simulate(true);
+    expect(normalFinishFrame).toBeTypeOf('number');
+    expect(pausedFinishFrame).toBeTypeOf('number');
+    expect(pausedFinishFrame!).toBeGreaterThan(normalFinishFrame!);
   });
 
   it('runs generated Tangtang combo damage and water entity lifecycle', () => {
@@ -566,6 +952,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
           getOperator: slug =>
             slug === endministratorGeneratedOperator.slug ? endministratorGeneratedOperator : null,
           getWeapon: () => null,

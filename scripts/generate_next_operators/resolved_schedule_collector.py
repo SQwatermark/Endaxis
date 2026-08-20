@@ -237,6 +237,50 @@ def collect_resolved_schedule(
     ]
     result.extend(
         ResolvedScheduleItemSource(
+            frame=jump.startFrame,
+            actionOrder=(jump.actionIndex,),
+            itemType="timelineJump",
+            sourcePath=(skill.skillId,),
+            payload=jump,
+            sequenceOrder=native_sequence_order(jump, (), skill.skillId),
+        )
+        for jump in getattr(skill, "timelineJumps", ())
+        if jump.isOnlySequenceAction
+        and (
+            (
+                jump.directConditionsSupported
+                and (jump.directConditions or jump.directAnyConditions)
+            )
+            or not jump.conditionActionTypes
+        )
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="condition",
+            sourcePath=action.actionPath,
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_condition_sequence_order(
+                action.actionPath, (), skill.skillId, action.actionIndex
+            ),
+        )
+        for action in getattr(skill, "timelineJumpControlFlowActions", ())
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=finish.startFrame,
+            actionOrder=(finish.actionIndex,),
+            itemType="timelineFinish",
+            sourcePath=(skill.skillId,),
+            payload=finish,
+            sequenceOrder=native_sequence_order(finish, (), skill.skillId),
+        )
+        for finish in getattr(skill, "timelineFinishes", ())
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
             frame=action.startFrame,
             actionOrder=(action.actionIndex,),
             itemType="buffApplication",

@@ -23,7 +23,12 @@ export const ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE = {
 export type AttackFactorAttribute =
   (typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[OperatorAttribute];
 export type OperatorRuntimeAttribute =
-  OperatorAttribute | AttackFactorAttribute | DamageScaleAttributeKey | 'Atk';
+  | OperatorAttribute
+  | AttackFactorAttribute
+  | DamageScaleAttributeKey
+  | 'Atk'
+  | 'criticalRate'
+  | 'criticalDamageIncrease';
 
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
@@ -52,6 +57,9 @@ export function createOperatorAttackAttributes(
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) {
     result.define(attribute, 0, {});
   }
+  // 面板值仍由构筑层持有；这里保存战斗中 Buff 产生的即时增量。
+  result.define('criticalRate', 0, {});
+  result.define('criticalDamageIncrease', 0, {});
   return result;
 }
 

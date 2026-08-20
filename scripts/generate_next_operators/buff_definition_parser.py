@@ -8,24 +8,39 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from action_kinds import AUDITED_COMBAT_ACTION_NAMES
-from action_payload_parser import parse_scalar, parse_tag_query
+from action_payload_parser import (
+    parse_blackboard_mutation_payload,
+    parse_scalar,
+    parse_tag_query,
+)
 from conditional_parser import parse_conditional_actions
 from source_models import (
     AbilityEntityHitSource,
     AbilityEntitySpawnPayload,
     BuffAttributeModifierSource,
+    BuffComboQteSource,
     BuffDamageModifierSource,
     BuffDamageNumberComparisonSource,
     BuffDamageScaleProcessorSource,
+    BuffInstantAttributeProcessorSource,
     BuffDefinitionSource,
     BuffLifecycleSource,
+    BuffPauseTimeSource,
+    BlackboardMutationSource,
     BuffSourceDeathFinishSource,
     HealthConditionSource,
     ScalarSource,
     UnparsedBuffPayloadSource,
 )
-from source_utils import action_name, require_bool, require_dict, require_list
+from source_utils import (
+    action_name,
+    require_bool,
+    require_dict,
+    require_list,
+    require_server_action_index,
+)
 from target_parser import parse_target_reference
+from buff_event_parser import parse_sequence_action_priority
 
 
 BUFF_STACKING_IDENTIFIER_TYPES = {"Id", "StackingKey"}
@@ -62,6 +77,7 @@ class BuffDefinitionParserServices:
     """由入口注入的递归依赖、动作载荷与项目映射服务。"""
 
     comparison_operator_map: Mapping[str, str]
+    damage_type_map: Mapping[str, str]
     decode_damage_decorate_mask: Callable[..., Any]
     collect_created_buff_ids: Callable[..., Any]
     load_projected_skill_data: Callable[..., Any]
@@ -288,6 +304,7 @@ def parse_buff_damage_modifiers(
         damage_tags: tuple[str, ...] = ()
         damage_feature_match = None
         damage_features: tuple[str, ...] = ()
+        damage_types: tuple[str, ...] = ()
         number_comparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
         health_comparisons: tuple[HealthConditionSource, ...] = ()
         if not condition_types:
@@ -392,28 +409,111 @@ def parse_buff_damage_modifiers(
                     value=parse_scalar(health_condition.get("value"), f"{health_path}.value", blackboard),
                 ),
             )
+        elif condition_types == ("CheckDamageDecorateMask",):
+            mask_path = f"{path}.condition.actionData[0]"
+            mask_condition = require_dict(condition_actions[0], mask_path)
+            if set(mask_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "checkType", "mask",
+            } or mask_condition.get("isEnable") is not True:
+                raise ValueError(f"{mask_path}: unsupported damage-mask condition shape")
+            damage_tag_match = {
+                "HasAny": "hasAny", "HasAll": "hasAll",
+                "ExceptAny": "exceptAny", "ExceptAll": "exceptAll",
+            }.get(mask_condition.get("checkType"))
+            if damage_tag_match is None:
+                raise ValueError(
+                    f"{mask_path}.checkType: unsupported value {mask_condition.get('checkType')!r}"
+                )
+            mask = mask_condition.get("mask")
+            if not isinstance(mask, int) or isinstance(mask, bool) or mask < 0:
+                raise ValueError(f"{mask_path}.mask: expected non-negative integer")
+            damage_tags, damage_features = decode_damage_decorate_mask(mask, mask_path)
+            damage_feature_match = damage_tag_match if damage_features else None
+        elif condition_types == ("CheckDamageType",):
+            damage_type_path = f"{path}.condition.actionData[0]"
+            damage_type_condition = require_dict(condition_actions[0], damage_type_path)
+            if set(damage_type_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "damageType",
+            } or damage_type_condition.get("isEnable") is not True:
+                raise ValueError(
+                    f"{damage_type_path}: unsupported damage-type condition shape"
+                )
+            native_damage_type = damage_type_condition.get("damageType")
+            mapped_damage_type = services.damage_type_map.get(str(native_damage_type))
+            if mapped_damage_type is None:
+                raise ValueError(
+                    f"{damage_type_path}.damageType: unsupported value {native_damage_type!r}"
+                )
+            damage_types = (mapped_damage_type,)
         else:
             unsupported_count += 1
             continue
 
-        processors: list[BuffDamageScaleProcessorSource] = []
+        processors: list[
+            BuffDamageScaleProcessorSource | BuffInstantAttributeProcessorSource
+        ] = []
+        processors_supported = True
         raw_processors = require_list(
             modifier.get("damageProcessors"), f"{path}.damageProcessors"
         )
-        if any(
-            action_name(str(require_dict(item, f"{path}.damageProcessors[]").get("$type", "")))
-            != "DamageScaleProcessor"
-            for item in raw_processors
-        ):
-            unsupported_count += 1
-            continue
         for processor_index, raw_processor in enumerate(
             raw_processors
         ):
             processor_path = f"{path}.damageProcessors[{processor_index}]"
             processor = require_dict(raw_processor, processor_path)
-            if action_name(str(processor.get("$type", ""))) != "DamageScaleProcessor":
-                raise ValueError(f"{processor_path}: unsupported damage processor")
+            processor_type = action_name(str(processor.get("$type", "")))
+            if processor_type == "InstantModifyAttribute":
+                if set(processor) != {"$type", "modifyTargetSide", "modifier"}:
+                    raise ValueError(
+                        f"{processor_path}: unexpected fields {sorted(processor)}"
+                    )
+                target_side = processor.get("modifyTargetSide")
+                if target_side not in {"Attacker", "Defender"}:
+                    raise ValueError(
+                        f"{processor_path}.modifyTargetSide: unsupported value {target_side!r}"
+                    )
+                attribute = require_dict(
+                    processor.get("modifier"), f"{processor_path}.modifier"
+                )
+                if set(attribute) != {
+                    "modifyAttributeType", "attributeType", "formulaItem", "param"
+                }:
+                    raise ValueError(
+                        f"{processor_path}.modifier: unexpected fields {sorted(attribute)}"
+                    )
+                if attribute.get("modifyAttributeType") != "Specific":
+                    raise ValueError(
+                        f"{processor_path}.modifier.modifyAttributeType: expected 'Specific'"
+                    )
+                attribute_type = attribute.get("attributeType")
+                if not isinstance(attribute_type, str) or not attribute_type:
+                    raise ValueError(
+                        f"{processor_path}.modifier.attributeType: expected string"
+                    )
+                slot = attribute.get("formulaItem")
+                if slot not in BUFF_ATTRIBUTE_MODIFIER_SLOTS:
+                    raise ValueError(
+                        f"{processor_path}.modifier.formulaItem: unsupported value {slot!r}"
+                    )
+                processors.append(
+                    BuffInstantAttributeProcessorSource(
+                        targetSide=target_side,
+                        attributeType=attribute_type,
+                        slot=str(slot),
+                        value=parse_scalar(
+                            attribute.get("param"),
+                            f"{processor_path}.modifier.param",
+                            blackboard,
+                        ),
+                    )
+                )
+                continue
+            if processor_type != "DamageScaleProcessor":
+                unsupported_count += 1
+                processors_supported = False
+                break
             if set(processor) != {"$type", "side", "zoneName", "addition"}:
                 raise ValueError(f"{processor_path}: unexpected fields {sorted(processor)}")
             side = processor.get("side")
@@ -433,6 +533,8 @@ def parse_buff_damage_modifiers(
                     ),
                 )
             )
+        if not processors_supported:
+            continue
         if not processors:
             raise ValueError(f"{path}.damageProcessors: expected non-empty list")
         result.append(
@@ -448,6 +550,7 @@ def parse_buff_damage_modifiers(
                 damageTags=damage_tags,
                 damageFeatureMatch=damage_feature_match,
                 damageFeatures=damage_features,
+                damageTypes=damage_types,
                 numberComparisons=number_comparisons,
                 healthComparisons=health_comparisons,
             )
@@ -607,6 +710,167 @@ def collect_unparsed_buff_payloads(
     return tuple(result)
 
 
+def parse_buff_combo_qte_actions(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+    auxiliary_actions: tuple[Any, ...],
+    *,
+    services: BuffDefinitionParserServices,
+) -> tuple[BuffComboQteSource, ...]:
+    """闭环解析 QTE 提示、有效计时 Buff 与成功时共享黑板写入。"""
+    result: list[BuffComboQteSource] = []
+    for action in services.walk_actions(buff.get("timelineActions")):
+        if action_name(action["$type"]) != "ShowComboRingQte" or action.get("isEnable") is False:
+            continue
+        action_index = require_server_action_index(action, f"{source_name}.ShowComboRingQte")
+        early_duration = parse_scalar(
+            action.get("earlyDuration"), f"{source_name}.ShowComboRingQte.earlyDuration", blackboard
+        )
+        active_duration = parse_scalar(
+            action.get("activeDuration"), f"{source_name}.ShowComboRingQte.activeDuration", blackboard
+        )
+        triggered = require_dict(
+            action.get("triggeredAction"), f"{source_name}.ShowComboRingQte.triggeredAction"
+        )
+        mutations = [
+            item
+            for item in services.walk_actions(triggered)
+            if action_name(item["$type"]) == "ModifyDynamicBlackboard"
+            and item.get("isEnable") is not False
+        ]
+        if len(mutations) != 1:
+            raise ValueError(
+                f"{source_name}.ShowComboRingQte.triggeredAction: expected exactly one "
+                "ModifyDynamicBlackboard"
+            )
+        mutation_action = mutations[0]
+        mutation_target = parse_target_reference(
+            mutation_action.get("calculationTarget"),
+            f"{source_name}.ShowComboRingQte.triggeredAction.ModifyDynamicBlackboard.calculationTarget",
+        )
+        if (
+            mutation_target.targetSource != "Owner"
+            or not services.target_reference_is_plain(mutation_target)
+        ):
+            raise ValueError(
+                f"{source_name}.ShowComboRingQte.triggeredAction.ModifyDynamicBlackboard: "
+                "expected plain Owner target"
+            )
+        mutation_payload = parse_blackboard_mutation_payload(
+            mutation_action,
+            f"{source_name}.ShowComboRingQte.triggeredAction.ModifyDynamicBlackboard",
+            blackboard,
+        )
+        timer_candidates = [
+            item
+            for item in auxiliary_actions
+            if item.actionType == "CreateBuffAction"
+            and item.targetSource == "Owner"
+            and not item.targetGroupKey
+            and any(
+                assignment.blackboardKey == active_duration.blackboardKey
+                and assignment.blackboardKey is not None
+                for assignment in item.blackboardAssignments.values()
+            )
+        ]
+        if len(timer_candidates) != 1:
+            raise ValueError(
+                f"{source_name}.ShowComboRingQte: expected exactly one Owner timer Buff "
+                "whose assigned duration reads activeDuration"
+            )
+        result.append(
+            BuffComboQteSource(
+                actionIndex=action_index,
+                earlyDuration=early_duration,
+                activeDuration=active_duration,
+                activeTimerBuffId=timer_candidates[0].sourceId,
+                triggerMutation=BlackboardMutationSource(
+                    startFrame=0,
+                    endFrame=0,
+                    actionIndex=require_server_action_index(
+                        mutation_action,
+                        f"{source_name}.ShowComboRingQte.triggeredAction.ModifyDynamicBlackboard",
+                    ),
+                    key=mutation_payload.key,
+                    operation=mutation_payload.operation,
+                    value=mutation_payload.value,
+                ),
+            )
+        )
+    return tuple(result)
+
+
+def parse_buff_pause_time_actions(
+    buff: dict[str, Any], source_name: str
+) -> tuple[BuffPauseTimeSource, ...]:
+    """只接受“单一身份守卫 + PauseBuffTime”两动作响应，避免扩大暂停语义。"""
+    result: list[BuffPauseTimeSource] = []
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("abilityEventAction", []), f"{source_name}.abilityEventAction")
+    ):
+        event_path = f"{source_name}.abilityEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        event_name = event.get("abilityEvent")
+        if event_name not in {"OnBeforeCastSkill", "OnFinishedBuff"}:
+            continue
+        sequences = require_list(event.get("actions"), f"{event_path}.actions")
+        pause_sequences = []
+        for sequence_index, raw_sequence in enumerate(sequences):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            actions = [
+                require_dict(raw, f"{sequence_path}.actionData[{action_index}]")
+                for action_index, raw in enumerate(
+                    require_list(sequence.get("actionData"), f"{sequence_path}.actionData")
+                )
+                if not isinstance(raw, dict) or raw.get("isEnable") is not False
+            ]
+            if any(action_name(action.get("$type", "")) == "PauseBuffTime" for action in actions):
+                pause_sequences.append((sequence_path, sequence, actions))
+        if not pause_sequences:
+            continue
+        if len(sequences) != 1 or len(pause_sequences) != 1:
+            raise ValueError(f"{event_path}: PauseBuffTime requires exactly one event sequence")
+        sequence_path, sequence, actions = pause_sequences[0]
+        expected_guard = "CheckSkillId" if event_name == "OnBeforeCastSkill" else "CheckBuffIdInContextAdvanced"
+        if [action_name(action.get("$type", "")) for action in actions] != [expected_guard, "PauseBuffTime"]:
+            raise ValueError(f"{sequence_path}: unsupported PauseBuffTime response shape")
+        guard, pause = actions
+        skill_ids: tuple[str, ...] = ()
+        buff_ids: tuple[str, ...] = ()
+        if expected_guard == "CheckSkillId":
+            raw_ids = require_list(guard.get("skillIdList"), f"{sequence_path}.skillIdList")
+            values = []
+            for index, raw_id in enumerate(raw_ids):
+                item = require_dict(raw_id, f"{sequence_path}.skillIdList[{index}]")
+                if item.get("useBlackboardKey") is not False or not isinstance(item.get("value"), str) or not item["value"]:
+                    raise ValueError(f"{sequence_path}.skillIdList[{index}]: expected literal skill id")
+                values.append(item["value"])
+            skill_ids = tuple(values)
+        else:
+            if guard.get("checkType") != "Id" or guard.get("blackboardKey") != "":
+                raise ValueError(f"{sequence_path}: expected direct Buff ID guard")
+            raw_ids = require_list(guard.get("buffIdList"), f"{sequence_path}.buffIdList")
+            values = []
+            for index, raw_id in enumerate(raw_ids):
+                item = require_dict(raw_id, f"{sequence_path}.buffIdList[{index}]")
+                if item.get("useBlackboardKey") is not False or not isinstance(item.get("value"), str) or not item["value"]:
+                    raise ValueError(f"{sequence_path}.buffIdList[{index}]: expected literal Buff id")
+                values.append(item["value"])
+            buff_ids = tuple(values)
+        result.append(
+            BuffPauseTimeSource(
+                event=event_name,
+                priority=parse_sequence_action_priority(actions, sequence_path),
+                paused=require_bool(pause.get("isPaused"), f"{sequence_path}.PauseBuffTime.isPaused"),
+                skillIds=skill_ids,
+                buffIds=buff_ids,
+            )
+        )
+    return tuple(result)
+
+
 def resolve_buff_definitions(
     buff_ids: tuple[str, ...],
     buff_source_dirs: Path | Iterable[Path],
@@ -705,6 +969,7 @@ def resolve_buff_definitions(
         child_slow_tag_ids = parse_buff_child_slow_tag_ids(
             buff, source_file, blackboard, services=services
         )
+        pause_time_actions = parse_buff_pause_time_actions(buff, source_file)
         event_actions = parse_buff_event_actions(
             buff,
             source_file,
@@ -719,6 +984,19 @@ def resolve_buff_definitions(
             source_file,
             skill_source_dir or source_path.parent,
             blackboard,
+        )
+        pause_event_names = {action.event for action in pause_time_actions}
+        event_actions = tuple(
+            event
+            for event in event_actions
+            if not (event.eventSource == "ability" and event.event in pause_event_names)
+        )
+        combo_qte_actions = parse_buff_combo_qte_actions(
+            buff,
+            source_file,
+            blackboard,
+            auxiliary_actions,
+            services=services,
         )
         invoked_skills: list[AbilityEntityHitSource] = []
         invoked_skill_ids: set[str] = set()
@@ -816,6 +1094,8 @@ def resolve_buff_definitions(
                 buff.get("onlyUseSelfTimeDilation", False),
                 f"{source_file}.onlyUseSelfTimeDilation",
             ),
+            comboQteActions=combo_qte_actions,
+            pauseTimeActions=pause_time_actions,
         )
         pending.extend(
             child_id

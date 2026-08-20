@@ -2028,7 +2028,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -2728,7 +2731,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -3823,7 +3829,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -5152,7 +5161,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -5803,7 +5815,8 @@ export const gilbertaGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 19
+          "sequenceIndex": 19,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -5824,7 +5837,8 @@ export const gilbertaGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 20
+          "sequenceIndex": 20,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -6010,7 +6024,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -6491,7 +6508,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -7277,6 +7297,7 @@ export const gilbertaGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -7421,6 +7442,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -7508,6 +7530,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -7612,7 +7635,8 @@ export const gilbertaGeneratedSource = {
             "CreateBuffAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 29,
@@ -7633,7 +7657,8 @@ export const gilbertaGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -7692,7 +7717,8 @@ export const gilbertaGeneratedSource = {
               "blackboardAssignments": {},
               "nestedCombatActions": [],
               "buffSourceContextKey": "",
-              "sequenceIndex": 96
+              "sequenceIndex": 96,
+              "autoFinishByAction": true
             }
           ],
           "resourceGains": [],
@@ -8838,6 +8864,7 @@ export const gilbertaGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -9002,6 +9029,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -9089,6 +9117,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -9169,7 +9198,10 @@ export const gilbertaGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -9640,6 +9672,7 @@ export const gilbertaGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -9784,6 +9817,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -9871,6 +9905,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -9968,7 +10003,8 @@ export const gilbertaGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 5
+          "sequenceIndex": 5,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -10803,6 +10839,7 @@ export const gilbertaGeneratedSource = {
                     "heal": {
                       "healType": "Normal",
                       "healer": "ActionSource",
+                      "alwaysNext": true,
                       "target": {
                         "targetSource": "InstantSearch",
                         "targetGroupKey": "tar",
@@ -10967,6 +11004,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "Context",
                               "targetGroupKey": "CureTarget",
@@ -11054,6 +11092,7 @@ export const gilbertaGeneratedSource = {
                           "heal": {
                             "healType": "Normal",
                             "healer": "ActionSource",
+                            "alwaysNext": true,
                             "target": {
                               "targetSource": "InstantSearch",
                               "targetGroupKey": "tar",
@@ -11231,7 +11270,10 @@ export const gilbertaGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -11564,7 +11606,8 @@ export const gilbertaGeneratedSource = {
             "AuraAction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": null
         },
         {
           "startFrame": 0,
@@ -11585,7 +11628,8 @@ export const gilbertaGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -12814,7 +12858,10 @@ export const gilbertaGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

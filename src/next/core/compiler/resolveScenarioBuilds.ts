@@ -162,16 +162,26 @@ export function resolveScenarioBuilds(
     }
     seenTrackIds.add(track.id);
 
-    const operator = requireDefinitionEntry(
+    const baseOperator = requireDefinitionEntry(
       index.getOperator(operatorInstance.operatorSlug),
       'operator',
       operatorInstance.operatorSlug,
     );
     requireDefinitionIdentity(
-      operator.slug,
+      baseOperator.slug,
       operatorInstance.operatorSlug,
       `${trackPath}.operator`,
     );
+    const operator: OperatorDefinition =
+      operatorInstance.customAbilityEntityDefinitions === undefined
+        ? baseOperator
+        : {
+            ...baseOperator,
+            abilityEntityDefinitions: {
+              ...baseOperator.abilityEntityDefinitions,
+              ...operatorInstance.customAbilityEntityDefinitions,
+            },
+          };
     const weapon = resolveWeapon(track, operator, trackPath, index);
     const gears = resolveGears(track, trackPath, index);
     resolved.push({

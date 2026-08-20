@@ -6,6 +6,7 @@ import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } f
 export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0018_dapan_attack1',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -46,6 +47,7 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0018_dapan_attack2',
     timelineBlockFrames: 20,
     scheduledSequences: [
       scheduled(
@@ -81,6 +83,7 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0018_dapan_attack3',
     timelineBlockFrames: 25,
     scheduledSequences: [
       scheduled(
@@ -147,6 +150,7 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0018_dapan_attack4',
     timelineBlockFrames: 45,
     scheduledSequences: [
       scheduled(
@@ -184,6 +188,7 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const daPanFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0018_dapan_power_attack',
     timelineBlockFrames: 35,
     availability: { kind: 'targetStaggered', target: 'enemy' },
     scheduledSequences: [
@@ -192,16 +197,12 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        35,
       ),
       scheduled(
         16,
@@ -238,6 +239,7 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
 export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0018_dapan_plunging_attack_end',
     timelineBlockFrames: 16,
     scheduledSequences: [
       scheduled(
@@ -273,6 +275,7 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
 export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0018_dapan_normal_skill',
     timelineBlockFrames: 65,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -304,397 +307,6 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard',
-                    definition: {
-                      stackingType: 'enhanceAndRefresh',
-                      priority: 100,
-                      maxStackCount: 4,
-                      durationSeconds: { blackboardKey: 'duration' },
-                      applyTagIds: [1075718177],
-                      blackboard: {
-                        'atk_scale': 0,
-                        'count': 0,
-                        'duration': 20,
-                        'skip_handle_cryst_break': 0,
-                      },
-                      lifecycleSequences: {
-                        start: sequence(
-                          branch(
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 0 },
-                            },
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_physical_handle_cryst_break',
-                                definition: {
-                                  stackingType: 'stack',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: 10,
-                                  triggerIntervalSeconds: 0,
-                                  waitFirstTriggerInterval: true,
-                                  maxTriggerCount: 1,
-                                  blackboard: {
-                                    'atk_scale': 0,
-                                    'count': 0,
-                                  },
-                                  lifecycleSequences: {
-                                    start: sequence(
-                                      step('readBuffBlackboard', {
-                                        target: 'enemy',
-                                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
-                                        desiredKey: 'count',
-                                        outputKey: 'count',
-                                      }),
-                                      step('finishBuffsByTag', {
-                                        target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTagIds: [1535684437],
-                                        reason: 'early',
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_triggered_physical_break',
-                                        definition: {
-                                          stackingType: 'unlimited',
-                                          priority: 0,
-                                          maxStackCount: 0,
-                                          durationSeconds: 5,
-                                          applyTagIds: [-615023885],
-                                          blackboard: {
-                                            'atk_scale': 0,
-                                          },
-                                          lifecycleSequences: {
-                                            start: sequence(
-                                              step('dealDamage', {
-                                                damageType: 'physical',
-                                                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                                                tags: [],
-                                                features: ['shatter'],
-                                              }, '50:buff_common_cryst_triggered_physical_break:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:0'),
-                                            ),
-                                          },
-                                        },
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
-                                        },
-                                      }),
-                                      branch(
-                                        {
-                                          kind: 'actionValueCompare',
-                                          left: { kind: 'blackboard', key: 'count' },
-                                          operator: 'equal',
-                                          right: { kind: 'constant', value: 0 },
-                                        },
-                                        sequence(
-                                          step('startTimeDilation', {
-                                            scope: 'entity',
-                                            durationSeconds: { kind: 'constant', value: 0.1 },
-                                            slot: 1464849466,
-                                            priority: 15,
-                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                            finishByAction: false,
-                                            targets: ['caster', 'caster'],
-                                          }),
-                                        ),
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'actionValueCompare',
-                                              left: { kind: 'blackboard', key: 'count' },
-                                              operator: 'equal',
-                                              right: { kind: 'constant', value: 1 },
-                                            },
-                                            sequence(
-                                              step('startTimeDilation', {
-                                                scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.1 },
-                                                slot: 1464849466,
-                                                priority: 10,
-                                                curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                finishByAction: false,
-                                                targets: ['caster', 'caster'],
-                                              }),
-                                            ),
-                                            sequence(
-                                              branch(
-                                                {
-                                                  kind: 'actionValueCompare',
-                                                  left: { kind: 'blackboard', key: 'count' },
-                                                  operator: 'equal',
-                                                  right: { kind: 'constant', value: 2 },
-                                                },
-                                                sequence(
-                                                  step('startTimeDilation', {
-                                                    scope: 'entity',
-                                                    durationSeconds: { kind: 'constant', value: 0.25 },
-                                                    slot: 1464849466,
-                                                    priority: 20,
-                                                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                    finishByAction: false,
-                                                    targets: ['caster', 'caster'],
-                                                  }),
-                                                ),
-                                                sequence(
-                                                  branch(
-                                                    {
-                                                      kind: 'actionValueCompare',
-                                                      left: { kind: 'blackboard', key: 'count' },
-                                                      operator: 'equal',
-                                                      right: { kind: 'constant', value: 3 },
-                                                    },
-                                                    sequence(
-                                                      step('startTimeDilation', {
-                                                        scope: 'entity',
-                                                        durationSeconds: { kind: 'constant', value: 0.5 },
-                                                        slot: 1464849466,
-                                                        priority: 20,
-                                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                        finishByAction: false,
-                                                        targets: ['caster', 'caster'],
-                                                      }),
-                                                    ),
-                                                    sequence(
-                                                      branch(
-                                                        {
-                                                          kind: 'actionValueCompare',
-                                                          left: { kind: 'blackboard', key: 'count' },
-                                                          operator: 'equal',
-                                                          right: { kind: 'constant', value: 4 },
-                                                        },
-                                                        sequence(
-                                                          step('startTimeDilation', {
-                                                            scope: 'entity',
-                                                            durationSeconds: { kind: 'constant', value: 0.65 },
-                                                            slot: 1464849466,
-                                                            priority: 20,
-                                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                            finishByAction: false,
-                                                            targets: ['caster', 'caster'],
-                                                          }),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                              }),
-                            ),
-                          ),
-                        ),
-                        finish: sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_no_guard_fake',
-                            definition: {
-                              stackingType: 'refresh',
-                              priority: 100,
-                              maxStackCount: 1,
-                              durationSeconds: { blackboardKey: 'duration' },
-                              applyTagIds: [-508362979],
-                              blackboard: {
-                                'duration': 1,
-                              },
-                            },
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                        afterEnhance: sequence(
-                          step('igniteBuffs', {
-                            target: 'enemy',
-                            source: 'currentBuffSource',
-                            igniteType: 'NoGuard',
-                          }),
-                          branch(
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 0 },
-                            },
-                            sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_physical_handle_cryst_break',
-                                definition: {
-                                  stackingType: 'stack',
-                                  priority: 0,
-                                  maxStackCount: 1,
-                                  durationSeconds: 10,
-                                  triggerIntervalSeconds: 0,
-                                  waitFirstTriggerInterval: true,
-                                  maxTriggerCount: 1,
-                                  blackboard: {
-                                    'atk_scale': 0,
-                                    'count': 0,
-                                  },
-                                  lifecycleSequences: {
-                                    start: sequence(
-                                      step('readBuffBlackboard', {
-                                        target: 'enemy',
-                                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
-                                        desiredKey: 'count',
-                                        outputKey: 'count',
-                                      }),
-                                      step('finishBuffsByTag', {
-                                        target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTagIds: [1535684437],
-                                        reason: 'early',
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_triggered_physical_break',
-                                        definition: {
-                                          stackingType: 'unlimited',
-                                          priority: 0,
-                                          maxStackCount: 0,
-                                          durationSeconds: 5,
-                                          applyTagIds: [-615023885],
-                                          blackboard: {
-                                            'atk_scale': 0,
-                                          },
-                                          lifecycleSequences: {
-                                            start: sequence(
-                                              step('dealDamage', {
-                                                damageType: 'physical',
-                                                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                                                tags: [],
-                                                features: ['shatter'],
-                                              }, '50:buff_common_cryst_triggered_physical_break:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:0'),
-                                            ),
-                                          },
-                                        },
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
-                                        },
-                                      }),
-                                      branch(
-                                        {
-                                          kind: 'actionValueCompare',
-                                          left: { kind: 'blackboard', key: 'count' },
-                                          operator: 'equal',
-                                          right: { kind: 'constant', value: 0 },
-                                        },
-                                        sequence(
-                                          step('startTimeDilation', {
-                                            scope: 'entity',
-                                            durationSeconds: { kind: 'constant', value: 0.1 },
-                                            slot: 1464849466,
-                                            priority: 15,
-                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                            finishByAction: false,
-                                            targets: ['caster', 'caster'],
-                                          }),
-                                        ),
-                                        sequence(
-                                          branch(
-                                            {
-                                              kind: 'actionValueCompare',
-                                              left: { kind: 'blackboard', key: 'count' },
-                                              operator: 'equal',
-                                              right: { kind: 'constant', value: 1 },
-                                            },
-                                            sequence(
-                                              step('startTimeDilation', {
-                                                scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.1 },
-                                                slot: 1464849466,
-                                                priority: 10,
-                                                curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                finishByAction: false,
-                                                targets: ['caster', 'caster'],
-                                              }),
-                                            ),
-                                            sequence(
-                                              branch(
-                                                {
-                                                  kind: 'actionValueCompare',
-                                                  left: { kind: 'blackboard', key: 'count' },
-                                                  operator: 'equal',
-                                                  right: { kind: 'constant', value: 2 },
-                                                },
-                                                sequence(
-                                                  step('startTimeDilation', {
-                                                    scope: 'entity',
-                                                    durationSeconds: { kind: 'constant', value: 0.25 },
-                                                    slot: 1464849466,
-                                                    priority: 20,
-                                                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                    finishByAction: false,
-                                                    targets: ['caster', 'caster'],
-                                                  }),
-                                                ),
-                                                sequence(
-                                                  branch(
-                                                    {
-                                                      kind: 'actionValueCompare',
-                                                      left: { kind: 'blackboard', key: 'count' },
-                                                      operator: 'equal',
-                                                      right: { kind: 'constant', value: 3 },
-                                                    },
-                                                    sequence(
-                                                      step('startTimeDilation', {
-                                                        scope: 'entity',
-                                                        durationSeconds: { kind: 'constant', value: 0.5 },
-                                                        slot: 1464849466,
-                                                        priority: 20,
-                                                        curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                        finishByAction: false,
-                                                        targets: ['caster', 'caster'],
-                                                      }),
-                                                    ),
-                                                    sequence(
-                                                      branch(
-                                                        {
-                                                          kind: 'actionValueCompare',
-                                                          left: { kind: 'blackboard', key: 'count' },
-                                                          operator: 'equal',
-                                                          right: { kind: 'constant', value: 4 },
-                                                        },
-                                                        sequence(
-                                                          step('startTimeDilation', {
-                                                            scope: 'entity',
-                                                            durationSeconds: { kind: 'constant', value: 0.65 },
-                                                            slot: 1464849466,
-                                                            priority: 20,
-                                                            curve: { kind: 'named', key: 'interrupt_weakness' },
-                                                            finishByAction: false,
-                                                            targets: ['caster', 'caster'],
-                                                          }),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  },
-                                },
-                                target: 'enemy',
-                                inheritSourceSkillCastInfo: true,
-                              }),
-                            ),
-                          ),
-                        ),
-                      },
-                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -733,6 +345,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
 export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill',
+    sourceSkillId: 'chr_0018_dapan_combo_skill',
     timelineBlockFrames: 24,
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
     scheduledSequences: [
@@ -757,12 +370,6 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0018_dapan_combo_skill_tutorial_marker',
-            definition: {
-              stackingType: 'unique',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 1,
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           }),
@@ -793,6 +400,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
 export const daPanUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0018_dapan_ultimate_skill',
     timelineBlockFrames: 86,
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
@@ -849,23 +457,6 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_chr_0018_dapan_potential_1',
-                              definition: {
-                                stackingType: 'refresh',
-                                priority: 0,
-                                maxStackCount: 1,
-                                durationSeconds: { blackboardKey: 'duration' },
-                                blackboard: {
-                                  'dmg_up': 0.15,
-                                  'duration': 15,
-                                },
-                                attributeModifiers: [
-                                  {
-                                    attribute: 'physicalDamageIncrease',
-                                    slot: 'baseAddition',
-                                    value: { blackboardKey: 'dmg_up' },
-                                  },
-                                ],
-                              },
                               target: 'caster',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
@@ -1038,70 +629,6 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0018_dapan_talent_1_preparation',
-                definition: {
-                  stackingType: 'enhanceAndRefresh',
-                  priority: 0,
-                  maxStackCount: { blackboardKey: 'max_stack' },
-                  durationSeconds: { blackboardKey: 'duration' },
-                  blackboard: {
-                    'duration': 15,
-                    'max_stack': 2,
-                    'talent_1_cd_reduce': 0,
-                  },
-                  abilityEventResponses: [
-                    {
-                      event: 'beforeCastSkill',
-                      priority: 0,
-                      sequence:
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0018_dapan_talent_1_cd_reduce',
-                            definition: {
-                              stackingType: 'unique',
-                              priority: 0,
-                              maxStackCount: 2,
-                              blackboard: {
-                                'cd_reduce': 0.5,
-                                'duration': 15,
-                              },
-                              abilityEventResponses: [
-                                {
-                                  event: 'outputDamage',
-                                  priority: 0,
-                                  sequence:
-                                    sequence(
-                                      step('adjustSkillCooldown', {
-                                        target: 'caster',
-                                        skill: { kind: 'type', skillType: 'comboSkill' },
-                                        operation: 'reduce',
-                                        basis: 'baseDurationRatio',
-                                        value: { kind: 'blackboard', key: 'cd_reduce' },
-                                      }),
-                                      step('finishBuffsById', {
-                                        target: 'caster',
-                                        buffIds: ['buff_chr_0018_dapan_talent_1_preparation'],
-                                        reason: 'other',
-                                        count: { kind: 'constant', value: 1 },
-                                      }),
-                                      step('finishBuffsById', {
-                                        target: 'caster',
-                                        buffIds: ['buff_chr_0018_dapan_talent_1_cd_reduce'],
-                                        reason: 'other',
-                                      }),
-                                    ),
-                                },
-                              ],
-                            },
-                            target: 'caster',
-                            inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              'cd_reduce': { kind: 'blackboard', key: 'talent_1_cd_reduce' },
-                            },
-                          }),
-                        ),
-                    },
-                  ],
-                },
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
@@ -1159,6 +686,95 @@ export const daPanGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: daPanUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: daPanComboSkill },
   ],
+  buffDefinitions: {
+    'buff_chr_0018_dapan_combo_skill_tutorial_marker': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0018_dapan_potential_1': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'dmg_up': 0.15,
+        'duration': 15,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'physicalDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'dmg_up' },
+        },
+      ],
+    },
+    'buff_chr_0018_dapan_talent_1_cd_reduce': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 2,
+      blackboard: {
+        'cd_reduce': 0.5,
+        'duration': 15,
+      },
+      abilityEventResponses: [
+        {
+          event: 'outputDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              step('adjustSkillCooldown', {
+                target: 'caster',
+                skill: { kind: 'type', skillType: 'comboSkill' },
+                operation: 'reduce',
+                basis: 'baseDurationRatio',
+                value: { kind: 'blackboard', key: 'cd_reduce' },
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0018_dapan_talent_1_preparation'],
+                reason: 'other',
+                count: { kind: 'constant', value: 1 },
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0018_dapan_talent_1_cd_reduce'],
+                reason: 'other',
+              }),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0018_dapan_talent_1_preparation': {
+      stackingType: 'enhanceAndRefresh',
+      priority: 0,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 15,
+        'max_stack': 2,
+        'talent_1_cd_reduce': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence:
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0018_dapan_talent_1_cd_reduce',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'cd_reduce': { kind: 'blackboard', key: 'talent_1_cd_reduce' },
+                },
+              }),
+            ),
+        },
+      ],
+    },
+  },
   talents: [
     {
       key: 'talent1',

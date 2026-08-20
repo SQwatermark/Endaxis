@@ -1682,7 +1682,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -2196,7 +2199,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -3014,7 +3020,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -4399,7 +4408,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack5",
@@ -5010,7 +5022,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -5447,7 +5462,8 @@ export const arclightGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 21
+          "sequenceIndex": 21,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -5468,7 +5484,8 @@ export const arclightGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 22
+          "sequenceIndex": 22,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -5589,7 +5606,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -6047,7 +6067,10 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -7904,7 +7927,8 @@ export const arclightGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -9419,7 +9443,79 @@ export const arclightGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 4,
+          "endFrame": 5,
+          "destFrame": 96,
+          "actionIndex": 71,
+          "actionPath": [
+            "timelineActions[21]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "CompareFloat"
+          ],
+          "directConditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "Equals",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "SpawnThird",
+                "levelValues": null
+              },
+              "right": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "skillTypes": [],
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "directConditionNegated": [
+            false
+          ],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 21
+        },
+        {
+          "startFrame": 95,
+          "endFrame": 95,
+          "destFrame": 204,
+          "actionIndex": 73,
+          "actionPath": [
+            "timelineActions[22]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": false,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 22
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -9889,7 +9985,8 @@ export const arclightGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 18
+          "sequenceIndex": 18,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -10804,7 +10901,10 @@ export const arclightGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -11183,7 +11283,8 @@ export const arclightGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 54,
@@ -11203,7 +11304,8 @@ export const arclightGeneratedSource = {
             "SpellInfliction"
           ],
           "buffSourceContextKey": null,
-          "sequenceIndex": 25
+          "sequenceIndex": 25,
+          "autoFinishByAction": null
         }
       ],
       "blackboardCalculations": [],
@@ -11979,7 +12081,10 @@ export const arclightGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

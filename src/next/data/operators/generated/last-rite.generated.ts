@@ -1422,7 +1422,8 @@ export const lastRiteGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 0
+          "sequenceIndex": 0,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 26,
@@ -1443,7 +1444,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 0
+          "sequenceIndex": 0,
+          "autoFinishByAction": false
         }
       ],
       "targetGroupWrites": [
@@ -4027,7 +4029,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack2",
@@ -5101,7 +5106,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack3",
@@ -5933,7 +5941,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "basicAttack4",
@@ -7125,7 +7136,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "finisher",
@@ -7437,7 +7451,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 15
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
         },
         {
           "startFrame": 0,
@@ -7458,7 +7473,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -7579,7 +7595,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "plungingAttack",
@@ -7947,7 +7966,10 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "battleSkill",
@@ -8367,7 +8389,8 @@ export const lastRiteGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 300,
@@ -8497,7 +8520,8 @@ export const lastRiteGeneratedSource = {
           },
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "autoFinishByAction": false
         },
         {
           "startFrame": 300,
@@ -8518,7 +8542,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 17
+          "sequenceIndex": 17,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [],
@@ -9150,7 +9175,76 @@ export const lastRiteGeneratedSource = {
       "physicalInflictions": [],
       "eventListeners": [],
       "timeDilations": [],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 0,
+          "endFrame": 2,
+          "destFrame": 300,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[3]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [
+            "NotNextCheckAction",
+            "CheckMainCharacterCondition"
+          ],
+          "directConditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "mainOperator": {
+                "targetSource": "Source",
+                "targetGroupKey": ""
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "deckAttributeCompare": null
+            }
+          ],
+          "directConditionNegated": [
+            true
+          ],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": true,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 3
+        },
+        {
+          "startFrame": 187,
+          "endFrame": 188,
+          "destFrame": 429,
+          "actionIndex": 10,
+          "actionPath": [
+            "timelineActions[5]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditionActionTypes": [],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": false,
+          "isOnlySequenceAction": true,
+          "isOnlyBranchAction": true,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 5
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "comboSkill",
@@ -10080,7 +10174,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 10
+          "sequenceIndex": 10,
+          "autoFinishByAction": false
         }
       ],
       "blackboardCalculations": [
@@ -11173,7 +11268,10 @@ export const lastRiteGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     },
     {
       "key": "ultimate",
@@ -12354,7 +12452,8 @@ export const lastRiteGeneratedSource = {
           "blackboardAssignments": {},
           "nestedCombatActions": [],
           "buffSourceContextKey": "",
-          "sequenceIndex": 9
+          "sequenceIndex": 9,
+          "autoFinishByAction": true
         }
       ],
       "blackboardCalculations": [],
@@ -13890,7 +13989,10 @@ export const lastRiteGeneratedSource = {
           "effectAbilityEntityTargets": []
         }
       ],
-      "intervalDamageHits": []
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

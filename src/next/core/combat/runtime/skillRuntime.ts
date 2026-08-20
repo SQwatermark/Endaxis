@@ -32,7 +32,7 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 /** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
 export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
-  readonly event: 'beforeTakeDamage' | 'outputDamage';
+  readonly event: 'beforeTakeDamage' | 'takeCriticalDamage' | 'outputDamage';
   readonly sourceId: string;
   readonly targetId: string;
   readonly tags: readonly DamageTag[];
@@ -46,6 +46,7 @@ export interface CombatAbilitySkillEvent {
   readonly sourceId: string;
   readonly targetId: string;
   readonly skillType: import('../../game-data/operatorDefinition').SkillType;
+  readonly skillId: string;
 }
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
@@ -64,8 +65,12 @@ export interface CombatOperationContext {
   readonly buffSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
+  /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
+  readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
   readonly requestTimelineJump?: (destinationFrame: number) => void;
+  /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */
+  readonly requestTimelineFinish?: () => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
 }
@@ -126,6 +131,7 @@ export class SkillRuntime {
       blackboard: this.#blackboard,
       targetContext: this.#targetContext,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
+      requestTimelineFinish: () => this.#requestTimelineFinish(),
       getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
       get skillCastInfo() {
         return runtime.skillCastInfo;
@@ -401,6 +407,15 @@ export class SkillRuntime {
     timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
     this.#passedFrames = destinationFrame;
     this.record('SkillTimelineJumped', { destinationFrame });
+  }
+
+  #requestTimelineFinish(): void {
+    const timeline = this.#timeline;
+    if (timeline === null || this.#state !== 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' cannot finish outside an active cast`);
+    }
+    timeline.finish(this.#passedFrames, this.#context);
+    this.record('SkillTimelineFinished');
   }
 }
 

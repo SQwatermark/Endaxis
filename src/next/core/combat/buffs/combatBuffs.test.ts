@@ -120,6 +120,25 @@ function createDefinition(
 }
 
 describe('CombatBuffContainer', () => {
+  it('PauseBuffTime 只冻结当前 Buff 的计时与周期行为，恢复后从剩余时长继续', () => {
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const buff = requireAddedBuff(
+      container.add({ id: 'timer', stackingType: 'unique', durationSeconds: 1 }, 'operator'),
+    );
+
+    buff.tick(0.25);
+    buff.setTimePaused(true);
+    buff.tick(2);
+    expect(buff.isTimePaused).toBe(true);
+    expect(buff.remainingDuration).toBeCloseTo(0.75);
+    expect(buff.passedTime).toBeCloseTo(0.25);
+    expect(buff.isFinished).toBe(false);
+
+    buff.setTimePaused(false);
+    buff.tick(0.75);
+    expect(buff.isFinished).toBe(true);
+  });
+
   it('按 applyTags 的原生层级语义查询 Buff', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });

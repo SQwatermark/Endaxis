@@ -3,7 +3,12 @@
  * 存档包含用户编辑内容以及编辑器版本元数据；
  * 通过计算得到的面板数据、模拟状态、投影结果一概不保存
  */
-import type { DamageElement, SkillDefinition, SkillType } from '../game-data/operatorDefinition';
+import type {
+  DamageElement,
+  OperatorAbilityEntityDefinitions,
+  SkillDefinition,
+  SkillType,
+} from '../game-data/operatorDefinition';
 import type { EnemyRank } from '../game-data/enemyRank';
 
 export const PROJECT_KIND = 'EndaxisProject' as const;
@@ -27,6 +32,8 @@ export interface OperatorInstanceDocument {
   skillLevels: Record<string, number>;
   talentStates: Record<string, number>;
   baseStatOverrides?: Record<string, number>;
+  /** 对版本化干员能力实体蓝图的用户新增或完整覆盖；未出现的 ID 继续使用游戏数据。 */
+  customAbilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
 }
 
 /** 一把武器的等级、突破、潜能与词条等级配置。词条数量由武器定义决定。 */

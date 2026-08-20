@@ -381,6 +381,97 @@ describe('attachBuffLifecycleSequences', () => {
     expect(buff.isFinished).toBe(true);
   });
 
+  it('按原始技能与结束 Buff 身份暂停并恢复当前 Buff 计时', () => {
+    const terminal: CombatOperationExecutor = {
+      execute: (step, context) => {
+        if (step.kind !== 'setCurrentBuffTimePaused') {
+          throw new Error(`unexpected operation '${step.kind}'`);
+        }
+        context!.setCurrentBuffTimePaused!(step.parameters.paused);
+        return true;
+      },
+      evaluate: condition => {
+        throw new Error(`unexpected condition '${condition.kind}'`);
+      },
+    };
+    const dispatcher = new AbilityEventDispatcher<'beforeCastSkill' | 'finishedBuff', unknown>();
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'combo-timer', stackingType: 'unique', durationSeconds: 1 },
+      {},
+      () => new EventContextConditionExecutor(terminal),
+      undefined,
+      [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: { kind: 'eventSkillIdIn', skillIds: ['native-power-attack'] },
+                },
+                whenTrue: {
+                  steps: [{ kind: 'setCurrentBuffTimePaused', parameters: { paused: true } }],
+                },
+              },
+            ],
+          },
+        },
+        {
+          event: 'finishedBuff',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: { kind: 'eventBuffIdMatch', buffIds: ['resume-marker'] },
+                },
+                whenTrue: {
+                  steps: [{ kind: 'setCurrentBuffTimePaused', parameters: { paused: false } }],
+                },
+              },
+            ],
+          },
+        },
+      ],
+      (event, priority, handle) => {
+        if (event !== 'beforeCastSkill' && event !== 'finishedBuff') {
+          throw new Error(`unexpected event '${event}'`);
+        }
+        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+      },
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'operator')!;
+
+    dispatcher.dispatch(
+      {
+        event: 'beforeCastSkill',
+        payload: {
+          sourceId: 'operator',
+          targetId: 'operator',
+          skillType: 'finisher',
+          skillId: 'native-power-attack',
+        },
+      },
+      [],
+    );
+    buff.tick(2);
+    expect(buff.remainingDuration).toBe(1);
+
+    dispatcher.dispatch(
+      {
+        event: 'finishedBuff',
+        payload: { sourceId: 'operator', targetId: 'operator', buffId: 'resume-marker' },
+      },
+      [],
+    );
+    buff.tick(1);
+    expect(buff.isFinished).toBe(true);
+  });
+
   it('把同事件同优先级响应注册为一个回调并保持各序列独立短路', () => {
     let registered = 0;
     let handleAdded: ((payload: unknown) => void) | undefined;

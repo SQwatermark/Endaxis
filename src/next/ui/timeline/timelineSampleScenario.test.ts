@@ -24,6 +24,9 @@ describe('timelineSampleScenario', () => {
     expect(spawn?.kind).toBe('spawnAbilityEntity');
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('missing AbilityEntity sample');
     expect(spawn.parameters.abilityEntityId).toBe('abilityentity_chr_0007_ikut_ultimate_skill');
-    expect(spawn.parameters.definition.childSkill?.scheduledSequences).toHaveLength(2);
+    expect(
+      arclight.abilityEntityDefinitions?.[spawn.parameters.abilityEntityId]?.childSkill
+        ?.scheduledSequences,
+    ).toHaveLength(2);
   });
 });

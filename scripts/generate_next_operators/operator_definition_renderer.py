@@ -3,11 +3,20 @@
 from __future__ import annotations
 
 import textwrap
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from passive_skill_parser import PassiveSkillSource
 from progression_renderer import render_potentials, render_talents
+from operator_buff_linker import (
+    link_operator_buff_definitions,
+    render_operator_buff_definitions,
+)
+from operator_ability_entity_linker import (
+    link_operator_ability_entity_definitions,
+    render_operator_ability_entity_definitions,
+)
 from source_models import BuffDefinitionSource, SkillSource
 from source_utils import require_non_negative_int, table_row, ts_inline_literal
 
@@ -48,6 +57,9 @@ def render_operator_definition(
     entity_blackboard_initializers: list[dict[str, Any]] | None = None,
     *,
     services: OperatorDefinitionRendererServices,
+    shared_buff_definitions: OrderedDict[str, str] | None = None,
+    shared_ability_entity_definitions: OrderedDict[str, str] | None = None,
+    simulation_no_effect_buff_ids: tuple[str, ...] | list[str] = (),
 ) -> str:
     parse_panel_attributes = services.parse_panel_attributes
     typescript_identifier = services.typescript_identifier
@@ -92,6 +104,7 @@ def render_operator_definition(
         skills,
         definitions_by_id,
         skill_slot_replacement_relations,
+        simulation_no_effect_buff_ids,
     )
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(operator, skills, skill_slot_replacement_relations)
@@ -112,13 +125,35 @@ def render_operator_definition(
         definitions_by_id,
         compile_progression_buff_definition,
     )
+    helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
+    linked_sources, linked_ability_entity_definitions, _ = link_operator_ability_entity_definitions(
+        [source for _, source in skill_entries] + talents + potentials,
+        shared_ability_entity_definitions,
+    )
+    linked_sources, linked_buff_definitions, _ = link_operator_buff_definitions(
+        linked_sources,
+        shared_buff_definitions,
+    )
+    skill_source_count = len(skill_entries)
+    talent_count = len(talents)
+    skill_entries = [
+        (skill, linked_sources[index])
+        for index, (skill, _) in enumerate(skill_entries)
+    ]
+    talents = linked_sources[skill_source_count : skill_source_count + talent_count]
+    potentials = linked_sources[skill_source_count + talent_count :]
+    operator_buff_definition_lines = render_operator_buff_definitions(
+        linked_buff_definitions
+    )
+    operator_ability_entity_definition_lines = render_operator_ability_entity_definitions(
+        linked_ability_entity_definitions
+    )
     trust_attribute_bonus = parse_trust_attribute_bonus(
         growth,
         main_attribute,
         f"CharGrowthTable.{char_id}",
     )
     attribute_lines = [f"    {key}: {ts_inline_literal(value)}," for key, value in attributes.items()]
-    helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
     conversion_support = parse_conversion_support(
         operator, (skill for skill, _ in skill_entries)
     )
@@ -150,6 +185,8 @@ def render_operator_definition(
             "  skillGroups: [",
             *(f"    {group}," for group in groups),
             "  ],",
+            *operator_buff_definition_lines,
+            *operator_ability_entity_definition_lines,
             *(
                 [
                     "  comboSkillRegistrations: "

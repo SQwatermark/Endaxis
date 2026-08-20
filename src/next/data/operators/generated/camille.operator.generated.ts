@@ -6,6 +6,7 @@ import { branch, once, percentages, scheduled, sequence, step, withSkillBlackboa
 export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
+    sourceSkillId: 'chr_0033_camille_attack1',
     timelineBlockFrames: 12,
     scheduledSequences: [
       scheduled(
@@ -67,6 +68,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
 export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
+    sourceSkillId: 'chr_0033_camille_attack2',
     timelineBlockFrames: 15,
     scheduledSequences: [
       scheduled(
@@ -128,6 +130,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
 export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
+    sourceSkillId: 'chr_0033_camille_attack3',
     timelineBlockFrames: 13,
     scheduledSequences: [
       scheduled(
@@ -234,6 +237,7 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
 export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
+    sourceSkillId: 'chr_0033_camille_attack4',
     timelineBlockFrames: 22,
     scheduledSequences: [
       scheduled(
@@ -342,6 +346,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
 export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
+    sourceSkillId: 'chr_0033_camille_attack5',
     timelineBlockFrames: 42,
     scheduledSequences: [
       scheduled(
@@ -394,6 +399,7 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
 export const camilleFinisher: SkillDefinition = withSkillBlackboard(
   {
     key: 'finisher',
+    sourceSkillId: 'chr_0033_camille_power_attack',
     timelineBlockFrames: 39,
     scheduledSequences: [
       scheduled(
@@ -401,16 +407,12 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('applyBuff', {
             buffId: 'buff_common_power_attack_disable_cast_skill',
-            definition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 0,
-              applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
-            },
             target: 'caster',
             inheritSourceSkillCastInfo: true,
+            finishByAction: true,
           }),
         ),
+        46,
       ),
       scheduled(
         3,
@@ -571,6 +573,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
 export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
+    sourceSkillId: 'chr_0033_camille_plunging_attack_end',
     timelineBlockFrames: 16,
     scheduledSequences: [
       scheduled(
@@ -607,6 +610,7 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
 export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
+    sourceSkillId: 'chr_0033_camille_normal_skill',
     timelineBlockFrames: 18,
     costs: [{ resource: 'sp', value: 100 }],
     costFrame: 0,
@@ -616,31 +620,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
-            definition: { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
-              skillId: 'chr_0033_camille_normal_skill_abilityrange_first',
-              blackboard: {
-                'atk_scale': 0.1,
-                'obtain_count': 0,
-                'poise': 10,
-                'weak_scale': 0.2,
-              },
-              scheduledSequences: [
-                scheduled(
-                  0,
-                  sequence(
-                    step('applyElementalInfliction', { element: 'heat', isExtra: false }),
-                    step('dealDamage', {
-                      damageType: 'heat',
-                      attackScale: percentages([89, 98, 107, 116, 125, 134, 143, 151, 160, 172, 185, 200]),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 10,
-                    }, '11:battleSkill13:abilityEntity29:chr_0033_camille_normal_skill37:chr_0033_camille_normal_skill_projhit48:chr_0033_camille_normal_skill_abilityrange_first11:actionOrder2:101:21:6'),
-                  ),
-                ),
-              ],
-            } },
-            dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
             saveToContextKey: 'Camille_Bat',
@@ -669,6 +649,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
 export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill1',
+    sourceSkillId: 'chr_0033_camille_combo_skill',
     timelineBlockFrames: 51,
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
     scheduledSequences: [
@@ -750,6 +731,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('heal', {
                     target: 'controlledOperator',
+                    alwaysNext: true,
                     attribute: 'intellect',
                     multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
                     addition: { kind: 'blackboard', key: 'heal_base' },
@@ -801,6 +783,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
 export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill2',
+    sourceSkillId: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 79,
     scheduledSequences: [
       scheduled(
@@ -922,6 +905,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('heal', {
                 target: 'controlledOperator',
+                alwaysNext: true,
                 attribute: 'intellect',
                 multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
                 addition: { kind: 'blackboard', key: 'heal_base' },
@@ -975,6 +959,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
 export const camilleUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
+    sourceSkillId: 'chr_0033_camille_ultimate_skill',
     timelineBlockFrames: 125,
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 130 }],
@@ -1098,12 +1083,6 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
               step('applyElementalInfliction', { element: 'heat', isExtra: false }),
               step('applyBuff', {
                 buffId: 'buff_chr_0033_camille_ult_hit',
-                definition: {
-                  stackingType: 'unique',
-                  priority: 1,
-                  maxStackCount: { blackboardKey: 'max_stack' },
-                  durationSeconds: 1,
-                },
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
               }),
@@ -1168,6 +1147,40 @@ export const camilleGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: [camilleComboSkill1, camilleComboSkill2] },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: camilleUltimate },
   ],
+  buffDefinitions: {
+    'buff_chr_0033_camille_ult_hit': {
+      stackingType: 'unique',
+      priority: 1,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: 1,
+    },
+  },
+  abilityEntityDefinitions: {
+    'abilityentity_chr_0033_camille_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
+        skillId: 'chr_0033_camille_normal_skill_abilityrange_first',
+        blackboard: {
+          'atk_scale': 0.1,
+          'obtain_count': 0,
+          'poise': 10,
+          'weak_scale': 0.2,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('applyElementalInfliction', { element: 'heat', isExtra: false }),
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: percentages([89, 98, 107, 116, 125, 134, 143, 151, 160, 172, 185, 200]),
+                tags: ['normalSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 10,
+              }, '11:battleSkill13:abilityEntity29:chr_0033_camille_normal_skill37:chr_0033_camille_normal_skill_projhit48:chr_0033_camille_normal_skill_abilityrange_first11:actionOrder2:101:21:6'),
+            ),
+          ),
+        ],
+    } },
+  },
   talents: [
     {
       key: 'talent1',

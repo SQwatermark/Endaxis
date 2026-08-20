@@ -26,7 +26,10 @@ import {
   type NextOperatorLevel,
 } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
-import type { SkillLevelSource } from '../../../core/game-data/operatorDefinition';
+import type {
+  OperatorDefinition,
+  SkillLevelSource,
+} from '../../../core/game-data/operatorDefinition';
 import type { OperatorInstanceChanges } from '../loadoutBuildCommands';
 import type { OperatorInstanceViewModel } from '../loadoutBuildViewModel';
 
@@ -49,16 +52,17 @@ const WEAPON_ATTACK_ICON: Readonly<Record<string, string>> = {
 const props = defineProps<{
   visible: boolean;
   operator: OperatorInstanceViewModel | null;
+  customDefinition?: OperatorDefinition;
 }>();
 
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   change: [changes: OperatorInstanceChanges];
+  'edit-definition': [];
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
-
-const definition = computed(() => props.operator?.definition ?? null);
+const definition = computed(() => props.customDefinition ?? props.operator?.definition ?? null);
 const rarityColor = computed(() => {
   const rarity = definition.value?.rarity ?? 0;
   if (rarity === 6) return 'var(--ea-gold)';
@@ -237,6 +241,13 @@ function maxOut(): void {
     <template v-if="operator && definition">
       <div class="layout">
         <div class="header">
+          <button
+            type="button"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect definition-entry"
+            @click="emit('edit-definition')"
+          >
+            自定义干员
+          </button>
           <div
             class="portrait-frame"
             :class="`rarity-${definition.rarity}-style`"
@@ -491,9 +502,16 @@ function maxOut(): void {
   gap: 20px;
 }
 .header {
+  position: relative;
   display: flex;
   gap: 20px;
   align-items: flex-start;
+}
+.definition-entry {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
 }
 .portrait-frame {
   --armory-pad: var(--ea-keycap-bg, #1a1a1e);

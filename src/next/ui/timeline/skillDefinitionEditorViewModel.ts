@@ -531,9 +531,6 @@ export function createSkillEditorStep(
         kind,
         parameters: {
           abilityEntityId: 'custom-ability-entity',
-          definition: {
-            lifetime: { kind: 'limited', durationSeconds: 10 },
-          },
           dieWhenSourceDies: false,
         },
       };

@@ -3,7 +3,9 @@
  * 编辑技能每次释放时初始化的动作黑板。
  * 键是技能内部稳定身份，值可按技能等级变化；本组件只修改当前等级对应值。
  */
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CaretBottom, CaretRight } from '@element-plus/icons-vue';
 import type { LevelValues } from '../../../core/game-data/operatorDefinition';
 import {
   replaceLevelValueForEditor,
@@ -14,9 +16,12 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 const props = defineProps<{
   blackboard: Readonly<Record<string, LevelValues>>;
   skillLevel: number;
+  collapsible?: boolean;
+  initiallyCollapsed?: boolean;
 }>();
 const emit = defineEmits<{ update: [blackboard: Readonly<Record<string, LevelValues>>] }>();
 const { t } = useI18n({ useScope: 'global' });
+const collapsed = ref(props.collapsible === true && props.initiallyCollapsed === true);
 
 function entries(): readonly [string, LevelValues][] {
   return Object.entries(props.blackboard);
@@ -55,7 +60,26 @@ function setValue(key: string, value: LevelValues, event: Event): void {
 <template>
   <section class="editor-section">
     <div class="section-heading">
-      <h4>{{ t('nextTimeline.skillEditing.initialBlackboard') }}</h4>
+      <div class="blackboard-heading__title">
+        <button
+          v-if="collapsible"
+          type="button"
+          class="icon-button blackboard-heading__collapse"
+          :aria-expanded="!collapsed"
+          :title="
+            t(
+              collapsed
+                ? 'nextTimeline.skillEditing.expandStep'
+                : 'nextTimeline.skillEditing.collapseStep',
+            )
+          "
+          @click="collapsed = !collapsed"
+        >
+          <el-icon><CaretRight v-if="collapsed" /><CaretBottom v-else /></el-icon>
+        </button>
+        <h4>{{ t('nextTimeline.skillEditing.initialBlackboard') }}</h4>
+        <span class="blackboard-heading__count">{{ entries().length }}</span>
+      </div>
       <button
         type="button"
         class="icon-button"
@@ -65,9 +89,11 @@ function setValue(key: string, value: LevelValues, event: Event): void {
         +
       </button>
     </div>
-    <p class="skill-subsection-help">{{ t('nextTimeline.skillEditing.blackboardDescription') }}</p>
-    <div v-if="entries().length === 0" class="editor-empty">—</div>
-    <div v-else class="blackboard-list">
+    <p v-if="!collapsed" class="skill-subsection-help">
+      {{ t('nextTimeline.skillEditing.blackboardDescription') }}
+    </p>
+    <div v-if="!collapsed && entries().length === 0" class="editor-empty">—</div>
+    <div v-else-if="!collapsed" class="blackboard-list">
       <div
         v-for="([key, value], index) in entries()"
         :key="`${key}:${index}`"
@@ -110,6 +136,30 @@ function setValue(key: string, value: LevelValues, event: Event): void {
   margin: 0 0 14px;
   color: var(--ea-fg-muted);
   font-size: 11px;
+}
+
+.blackboard-heading__title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.blackboard-heading__title h4 {
+  margin: 0;
+}
+
+.blackboard-heading__collapse {
+  flex: none;
+}
+
+.blackboard-heading__count {
+  min-width: 22px;
+  padding: 2px 6px;
+  background: var(--ea-active-fill);
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  text-align: center;
 }
 
 .blackboard-list {

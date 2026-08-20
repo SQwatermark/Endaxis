@@ -5,7 +5,11 @@ import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
 import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
 import { lifengUltimate } from './generated/lifeng.operator.generated';
-import { rossiBattleSkill } from './generated/rossi.operator.generated';
+import {
+  rossiBattleSkill,
+  rossiComboSkill2,
+  rossiUltimate,
+} from './generated/rossi.operator.generated';
 import {
   akekuri,
   camille,
@@ -55,12 +59,16 @@ describe('新增的完整技能转换干员', () => {
       )?.skillGroupKeys ?? [];
 
     expect(skillBehaviorGaps(chenQianyu)).toEqual([]);
-    expect(skillBehaviorGaps(rossi)).toEqual(['battleSkill', 'comboSkill2', 'ultimate']);
+    expect(skillBehaviorGaps(rossi)).toEqual([]);
     expect(skillBehaviorGaps(camille)).toEqual(['battleSkill', 'ultimate']);
   });
 
   it('Gilberta 战技把来源死亡监视 Buff 留在能力实体局部时间轴', () => {
-    const serialized = JSON.stringify(gilbertaBattleSkill);
+    const serialized = JSON.stringify([
+      gilbertaBattleSkill,
+      gilberta.buffDefinitions?.buff_chr_0013_aglina_normal_skill_monitor,
+      gilberta.abilityEntityDefinitions,
+    ]);
 
     expect(serialized).toContain('buff_chr_0013_aglina_normal_skill_monitor');
     expect(serialized).toContain('currentAbilityEntity');
@@ -68,7 +76,7 @@ describe('新增的完整技能转换干员', () => {
   });
 
   it('Fluorite 战技把已证明的根级跳转迁入能力实体局部时间轴', () => {
-    const serialized = JSON.stringify(fluoriteBattleSkill);
+    const serialized = JSON.stringify([fluoriteBattleSkill, fluorite.abilityEntityDefinitions]);
     const frames = fluoriteBattleSkill.scheduledSequences.map(sequence => sequence.startFrame);
     const behaviorGaps = fluorite.conversionSupport?.missingCapabilities.find(
       item => item.capability === 'skillBehavior',
@@ -83,7 +91,7 @@ describe('新增的完整技能转换干员', () => {
   });
 
   it('Lifeng 终结技把外层 IfElse 跳转保留为一次性局部条件分支', () => {
-    const serialized = JSON.stringify(lifengUltimate);
+    const serialized = JSON.stringify([lifengUltimate, lifeng.abilityEntityDefinitions]);
     const frames = lifengUltimate.scheduledSequences.map(sequence => sequence.startFrame);
 
     expect(serialized).toContain('"childSkill":');
@@ -95,7 +103,10 @@ describe('新增的完整技能转换干员', () => {
   });
 
   it('Rossi 爪印 Buff 同时保留固定周期伤害与无条件防守侧减伤', () => {
-    const serialized = JSON.stringify(rossiBattleSkill);
+    const serialized = JSON.stringify([
+      rossiBattleSkill,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_normal_defup,
+    ]);
 
     expect(serialized).toContain('buff_chr_0028_wulfa_normal_defup');
     expect(serialized).toContain('buffInterval');
@@ -105,6 +116,50 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized.split('32:buff_chr_0028_wulfa_normal_defup12:buffInterval').length - 1).toBe(
       4,
     );
+  });
+
+  it('Rossi ultimate preserves its ultimate-only critical-damage modifier', () => {
+    const serialized = JSON.stringify([
+      rossiUltimate,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed,
+    ]);
+
+    expect(serialized).toContain('buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed');
+    expect(serialized).toContain('"tags":["ultimateSkill"]');
+    expect(serialized).toContain('"kind":"instantAttribute"');
+    expect(serialized).toContain('"attribute":"criticalDamageIncrease"');
+    expect(serialized).toContain('"blackboardKey":"critical_damage_up_to_bleed"');
+  });
+
+  it('Rossi 二段连携在等待 Buff 到期后把动态触发次数传给伤害 Buff', () => {
+    const serialized = JSON.stringify([
+      rossiComboSkill2,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_damagewait,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_damage,
+    ]);
+
+    expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_damagewait');
+    expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_damage');
+    expect(serialized).toContain('"maxTriggerCount":{"blackboardKey":"trigger_times"}');
+    expect(serialized).toContain('"target":"enemy"');
+    expect(serialized).toContain('combo_2_damage:trigger');
+    expect(
+      serialized.split('34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval').length - 1,
+    ).toBe(4);
+  });
+
+  it('Rossi 二段连携只在 QTE 有效计时 Buff 内写入精准衔接状态', () => {
+    const serialized = JSON.stringify([
+      rossiComboSkill2,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_qte_timerlistening,
+      rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_qte_timer,
+    ]);
+
+    expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_qte_timerlistening');
+    expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_qte_timer');
+    expect(serialized).toContain('"event":"beforeCastSkill"');
+    expect(serialized).toContain('"kind":"eventSkillTypeIn","skillTypes":["comboSkill"]');
+    expect(serialized).toContain('"key":"EntityBB_Combo_QTE_Trigger"');
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
