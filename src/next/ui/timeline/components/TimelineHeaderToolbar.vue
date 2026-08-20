@@ -17,6 +17,7 @@ defineProps<{
     duplicate: string;
     add: string;
     analysis: string;
+    open: string;
     export: string;
     more: string;
     reset: string;
@@ -28,6 +29,8 @@ defineEmits<{
   redo: [];
   paste: [];
   reset: [];
+  open: [];
+  export: [];
 }>();
 </script>
 
@@ -105,7 +108,21 @@ defineEmits<{
         </svg>
         {{ labels.analysis }}
       </button>
-      <button type="button" class="command-button command-button--export" disabled>
+      <button
+        type="button"
+        class="command-button command-button--project-io"
+        @click="$emit('open')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 6h7l2 2h9v11H3Z" />
+        </svg>
+        {{ labels.open }}
+      </button>
+      <button
+        type="button"
+        class="command-button command-button--project-io"
+        @click="$emit('export')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M14 3h7v7" />
           <path d="m10 14 11-11" />
@@ -281,7 +298,7 @@ button {
 @media (max-width: 1080px) {
   .cursor-position,
   .command-button--analysis,
-  .command-button--export {
+  .command-button--project-io {
     display: none;
   }
 }

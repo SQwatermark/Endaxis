@@ -55,11 +55,14 @@ import {
   switchTrackToCompatibleOperatorTemplate,
 } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
+import { serializeProjectDocument } from '../../core/project/serialization';
+import { openProject, type OpenProjectResult } from '../../application/openProject';
 import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
-import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
+import { placeSkillGroup } from './placeSkillGroup';
+import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
   projectTimelineEditor,
   type TimelineSkillLibraryEntryViewModel,
@@ -161,6 +164,7 @@ const operatorDefinitionRevision = ref(0);
 const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const hoveredCastId = ref<string | null>(null);
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
+const projectFileInput = ref<HTMLInputElement | null>(null);
 const cursorFrame = ref(30);
 const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
@@ -203,10 +207,6 @@ const contextMenuTarget = ref<{
   skillCastId: string;
 } | null>(null);
 
-let nextDocumentId = 0;
-const ids: TimelineDocumentIdAllocator = {
-  allocate: kind => `${kind}:next-sample:${++nextDocumentId}`,
-};
 const initialScenario = createTimelineSampleScenario();
 const initialProject = createEmptyProject({
   projectId: 'next-sample',
@@ -217,6 +217,7 @@ initialProject.activeScenarioId = initialScenario.id;
 initialProject.scenarios = [initialScenario];
 const projectSession = new ProjectEditorSession(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
+const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
@@ -245,6 +246,88 @@ function commitScenario(
   command: (current: ScenarioDocument) => ScenarioDocument,
 ): boolean {
   return scenarioSession.commit(commandName, command);
+}
+
+function projectOpenFailureMessage(result: Exclude<OpenProjectResult, { ok: true }>): string {
+  if (result.kind === 'parse-failed') {
+    if (result.cause.kind === 'invalid-document') {
+      const first = result.cause.issues[0];
+      return first === undefined
+        ? '项目文档校验失败'
+        : `项目文档校验失败：${first.path} ${first.message}`;
+    }
+    if (result.cause.kind === 'unsupported-version') {
+      return `不支持项目版本 ${result.cause.schemaVersion}`;
+    }
+    if (result.cause.kind === 'migration-failed') {
+      return `旧项目迁移失败：${result.cause.errors[0] ?? '未知错误'}`;
+    }
+    return result.cause.message;
+  }
+  if (result.kind === 'definition-validation-failed') {
+    const first = result.issues[0];
+    return first === undefined
+      ? '项目定义引用校验失败'
+      : `项目定义引用校验失败：${first.path} ${first.message}`;
+  }
+  if (result.kind === 'game-data-revision-mismatch') {
+    return `游戏数据版本不匹配：项目 ${result.projectRevision}，当前 ${result.repositoryRevision}`;
+  }
+  if (result.kind === 'game-data-migration-available') {
+    return '项目需要先执行明确的游戏数据迁移，当前编辑器不会自动改写';
+  }
+  return '项目迁移器声明与项目版本不一致';
+}
+
+function requestOpenProject(): void {
+  projectFileInput.value?.click();
+}
+
+async function handleProjectFileChange(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (file === undefined) return;
+  try {
+    const result = openProject(await file.text(), { gameDataRepository: nextGameDataRepository });
+    if (!result.ok) {
+      ElMessage.error(projectOpenFailureMessage(result));
+      return;
+    }
+    showSkillDefinitionEditor.value = false;
+    showOperatorDefinitionWorkspace.value = false;
+    projectSession.replaceProject(result.project);
+    selectedTrack.value = 0;
+    selectedCastId.value = null;
+    actionSelection.value = createEmptyTimelineActionSelection();
+    timelineClipboard.value = null;
+    simulationService.clearCache();
+    await nextTick();
+    void simulateNow();
+    ElMessage.success(`已打开项目：${scenarioSession.snapshot.scenario.name}`);
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
+  }
+}
+
+function exportProject(): void {
+  try {
+    const project = projectSession.snapshot.project;
+    const content = serializeProjectDocument(project, true);
+    const blobUrl = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    const activeScenario = project.scenarios.find(value => value.id === project.activeScenarioId);
+    const fileBase = (activeScenario?.name ?? project.activeScenarioId)
+      .replace(/[^A-Za-z0-9._-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    anchor.download = `${fileBase || 'endaxis-project'}.json`;
+    anchor.click();
+    URL.revokeObjectURL(blobUrl);
+    ElMessage.success('项目 JSON 已导出');
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '导出项目失败');
+  }
 }
 
 /** 项目模板库与版本化数据的联合查询端口；实例只保存模板 ID 和养成/配装状态。 */
@@ -1630,6 +1713,13 @@ function setPanelDialogVisible(visible: boolean): void {
 </script>
 
 <template>
+  <input
+    ref="projectFileInput"
+    class="project-file-input"
+    type="file"
+    accept="application/json,.json"
+    @change="handleProjectFileChange"
+  />
   <TimelineWorkbenchShell
     :labels="{
       library: t('timeline.activityBar.library'),
@@ -1760,6 +1850,7 @@ function setPanelDialogVisible(visible: boolean): void {
           duplicate: t('timeline.scenario.duplicateTooltip'),
           add: t('timeline.scenario.addTooltip'),
           analysis: t('timeline.analysis.button'),
+          open: t('common.load'),
           export: t('common.export'),
           more: t('timeline.header.more'),
           reset: t('common.reset'),
@@ -1767,6 +1858,8 @@ function setPanelDialogVisible(visible: boolean): void {
         @undo="restoreEditorHistory('undo')"
         @redo="restoreEditorHistory('redo')"
         @paste="pasteClipboardAtCursor"
+        @open="requestOpenProject"
+        @export="exportProject"
         @reset="resetScenario"
       />
     </template>
@@ -2214,6 +2307,10 @@ function setPanelDialogVisible(visible: boolean): void {
 </template>
 
 <style scoped>
+.project-file-input {
+  display: none;
+}
+
 button {
   height: 28px;
   border: 1px solid var(--ea-border);

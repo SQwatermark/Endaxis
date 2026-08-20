@@ -28,4 +28,29 @@ describe('ProjectEditorSession', () => {
     expect(scenarioSession.undo()).toBe(true);
     expect(projectSession.snapshot.project).toBe(initial);
   });
+
+  it('replaces an opened project and clears history from the previous document', () => {
+    const initial = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'definitions:test',
+    });
+    const opened = createEmptyProject({
+      projectId: 'opened-project',
+      createdWith: 'test',
+      gameDataRevision: 'definitions:test',
+    });
+    const projectSession = new ProjectEditorSession(initial);
+
+    projectSession.commit('rename', project => ({
+      ...project,
+      scenarios: project.scenarios.map(scenario => ({ ...scenario, name: 'Changed' })),
+    }));
+    expect(projectSession.canUndo).toBe(true);
+    projectSession.replaceProject(opened);
+
+    expect(projectSession.snapshot.project).toBe(opened);
+    expect(projectSession.snapshot.lastCommand).toBe('openProject');
+    expect(projectSession.canUndo).toBe(false);
+    expect(projectSession.canRedo).toBe(false);
+  });
 });

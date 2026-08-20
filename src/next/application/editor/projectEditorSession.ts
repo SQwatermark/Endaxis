@@ -77,6 +77,14 @@ export class ProjectEditorSession {
     return true;
   }
 
+  /** Replace the opened document and start a fresh history boundary. */
+  replaceProject(project: EndaxisProjectDocument, commandName = 'openProject'): void {
+    if (commandName.length === 0) throw new Error('project command name must not be empty');
+    this.#undoStack.length = 0;
+    this.#redoStack.length = 0;
+    this.#publish(project, commandName);
+  }
+
   subscribe(subscriber: ProjectEditorSubscriber): () => void {
     this.#subscribers.add(subscriber);
     return () => this.#subscribers.delete(subscriber);
