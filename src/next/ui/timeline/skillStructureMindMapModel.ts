@@ -20,7 +20,8 @@ export interface SkillStructureNode {
   readonly children: readonly SkillStructureNode[];
   readonly editorSection: SkillStructureEditorSection;
   readonly reference?: { readonly kind: 'buff' | 'entity'; readonly id: string };
-  readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
+  readonly canAddChild?:
+    'sequence' | 'step' | 'lifecycle' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
   readonly payloadKind?:
     'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
   readonly acceptsChildKind?:
@@ -269,6 +270,7 @@ export function buildEquipmentContributionMindMap(
         sourcePath: 'modifiers',
         details: { 数量: modifiers.length },
         editorSection: 'overview',
+        canAddChild: 'equipmentModifier',
         acceptsChildKind: 'equipmentModifier',
         children: modifiers.map((modifier, index) => ({
           id: `equipment:modifier:${index}`,
@@ -290,6 +292,7 @@ export function buildEquipmentContributionMindMap(
         sourcePath: 'eventHandlers',
         details: { 数量: handlers.length },
         editorSection: 'overview',
+        canAddChild: 'equipmentHandler',
         acceptsChildKind: 'equipmentHandler',
         children: handlers.map((handler, index) => ({
           id: `equipment:handler:${index}`,

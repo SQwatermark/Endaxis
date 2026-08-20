@@ -4,6 +4,8 @@ import buildDialogSource from './NextGearLoadoutBuildDialog.vue?raw';
 import workspaceSource from './GearDefinitionWorkspaceDialog.vue?raw';
 import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
 import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
+import contributionTypePickerSource from './EquipmentContributionTypePicker.vue?raw';
+import eventTriggerEditorSource from './CombatEventTriggerEditor.vue?raw';
 import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
@@ -50,8 +52,20 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('@move-node="moveNode"');
     expect(contributionEditorSource).toContain('@node-action="nodeAction"');
     expect(contributionEditorSource).toContain('@history-action="restoreHistory"');
+    expect(contributionEditorSource).toContain('@add-child="beginAdd"');
+    expect(contributionEditorSource).toContain('StepTypePicker');
+    expect(contributionEditorSource).toContain('EquipmentContributionTypePicker');
     expect(contributionEditorSource).toContain(':clipboard-kind="clipboard?.kind"');
     expect(contributionEditorSource).toContain('duplicateSkillEditorDetachedStep');
     expect(contributionEditorSource).not.toContain('<textarea');
+  });
+
+  it('adds contribution structures through an explicit mouse-position type picker', () => {
+    expect(contributionTypePickerSource).toContain('<Teleport to="body">');
+    expect(contributionTypePickerSource).toContain('props.anchor.x');
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_PANEL_STATS');
+    expect(contributionTypePickerSource).toContain('DAMAGE_TYPES');
+    expect(contributionTypePickerSource).toContain('EDITABLE_COMBAT_EVENT_TRIGGER_KINDS');
+    expect(eventTriggerEditorSource).toContain('createCombatEventTriggerDraft');
   });
 });

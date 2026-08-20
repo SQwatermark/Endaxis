@@ -136,8 +136,10 @@ describe('skillStructureMindMapModel', () => {
     expect(nodes.get('equipment:modifier:0')?.sourcePath).toBe('modifiers[0]');
     expect(nodes.get('equipment:modifier:0')?.payloadKind).toBe('equipmentModifier');
     expect(nodes.get('equipment:modifiers')?.acceptsChildKind).toBe('equipmentModifier');
+    expect(nodes.get('equipment:modifiers')?.canAddChild).toBe('equipmentModifier');
     expect(nodes.get('equipment:handler:0')?.sourcePath).toBe('eventHandlers[0]');
     expect(nodes.get('equipment:handler:0')?.payloadKind).toBe('equipmentHandler');
+    expect(nodes.get('equipment:handlers')?.canAddChild).toBe('equipmentHandler');
     expect(nodes.get('equipment:handler:0:sequence:step:0')?.sourcePath).toBe(
       'eventHandlers[0].sequence.steps[0]',
     );

@@ -12,16 +12,23 @@ import {
 } from '../skillStructureMindMapModel';
 import {
   cloneStructureValue,
+  appendCombatStepInStructure,
   insertStructureArrayItem,
   moveStructureArrayItem,
   removeStructureArrayItem,
   replaceStructureValueAtPath,
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
-import { duplicateSkillEditorDetachedStep } from '../skillDefinitionEditorViewModel';
+import {
+  createSkillEditorStep,
+  duplicateSkillEditorDetachedStep,
+  type EditableCombatStepKind,
+} from '../skillDefinitionEditorViewModel';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
+import StepTypePicker from './StepTypePicker.vue';
+import EquipmentContributionTypePicker from './EquipmentContributionTypePicker.vue';
 
 type ContributionPayloadKind =
   'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
@@ -40,6 +47,12 @@ const props = defineProps<{
 const emit = defineEmits<{ update: [contribution: EquipmentContributionDefinition] }>();
 const selectedPath = ref('');
 const selectedId = ref('equipment:contribution');
+const pendingAdd = ref<{
+  readonly kind: 'step' | 'modifier' | 'handler';
+  readonly targetPath: string;
+  readonly anchor: { readonly x: number; readonly y: number };
+} | null>(null);
+const pickerKey = ref(0);
 const undoStack = shallowRef<EquipmentContributionDefinition[]>([]);
 const redoStack = shallowRef<EquipmentContributionDefinition[]>([]);
 const clipboard = shallowRef<
@@ -78,6 +91,27 @@ watch(
 function selectNode(node: { id: string; sourcePath: string }): void {
   selectedId.value = node.id;
   selectedPath.value = node.sourcePath;
+}
+
+function beginAdd(
+  node: ContributionOperationNode & {
+    readonly canAddChild?:
+      'step' | 'equipmentModifier' | 'equipmentHandler' | 'sequence' | 'lifecycle' | 'childSkill';
+  },
+  anchor: { readonly x: number; readonly y: number },
+): void {
+  const kind =
+    node.canAddChild === 'step'
+      ? 'step'
+      : node.canAddChild === 'equipmentModifier'
+        ? 'modifier'
+        : node.canAddChild === 'equipmentHandler'
+          ? 'handler'
+          : null;
+  if (kind === null) return;
+  selectNode(node);
+  pendingAdd.value = { kind, targetPath: node.sourcePath, anchor };
+  pickerKey.value += 1;
 }
 
 function commit(next: EquipmentContributionDefinition): void {
@@ -153,17 +187,49 @@ async function moveNode(operation: {
 }
 
 function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
-  return duplicateSkillEditorDetachedStep(
-    {
-      key: 'equipment-contribution',
-      timelineBlockFrames: 0,
-      scheduledSequences: (props.contribution.eventHandlers ?? []).map(handler => ({
-        startFrame: 0,
-        sequence: handler.sequence,
-      })),
-    },
-    step,
+  return duplicateSkillEditorDetachedStep(editorSkillDraft(), step);
+}
+
+function editorSkillDraft() {
+  return {
+    key: 'equipment-contribution',
+    timelineBlockFrames: 0,
+    scheduledSequences: (props.contribution.eventHandlers ?? []).map(handler => ({
+      startFrame: 0,
+      sequence: handler.sequence,
+    })),
+  };
+}
+
+async function appendModifier(modifier: EquipmentModifierDefinition): Promise<void> {
+  const pending = pendingAdd.value;
+  if (pending?.kind !== 'modifier') return;
+  const result = insertStructureArrayItem(props.contribution, pending.targetPath, modifier);
+  pendingAdd.value = null;
+  commit(result.root);
+  await selectPath(result.itemPath);
+}
+
+async function appendHandler(handler: EquipmentEventHandlerDefinition): Promise<void> {
+  const pending = pendingAdd.value;
+  if (pending?.kind !== 'handler') return;
+  const result = insertStructureArrayItem(props.contribution, pending.targetPath, handler);
+  pendingAdd.value = null;
+  commit(result.root);
+  await selectPath(result.itemPath);
+}
+
+async function appendStep(kind: EditableCombatStepKind): Promise<void> {
+  const pending = pendingAdd.value;
+  if (pending?.kind !== 'step') return;
+  const result = appendCombatStepInStructure(
+    props.contribution,
+    pending.targetPath,
+    createSkillEditorStep(editorSkillDraft(), kind),
   );
+  pendingAdd.value = null;
+  commit(result.root);
+  await selectPath(result.stepPath);
 }
 
 async function nodeAction(
@@ -227,9 +293,29 @@ function levelValuesText(value: LevelValues): string {
       :can-undo="undoStack.length > 0"
       :can-redo="redoStack.length > 0"
       @select="selectNode"
+      @add-child="beginAdd"
       @move-node="moveNode"
       @node-action="nodeAction"
       @history-action="restoreHistory"
+    />
+    <StepTypePicker
+      v-if="pendingAdd?.kind === 'step'"
+      :key="`step:${pickerKey}`"
+      hide-trigger
+      open-on-mount
+      :anchor="pendingAdd.anchor"
+      @select="appendStep"
+    />
+    <EquipmentContributionTypePicker
+      v-if="pendingAdd?.kind === 'modifier' || pendingAdd?.kind === 'handler'"
+      :key="`equipment:${pickerKey}`"
+      :mode="pendingAdd.kind"
+      :anchor="pendingAdd.anchor"
+      :level-count="level"
+      :handler-keys="(contribution.eventHandlers ?? []).map(handler => handler.key)"
+      @modifier="appendModifier"
+      @handler="appendHandler"
+      @close="pendingAdd = null"
     />
     <aside class="contribution-inspector">
       <template v-if="selectedModifier">

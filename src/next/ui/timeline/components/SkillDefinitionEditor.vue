@@ -268,7 +268,8 @@ function beginAddChild(
   node: {
     readonly id: string;
     readonly sourcePath: string;
-    readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
+    readonly canAddChild?:
+      'sequence' | 'step' | 'lifecycle' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {

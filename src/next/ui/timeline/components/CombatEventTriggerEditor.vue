@@ -12,47 +12,20 @@ import {
   type SkillTriggerScope,
 } from '../../../core/game-data/operatorDefinition';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import {
+  createCombatEventTriggerDraft,
+  EDITABLE_COMBAT_EVENT_TRIGGER_KINDS,
+} from '../combatEventTriggerCatalog';
 
 const props = defineProps<{ event: CombatEventTrigger }>();
 const emit = defineEmits<{ update: [event: CombatEventTrigger] }>();
 const { t } = useI18n({ useScope: 'global' });
-const KINDS = [
-  'buffApplied',
-  'airborneOutput',
-  'damageTagHit',
-  'elementalInflictionApplied',
-  'skillHit',
-  'enemyDefeated',
-  'statusExpired',
-  'statusConsumed',
-] as const;
+const KINDS = EDITABLE_COMBAT_EVENT_TRIGGER_KINDS;
 const SCOPES = ['operator', 'team'] as const;
 
 function setKind(kind: CombatEventTrigger['kind']): void {
-  switch (kind) {
-    case 'buffApplied':
-    case 'airborneOutput':
-      emit('update', { kind });
-      break;
-    case 'damageTagHit':
-      emit('update', { kind, tag: 'normalSkill', scope: 'operator' });
-      break;
-    case 'elementalInflictionApplied':
-      emit('update', { kind, elements: 'heat', scope: 'operator' });
-      break;
-    case 'skillHit':
-      emit('update', { kind, skillGroupKey: 'skill', scope: 'operator' });
-      break;
-    case 'enemyDefeated':
-      emit('update', { kind, scope: 'operator' });
-      break;
-    case 'statusExpired':
-      emit('update', { kind, statusKey: 'status', target: 'caster' });
-      break;
-    case 'statusConsumed':
-      emit('update', { kind, statusKey: 'status', target: 'caster' });
-      break;
-  }
+  if (!KINDS.includes(kind as (typeof KINDS)[number])) return;
+  emit('update', createCombatEventTriggerDraft(kind as (typeof KINDS)[number]));
 }
 
 function setScope(scope: SkillTriggerScope): void {

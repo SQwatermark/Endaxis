@@ -17,7 +17,8 @@ interface MapNodeSource {
   readonly children: readonly MapNodeSource[];
   readonly editorSection?: 'overview' | 'blackboard' | 'availability' | number;
   readonly reference?: MapReference;
-  readonly canAddChild?: 'sequence' | 'step' | 'lifecycle' | 'childSkill';
+  readonly canAddChild?:
+    'sequence' | 'step' | 'lifecycle' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
   readonly payloadKind?:
     'scheduledSequence' | 'combatStep' | 'childSkill' | 'equipmentModifier' | 'equipmentHandler';
   readonly acceptsChildKind?:
