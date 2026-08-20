@@ -3,11 +3,14 @@ import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import type {
   AbilityEntityDefinition,
+  CombatCondition,
+  CombatEventResponseDefinition,
   CombatStepDefinition,
   ScheduledSequenceDefinition,
   SkillDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import {
+  createCombatEventResponseDraft,
   createSkillEditorStep,
   duplicateSkillEditorDetachedStep,
   type EditableCombatStepKind,
@@ -20,6 +23,7 @@ import {
 import {
   appendCombatStepInStructure,
   cloneStructureValue,
+  deleteStructureValueAtPath,
   duplicateCombatStepInStructure,
   insertStructureArrayItem,
   moveStructureArrayItem,
@@ -30,6 +34,9 @@ import {
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
+import CombatConditionEditor from './CombatConditionEditor.vue';
+import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
+import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
@@ -70,11 +77,14 @@ const emit = defineEmits<{ update: [definition: AbilityEntityDefinition] }>();
 const selectedId = ref('entity');
 const selectedPath = ref('');
 const pendingStep = ref(false);
+const pendingConditionTargetPath = ref('');
 const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
+  | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
+  | { readonly kind: 'eventResponse'; readonly value: CombatEventResponseDefinition }
 >();
 const structureUndoStack = shallowRef<AbilityEntityDefinition[]>([]);
 const structureRedoStack = shallowRef<AbilityEntityDefinition[]>([]);
@@ -94,6 +104,16 @@ const selectedStep = computed(() =>
     ? (resolveStructureValue(props.definition, selectedPath.value) as CombatStepDefinition)
     : undefined,
 );
+const selectedCombatCondition = computed(() =>
+  selectedNode.value?.payloadKind === 'combatCondition'
+    ? (resolveStructureValue(props.definition, selectedPath.value) as CombatCondition)
+    : undefined,
+);
+const selectedEventResponse = computed(() =>
+  selectedNode.value?.payloadKind === 'eventResponse'
+    ? (resolveStructureValue(props.definition, selectedPath.value) as CombatEventResponseDefinition)
+    : undefined,
+);
 const selectedSequenceIndex = computed(() => {
   const match = /^entity:sequence:(\d+)$/.exec(selectedId.value);
   return match === null ? undefined : Number(match[1]);
@@ -109,6 +129,7 @@ watch(
     selectedId.value = 'entity';
     selectedPath.value = '';
     pendingStep.value = false;
+    pendingConditionTargetPath.value = '';
     structureUndoStack.value = [];
     structureRedoStack.value = [];
   },
@@ -148,6 +169,7 @@ function selectNode(node: { readonly id: string }): void {
   selectedId.value = target.id;
   selectedPath.value = target.sourcePath;
   pendingStep.value = false;
+  pendingConditionTargetPath.value = '';
 }
 async function selectPath(path: string): Promise<void> {
   await nextTick();
@@ -179,7 +201,51 @@ async function beginAdd(
   } else if (node.canAddChild === 'step') {
     pendingStep.value = true;
     pickerKey.value += 1;
+  } else if (node.canAddChild === 'combatCondition') {
+    pendingConditionTargetPath.value = node.sourcePath;
+    insertAnchor.value = { ...anchor };
+  } else if (node.canAddChild === 'eventResponse') {
+    await appendEventResponse(node.sourcePath);
   }
+}
+async function appendEventResponse(stepPath: string): Promise<void> {
+  const responsesPath = `${stepPath}.parameters.responses`;
+  const responses = resolveStructureValue(
+    props.definition,
+    responsesPath,
+  ) as readonly CombatEventResponseDefinition[];
+  const result = insertStructureArrayItem(
+    props.definition,
+    responsesPath,
+    createCombatEventResponseDraft(responses.map(response => response.key)),
+  );
+  emitStructureUpdate(result.root);
+  await selectPath(result.itemPath);
+}
+async function appendCondition(condition: CombatCondition): Promise<void> {
+  const targetPath = pendingConditionTargetPath.value;
+  if (targetPath === '') return;
+  const target = resolveStructureValue(props.definition, targetPath) as
+    CombatCondition | CombatEventResponseDefinition | undefined;
+  pendingConditionTargetPath.value = '';
+  if (
+    target !== undefined &&
+    'kind' in target &&
+    (target.kind === 'all' || target.kind === 'any')
+  ) {
+    const result = insertStructureArrayItem(
+      props.definition,
+      `${targetPath}.conditions`,
+      condition,
+    );
+    emitStructureUpdate(result.root);
+    await selectPath(result.itemPath);
+    return;
+  }
+  const conditionPath =
+    target !== undefined && 'event' in target ? `${targetPath}.condition` : targetPath;
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, conditionPath, condition));
+  await selectPath(conditionPath);
 }
 async function appendSequence(): Promise<void> {
   const childSkill = props.definition.childSkill;
@@ -275,6 +341,12 @@ function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): vo
 function updateStep(step: CombatStepDefinition): void {
   emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, step));
 }
+function updateCombatCondition(condition: CombatCondition): void {
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, condition));
+}
+function updateEventResponse(response: CombatEventResponseDefinition): void {
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
+}
 async function moveSequence(offset: -1 | 1): Promise<void> {
   const childSkill = props.definition.childSkill;
   const index = selectedSequenceIndex.value;
@@ -320,10 +392,16 @@ async function copyStep(): Promise<void> {
 }
 function childArrayPath(
   node: StructureOperationNode,
-  kind: 'combatStep' | 'scheduledSequence',
+  kind: 'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse',
 ): string | undefined {
   if (kind === 'scheduledSequence') {
     return node.acceptsChildKind === kind ? `${node.sourcePath}.scheduledSequences` : undefined;
+  }
+  if (kind === 'combatCondition') {
+    return node.acceptsChildKind === kind ? `${node.sourcePath}.conditions` : undefined;
+  }
+  if (kind === 'eventResponse') {
+    return node.acceptsChildKind === kind ? `${node.sourcePath}.parameters.responses` : undefined;
   }
   if (node.acceptsChildKind !== kind) return undefined;
   return node.payloadKind === 'scheduledSequence'
@@ -336,7 +414,25 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
-  if (kind !== 'combatStep' && kind !== 'scheduledSequence') return;
+  if (
+    kind !== 'combatStep' &&
+    kind !== 'scheduledSequence' &&
+    kind !== 'combatCondition' &&
+    kind !== 'eventResponse'
+  )
+    return;
+  if (kind === 'combatCondition') {
+    const source = /^(.*\.conditions)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(props.definition, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
+  if (kind === 'eventResponse') {
+    const source = /^(.*\.responses)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(props.definition, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
   let arrayPath: string;
   let index: number | undefined;
   if (operation.placement === 'inside') {
@@ -380,6 +476,20 @@ async function runStructureNodeAction(
           resolveStructureValue(props.definition, node.sourcePath) as ScheduledSequenceDefinition,
         ),
       };
+    } else if (node.payloadKind === 'combatCondition') {
+      structureClipboard.value = {
+        kind: 'combatCondition',
+        value: cloneStructureValue(
+          resolveStructureValue(props.definition, node.sourcePath) as CombatCondition,
+        ),
+      };
+    } else if (node.payloadKind === 'eventResponse') {
+      structureClipboard.value = {
+        kind: 'eventResponse',
+        value: cloneStructureValue(
+          resolveStructureValue(props.definition, node.sourcePath) as CombatEventResponseDefinition,
+        ),
+      };
     }
     return;
   }
@@ -395,6 +505,33 @@ async function runStructureNodeAction(
     await selectPath(parentPath);
     return;
   }
+  if (action === 'delete' && node.payloadKind === 'combatCondition') {
+    const child = /^(.*\.conditions)\[\d+\]$/.exec(node.sourcePath);
+    if (child !== null) {
+      const siblings = resolveStructureValue(props.definition, child[1]!) as readonly unknown[];
+      if (siblings.length <= 1) return;
+      emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
+      await selectPath(child[1]!.replace(/\.conditions$/, ''));
+      return;
+    }
+    const responseCondition = /\.parameters\.responses\[\d+\]\.condition$/.test(node.sourcePath);
+    const stepPath = node.sourcePath.replace(/\.parameters\.condition$/, '');
+    const owner = resolveStructureValue(props.definition, stepPath) as
+      CombatStepDefinition | undefined;
+    if (!responseCondition && owner?.kind !== 'jumpTimeline') return;
+    emitStructureUpdate(deleteStructureValueAtPath(props.definition, node.sourcePath));
+    await selectPath(node.sourcePath.replace(/\.condition$/, ''));
+    return;
+  }
+  if (action === 'delete' && node.payloadKind === 'eventResponse') {
+    const responses = /^(.*\.responses)\[\d+\]$/.exec(node.sourcePath);
+    if (responses === null) return;
+    const siblings = resolveStructureValue(props.definition, responses[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+    emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
+    await selectPath(responses[1]!.replace(/\.parameters\.responses$/, ''));
+    return;
+  }
   const clipboard = structureClipboard.value;
   if (action !== 'paste' || clipboard === undefined) return;
   const arrayPath = childArrayPath(node, clipboard.kind);
@@ -402,15 +539,38 @@ async function runStructureNodeAction(
   const value =
     clipboard.kind === 'combatStep'
       ? duplicateStep(clipboard.value)
-      : {
-          ...clipboard.value,
-          sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
-        };
+      : clipboard.kind === 'scheduledSequence'
+        ? {
+            ...clipboard.value,
+            sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
+          }
+        : clipboard.kind === 'eventResponse'
+          ? {
+              ...cloneStructureValue(clipboard.value),
+              key: createCombatEventResponseDraft(
+                (
+                  resolveStructureValue(
+                    props.definition,
+                    arrayPath,
+                  ) as readonly CombatEventResponseDefinition[]
+                ).map(response => response.key),
+              ).key,
+              sequence: { steps: clipboard.value.sequence.steps.map(duplicateStep) },
+            }
+          : cloneStructureValue(clipboard.value);
   const result = insertStructureArrayItem(props.definition, arrayPath, value);
   emitStructureUpdate(result.root);
   await selectPath(result.itemPath);
 }
 async function deleteCurrent(): Promise<void> {
+  if (
+    selectedNode.value !== undefined &&
+    (selectedNode.value.payloadKind === 'combatCondition' ||
+      selectedNode.value.payloadKind === 'eventResponse')
+  ) {
+    await runStructureNodeAction('delete', selectedNode.value);
+    return;
+  }
   if (selectedStep.value !== undefined) {
     const parentPath = selectedPath.value.replace(/\.steps\[\d+\]$/, '');
     emitStructureUpdate(removeCombatStepInStructure(props.definition, selectedPath.value));
@@ -459,6 +619,12 @@ async function deleteCurrent(): Promise<void> {
         hide-trigger
         open-on-mount
         @select="appendStep"
+      />
+      <CombatConditionTypePicker
+        v-if="pendingConditionTargetPath !== ''"
+        :anchor="insertAnchor"
+        @select="appendCondition"
+        @close="pendingConditionTargetPath = ''"
       />
       <section v-if="selectedId === 'entity'" class="node-card">
         <header>
@@ -553,6 +719,36 @@ async function deleteCurrent(): Promise<void> {
           />
         </label>
         <p>子步骤从导图节点的＋添加。</p>
+      </section>
+      <section v-else-if="selectedCombatCondition" class="node-card">
+        <header>
+          <div>
+            <small>战斗条件</small><strong>{{ selectedCombatCondition.kind }}</strong>
+          </div>
+          <button v-if="selectedNode?.canDelete !== false" @click="deleteCurrent">
+            <el-icon><Delete /></el-icon>
+          </button>
+        </header>
+        <CombatConditionEditor
+          :condition="selectedCombatCondition"
+          :skill-level="skillLevel"
+          layer-only
+          @update="updateCombatCondition"
+        />
+      </section>
+      <section v-else-if="selectedEventResponse" class="node-card response-card">
+        <header>
+          <div>
+            <small>事件响应</small><strong>{{ selectedEventResponse.key }}</strong>
+          </div>
+          <button v-if="selectedNode?.canDelete !== false" @click="deleteCurrent">
+            <el-icon><Delete /></el-icon>
+          </button>
+        </header>
+        <CombatEventResponseInspector
+          :response="selectedEventResponse"
+          @update="updateEventResponse"
+        />
       </section>
       <section v-else-if="selectedStep" class="node-card">
         <header>

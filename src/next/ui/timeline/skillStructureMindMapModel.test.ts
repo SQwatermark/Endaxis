@@ -228,7 +228,22 @@ describe('skillStructureMindMapModel', () => {
           {
             startFrame: 3,
             sequence: {
-              steps: [{ kind: 'finishCurrentAbilityEntity', parameters: {} }],
+              steps: [
+                { kind: 'finishCurrentAbilityEntity', parameters: {} },
+                {
+                  kind: 'listenForCombatEvents',
+                  parameters: {
+                    responses: [
+                      {
+                        key: 'entity-response',
+                        event: { kind: 'buffApplied' },
+                        condition: { kind: 'combatActive' },
+                        sequence: { steps: [] },
+                      },
+                    ],
+                  },
+                },
+              ],
             },
           },
         ],
@@ -239,6 +254,10 @@ describe('skillStructureMindMapModel', () => {
     expect(entityNodes.get('entity:sequence:0')?.canAddChild).toBe('step');
     expect(entityNodes.get('entity:sequence:0:step:0')?.sourcePath).toBe(
       'childSkill.scheduledSequences[0].sequence.steps[0]',
+    );
+    expect(entityNodes.get('entity:sequence:0:step:1')?.canAddChild).toBe('eventResponse');
+    expect(entityNodes.get('entity:sequence:0:step:1:response:0:condition')?.sourcePath).toBe(
+      'childSkill.scheduledSequences[0].sequence.steps[1].parameters.responses[0].condition',
     );
 
     const entityWithoutChildSkill = buildAbilityEntityStructureMindMap('entity.empty', {

@@ -222,6 +222,17 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffGraphEditorSource).toContain('runtimeSequences');
   });
 
+  it('能力实体子技能复用条件与监听响应的递归编辑语义', () => {
+    expect(abilityEntityGraphEditorSource).toContain('selectedCombatCondition');
+    expect(abilityEntityGraphEditorSource).toContain('selectedEventResponse');
+    expect(abilityEntityGraphEditorSource).toContain('CombatConditionTypePicker');
+    expect(abilityEntityGraphEditorSource).toContain('CombatEventResponseInspector');
+    expect(abilityEntityGraphEditorSource).toContain('appendCondition');
+    expect(abilityEntityGraphEditorSource).toContain('appendEventResponse');
+    expect(abilityEntityGraphEditorSource).toContain("node.payloadKind === 'combatCondition'");
+    expect(abilityEntityGraphEditorSource).toContain("node.payloadKind === 'eventResponse'");
+  });
+
   it('固定结构字段使用端口关系的连线与节点轮廓', () => {
     expect(structureMapSource).toContain("node.relationToParent === 'port'");
     expect(structureMapSource).toContain('固定字段端口');
