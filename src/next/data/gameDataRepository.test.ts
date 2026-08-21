@@ -11,7 +11,9 @@ import {
   fluorite,
   gilberta,
   lastRite,
+  laevatain,
   lifeng,
+  mifu,
   perlica,
   rossi,
   tangtang,
@@ -52,6 +54,8 @@ describe('gameDataRepository', () => {
       rossi,
       camille,
       tangtang,
+      laevatain,
+      mifu,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -69,6 +73,8 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(rossi.slug)).toBe(rossi);
     expect(nextGameDataRepository.getOperator(camille.slug)).toBe(camille);
     expect(nextGameDataRepository.getOperator(tangtang.slug)).toBe(tangtang);
+    expect(nextGameDataRepository.getOperator(laevatain.slug)).toBe(laevatain);
+    expect(nextGameDataRepository.getOperator(mifu.slug)).toBe(mifu);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

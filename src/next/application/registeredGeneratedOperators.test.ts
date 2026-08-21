@@ -1,0 +1,71 @@
+import { describe, expect, it } from 'vitest';
+import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import { createEmptyScenario } from '../core/project/createProject';
+import { nextGameDataRepository } from '../data/gameDataRepository';
+import { laevatain } from '../data/operators';
+import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
+
+describe('registered generated operators', () => {
+  it('runs Laevatain basic attack through the default repository', () => {
+    const scenario = createEmptyScenario('scenario:laevatain:registered', '莱万汀默认仓库回归');
+    scenario.battle.durationFrames = 120;
+    scenario.tracks[0] = {
+      id: 'track:laevatain',
+      operator: {
+        operatorSlug: laevatain.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: laevatain,
+      skillGroupKey: 'basicAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:laevatain` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 120,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:laevatain',
+        data: expect.objectContaining({ skillId: 'basicAttack1' }),
+      }),
+    );
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:laevatain',
+      ),
+    ).toBe(true);
+  });
+});

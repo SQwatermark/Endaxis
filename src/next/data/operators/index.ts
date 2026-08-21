@@ -18,3 +18,5 @@ export { chenQianyu } from './chen-qianyu';
 export { rossi } from './rossi';
 export { camille } from './camille';
 export { tangtang } from './tangtang';
+export { laevatain } from './laevatain';
+export { mifu } from './mifu';

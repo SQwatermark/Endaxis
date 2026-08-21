@@ -20,7 +20,9 @@ import {
   fluorite,
   gilberta,
   lastRite,
+  laevatain,
   lifeng,
+  mifu,
   rossi,
   tangtang,
 } from './index';
@@ -38,6 +40,8 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [rossi, 11],
   [camille, 11],
   [tangtang, 10],
+  [laevatain, 14],
+  [mifu, 9],
 ];
 
 function hasUpgradeBehavior(
@@ -175,9 +179,12 @@ describe('新增的完整技能转换干员', () => {
   });
 
   it.each(generatedOperators)('养成缺口与尚无可执行行为的定义保持一致', operator => {
-    expect(operator.conversionSupport?.completeness).toBe('partial');
     const capabilities = new Set(
       operator.conversionSupport?.missingCapabilities.map(item => item.capability),
+    );
+
+    expect(operator.conversionSupport?.completeness).toBe(
+      capabilities.size === 0 ? 'complete' : 'partial',
     );
 
     expect(capabilities.has('talentEffects')).toBe(
