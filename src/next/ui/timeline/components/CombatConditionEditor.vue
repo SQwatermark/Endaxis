@@ -127,7 +127,10 @@ function setComparison(event: Event): void {
   }
 }
 
-function setOperand(field: 'value' | 'left' | 'right', value: ActionValueOperand): void {
+function setOperand(
+  field: 'value' | 'left' | 'right' | 'probability',
+  value: ActionValueOperand,
+): void {
   const condition = props.condition;
   if (condition.kind === 'healthCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -139,6 +142,8 @@ function setOperand(field: 'value' | 'left' | 'right', value: ActionValueOperand
     emit('update', { ...condition, right: value });
   else if (condition.kind === 'abilityEntityRemainingDurationCompare' && field === 'value')
     emit('update', { ...condition, value });
+  else if (condition.kind === 'probability' && field === 'probability')
+    emit('update', { ...condition, probability: value });
 }
 
 function setContextValue(event: Event): void {
@@ -515,6 +520,17 @@ function removeChild(index: number): void {
           @update="setOperand('right', $event)"
       /></label>
     </template>
+
+    <label v-if="condition.kind === 'probability'" class="condition-editor__operand"
+      ><EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.probability')"
+        :help="
+          t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
+        " /><ActionValueOperandEditor
+        :value="condition.probability"
+        :labels="operandLabels()"
+        @update="setOperand('probability', $event)"
+    /></label>
 
     <template v-if="condition.kind === 'abilityEntityRemainingDurationCompare'">
       <label class="condition-editor__field"

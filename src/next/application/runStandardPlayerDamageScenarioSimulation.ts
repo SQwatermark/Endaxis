@@ -8,6 +8,7 @@ import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatB
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
 import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
@@ -37,6 +38,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly options: Omit<CompileScenarioRuntimeAssemblyOptions, 'environment'>;
   readonly endFrame: number;
   readonly criticalSamples: CriticalSampleSource;
+  readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatOperationExecutorContext,
     step: DamageStep,
@@ -91,6 +93,9 @@ export function runStandardPlayerDamageScenarioSimulation(
 
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
+    ...(input.probabilitySamples === undefined
+      ? {}
+      : { probabilitySamples: input.probabilitySamples }),
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
     enemyVitals,
     tagRegistry: gameplayTagRegistry,

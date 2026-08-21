@@ -1536,6 +1536,7 @@
         "healthCompare": "Health comparison",
         "contextFlagEquals": "Context flag equals",
         "actionValueCompare": "Action value comparison",
+        "probability": "Probability roll",
         "abilityEntityRemainingDurationCompare": "Ability entity remaining duration",
         "statusActive": "Status active",
         "buffStackCompare": "Buff tag stack comparison",
@@ -1552,6 +1553,7 @@
         "deckAttributeCompare": "Operator attribute comparison"
       },
       "conditionNoParameters": "This condition has no additional parameters.",
+      "probability": "Probability",
       "branchKey": "Skill branch key",
       "healthValueType": "Health value type",
       "healthValueTypes": { "current": "Current health", "ratio": "Current health ratio" },

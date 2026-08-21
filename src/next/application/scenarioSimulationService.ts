@@ -11,6 +11,7 @@ import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatB
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
@@ -51,12 +52,18 @@ export function createDefaultCriticalSampleSource(): CriticalSampleSource {
   return { nextCriticalSample: () => 1 };
 }
 
+/** 编辑器默认采用不触发随机分支的确定性样本 1；概率为 100% 时仍必然成立。 */
+export function createDefaultProbabilitySampleSource(): ProbabilitySampleSource {
+  return { nextProbabilitySample: () => 1 };
+}
+
 export interface ScenarioSimulationServiceOptions {
   readonly index: ScenarioBuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   /** 缓存键的一部分：游戏数据变了要改这个值，不然会拿到旧数据算出来的结果。 */
   readonly repositoryRevision?: string;
   readonly criticalSamples?: CriticalSampleSource;
+  readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot?: (
     context: CombatOperationExecutorContext,
     step: DamageStep,
@@ -154,6 +161,7 @@ export class ScenarioSimulationService {
     this.#options = {
       ...options,
       criticalSamples: options.criticalSamples ?? createDefaultCriticalSampleSource(),
+      probabilitySamples: options.probabilitySamples ?? createDefaultProbabilitySampleSource(),
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
       elementalInflictionDocument: options.elementalInflictionDocument ?? elementalAttachments,
@@ -211,6 +219,7 @@ export class ScenarioSimulationService {
         scenario,
         endFrame,
         criticalSamples: this.#options.criticalSamples!,
+        probabilitySamples: this.#options.probabilitySamples!,
         resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
         elementalInflictionDocument: this.#options.elementalInflictionDocument,
         ...(this.#options.spellInflictionSettings === undefined

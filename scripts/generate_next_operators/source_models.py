@@ -958,6 +958,7 @@ class ConditionSource:
     contextBuffId: "BuffIdInContextConditionSource | None" = None
     abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
     deckAttributeCompare: "DeckAttributeCompareConditionSource | None" = None
+    probability: ScalarSource | None = None
 
 
 @dataclass(frozen=True)

@@ -5684,6 +5684,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operator: 'greater'", compiled)
         self.assertIn("key: 'healthThreshold'", compiled)
 
+    def test_probability_condition_parser_and_compiler_preserve_dynamic_operand(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 6,
+                        "_endFrame": 7,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 8,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.Probablity+Data, Example",
+                                                "isEnable": True,
+                                                "priorityLevel": 0,
+                                                "priorityOffset": 0,
+                                                "serverActionIndex": 9,
+                                                "prob": {
+                                                    "useBlackboardKey": True,
+                                                    "value": 0,
+                                                    "blackboardKey": "procChance",
+                                                },
+                                            }
+                                        ]
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        condition = parse_conditional_actions(
+            root,
+            "skill.json",
+            {"procChance": (0.5,) * 12},
+        )[0].conditions[0]
+
+        self.assertTrue(condition.supported)
+        self.assertEqual(condition.probability.blackboardKey, "procChance")
+        compiled = compile_combat_condition_group((condition,), "fixture.conditions")
+        self.assertIn("kind: 'probability'", compiled)
+        self.assertIn("key: 'procChance'", compiled)
+
     def test_skill_has_hit_requires_prior_root_skill_damage(self) -> None:
         root = {
             "actionGroupData": {

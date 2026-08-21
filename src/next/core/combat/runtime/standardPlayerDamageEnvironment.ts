@@ -41,6 +41,7 @@ import { ElementalReactionOperationExecutor } from './elementalReactionOperation
 import { executeSpellBurst } from './spellBurstRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
+import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import type {
   CombatOperationExecutorContext,
@@ -67,6 +68,7 @@ type EnvironmentOptions = Pick<
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
   | 'resolveVitals'
+  | 'probabilitySamples'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -96,6 +98,8 @@ export type StandardPlayerDamageEvent =
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
   readonly criticalSamples: CriticalSampleSource;
+  /** RandomUtil.Dice 的独立样本源，不与暴击随机流混用。 */
+  readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatOperationExecutorContext,
     step: DamageStep,
@@ -169,6 +173,9 @@ export class StandardPlayerDamageEnvironment {
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
     const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
+      ...(options.probabilitySamples === undefined
+        ? {}
+        : { probabilitySamples: options.probabilitySamples }),
       enemyBuffRuntime: this.#enemyBuffRuntime,
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();

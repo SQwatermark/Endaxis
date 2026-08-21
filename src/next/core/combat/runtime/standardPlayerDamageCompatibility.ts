@@ -78,6 +78,7 @@ function inspectCondition(
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'actionValueCompare':
+    case 'probability':
     case 'contextTargetCountCompare':
     case 'abilityEntityRemainingDurationCompare':
     case 'timedMarkerPresent':

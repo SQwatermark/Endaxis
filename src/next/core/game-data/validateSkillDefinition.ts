@@ -472,6 +472,9 @@ function validateCombatCondition(
       requireString(record, 'flag', path, out);
       validateScalar(record.value, `${path}.value`, out);
       break;
+    case 'probability':
+      validateActionValueOperand(record.probability, `${path}.probability`, out);
+      break;
     case 'actionValueCompare':
       validateActionValueOperand(record.left, `${path}.left`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
+import { ExplicitProbabilitySampleSource } from '../random/probabilitySampleSource';
 
 const delegate = {
   execute: vi.fn(() => false),
@@ -204,6 +205,67 @@ describe('ActionBlackboardOperationExecutor', () => {
         { blackboard: new ActionBlackboard() },
       ),
     ).toThrow("action blackboard value 'missing' is missing");
+  });
+
+  it('evaluates probability with the native tolerance and an explicit sample stream', () => {
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      new ExplicitProbabilitySampleSource([0.500009, 0.50002]),
+    );
+    const condition = {
+      kind: 'probability' as const,
+      probability: { kind: 'constant' as const, value: 0.5 },
+    };
+
+    expect(executor.evaluate(condition, { blackboard: new ActionBlackboard() })).toBe(true);
+    expect(executor.evaluate(condition, { blackboard: new ActionBlackboard() })).toBe(false);
+  });
+
+  it('resolves dynamic probabilities from the action blackboard', () => {
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      new ExplicitProbabilitySampleSource([0.24]),
+    );
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'probability',
+          probability: { kind: 'blackboard', key: 'procChance' },
+        },
+        { blackboard: new ActionBlackboard({ procChance: 0.25 }) },
+      ),
+    ).toBe(true);
+  });
+
+  it('does not consume a random sample for a zero probability', () => {
+    const samples = new ExplicitProbabilitySampleSource([0.2]);
+    const executor = new ActionBlackboardOperationExecutor(delegate, samples);
+    const context = { blackboard: new ActionBlackboard() };
+
+    expect(
+      executor.evaluate(
+        { kind: 'probability', probability: { kind: 'constant', value: 0 } },
+        context,
+      ),
+    ).toBe(false);
+    expect(
+      executor.evaluate(
+        { kind: 'probability', probability: { kind: 'constant', value: 0.2 } },
+        context,
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects positive probabilities without an explicit sample source', () => {
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+
+    expect(() =>
+      executor.evaluate(
+        { kind: 'probability', probability: { kind: 'constant', value: 0.5 } },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('probability requires an explicit probability sample source');
   });
 
   it('recursively evaluates composite conditions through the executor chain', () => {

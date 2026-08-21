@@ -10,9 +10,15 @@ import type {
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+
+const PROBABILITY_TOLERANCE = 0.00001;
 
 export class ActionBlackboardOperationExecutor implements CombatOperationExecutor {
-  constructor(readonly delegate: CombatOperationExecutor) {}
+  constructor(
+    readonly delegate: CombatOperationExecutor,
+    readonly probabilitySamples?: ProbabilitySampleSource,
+  ) {}
 
   execute(
     step: Parameters<CombatOperationExecutor['execute']>[0],
@@ -87,6 +93,23 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         resolveActionValueOperand(condition.right, context.blackboard),
         condition.operator,
       );
+    }
+    if (condition.kind === 'probability') {
+      if (context === undefined) {
+        throw new Error('probability requires a combat operation context');
+      }
+      const probability = Math.fround(
+        resolveActionValueOperand(condition.probability, context.blackboard),
+      );
+      if (!(probability > PROBABILITY_TOLERANCE)) return false;
+      if (this.probabilitySamples === undefined) {
+        throw new Error('probability requires an explicit probability sample source');
+      }
+      const sample = this.probabilitySamples.nextProbabilitySample();
+      if (!Number.isFinite(sample) || sample < 0 || sample > 1) {
+        throw new RangeError('probability sample must be a finite value in [0, 1]');
+      }
+      return Math.fround(probability + PROBABILITY_TOLERANCE) >= sample;
     }
     return context === undefined
       ? this.delegate.evaluate(condition)

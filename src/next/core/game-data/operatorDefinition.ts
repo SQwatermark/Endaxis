@@ -236,6 +236,11 @@ export type CombatCondition =
       right: ActionValueOperand;
     }
   | {
+      /** 以原生 RandomUtil.Dice(float) 对动作黑板或常量概率取样。 */
+      kind: 'probability';
+      probability: ActionValueOperand;
+    }
+  | {
       /** 比较本次释放 Context 中已查询目标组的实例数量。 */
       kind: 'contextTargetCountCompare';
       contextKey: string;
@@ -351,6 +356,7 @@ export const COMBAT_CONDITION_KINDS = [
   'healthCompare',
   'contextFlagEquals',
   'actionValueCompare',
+  'probability',
   'contextTargetCountCompare',
   'abilityEntityRemainingDurationCompare',
   'statusActive',

@@ -1413,6 +1413,7 @@
         "healthCompare": "Сравнение здоровья",
         "contextFlagEquals": "Флаг контекста равен",
         "actionValueCompare": "Сравнение значений действия",
+        "probability": "Проверка вероятности",
         "abilityEntityRemainingDurationCompare": "Оставшееся время сущности способности",
         "statusActive": "Статус активен",
         "buffStackCompare": "Сравнение слоёв Buff по тегу",
@@ -1429,6 +1430,7 @@
         "deckAttributeCompare": "Сравнение атрибутов"
       },
       "conditionNoParameters": "У этого условия нет дополнительных параметров.",
+      "probability": "Вероятность",
       "branchKey": "Ключ ветки навыка",
       "healthValueType": "Тип здоровья",
       "healthValueTypes": { "current": "Текущее здоровье", "ratio": "Доля здоровья" },

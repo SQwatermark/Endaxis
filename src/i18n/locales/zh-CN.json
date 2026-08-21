@@ -1530,6 +1530,7 @@
         "healthCompare": "生命值比较",
         "contextFlagEquals": "上下文标记相等",
         "actionValueCompare": "动作黑板值比较",
+        "probability": "概率判定",
         "abilityEntityRemainingDurationCompare": "能力实体剩余时长比较",
         "statusActive": "状态生效中",
         "buffStackCompare": "按标签比较 Buff 层数",
@@ -1546,6 +1547,7 @@
         "deckAttributeCompare": "干员属性比较"
       },
       "conditionNoParameters": "该条件不需要额外参数。",
+      "probability": "触发概率",
       "branchKey": "技能分支键",
       "healthValueType": "生命值类型",
       "healthValueTypes": { "current": "当前生命值", "ratio": "当前生命比例" },

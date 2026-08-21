@@ -411,6 +411,24 @@ def parse_conditional_actions(
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
         condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "Probablity":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "prob",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                probability=parse_scalar(
+                    condition.get("prob"), f"{path}.prob", inherited_blackboard
+                ),
+            )
         if condition_type == "CompareDeckAttr":
             expected_fields = {
                 "$type", "isEnable", "priorityLevel", "priorityOffset",

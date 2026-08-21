@@ -76,6 +76,7 @@ import {
   ExternalCombatEventRuntime,
   type ScheduledExternalCombatEventInput,
 } from './externalCombatEventRuntime';
+import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -168,6 +169,8 @@ export interface EquipmentEventOperationExecutorContext extends EquipmentEventEx
 
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
+  /** RandomUtil.Dice 使用的独立样本源；只有实际执行概率条件时才要求存在。 */
+  readonly probabilitySamples?: ProbabilitySampleSource;
   /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
@@ -1104,7 +1107,10 @@ export class CombatRuntimeAssembly {
       controlConditions,
     );
     const eventConditions = new EventContextConditionExecutor(comboWindowOperations);
-    const delegate = new ActionBlackboardOperationExecutor(eventConditions);
+    const delegate = new ActionBlackboardOperationExecutor(
+      eventConditions,
+      this.#options.probabilitySamples,
+    );
     rootOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId: program.skillId,
@@ -1233,7 +1239,10 @@ export class CombatRuntimeAssembly {
       delegate: vitalsConditions,
     });
     const eventConditions = new EventContextConditionExecutor(controlConditions);
-    const blackboardOperations = new ActionBlackboardOperationExecutor(eventConditions);
+    const blackboardOperations = new ActionBlackboardOperationExecutor(
+      eventConditions,
+      options.probabilitySamples,
+    );
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId,

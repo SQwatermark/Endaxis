@@ -377,6 +377,17 @@ def compile_combat_condition(
                 "}",
             ]
         )
+    if source.sourceType == "Probablity":
+        if source.probability is None:
+            raise ValueError(f"{path}: missing probability payload")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'probability',",
+                f"  probability: {compile_condition_operand(source.probability, f'{path}.probability')},",
+                "}",
+            ]
+        )
     if source.sourceType == "CheckHp":
         health = source.health
         if health is None:
