@@ -156,7 +156,62 @@
       "slug": "ember",
       "exportName": "emberGeneratedSource",
       "charId": "chr_0009_azrila",
-      "outputStage": "audit",
+      "outputStage": "complete",
+      "talents": [
+        { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
+        { "index": 1, "key": "talent2", "compile": "attachedPassive" }
+      ],
+      "potentials": [
+        { "key": "potential1", "compile": "skillBlackboardPatch" },
+        { "key": "potential2", "compile": "staticAttributes" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4", "compile": "multiplyUltimateCost" },
+        { "key": "potential5", "compile": "skillBlackboardPatch" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["basicAttack1", "basicAttack2", "basicAttack3", "basicAttack4"]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
+      ],
       "skills": [
         {
           "key": "comboSkill",

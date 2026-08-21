@@ -4143,6 +4143,41 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("target: 'enemy'", source)
 
+    def test_buff_lifecycle_target_application_reuses_current_buff_owner(self) -> None:
+        source = compile_buff_application_values(
+            buff_id="buff.fixture.child",
+            blackboard_assignments={},
+            target_source="Target",
+            target_group_key="",
+            count=ScalarSource(1, None, None),
+            buff_source="ActionSource",
+            inherit_source_skill_cast_info=True,
+            root_skill_context=False,
+            path="fixture.buffStart",
+            buff_owner_target="enemy",
+            current_buff_environment=True,
+        )
+
+        self.assertIn("target: 'enemy'", source)
+
+    def test_buff_ability_event_target_application_uses_event_target(self) -> None:
+        source = compile_buff_application_values(
+            buff_id="buff.fixture.child",
+            blackboard_assignments={},
+            target_source="Target",
+            target_group_key="",
+            count=ScalarSource(1, None, None),
+            buff_source="ActionSource",
+            inherit_source_skill_cast_info=True,
+            root_skill_context=False,
+            path="fixture.outputDamage",
+            buff_owner_target="caster",
+            current_buff_environment=True,
+            current_event_target=True,
+        )
+
+        self.assertIn("target: 'eventTarget'", source)
+
     def test_buff_event_owner_blackboard_read_reuses_current_buff_owner(self) -> None:
         read = BuffBlackboardReadSource(
             startFrame=0,
@@ -14961,6 +14996,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'enemy'", compiled)
         self.assertIn("buffIds: ['seal', 'seal-effect']", compiled)
         self.assertIn("step('finishCurrentBuff', { reason: 'early' })", compiled)
+
+    def test_take_damage_buff_event_keeps_its_post_damage_phase(self) -> None:
+        finish = ConditionalBranchActionSource(
+            actionType="FinishBuffAdvanced",
+            actionIndex=0,
+            buffFinish=BuffFinishPayload(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Environment",
+                buffIds=(),
+                tagQueryType="hasAny",
+                buffTagIds=(),
+                finishAll=True,
+                limitSource=False,
+                isFinishedEarly=True,
+                isAbsorbed=False,
+            ),
+        )
+        event = SimpleNamespace(
+            eventSource="ability",
+            event="OnTakeDamage",
+            damageUnits=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("FinishBuffAdvanced",),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(finish,),
+                    priority=0,
+                ),
+            ),
+        )
+        source = SimpleNamespace(buffId="listener", blackboard=(), eventActions=(event,))
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "listener.eventActions",
+            buff_owner_target="caster",
+            buff_definitions={},
+        )
+
+        self.assertIn("event: 'takeDamage'", compiled)
+        self.assertNotIn("event: 'beforeTakeDamage'", compiled)
 
     def test_buff_start_damage_compiles_as_a_lifecycle_sequence(self) -> None:
         damage = DamageUnitSource(

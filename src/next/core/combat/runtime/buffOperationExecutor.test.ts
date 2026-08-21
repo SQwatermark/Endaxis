@@ -299,6 +299,25 @@ describe('BuffOperationExecutor', () => {
         blackboardValues: { duration: 25, comboRate: 4 },
       },
     ]);
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'external-event-buff',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toBe(true);
+    expect(applied[1]).toEqual({
+      buffId: 'external-event-buff',
+      sourceId: 'operator',
+      blackboardValues: {},
+    });
   });
 
   it('resolves an id-only application from the operator Buff blueprint table', () => {

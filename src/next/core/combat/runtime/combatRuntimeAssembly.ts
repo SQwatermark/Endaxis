@@ -256,6 +256,16 @@ export interface CombatRuntimeAssemblyOptions {
       readonly skillId: string;
     },
   ) => void;
+  /** 外部受击标记只向 Ability 监听器陈述事实，不执行敌方行为或生命变化。 */
+  readonly emitExternalOperatorHit?: (
+    operatorId: string,
+    payload: {
+      readonly sourceId: 'enemy';
+      readonly targetId: string;
+      readonly tags: readonly import('../../game-data/operatorDefinition').DamageTag[];
+      readonly features: readonly import('../../game-data/operatorDefinition').DamageFeature[];
+    },
+  ) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
   readonly createEquipmentEventOperationExecutor?: (
     context: EquipmentEventOperationExecutorContext,
@@ -724,6 +734,7 @@ export class CombatRuntimeAssembly {
       clock: this.clock,
       events: options.externalEvents ?? [],
       semanticEvents: this.semanticEvents,
+      emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
       receipt: this.receipt,
     });
     // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。

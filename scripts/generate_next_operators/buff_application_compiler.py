@@ -127,6 +127,15 @@ def compile_buff_application_values(
         and not target_group_key
     ):
         target = "eventTarget"
+    elif (
+        current_buff_environment
+        and not current_event_target
+        and buff_owner_target is not None
+        and target_source == "Target"
+        and not target_group_key
+    ):
+        # Buff 生命周期动作以宿主作为 InputTarget；TargetSource.Target 解析该输入句柄。
+        target = buff_owner_target
     elif target_source == "Owner" and current_ability_entity_owner:
         target = "currentAbilityEntity"
     elif (

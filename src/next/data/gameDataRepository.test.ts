@@ -6,6 +6,7 @@ import {
   camille,
   chenQianyu,
   daPan,
+  ember,
   endministrator,
   estella,
   fluorite,
@@ -47,6 +48,7 @@ describe('gameDataRepository', () => {
       lifeng,
       estella,
       daPan,
+      ember,
       akekuri,
       fluorite,
       endministrator,
@@ -67,6 +69,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(lifeng.slug)).toBe(lifeng);
     expect(nextGameDataRepository.getOperator(estella.slug)).toBe(estella);
     expect(nextGameDataRepository.getOperator(daPan.slug)).toBe(daPan);
+    expect(nextGameDataRepository.getOperator(ember.slug)).toBe(ember);
     expect(nextGameDataRepository.getOperator(akekuri.slug)).toBe(akekuri);
     expect(nextGameDataRepository.getOperator(fluorite.slug)).toBe(fluorite);
     expect(nextGameDataRepository.getOperator(endministrator.slug)).toBe(endministrator);

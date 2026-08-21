@@ -10,6 +10,7 @@ describe('ExternalCombatEventRuntime', () => {
     const events = new CombatSemanticEventRuntime();
     const receipt = new CombatReceiptCollector();
     const received: string[] = [];
+    const abilityEvents: unknown[] = [];
     for (const operatorId of ['operator:a', 'operator:b']) {
       events.register({
         ownerOperatorId: operatorId,
@@ -25,6 +26,8 @@ describe('ExternalCombatEventRuntime', () => {
     const runtime = new ExternalCombatEventRuntime({
       clock,
       semanticEvents: events,
+      emitOperatorHitAbilityEvent: (operatorId, payload) =>
+        abilityEvents.push({ operatorId, payload }),
       receipt,
       events: [
         {
@@ -38,6 +41,17 @@ describe('ExternalCombatEventRuntime', () => {
     runtime.applyCurrentFrame();
 
     expect(received).toEqual(['operator:b:normalSkill']);
+    expect(abilityEvents).toEqual([
+      {
+        operatorId: 'operator:b',
+        payload: {
+          sourceId: 'enemy',
+          targetId: 'operator:b',
+          tags: ['normalSkill'],
+          features: ['airborne'],
+        },
+      },
+    ]);
     expect(receipt.entries).toEqual([
       expect.objectContaining({
         event: 'ExternalOperatorHitProcessed',

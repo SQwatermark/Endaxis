@@ -444,3 +444,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 伊冯天赋 1 的三条伤害修正保留多个 `CheckTagMatch` 的合取结构；不会把晶体附着与冻结/异常标签的 `HasAny`、`ExceptAny`、`HasAll` 分支摊平成单一标签查询。被动定义筛选现从已启用根 Buff 沿事件创建关系求传递闭包，循环依赖可终止且无关被动定义不会混入产物。阶段从 audit 升为 complete 时会删除旧 `*.skills.audit.generated.ts`，避免同一干员残留两套技能源码。
 - 本轮门禁：伊冯生成和 `--check` 通过，`vue-tsc --noEmit` 通过，相关 Python 50/50、完整 Next Vitest 198 文件 1301/1301 通过。完整 Python 聚合仍有 15 个此前存在的陈旧夹具/断言失败，主要集中在投射物新增必填字段、旧目标证明报错文案和旧 StoreAttribute 夹具，不能宣称全量 Python 绿。`tmp/` 仍未跟踪且不得提交。下一项应为伊冯补默认仓库生产场景回归，验证冻结输出 Buff → valid 标记与天赋伤害修正的实际回执；梨诺缺失实体模板继续失败关闭。
 - 伊冯默认仓库生产回归已补：满天赋、潜能 3 的构筑只放置一段普攻，标准场景能够正常产生 `SkillStarted` 与 `DamageApplied`。该回归同时修复场景增量编译边界：只对本次已编译技能组应用对应养成补丁，未放置技能组的补丁跳过；完整干员定义编译仍使用严格模式检查错误组键，因此不会掩盖悬空配置。下一步的伊冯专项回归应直接构造可证明的冻结 Buff 输出链，检查 talent1 valid Buff 与 damage modifier，而不是制造敌方行为。
+- Ember 已由 `audit` 提升为正式生成干员并加入默认仓库：9 个技能、2 项天赋和 5 项潜能均由版本化来源完整转换，`conversionSupport` 为 `complete`。天赋 1 与潜能 1/3/5 是技能黑板补丁，天赋 2 是附着被动，潜能 2 是力量/意志静态属性，潜能 4 是终结技费用乘以 0.85；养成审计更新为天赋 21/38、潜能 85/95，全部已转换槽位均可进入标准模拟。
+- Ember 终结技护盾 Buff 的 `OnBuffStart` 中 plain `Target` 已依据 Buff 原生执行上下文归约为当前 Buff 宿主；Ability 事件里的 plain `Target` 仍是事件目标，两者有专门测试隔离，不能泛化合并。
+- 外部 `operatorHit` 标记现在除语义监听器外，还向目标干员的 Buff Ability 事件中心派发受击后的 `takeDamage` 事实。它只携带 `sourceId=enemy`、目标、标签和 damage features，不执行敌方技能、伤害计算或生命扣减。Ember 天赋 2 因而可由时间轴受击标记触发攻击 Buff；原生 `OnTakeDamage` 没有被偷换成 `OnBeforeTakeDamage`。
+- `inheritSourceSkillCastInfo` 已修正为可选继承：上下文存在施法信息时完整复制，不存在时保持为空。外部受击事实没有敌方技能实例，因此不得伪造技能 ID 或施法序号；这一行为已由 Buff 执行器测试和 Ember 默认仓库生产回归锁定。

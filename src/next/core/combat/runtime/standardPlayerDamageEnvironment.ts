@@ -215,6 +215,8 @@ export class StandardPlayerDamageEnvironment {
       readSourceAttributeValue: (sourceId, request) =>
         this.#readSourceAttributeValue(sourceId, request),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
+      emitExternalOperatorHit: (operatorId, payload) =>
+        this.#emit(operatorId, 'takeDamage', payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
       resolveVitals: (target, operatorId, buffSourceId) => {

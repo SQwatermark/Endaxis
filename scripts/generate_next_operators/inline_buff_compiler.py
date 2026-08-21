@@ -320,6 +320,9 @@ def compile_inline_buff_event_responses(
             is_before_take_damage = (
                 event.eventSource == "ability" and event.event == "OnBeforeTakeDamage"
             )
+            is_take_damage = (
+                event.eventSource == "ability" and event.event == "OnTakeDamage"
+            )
             is_output_damage = (
                 event.eventSource == "ability" and event.event == "OnOutputDamage"
             )
@@ -366,6 +369,8 @@ def compile_inline_buff_event_responses(
                 if is_enhance_changed
                 else "beforeTakeDamage"
                 if is_before_take_damage
+                else "takeDamage"
+                if is_take_damage
                 else "takeCriticalDamage"
                 if is_take_critical_damage
                 else "outputDamage"
@@ -400,6 +405,7 @@ def compile_inline_buff_event_responses(
                 buff_definitions=buff_definitions,
                 buff_ability_damage_event=(
                     is_before_take_damage
+                    or is_take_damage
                     or is_take_critical_damage
                     or is_output_damage
                     or is_before_cast_skill
@@ -445,6 +451,7 @@ def compile_inline_buff_event_responses(
                 continue
             if not (
                 is_before_take_damage
+                or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
                 or is_before_cast_skill
@@ -462,6 +469,8 @@ def compile_inline_buff_event_responses(
             event_name = (
                 "beforeTakeDamage"
                 if is_before_take_damage
+                else "takeDamage"
+                if is_take_damage
                 else "takeCriticalDamage"
                 if is_take_critical_damage
                 else "outputDamage"

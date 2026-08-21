@@ -184,9 +184,6 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (Object.keys(assignments).length > 0 && context === undefined) {
         throw new Error('applyBuff runtime values require a combat operation context');
       }
-      if (step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo === undefined) {
-        throw new Error('applyBuff inherited skill-cast info requires a skill runtime context');
-      }
       if (step.parameters.count !== undefined && context === undefined) {
         throw new Error('applyBuff runtime count requires a combat operation context');
       }
@@ -214,8 +211,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             resolveActionValueOperand(operand, context!.blackboard),
           ]),
         ),
-        ...(step.parameters.inheritSourceSkillCastInfo
-          ? { skillCastInfo: context!.skillCastInfo! }
+        ...(step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo !== undefined
+          ? { skillCastInfo: context.skillCastInfo }
           : {}),
       };
       if (finishByAction && this.#actionDurationBuffs.has(step)) {

@@ -1,5 +1,5 @@
-/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */
-import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
+/** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
+import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import { branch, once, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
@@ -35,6 +35,8 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                     value: { kind: 'blackboard', key: 'extrashelter' },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               step('applyBuff', {
                 buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
@@ -46,6 +48,8 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -98,6 +102,8 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'physical',
@@ -141,6 +147,8 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 tagIds: [-1517158118],
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('changeResourceByActionValue', {
             resource: 'ultimateEnergy',
@@ -270,6 +278,8 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -368,6 +378,8 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -442,6 +454,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                     value: { kind: 'blackboard', key: 'extrashelter' },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               step('applyBuff', {
                 buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
@@ -453,6 +467,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -510,6 +526,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'heat',
@@ -531,6 +549,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 value: 10,
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
@@ -617,6 +637,8 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'blackboard', key: 'extrashield' },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('modifyActionValue', {
             key: 'FinalShield',
@@ -657,3 +679,374 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     'poise': 25,
   },
 );
+
+export const emberGeneratedOperator: OperatorDefinition = {
+  slug: 'ember',
+  gameId: 'EMBER',
+  rarity: 6,
+  weaponType: 'greatsword',
+  element: 'heat',
+  role: 'defender',
+  mainAttribute: 'strength',
+  secondaryAttribute: 'will',
+  attributes: {
+    strength: [21, 54, 89, 124, 159, 176],
+    agility: [9, 28, 47, 67, 87, 96],
+    intellect: [8, 25, 42, 60, 77, 86],
+    will: [13, 36, 60, 84, 108, 120],
+    baseAttack: [30, 93, 159, 225, 291, 323],
+    baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
+  },
+  skillGroups: [
+    { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [emberBasicAttack1, emberBasicAttack2, emberBasicAttack3, emberBasicAttack4] },
+    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: emberFinisher },
+    { key: 'plungingAttack', skillType: 'plungingAttack', levelSource: 'basicAttack', skills: emberPlungingAttack },
+    { key: 'battleSkill', skillType: 'battleSkill', levelSource: 'battleSkill', skills: emberBattleSkill },
+    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: emberUltimate },
+    { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: emberComboSkill },
+  ],
+  buffDefinitions: {
+    'buff_chr_0009_azrila_normal_skill_shelter': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 0,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0,
+        'rate': 0,
+      },
+      sustainedProtection: {
+        target: 'buffSource',
+        superArmor: 35,
+        impactResistance: 100,
+      },
+    },
+    'buff_chr_0009_azrila_normal_skill_gpsuccess': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 2,
+      blackboard: {
+        'def': 0,
+        'dur': 0,
+        'prob': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'skillEnd',
+          priority: 0,
+          sequence:
+            sequence(
+              step('finishCurrentBuff', { reason: 'other' }),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0009_azrila_ultimate_skill_shield_extraattack': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 0,
+      blackboard: {
+        'duration': 8,
+        'extraattack': 0,
+        'extrashield': 0,
+        'hp_percent': 0,
+        'potential_5': 0,
+        'shelter': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'extraattack' },
+        },
+      ],
+    },
+    'buff_chr_0009_azrila_ultimateshield': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTagIds: [-1757502026],
+      blackboard: {
+        'FinalShield': 0,
+        'duration': 8,
+        'extraattack': 0,
+        'extrashield': 0,
+        'hp_percent': 0,
+        'potential_5': 0,
+        'shelter': 0,
+      },
+      shields: [
+        {
+          infinityValue: false,
+          value: { blackboardKey: 'FinalShield' },
+          absorbCount: -1,
+          absorbAllDamageWhenConsumed: false,
+          removeBuffWhenConsumed: true,
+          priority: 'normal',
+          replaceHitEffect: false,
+          damageAbsorptions: [
+          ],
+        },
+      ],
+      lifecycleSequences: {
+        start: sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_5' },
+              operator: 'greater',
+              right: { kind: 'constant', value: 0 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0009_azrila_ultimate_skill_shield_extraattack',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'extraattack': { kind: 'blackboard', key: 'extraattack' },
+                },
+              }),
+            ),
+          ),
+        ),
+      },
+    },
+    'buff_chr_0009_azrila_talent_2_buff': {
+      stackingType: 'enhanceAndOverwriteDuration',
+      priority: 0,
+      maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'attack': 0,
+        'duration': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'attack' },
+        },
+      ],
+    },
+    'buff_chr_0009_azrila_talent_2': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'attack': 0,
+        'duration': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'takeDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventDamageFeaturesMatch',
+                  match: 'exceptAny',
+                  features: ['dot', 'remainArea'],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0009_azrila_talent_2_buff',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'attack': { kind: 'blackboard', key: 'attack' },
+                      'duration': { kind: 'blackboard', key: 'duration' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+  },
+  talents: [
+    {
+      key: 'talent1',
+      levels: 2,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent1',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'shelterrate',
+          operation: 'assign',
+          value: [0.3, 0.5],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'talent1',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'shelterrate',
+          operation: 'assign',
+          value: [0.3, 0.5],
+        },
+      ],
+    },
+    {
+      key: 'talent2',
+      levels: 2,
+      modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0009_azrila_talent_2',
+          blackboard: {
+            'attack': [0.06, 0.09],
+            'duration': 7,
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0009_azrila_talent_2',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'attack': { kind: 'blackboard', key: 'attack' },
+                'duration': { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
+    },
+  ],
+  potentials: [
+    {
+      key: 'potential1',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_1',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'extrashelter',
+          operation: 'assign',
+          value: 0.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'extratime',
+          operation: 'assign',
+          value: 1.5,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'potential_1',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'extrashelter',
+          operation: 'assign',
+          value: 0.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'extratime',
+          operation: 'assign',
+          value: 1.5,
+        },
+      ],
+    },
+    {
+      key: 'potential2',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['strength', 'will'],
+          value: 20,
+        },
+      ],
+    },
+    {
+      key: 'potential3',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'extracure',
+          operation: 'assign',
+          value: 0.5,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'potential_3',
+          operation: 'assign',
+          value: 1,
+        },
+      ],
+    },
+    {
+      key: 'potential4',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
+    },
+    {
+      key: 'potential5',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'extrashield',
+          operation: 'assign',
+          value: 1.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_5',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'extraattack',
+          operation: 'assign',
+          value: 0.1,
+        },
+      ],
+    },
+  ],
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
+};

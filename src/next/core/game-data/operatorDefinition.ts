@@ -1078,6 +1078,7 @@ export interface SkillBuffAbilityEventResponse {
   /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
   event:
     | 'beforeTakeDamage'
+    | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
     | 'beforeCastSkill'
