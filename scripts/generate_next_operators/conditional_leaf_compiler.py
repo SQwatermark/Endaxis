@@ -14,6 +14,7 @@ from source_models import (
     ConditionalProjectileProjection,
     SkillSource,
     TargetGroupWriteSource,
+    TargetReferenceSource,
 )
 from source_utils import indent_source, ts_inline_literal
 from single_enemy_projectile import recursive_projectile_launch_has_no_single_enemy_target
@@ -47,6 +48,23 @@ class ConditionalLeafServices:
     target_group_write_ability_entity_collection_identity: Callable[..., Any]
     target_group_write_buff_application_target: Callable[..., Any]
     target_group_write_guarantees_single_enemy: Callable[..., Any]
+
+
+def target_reference_party_target(
+    target: TargetReferenceSource,
+) -> Literal["party", "partyExceptCaster"] | None:
+    """识别直接 CharacterTeamFinder 引用的固定队伍集合。"""
+    if (
+        target.targetSource not in {"InstantSearch", "Source"}
+        or target.finderType != "CharacterTeamFinder"
+        or target.postProcessorTypes
+    ):
+        return None
+    if not target.validatorTypes:
+        return "party"
+    if target.validatorTypes == ("ExcludeOwnerValidator",):
+        return "partyExceptCaster"
+    return None
 
 
 def compile_conditional_branch_action(
@@ -582,18 +600,25 @@ def compile_conditional_branch_action(
                 )
             )
         else:
-            finish_target = resolve_fixed_combat_target(
-                legacy_finish.target.targetSource,
-                legacy_finish.target.targetGroupKey,
-                action=context_action,
-                target_group_writes=target_group_writes,
-                root_skill_context=root_skill_context,
-                input_target=input_target,
-            )
+            finish_target = target_reference_party_target(legacy_finish.target)
+            if finish_target is None:
+                finish_target = resolve_fixed_combat_target(
+                    legacy_finish.target.targetSource,
+                    legacy_finish.target.targetGroupKey,
+                    action=context_action,
+                    target_group_writes=target_group_writes,
+                    root_skill_context=root_skill_context,
+                    input_target=input_target,
+                )
         if (
             finish_target is None
-            or legacy_finish.target.validatorTypes
-            or legacy_finish.target.postProcessorTypes
+            or (
+                finish_target not in {"party", "partyExceptCaster"}
+                and (
+                    legacy_finish.target.validatorTypes
+                    or legacy_finish.target.postProcessorTypes
+                )
+            )
             or legacy_finish.limitSource
             or legacy_finish.buffSource.targetSource != "Source"
             or legacy_finish.buffSource.targetGroupKey

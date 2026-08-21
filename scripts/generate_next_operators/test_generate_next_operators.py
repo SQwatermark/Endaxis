@@ -1520,6 +1520,16 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             allow_action_source_owner=True,
         )
         self.assertIn("abilityEntityIds: ['water_entity']", query)
+        context_center_query = compile_skill_target_group_ability_entity_query(
+            replace(
+                write,
+                center="ContextTarget",
+                centerContextKey="mainchr",
+            ),
+            templates,
+            "fixture.contextCenterQuery",
+        )
+        self.assertIn("abilityEntityIds: ['water_entity']", context_center_query)
 
     def test_target_group_non_empty_proof_covers_exhaustive_enemy_or_point_paths(
         self,
@@ -2503,6 +2513,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("target: 'caster'", compile_target("Owner"))
         self.assertIn("target: 'enemy'", compile_target("Target"))
+        party_target = parse_target_reference(
+            target_settings_fixture(
+                "InstantSearch",
+                finder_type="CharacterTeamFinder",
+            ),
+            "fixture.party",
+        )
+        party_payload = SimpleNamespace(
+            target=party_target,
+            buffIds=("buff.example",),
+            finishAll=True,
+            finishLayerCount=ScalarSource(1, None, None),
+            limitSource=False,
+            buffSource=source,
+            isFinishedEarly=False,
+            finishSource=source,
+        )
+        party_result = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "FinishBuffAction", 0, legacyBuffFinish=party_payload
+            ),
+            "fixture.partyFinish",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+        self.assertIn("target: 'party'", party_result)
+        party_except_caster = replace(
+            party_target,
+            validatorTypes=("ExcludeOwnerValidator",),
+        )
+        party_except_result = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "FinishBuffAction",
+                0,
+                legacyBuffFinish=SimpleNamespace(
+                    **{
+                        **vars(party_payload),
+                        "target": party_except_caster,
+                    }
+                ),
+            ),
+            "fixture.partyExceptFinish",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+        self.assertIn("target: 'partyExceptCaster'", party_except_result)
 
     def test_root_skill_cooldown_set_compiles_absolute_and_ratio_bases(self) -> None:
         def parse_and_compile(is_percentage: bool, value: float) -> str:

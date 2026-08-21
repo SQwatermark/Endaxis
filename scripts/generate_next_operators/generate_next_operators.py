@@ -5800,8 +5800,6 @@ def compile_skill_target_group_ability_entity_query(
     identity = target_group_write_ability_entity_collection_identity(write)
     if (
         identity is None
-        or write.center != "ActionSource"
-        or write.centerContextKey
         or write.selectorOwner
         not in (
             {"ActionOwner", "ActionSource"}
@@ -5811,6 +5809,8 @@ def compile_skill_target_group_ability_entity_query(
         or write.selectorOwnerContextKey
     ):
         raise ValueError(f"{path}: unsupported skill target-group producer")
+    # OwnerSpawnedEntityFinder 的实例身份由 selector owner、对象类型和标签决定；
+    # 在项目固定零空间模型中，ActionSource/ContextTarget 等查询中心不改变结果集合。
     ability_entity_ids = resolve_ability_entity_ids_from_tag_queries(
         identity, templates, f"{path}.validatorTagQueries"
     )

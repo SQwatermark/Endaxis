@@ -87,6 +87,7 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 - `skill_action_fact_parser.py`：聚合辅助 Buff/能力实体动作、运行时黑板读写/结束 Buff，以及带直接条件和容器路径证据的时间线跳转；共享遍历、来源加载和目标证明由入口注入。
 - `damage_step_compiler.py`：统一编译旧式直伤、单投射物伤害、结构化 `DamageUnit`、固定伤害/失衡、稳定伤害步骤 key，以及单敌人模型下递归投射物无目标证明；数值、资源和 Buff 辅助规则由入口注入。
 - `single_enemy_projectile.py`：只在来源明确以敌方普通存活目标为候选、排除当前目标，并将结果用于同一投射物命中技能的递归发射时，证明唯一敌人已被排除并省略该分支；不以处理器名称或干员白名单代替结构证据。
+- `OwnerSpawnedEntityFinder` 仍由 selector owner、对象类型和 born-tag 查询决定实体集合；在固定零空间模型中，`ActionSource`、`ContextTarget` 等查询中心只提供位置，不改变实例身份。旧式 `FinishBuffAction` 的直接 `CharacterTeamFinder` 可归约为全队（带 `ExcludeOwnerValidator` 时为除施法者外全队），并复用统一 `finishBuffsById` 的目标外层执行链。
 - `buff_application_compiler.py`：统一编译单 Buff 应用、集合目标实例生命周期、内联事件/定时行为，以及固定单敌人模型可严格归约的 Aura；目标和动态操作数证明由入口注入。
 - `skill_source_builder.py`：按固定顺序把单个 manifest 技能入口、SkillData、SkillPatch 和各来源解析器装配为完整 `SkillSource`；只编排事实，不解释新的游戏语义。
 - `audit_report_renderer.py`：把完整来源事实、递归子图、resolved schedule、替换关系和支持度问题投影为稳定 JSON 审计报告。
