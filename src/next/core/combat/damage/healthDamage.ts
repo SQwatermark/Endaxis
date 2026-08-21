@@ -61,11 +61,13 @@ export interface ExecuteHealthDamageInput {
     event: HealthDamageTargetEvent,
     payload: HealthDamageEventPayload,
   ) => void;
+  /** OnBeforeTake/OutputDamage 之后、生命写入之前执行的目标护盾链。 */
+  readonly absorbDamage?: (damageType: DamageType, value: number) => number;
 }
 
 /** 在已还原的公式后边界应用解析完成的玩家主动伤害。 */
 export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDamageResult {
-  const payload: HealthDamageEventPayload = {
+  const beforePayload: HealthDamageEventPayload = {
     sourceId: input.sourceId,
     targetId: input.targetId,
     damageType: input.damageType,
@@ -74,11 +76,16 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     result: input.result,
   };
 
-  input.emitTargetEvent('beforeTakeDamage', payload);
-  input.emitSourceEvent('beforeOutputDamage', payload);
-  const mayKillTarget = input.target.health > 0 && input.result.value >= input.target.health;
+  input.emitTargetEvent('beforeTakeDamage', beforePayload);
+  input.emitSourceEvent('beforeOutputDamage', beforePayload);
+  const result =
+    input.absorbDamage === undefined
+      ? input.result
+      : { ...input.result, value: input.absorbDamage(input.damageType, input.result.value) };
+  const payload: HealthDamageEventPayload = { ...beforePayload, result };
+  const mayKillTarget = input.target.health > 0 && result.value >= input.target.health;
   if (mayKillTarget) input.emitSourceEvent('beforeKillEntity', payload);
-  const stateChange = input.target.takeDamage(input.result.value);
+  const stateChange = input.target.takeDamage(result.value);
   if (mayKillTarget && stateChange.currentHealth === 0) {
     input.emitSourceEvent('afterKillEntity', payload);
   }
@@ -90,17 +97,17 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     targetId: input.targetId,
     data: {
       damageType: input.damageType,
-      value: input.result.value,
+      value: result.value,
       actualDamage: stateChange.actualDamage,
       remainingHealth: stateChange.currentHealth,
-      isCritical: input.result.isCritical,
-      criticalMultiplier: input.result.criticalMultiplier,
-      defenseMultiplier: input.result.defenseMultiplier,
-      resistanceMultiplier: input.result.resistanceMultiplier,
-      weaknessShelterMultiplier: input.result.weaknessShelterMultiplier,
-      runtimeExtensionMultiplier: input.result.runtimeExtensionMultiplier,
-      igniteMultiplier: input.result.igniteMultiplier,
-      physicalInflictionMultiplier: input.result.physicalInflictionMultiplier,
+      isCritical: result.isCritical,
+      criticalMultiplier: result.criticalMultiplier,
+      defenseMultiplier: result.defenseMultiplier,
+      resistanceMultiplier: result.resistanceMultiplier,
+      weaknessShelterMultiplier: result.weaknessShelterMultiplier,
+      runtimeExtensionMultiplier: result.runtimeExtensionMultiplier,
+      igniteMultiplier: result.igniteMultiplier,
+      physicalInflictionMultiplier: result.physicalInflictionMultiplier,
       ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
       ...(input.castId === undefined ? {} : { castId: input.castId }),
       ...(input.hitId === undefined ? {} : { hitId: input.hitId }),

@@ -82,6 +82,7 @@ export interface PlayerDamageOperationDependencies {
   readonly resolvePoiseMultipliers: (step: PoiseStep) => PoiseDamageMultipliers;
   readonly emitHealthSourceEvent: Parameters<typeof executeHealthDamage>[0]['emitSourceEvent'];
   readonly emitHealthTargetEvent: Parameters<typeof executeHealthDamage>[0]['emitTargetEvent'];
+  readonly absorbHealthDamage?: Parameters<typeof executeHealthDamage>[0]['absorbDamage'];
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly emitPoiseTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   /** 生命伤害已经写入目标后，向统一语义事件层报告本次命中。 */
@@ -169,6 +170,9 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       ...(step.hitId === undefined ? {} : { hitId: step.hitId }),
       emitSourceEvent: this.dependencies.emitHealthSourceEvent,
       emitTargetEvent: this.dependencies.emitHealthTargetEvent,
+      ...(this.dependencies.absorbHealthDamage === undefined
+        ? {}
+        : { absorbDamage: this.dependencies.absorbHealthDamage }),
     });
     this.dependencies.emitSemanticHit?.(step);
 

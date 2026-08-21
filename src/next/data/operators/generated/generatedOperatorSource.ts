@@ -382,6 +382,35 @@ export interface GeneratedBuffDefinitionSource {
   readonly comboQteActions?: readonly GeneratedBuffComboQteSource[];
   /** 当前 Buff 实例在 Ability 事件边界上的暂停/恢复赋值。 */
   readonly pauseTimeActions?: readonly GeneratedBuffPauseTimeSource[];
+  readonly shields?: readonly GeneratedBuffShieldSource[];
+  readonly sustainedProtections?: readonly GeneratedBuffSustainedProtectionSource[];
+  readonly runtimeSkillSlotReplacements?: readonly {
+    readonly skillGroupKey: string;
+    readonly targetSkillKey: string;
+    readonly revertedSkillKey: string;
+    readonly inheritOriginSkillCooldownProgress: boolean;
+  }[];
+}
+
+export interface GeneratedBuffShieldSource {
+  readonly infinityValue: boolean;
+  readonly value: GeneratedScalarSource;
+  readonly damageAbsorptions: readonly {
+    readonly damageType: string;
+    readonly ratio: GeneratedScalarSource;
+    readonly scale: GeneratedScalarSource;
+  }[];
+  readonly absorbCount: GeneratedScalarSource;
+  readonly absorbAllDamageWhenConsumed: boolean;
+  readonly removeBuffWhenConsumed: boolean;
+  readonly priority: 'Normal' | 'PrioritizeConsume';
+  readonly replaceHitEffect: boolean;
+}
+
+export interface GeneratedBuffSustainedProtectionSource {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly superArmor: GeneratedScalarSource;
+  readonly impactResistance: GeneratedScalarSource;
 }
 
 export interface GeneratedBuffComboQteSource {
@@ -801,6 +830,8 @@ export interface GeneratedConditionalActionSource {
   readonly conditions: readonly GeneratedConditionSource[];
   readonly succeedActions: readonly GeneratedConditionalBranchActionSource[];
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
+  /** 原生条件动作无论所选分支返回值如何都允许外层序列继续。 */
+  readonly alwaysNext?: boolean;
   /** DoOnce 条件根在一次技能执行内共享的稳定作用域。 */
   readonly onceScopeKey?: string;
   /** 固定间隔动作会在多个帧重复执行同一条件树；普通条件仅含 startFrame。 */

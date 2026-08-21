@@ -65,7 +65,7 @@ watch(
 
 function setCondition(condition: CombatCondition): void {
   if (props.step.kind !== 'conditional') return;
-  emit('update', { ...props.step, parameters: { condition } });
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, condition } });
 }
 
 function setScopeKey(event: Event): void {

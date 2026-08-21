@@ -12,7 +12,9 @@
 
 `SetSkillCdAtOnce` 的技能选择遵循复刻库与 1.4.4 反编译证据：`useSkillType=true` 时只按 `SkillTypeMask` 遍历，配置中的 `skillId` 即使非空也不参与选择；为 `false` 时才按精确 ID 查找。Set/Reduce 与绝对值/周期比例继续保留为正交字段。证据见相邻 `combat-spec/docs/set-skill-cooldown.md`。
 
-`ChangeSkillAction` 的 `FinishByAction` 形态内联在承载它的 Buff 定义中：Buff 每次启用时换入目标技能，停用或结束导致 DuringBuffEnable 动作 End 时还原指定技能。生成器必须从原生目标/还原 ID 和技能组证明关系，并由 `runtimeReplacementSkillKeys` 明确选择不可直接放置的替换形态。`inheritOriginSkillCdProgress=true` 尚未接入时严格失败。证据见 `combat-spec/docs/change-skill-action.md`。动态最大 Buff 层数从首实例黑板键解析；`isNeedStackEffect=true` 但效果数组为空是反编译确认的表现层 no-op，见 `combat-spec/docs/buff-stack-presentation.md`。
+`ChangeSkillAction` 的 `FinishByAction` 形态内联在承载它的 Buff 定义中：Buff 每次启用时换入目标技能，停用或结束导致 DuringBuffEnable 动作 End 时还原指定技能。生成器必须从原生目标/还原 ID 和技能组证明关系，并由 `runtimeReplacementSkillKeys` 明确选择不可直接放置的替换形态。运行时 `skillGroupKey` 必须取 manifest 技能组键，目标与还原继续使用稳定技能键；两种身份即使历史样本恰好同名也不得合并。`inheritOriginSkillCdProgress=true` 尚未接入时严格失败。证据见 `combat-spec/docs/change-skill-action.md`。动态最大 Buff 层数从首实例黑板键解析；`isNeedStackEffect=true` 但效果数组为空是反编译确认的表现层 no-op，见 `combat-spec/docs/buff-stack-presentation.md`。
+
+`BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 
 干员的稳定 slug、原始数据名称与本地化展示名必须分开：例如技术身份 `arcane` 的中文展示名是“诀”。展示名的权威对照本是 `src/i18n/game-locales/<locale>/operators.json`，由 `getOperatorGameName` 读取；本目录的 `operators.json` 不重复保存名称。生成审计中的原始英文 `operatorName` 可保留来源事实，UI 和面向用户的中文文档不得把它当作中文展示名。
 

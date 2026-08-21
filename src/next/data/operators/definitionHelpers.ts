@@ -89,10 +89,14 @@ export function branch(
   condition: CombatCondition,
   whenTrue: ActionSequenceDefinition,
   whenFalse?: ActionSequenceDefinition,
+  options?: { readonly alwaysNext?: boolean },
 ): Extract<CombatStepDefinition, { kind: 'conditional' }> {
   return {
     kind: 'conditional',
-    parameters: { condition },
+    parameters: {
+      condition,
+      ...(options?.alwaysNext === true ? { alwaysNext: true } : {}),
+    },
     whenTrue,
     ...(whenFalse ? { whenFalse } : {}),
   };

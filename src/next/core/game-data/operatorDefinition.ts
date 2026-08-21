@@ -815,7 +815,11 @@ export interface CombatStepParameters {
   };
   /** 立即结束当前宿主技能时间轴；只承接原生 InterruptCurSkillAction。 */
   finishTimeline: Record<string, never>;
-  conditional: { condition: CombatCondition };
+  conditional: {
+    condition: CombatCondition;
+    /** 原生条件动作通过时无论分支结果如何都允许外层序列继续。 */
+    alwaysNext?: boolean;
+  };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
   /** 在承载调度区间开始时以及之后每次宿主 Tick 中同步执行一次 body。 */

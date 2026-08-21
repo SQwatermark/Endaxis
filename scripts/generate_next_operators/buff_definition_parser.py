@@ -28,6 +28,9 @@ from source_models import (
     BuffPauseTimeSource,
     BlackboardMutationSource,
     BuffSourceDeathFinishSource,
+    BuffShieldAbsorptionSource,
+    BuffShieldSource,
+    BuffSustainedProtectionSource,
     HealthConditionSource,
     ScalarSource,
     UnparsedBuffPayloadSource,
@@ -70,6 +73,109 @@ BUFF_ATTRIBUTE_MODIFIER_SLOTS = {
     "BaseFinalMultiplier",
 }
 SLOW_GAMEPLAY_TAG_ID = 1925762097
+
+
+def parse_buff_shields(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+    damage_type_map: Mapping[str, str],
+) -> tuple[BuffShieldSource, ...]:
+    result: list[BuffShieldSource] = []
+    for index, raw_config in enumerate(
+        require_list(buff.get("shieldConfigs", []), f"{source_name}.shieldConfigs")
+    ):
+        path = f"{source_name}.shieldConfigs[{index}]"
+        config = require_dict(raw_config, path)
+        expected = {
+            "infinityValue", "valueCalculation", "damageAbsorptions", "absorbCnt",
+            "absorbAllDmgWhenConsume", "removeBuffWhenConsume", "priority",
+            "replaceHitEffect", "hitEffect",
+        }
+        if set(config) != expected:
+            raise ValueError(f"{path}: unexpected fields {sorted(set(config) - expected)}")
+        calculation = require_dict(config.get("valueCalculation"), f"{path}.valueCalculation")
+        calculation_expected = {"$type", "value", "applyScale", "valueScale"}
+        if set(calculation) != calculation_expected:
+            raise ValueError(f"{path}.valueCalculation: unexpected fields")
+        if calculation.get("$type") != "Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond":
+            raise ValueError(f"{path}.valueCalculation.$type: unsupported calculation")
+        if require_bool(calculation.get("applyScale"), f"{path}.valueCalculation.applyScale"):
+            raise ValueError(f"{path}.valueCalculation.applyScale: unsupported true value")
+        parse_scalar(calculation.get("valueScale"), f"{path}.valueCalculation.valueScale", blackboard)
+        absorptions: list[BuffShieldAbsorptionSource] = []
+        for absorption_index, raw_absorption in enumerate(
+            require_list(config.get("damageAbsorptions"), f"{path}.damageAbsorptions")
+        ):
+            absorption_path = f"{path}.damageAbsorptions[{absorption_index}]"
+            absorption = require_dict(raw_absorption, absorption_path)
+            if set(absorption) != {"damageType", "absorptionRatio", "absorptionScale"}:
+                raise ValueError(f"{absorption_path}: unexpected fields {sorted(absorption)}")
+            native_damage_type = absorption.get("damageType")
+            if native_damage_type not in damage_type_map:
+                raise ValueError(f"{absorption_path}.damageType: unsupported {native_damage_type!r}")
+            absorptions.append(BuffShieldAbsorptionSource(
+                damageType=damage_type_map[str(native_damage_type)],
+                ratio=parse_scalar(absorption.get("absorptionRatio"), f"{absorption_path}.absorptionRatio", blackboard),
+                scale=parse_scalar(absorption.get("absorptionScale"), f"{absorption_path}.absorptionScale", blackboard),
+            ))
+        priority = config.get("priority")
+        if priority not in {"Normal", "PrioritizeConsume"}:
+            raise ValueError(f"{path}.priority: unsupported {priority!r}")
+        result.append(BuffShieldSource(
+            infinityValue=require_bool(config.get("infinityValue"), f"{path}.infinityValue"),
+            value=parse_scalar(calculation.get("value"), f"{path}.valueCalculation.value", blackboard),
+            damageAbsorptions=tuple(absorptions),
+            absorbCount=parse_scalar(config.get("absorbCnt"), f"{path}.absorbCnt", blackboard),
+            absorbAllDamageWhenConsumed=require_bool(config.get("absorbAllDmgWhenConsume"), f"{path}.absorbAllDmgWhenConsume"),
+            removeBuffWhenConsumed=require_bool(config.get("removeBuffWhenConsume"), f"{path}.removeBuffWhenConsume"),
+            priority=str(priority),
+            replaceHitEffect=require_bool(config.get("replaceHitEffect"), f"{path}.replaceHitEffect"),
+        ))
+    return tuple(result)
+
+
+def parse_buff_sustained_protections(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffSustainedProtectionSource, ...]:
+    result: list[BuffSustainedProtectionSource] = []
+    for event_index, raw_event in enumerate(require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        for wrapper_index, raw_wrapper in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            wrapper_path = f"{event_path}.actions[{wrapper_index}]"
+            wrapper = require_dict(raw_wrapper, wrapper_path)
+            if "$type" in wrapper:
+                raw_actions = [wrapper]
+            elif isinstance(wrapper.get("actionData"), list):
+                raw_actions = wrapper["actionData"]
+            else:
+                continue
+            for action_index, raw_action in enumerate(raw_actions):
+                action_path = f"{wrapper_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(action.get("$type")) != "SetSuperArmorAction" or action.get("isEnable") is False:
+                    continue
+                if event.get("buffEvent") != "DuringBuffEnable":
+                    raise ValueError(f"{action_path}: SetSuperArmorAction outside DuringBuffEnable is unsupported")
+                expected = {"$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex", "targetSettings", "superArmorValue", "impactResistance"}
+                if set(action) != expected:
+                    raise ValueError(f"{action_path}: unexpected fields {sorted(action)}")
+                for field in ("superArmorValue", "impactResistance"):
+                    scalar = require_dict(action.get(field), f"{action_path}.{field}")
+                    if set(scalar) != {"useBlackboardKey", "value", "blackboardKey", "useCustomValue"}:
+                        raise ValueError(f"{action_path}.{field}: unexpected fields {sorted(scalar)}")
+                    require_bool(scalar.get("useCustomValue"), f"{action_path}.{field}.useCustomValue")
+                result.append(BuffSustainedProtectionSource(
+                    target=parse_target_reference(action.get("targetSettings"), f"{action_path}.targetSettings"),
+                    superArmor=parse_scalar(action.get("superArmorValue"), f"{action_path}.superArmorValue", blackboard),
+                    impactResistance=parse_scalar(action.get("impactResistance"), f"{action_path}.impactResistance", blackboard),
+                ))
+    return tuple(result)
 
 
 @dataclass(frozen=True)
@@ -685,7 +791,6 @@ UNPARSED_BUFF_PAYLOAD_FIELDS = (
     "globalModifier",
     "healModifier",
     "poiseModifier",
-    "shieldConfigs",
 )
 
 
@@ -975,12 +1080,17 @@ def resolve_buff_definitions(
             buff, source_file, blackboard, services=services
         )
         pause_time_actions = parse_buff_pause_time_actions(buff, source_file)
+        shields = parse_buff_shields(buff, source_file, blackboard, services.damage_type_map)
+        sustained_protections = parse_buff_sustained_protections(buff, source_file, blackboard)
         event_actions = parse_buff_event_actions(
             buff,
             source_file,
             blackboard,
             projected_action_names=(
-                frozenset({"SlowAction"}) if child_slow_tag_ids else frozenset()
+                frozenset(
+                    ({"SlowAction"} if child_slow_tag_ids else set())
+                    | ({"SetSuperArmorAction"} if sustained_protections else set())
+                )
             ),
         )
         ignite_event_actions = parse_buff_ignite_event_actions(buff, source_file, blackboard)
@@ -1101,6 +1211,8 @@ def resolve_buff_definitions(
             ),
             comboQteActions=combo_qte_actions,
             pauseTimeActions=pause_time_actions,
+            shields=shields,
+            sustainedProtections=sustained_protections,
         )
         pending.extend(
             child_id

@@ -1570,6 +1570,9 @@ function validateCombatStep(
         out,
         currentTargetAvailable,
       );
+      if (parameters.alwaysNext !== undefined && typeof parameters.alwaysNext !== 'boolean') {
+        push(out, `${path}.parameters.alwaysNext`, 'expected a boolean');
+      }
       break;
     case 'once':
       requireString(parameters, 'scopeKey', `${path}.parameters`, out);

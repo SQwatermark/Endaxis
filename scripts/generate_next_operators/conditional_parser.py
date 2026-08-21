@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from action_kinds import (
@@ -1075,6 +1076,9 @@ def parse_conditional_actions(
             conditions=conditions,
             succeedActions=succeed,
             failActions=fail,
+            alwaysNext=require_bool(
+                value.get("alwaysNext"), f"{source_path}.alwaysNext"
+            ),
             executionFrames=execution_frames,
         )
 
@@ -1149,6 +1153,8 @@ def parse_conditional_actions(
                 failActions=fail_actions,
                 executionFrames=execution_frames,
             )
+        if nested is not None:
+            nested = replace(nested, alwaysNext=True)
         return nested if has_combat_actions else None
 
     def parse_branch(
@@ -2115,6 +2121,7 @@ def parse_ordered_action_sequence(
                                 "$type": "Endaxis.Parser.IfElseAction",
                                 "isEnable": True,
                                 "serverActionIndex": 0,
+                                "alwaysNext": False,
                                 "conditionAction": {"actionData": []},
                                 "succeedActions": {"actionData": action_data},
                                 "failActions": {"actionData": []},

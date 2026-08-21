@@ -120,7 +120,7 @@ def render_operator_definition(
             runtimeSkillSlotReplacements=(
                 *definition.runtimeSkillSlotReplacements,
                 {
-                    "skillGroupKey": relation["baseSkillKey"],
+                    "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
                     "targetSkillKey": relation["replacementSkillKey"],
                     "revertedSkillKey": relation["baseSkillKey"],
                     "inheritOriginSkillCooldownProgress": False,

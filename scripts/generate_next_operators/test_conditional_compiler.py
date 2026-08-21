@@ -21,6 +21,8 @@ def leaf(name: str, index: int = 0) -> ConditionalBranchActionSource:
 def action(
     succeed: tuple[ConditionalBranchActionSource, ...],
     fail: tuple[ConditionalBranchActionSource, ...] = (),
+    *,
+    always_next: bool = False,
 ) -> ConditionalActionSource:
     return ConditionalActionSource(
         startFrame=0,
@@ -30,6 +32,7 @@ def action(
         conditions=(),
         succeedActions=succeed,
         failActions=fail,
+        alwaysNext=always_next,
     )
 
 
@@ -111,6 +114,18 @@ class ConditionalCompilerTest(unittest.TestCase):
             ")",
         )
         self.assertEqual(compiled_conditions, ["root"])
+
+    def test_always_next_is_preserved_even_for_equal_branches(self) -> None:
+        compiler = self.make_compiler(semantic_source=lambda _source: "same-effect")
+
+        compiled = compiler.compile_action(
+            action((leaf("success"),), (leaf("failure"),), always_next=True),
+            "root",
+            ConditionalCompileContext(),
+        )
+
+        self.assertIn("branch(", render(compiled))
+        self.assertIn("{ alwaysNext: true }", render(compiled))
 
     def test_control_wrappers_do_not_create_nested_sequences(self) -> None:
         validated_contexts: list[str] = []

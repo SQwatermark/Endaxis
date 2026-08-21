@@ -61,6 +61,20 @@ class CompilerIrTests(unittest.TestCase):
         self.assertIsInstance(compiled, CompiledBranch)
         self.assertIn("branch(", render(compiled))
 
+    def test_always_next_branch_keeps_control_flow_and_renders_options(self) -> None:
+        succeed = sequence(atom("step('same', {})"))
+        fail = sequence(atom("step('same', {})"))
+
+        compiled = branch(
+            "{ kind: 'condition' }",
+            succeed,
+            fail,
+            always_next=True,
+        )
+
+        self.assertIsInstance(compiled, CompiledBranch)
+        self.assertIn("{ alwaysNext: true }", render(compiled))
+
     def test_normalization_is_idempotent(self) -> None:
         source = sequence(sequence(atom("step('only', {})")))
 

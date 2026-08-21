@@ -7961,7 +7961,7 @@ def derive_skill_slot_replacement_relations(
                 if (
                     replacement.eventSource != "buff"
                     or replacement.event != "DuringBuffEnable"
-                    or replacement.skillSource.targetSource != "Source"
+                    or replacement.skillSource.targetSource not in {"Owner", "Source"}
                     or replacement.skillSource.targetGroupKey
                     or replacement.revertedSkillId != base.skillId
                     or not replacement.specificRevertedSkillId
@@ -8051,7 +8051,31 @@ def select_runtime_skill_slot_replacement_relations(
         raise ValueError(
             f"{operator['slug']}.runtimeReplacementSkillKeys: no proven slot relation for {missing}"
         )
-    return relations
+    if not relations:
+        return []
+    group_keys_by_skill: dict[str, list[str]] = {}
+    for raw_group in require_list(
+        operator.get("skillGroups"), f"{operator['slug']}.skillGroups"
+    ):
+        group = require_dict(raw_group, f"{operator['slug']}.skillGroups[]")
+        group_key = str(group.get("key"))
+        for skill_key in require_list(
+            group.get("skillKeys"), f"{operator['slug']}.skillGroups.{group_key}.skillKeys"
+        ):
+            group_keys_by_skill.setdefault(str(skill_key), []).append(group_key)
+    result: list[dict[str, Any]] = []
+    for relation in relations:
+        candidate_groups = set(group_keys_by_skill.get(relation["baseSkillKey"], ()))
+        candidate_groups.intersection_update(
+            group_keys_by_skill.get(relation["replacementSkillKey"], ())
+        )
+        if len(candidate_groups) != 1:
+            raise ValueError(
+                f"{operator['slug']}: replacement {relation['replacementSkillKey']!r} "
+                "must share exactly one skill group with its base skill"
+            )
+        result.append({**relation, "skillGroupKey": next(iter(candidate_groups))})
+    return result
 
 
 def render_operator_definition(

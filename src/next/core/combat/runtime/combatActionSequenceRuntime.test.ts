@@ -59,6 +59,25 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.operations.evaluate).toHaveBeenCalledTimes(1);
   });
 
+  it('alwaysNext 条件失败时仍允许外层序列继续', () => {
+    const fixture = createFixture(false);
+    const conditional: ResolvedCombatStep = {
+      kind: 'conditional',
+      parameters: {
+        condition: { kind: 'contextFlagEquals', flag: 'enabled', value: true },
+        alwaysNext: true,
+      },
+      whenTrue: sequence(operation('true')),
+    };
+
+    const result = fixture.runtime
+      .createSequence(sequence(conditional, operation('after')))
+      .executeInstant({});
+
+    expect(result).toBe(true);
+    expect(fixture.executed).toEqual(['after']);
+  });
+
   it('在当前状态所有者内去重 once，并允许显式重置', () => {
     const fixture = createFixture();
     const once: ResolvedCombatStep = {

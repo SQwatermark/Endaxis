@@ -199,7 +199,12 @@ from generate_next_operators import (
 from keyword_action_parser import parse_keyword_action, parse_timed_keyword_actions
 from time_dilation_parser import parse_time_dilation_target
 from action_payload_parser import parse_heal_payload
-from buff_definition_parser import parse_buff_combo_qte_actions, parse_buff_pause_time_actions
+from buff_definition_parser import (
+    parse_buff_combo_qte_actions,
+    parse_buff_pause_time_actions,
+    parse_buff_shields,
+    parse_buff_sustained_protections,
+)
 from resolved_sequence_compiler import (
     ability_entity_child_is_inert,
     projectile_ability_entities_are_condition_projections,
@@ -429,6 +434,85 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_parses_native_shield_config_strictly(self) -> None:
+        scalar = lambda value, key="": {
+            "useBlackboardKey": bool(key),
+            "value": value,
+            "blackboardKey": key,
+        }
+        shields = parse_buff_shields(
+            {
+                "shieldConfigs": [
+                    {
+                        "infinityValue": False,
+                        "valueCalculation": {
+                            "$type": "Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond",
+                            "value": scalar(0, "FinalShield"),
+                            "applyScale": False,
+                            "valueScale": scalar(0),
+                        },
+                        "damageAbsorptions": [
+                            {
+                                "damageType": "Heat",
+                                "absorptionRatio": scalar(0.5),
+                                "absorptionScale": scalar(2),
+                            }
+                        ],
+                        "absorbCnt": scalar(-1),
+                        "absorbAllDmgWhenConsume": False,
+                        "removeBuffWhenConsume": True,
+                        "priority": "PrioritizeConsume",
+                        "replaceHitEffect": True,
+                        "hitEffect": {},
+                    }
+                ]
+            },
+            "buff.fixture",
+            {"FinalShield": (1000,)},
+            {"Heat": "heat"},
+        )
+
+        self.assertEqual(len(shields), 1)
+        self.assertEqual(shields[0].value.blackboardKey, "FinalShield")
+        self.assertEqual(shields[0].value.levelValues, (1000,))
+        self.assertEqual(shields[0].damageAbsorptions[0].damageType, "heat")
+        self.assertEqual(shields[0].priority, "PrioritizeConsume")
+
+    def test_parses_sustained_protection_from_wrapped_and_direct_actions(self) -> None:
+        def scalar(value: float) -> dict[str, object]:
+            return {
+                "useBlackboardKey": False,
+                "value": value,
+                "blackboardKey": "",
+                "useCustomValue": False,
+            }
+
+        action = {
+            "$type": "Beyond.Gameplay.Core.SetSuperArmorAction+Data, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 0,
+            "targetSettings": target_settings_fixture("Source"),
+            "superArmorValue": scalar(35),
+            "impactResistance": scalar(100),
+        }
+        for actions in ([{"actionData": [action]}], [action]):
+            with self.subTest(wrapped="$type" not in actions[0]):
+                protections = parse_buff_sustained_protections(
+                    {
+                        "buffEventAction": [
+                            {"buffEvent": "DuringBuffEnable", "actions": actions}
+                        ]
+                    },
+                    "buff.fixture",
+                    {},
+                )
+                self.assertEqual(len(protections), 1)
+                self.assertEqual(protections[0].target.targetSource, "Source")
+                self.assertEqual(protections[0].superArmor.value, 35)
+                self.assertEqual(protections[0].impactResistance.value, 100)
+
     def test_projects_strict_buff_vulnerability_event_into_damage_modifier(self) -> None:
         buff = {
             "duration": {
@@ -854,6 +938,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "isEnable": True,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
@@ -1667,6 +1752,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "isEnable": True,
                                     "serverActionIndex": 1,
                                     "succeedActions": {"actionData": [find_action, merge_action]},
@@ -2543,6 +2629,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": []},
                                     "succeedActions": {
@@ -3974,6 +4061,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "actions": [
                     {
                         "$type": "Example.IfElseAction+Data, Example",
+                        "alwaysNext": False,
                         "conditionAction": {"actionData": []},
                         "succeedActions": {
                             "actionData": [
@@ -4414,6 +4502,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 {"$type": "Example.DamageAction+Data, Example", "serverActionIndex": 0},
                 {
                     "$type": "Example.IfElseAction+Data, Example",
+                    "alwaysNext": False,
                     "serverActionIndex": 1,
                     "conditionAction": {"actionData": []},
                     "succeedActions": {
@@ -4944,6 +5033,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 6,
                                     "conditionAction": {
                                         "actionData": [
@@ -5031,6 +5121,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         nested = {
             "$type": "Example.IfElseAction+Data, Example",
+            "alwaysNext": False,
             "serverActionIndex": 1,
             "conditionAction": {"actionData": [compare]},
             "succeedActions": {
@@ -5050,6 +5141,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 4,
                                     "conditionAction": {"actionData": [compare]},
                                     "succeedActions": {
@@ -5132,6 +5224,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         action = parse_conditional_actions(root, "switch.json", {})[0]
 
+        self.assertTrue(action.alwaysNext)
         self.assertEqual(action.conditions[0].left.blackboardKey, "mode")
         self.assertEqual(action.conditions[0].right.value, 0)
         self.assertEqual(action.succeedActions, ())
@@ -5246,6 +5339,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -5339,6 +5433,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [compare]},
                                     "succeedActions": {
@@ -5471,6 +5566,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 4,
                                     "conditionAction": {"actionData": [compare]},
                                     "succeedActions": {
@@ -5518,6 +5614,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 3,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -5617,6 +5714,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 8,
                                     "conditionAction": {
                                         "actionData": [
@@ -5694,6 +5792,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 8,
                                     "conditionAction": {
                                         "actionData": [
@@ -5757,6 +5856,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 8,
                                     "conditionAction": {
                                         "actionData": [
@@ -5811,6 +5911,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 72,
                                     "conditionAction": {
                                         "actionData": [
@@ -5968,6 +6069,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -6082,6 +6184,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -6481,6 +6584,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -6560,6 +6664,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -6653,6 +6758,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -6887,6 +6993,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -6931,6 +7038,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -6992,6 +7100,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7053,6 +7162,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7134,6 +7244,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7176,6 +7287,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7238,6 +7350,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7304,6 +7417,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {"actionData": [condition]},
                                     "succeedActions": {
@@ -7811,6 +7925,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 1,
                                     "conditionAction": {
                                         "actionData": [
@@ -10252,6 +10367,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                             "actionData": [
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 6,
                                     "conditionAction": {
                                         "actionData": [
@@ -12118,6 +12234,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             [
                 {
                     "$type": "Example.IfElseAction+Data, Example",
+                    "alwaysNext": False,
                     "isEnable": True,
                     "priorityLevel": "Default",
                     "priorityOffset": 0,
@@ -12316,6 +12433,19 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 }
             ],
         )
+        owner_replacement = SimpleNamespace(
+            **(
+                vars(replacement)
+                | {"skillSource": SimpleNamespace(targetSource="Owner", targetGroupKey="")}
+            )
+        )
+        owner_definition = SimpleNamespace(
+            buffId="replacement_buff", skillReplacements=(owner_replacement,)
+        )
+        self.assertEqual(
+            len(derive_skill_slot_replacement_relations([base, stage2], (owner_definition,))),
+            1,
+        )
 
     def test_proven_skill_replacement_renders_runtime_steps_and_group_shape(self) -> None:
         relation = {
@@ -12438,11 +12568,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 {
                     "slug": "fixture",
                     "runtimeReplacementSkillKeys": ["arcana"],
+                    "skillGroups": [
+                        {
+                            "key": "ultimateSlot",
+                            "skillKeys": ["ultimate", "arcana"],
+                        }
+                    ],
                 },
                 [base, replacement],
                 [relation],
             ),
-            [relation],
+            [{**relation, "skillGroupKey": "ultimateSlot"}],
         )
         self.assertEqual(
             select_runtime_skill_slot_replacement_relations(
@@ -12464,6 +12600,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         root = {
             "$type": "Example.IfElseAction+Data, Example",
+            "alwaysNext": False,
             "isEnable": True,
             "succeedActions": {"actionData": [spawn(1)]},
             "failActions": {"actionData": [spawn(2)]},
@@ -12477,6 +12614,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
     def test_if_else_with_different_combat_branches_remains_unresolved(self) -> None:
         root = {
             "$type": "Example.IfElseAction+Data, Example",
+            "alwaysNext": False,
             "isEnable": True,
             "succeedActions": {
                 "actionData": [
@@ -12889,6 +13027,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                             {"$type": "Example.PickTargetAction+Data, Example"},
                                             {
                                                 "$type": "Example.IfElseAction+Data, Example",
+                                                "alwaysNext": False,
                                                 "succeedActions": {"actionData": [damage(14)]},
                                                 "failActions": {"actionData": [damage(23)]},
                                             },
@@ -12953,6 +13092,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                             damage,
                                             {
                                                 "$type": "Example.IfElseAction+Data, Example",
+                                                "alwaysNext": False,
                                                 "succeedActions": {"actionData": []},
                                                 "failActions": {"actionData": []},
                                             },
@@ -12991,6 +13131,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                         "actionData": [
                                             {
                                                 "$type": "Example.IfElseAction+Data, Example",
+                                                "alwaysNext": False,
                                                 "serverActionIndex": 7,
                                                 "conditionAction": {
                                                     "actionData": [
@@ -13163,6 +13304,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                 damage,
                                 {
                                     "$type": "Example.IfElseAction+Data, Example",
+                                    "alwaysNext": False,
                                     "serverActionIndex": 4,
                                     "conditionAction": {"actionData": []},
                                     "succeedActions": {"actionData": [damage]},
@@ -14263,6 +14405,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         damage_mask_branch = {
             "$type": "Example.IfElseAction+Data, Example",
+            "alwaysNext": False,
             "serverActionIndex": 2,
             "conditionAction": {
                 "actionData": [
@@ -14278,6 +14421,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         }
         target_identity_branch = {
             "$type": "Example.IfElseAction+Data, Example",
+            "alwaysNext": False,
             "serverActionIndex": 1,
             "conditionAction": {
                 "actionData": [

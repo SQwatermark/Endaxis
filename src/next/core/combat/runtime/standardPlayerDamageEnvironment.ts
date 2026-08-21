@@ -306,6 +306,7 @@ export class StandardPlayerDamageEnvironment {
         this.#emit(context.program.operatorId, event, payload);
       },
       emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
+      absorbHealthDamage: (damageType, value) => this.#enemyBuffs.absorbDamage(damageType, value),
       emitPoiseSourceEvent: (event, modifier) =>
         this.#emit(context.program.operatorId, event, modifier),
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),

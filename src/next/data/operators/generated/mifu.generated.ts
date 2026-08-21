@@ -85,7 +85,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_chr_0031_mifu_comboprocess",
@@ -151,7 +153,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_chr_0031_mifu_normalskill_2",
@@ -457,7 +461,9 @@ export const mifuGeneratedSource = {
             "buff_chr_0031_mifu_buffpause"
           ]
         }
-      ]
+      ],
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_chr_0031_mifu_normalskill_3",
@@ -763,7 +769,9 @@ export const mifuGeneratedSource = {
             "buff_chr_0031_mifu_buffpause"
           ]
         }
-      ]
+      ],
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_chr_0031_mifu_potential_addattack",
@@ -973,7 +981,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_chr_0031_mifu_shield",
@@ -1063,7 +1073,6 @@ export const mifuGeneratedSource = {
           "eventSource": "buff",
           "event": "DuringBuffEnable",
           "orderedActionTypes": [
-            "SetSuperArmorAction",
             "EffectAction"
           ],
           "combatActions": [],
@@ -1077,7 +1086,6 @@ export const mifuGeneratedSource = {
               "onlyMainOperator": false,
               "onlyGuard": false,
               "orderedActionTypes": [
-                "SetSuperArmorAction",
                 "EffectAction"
               ],
               "combatActions": [],
@@ -1094,12 +1102,7 @@ export const mifuGeneratedSource = {
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
-      "unparsedPayloads": [
-        {
-          "field": "shieldConfigs",
-          "entryCount": 1
-        }
-      ],
+      "unparsedPayloads": [],
       "auraActions": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
@@ -1107,7 +1110,59 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [
+        {
+          "infinityValue": false,
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "FinalShield",
+            "levelValues": [
+              1000.0
+            ]
+          },
+          "damageAbsorptions": [],
+          "absorbCount": {
+            "value": -1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "absorbAllDamageWhenConsumed": false,
+          "removeBuffWhenConsumed": true,
+          "priority": "Normal",
+          "replaceHitEffect": true
+        }
+      ],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0031_mifu_vulnerablephysic_comboskill",
@@ -1250,7 +1305,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -1328,7 +1385,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1393,36 +1452,7 @@ export const mifuGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -1435,7 +1465,38 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ]
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1546,7 +1607,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1618,7 +1681,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     },
     {
       "buffId": "buff_common_vfx_char_atk_up",
@@ -1686,7 +1751,9 @@ export const mifuGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": []
     }
   ],
   "skills": [
@@ -2514,7 +2581,8 @@ export const mifuGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -2692,7 +2760,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -2824,7 +2893,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -2908,7 +2978,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -3973,7 +4044,8 @@ export const mifuGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -4151,7 +4223,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -4283,7 +4356,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -4367,7 +4441,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -4421,7 +4496,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -4853,7 +4929,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 9,
@@ -4920,7 +4997,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 10,
@@ -4987,7 +5065,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -5054,7 +5133,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -5419,7 +5499,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 9,
@@ -5486,7 +5567,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 10,
@@ -5553,7 +5635,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -5620,7 +5703,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -6870,7 +6954,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 30,
@@ -6933,7 +7018,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 10,
@@ -7000,7 +7086,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -7067,7 +7154,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -7134,7 +7222,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 16,
@@ -7201,7 +7290,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -7268,7 +7358,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 18,
@@ -7335,7 +7426,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 19,
@@ -7402,7 +7494,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 30,
@@ -7469,7 +7562,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -7536,7 +7630,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 32,
@@ -7603,7 +7698,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -8310,7 +8406,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 30,
@@ -8373,7 +8470,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 10,
@@ -8440,7 +8538,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -8507,7 +8606,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -8574,7 +8674,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 16,
@@ -8641,7 +8742,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -8708,7 +8810,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 18,
@@ -8775,7 +8878,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 19,
@@ -8842,7 +8946,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 30,
@@ -8909,7 +9014,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 31,
@@ -8976,7 +9082,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 32,
@@ -9043,7 +9150,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -9526,7 +9634,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -9881,7 +9990,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -10138,7 +10248,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -10391,7 +10502,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -10952,7 +11064,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -11086,7 +11199,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 37,
@@ -11273,7 +11387,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11432,7 +11547,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -11959,7 +12075,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -12093,7 +12210,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 37,
@@ -12280,7 +12398,8 @@ export const mifuGeneratedSource = {
                 }
               ]
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -12439,7 +12558,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -13836,13 +13956,15 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -14002,14 +14124,16 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -14067,7 +14191,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -14284,14 +14409,16 @@ export const mifuGeneratedSource = {
                     "timelineJumpDestinationFrame": 105
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "timelineFinishes": []
@@ -14925,7 +15052,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -14998,7 +15126,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -15075,7 +15204,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -15786,7 +15916,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -15859,7 +15990,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -15936,7 +16068,8 @@ export const mifuGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -16556,7 +16689,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 26,
@@ -16847,7 +16981,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -16970,7 +17105,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -17120,7 +17256,8 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -17334,14 +17471,16 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -18114,7 +18253,8 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 26,
@@ -18405,7 +18545,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -18545,7 +18686,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -18695,7 +18837,8 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -18909,14 +19052,16 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -20282,7 +20427,8 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

@@ -16,7 +16,9 @@ import type {
   BuffDuration,
   BuffLifecycleActions,
   BuffPriority,
+  BuffShieldDefinition,
   BuffStackingType,
+  BuffSustainedProtectionDefinition,
   BuffTimeClock,
   BuffTriggerCount,
   CombatBuff,
@@ -190,6 +192,8 @@ export interface CombatBuffDefinitionEntry {
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
   readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
+  readonly shields?: readonly BuffShieldDefinition[];
+  readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly role?: CombatBuffSemanticRole;
   readonly actions?: CombatBuffDefinitionLifecycleActions;
   /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
@@ -307,6 +311,8 @@ export class CompiledCombatBuffDefinitions<
             : ATTRIBUTE_MODIFIER_SOURCES.buff,
       })),
       damageModifiers: entry.damageModifiers,
+      shields: entry.shields,
+      sustainedProtection: entry.sustainedProtection,
       actions: compileLifecycleActions(entry, ports),
     };
     this.#definitions.set(entry.id, definition);
@@ -409,6 +415,8 @@ export function parseCombatBuffDefinitionEntry(
     'blackboard',
     'attributeModifiers',
     'damageModifiers',
+    'shields',
+    'sustainedProtection',
     'role',
     'actions',
     'spellBurst',
@@ -438,9 +446,98 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalBlackboard(entry, path),
     ...parseOptionalAttributeModifiers(entry, path),
     ...parseOptionalDamageModifiers(entry, path),
+    ...parseOptionalShields(entry, path),
+    ...parseOptionalSustainedProtection(entry, path),
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
     ...parseOptionalSpellBurst(entry, path),
+  };
+}
+
+function parseOptionalShields(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { shields?: readonly BuffShieldDefinition[] } {
+  if (entry.shields === undefined) return {};
+  if (!Array.isArray(entry.shields)) throw new Error(`${path}.shields: expected array`);
+  return {
+    shields: entry.shields.map((input, index) => {
+      const shieldPath = `${path}.shields[${index}]`;
+      const shield = requireObject(input, shieldPath);
+      requireOnlyKeys(shield, shieldPath, [
+        'infinityValue',
+        'value',
+        'damageAbsorptions',
+        'absorbCount',
+        'absorbAllDamageWhenConsumed',
+        'removeBuffWhenConsumed',
+        'priority',
+        'replaceHitEffect',
+      ]);
+      if (!Array.isArray(shield.damageAbsorptions)) {
+        throw new Error(`${shieldPath}.damageAbsorptions: expected array`);
+      }
+      return {
+        infinityValue: requireBoolean(shield.infinityValue, `${shieldPath}.infinityValue`),
+        value: parseDefinitionNumberOperand(shield.value, `${shieldPath}.value`),
+        damageAbsorptions: shield.damageAbsorptions.map((raw, absorptionIndex) => {
+          const absorptionPath = `${shieldPath}.damageAbsorptions[${absorptionIndex}]`;
+          const absorption = requireObject(raw, absorptionPath);
+          requireOnlyKeys(absorption, absorptionPath, ['damageType', 'ratio', 'scale']);
+          return {
+            damageType: requireEnum(
+              absorption.damageType,
+              DAMAGE_TYPES,
+              `${absorptionPath}.damageType`,
+            ),
+            ratio: parseDefinitionNumberOperand(absorption.ratio, `${absorptionPath}.ratio`),
+            scale: parseDefinitionNumberOperand(absorption.scale, `${absorptionPath}.scale`),
+          };
+        }),
+        absorbCount: parseDefinitionIntegerOperand(shield.absorbCount, `${shieldPath}.absorbCount`),
+        absorbAllDamageWhenConsumed: requireBoolean(
+          shield.absorbAllDamageWhenConsumed,
+          `${shieldPath}.absorbAllDamageWhenConsumed`,
+        ),
+        removeBuffWhenConsumed: requireBoolean(
+          shield.removeBuffWhenConsumed,
+          `${shieldPath}.removeBuffWhenConsumed`,
+        ),
+        priority: requireEnum(
+          shield.priority,
+          ['normal', 'prioritizeConsume'] as const,
+          `${shieldPath}.priority`,
+        ),
+        replaceHitEffect: requireBoolean(shield.replaceHitEffect, `${shieldPath}.replaceHitEffect`),
+      };
+    }),
+  };
+}
+
+function parseOptionalSustainedProtection(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { sustainedProtection?: BuffSustainedProtectionDefinition } {
+  if (entry.sustainedProtection === undefined) return {};
+  const protectionPath = `${path}.sustainedProtection`;
+  const protection = requireObject(entry.sustainedProtection, protectionPath);
+  requireOnlyKeys(protection, protectionPath, ['target', 'superArmor', 'impactResistance']);
+  return {
+    sustainedProtection: {
+      target: requireEnum(
+        protection.target,
+        ['owner', 'buffSource'] as const,
+        `${protectionPath}.target`,
+      ),
+      superArmor: parseDefinitionNumberOperand(
+        protection.superArmor,
+        `${protectionPath}.superArmor`,
+      ),
+      impactResistance: parseDefinitionNumberOperand(
+        protection.impactResistance,
+        `${protectionPath}.impactResistance`,
+      ),
+    },
   };
 }
 
@@ -947,6 +1044,24 @@ function parseDefinitionNumberOperand(
   return typeof input === 'number' && Number.isFinite(input)
     ? input
     : parseBlackboardReference(input, path);
+}
+
+function parseDefinitionIntegerOperand(
+  input: unknown,
+  path: string,
+): number | { readonly blackboardKey: string } {
+  if (typeof input === 'number') {
+    if (!Number.isFinite(input) || !Number.isInteger(input)) {
+      throw new Error(`${path}: expected integer or blackboard reference`);
+    }
+    return input;
+  }
+  return parseBlackboardReference(input, path);
+}
+
+function requireBoolean(input: unknown, path: string): boolean {
+  if (typeof input !== 'boolean') throw new Error(`${path}: expected boolean`);
+  return input;
 }
 
 function parseBlackboardReference(input: unknown, path: string): { blackboardKey: string } {

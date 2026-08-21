@@ -1850,4 +1850,73 @@ describe('CombatBuffContainer', () => {
     expect(container.ignite('EndminUlt', 'operator')).toBe(0);
     expect(reached).toEqual([`${matching.instanceId}:operator`]);
   });
+
+  it('absorbs damage with native shield ratio, scale, priority, and depletion semantics', () => {
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+    const addShield = (id: string, value: number, priority: 'normal' | 'prioritizeConsume') =>
+      requireAddedBuff(
+        container.add(
+          {
+            id,
+            stackingType: 'unlimited',
+            shields: [
+              {
+                infinityValue: false,
+                value,
+                absorbCount: -1,
+                absorbAllDamageWhenConsumed: false,
+                removeBuffWhenConsumed: true,
+                priority,
+                replaceHitEffect: false,
+                damageAbsorptions:
+                  id === 'ratio' ? [{ damageType: 'heat', ratio: 0.5, scale: 2 }] : [],
+              },
+            ],
+          },
+          'enemy',
+        ),
+      );
+    const normal = addShield('ratio', 100, 'normal');
+    const prioritized = addShield('priority', 40, 'prioritizeConsume');
+
+    expect(container.absorbDamage('heat', 100)).toBe(30);
+    expect(prioritized.isFinished).toBe(true);
+    expect(normal.shields[0]?.remainingValue).toBe(85);
+
+    expect(container.absorbDamage('physical', 100)).toBe(15);
+    expect(normal.isFinished).toBe(true);
+    expect(container.shields).toEqual([]);
+  });
+
+  it('registers sustained protection only while the owning Buff is enabled', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
+    const low = requireAddedBuff(
+      container.add(
+        {
+          id: 'low',
+          stackingType: 'unlimited',
+          sustainedProtection: { target: 'owner', superArmor: 20, impactResistance: 40 },
+        },
+        'operator',
+      ),
+    );
+    const high = requireAddedBuff(
+      container.add(
+        {
+          id: 'high',
+          stackingType: 'unlimited',
+          sustainedProtection: { target: 'buffSource', superArmor: 35, impactResistance: 100 },
+        },
+        'operator',
+      ),
+    );
+
+    expect(container.superArmor).toBe(35);
+    expect(container.impactResistance).toBe(100);
+    high.finish();
+    expect(container.superArmor).toBe(20);
+    expect(container.impactResistance).toBe(40);
+    low.finish();
+    expect(container.superArmor).toBe(0);
+  });
 });

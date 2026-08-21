@@ -161,6 +161,51 @@ describe('compileCombatBuffDefinitions', () => {
     expect(requireAddedBuff(container.add(definition, 'operator')).priority).toBe(3);
   });
 
+  it('parses shield and sustained-protection definitions strictly', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-protection',
+      buffs: [
+        {
+          id: 'buff.protection',
+          stackingType: 'unique',
+          blackboard: { shield: 1000 },
+          shields: [
+            {
+              infinityValue: false,
+              value: { blackboardKey: 'shield' },
+              absorbCount: -1,
+              absorbAllDamageWhenConsumed: false,
+              removeBuffWhenConsumed: true,
+              priority: 'normal',
+              replaceHitEffect: true,
+              damageAbsorptions: [{ damageType: 'heat', ratio: 0.5, scale: 2 }],
+            },
+          ],
+          sustainedProtection: {
+            target: 'owner',
+            superArmor: 35,
+            impactResistance: 100,
+          },
+        },
+      ],
+    });
+    const definition = compileCombatBuffDefinitions<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    }).get('buff.protection');
+
+    expect(definition?.shields?.[0]?.damageAbsorptions[0]).toEqual({
+      damageType: 'heat',
+      ratio: 0.5,
+      scale: 2,
+    });
+    expect(definition?.sustainedProtection).toEqual({
+      target: 'owner',
+      superArmor: 35,
+      impactResistance: 100,
+    });
+  });
+
   it('preserves raw applyTags and compiles them into queryable identities', () => {
     const path = 'Combat/Buff/Pulse/Triggered';
     const tagId = gameplayTagIdFromPath(path);

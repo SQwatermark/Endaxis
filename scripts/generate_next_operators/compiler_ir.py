@@ -28,6 +28,7 @@ class CompiledBranch:
     condition_source: str
     when_true: "CompiledNode"
     when_false: "CompiledNode | None" = None
+    always_next: bool = False
 
 
 @dataclass(frozen=True)
@@ -83,6 +84,8 @@ def branch(
     condition_source: str,
     when_true: CompiledNode,
     when_false: CompiledNode | None = None,
+    *,
+    always_next: bool = False,
 ) -> CompiledNode:
     """在两侧均完成规范化后折叠空分支或执行语义相同的分支。"""
 
@@ -93,11 +96,12 @@ def branch(
     ):
         return EMPTY_SEQUENCE
     if (
-        normalized_false is not None
+        not always_next
+        and normalized_false is not None
         and semantic_signature(normalized_true) == semantic_signature(normalized_false)
     ):
         return normalized_true
-    return CompiledBranch(condition_source, normalized_true, normalized_false)
+    return CompiledBranch(condition_source, normalized_true, normalized_false, always_next)
 
 
 def once(scope_key_source: str, body: CompiledNode) -> CompiledNode:
@@ -127,7 +131,12 @@ def normalize(node: CompiledNode) -> CompiledNode:
     if isinstance(node, CompiledSequence):
         return sequence(*node.children)
     if isinstance(node, CompiledBranch):
-        return branch(node.condition_source, node.when_true, node.when_false)
+        return branch(
+            node.condition_source,
+            node.when_true,
+            node.when_false,
+            always_next=node.always_next,
+        )
     if isinstance(node, CompiledOnce):
         return once(node.scope_key_source, node.body)
     if isinstance(node, CompiledRepeatEachTick):
@@ -156,6 +165,7 @@ def semantic_signature(node: CompiledNode) -> tuple[object, ...]:
             None
             if normalized.when_false is None
             else semantic_signature(normalized.when_false),
+            normalized.always_next,
         )
     if isinstance(normalized, CompiledOnce):
         return ("once", normalized.scope_key_source, semantic_signature(normalized.body))
@@ -203,6 +213,10 @@ def render(node: CompiledNode) -> str:
             false_lines = _indent(render(normalized.when_false), 2)
             false_lines[-1] += ","
             lines.extend(false_lines)
+        elif normalized.always_next:
+            lines.append("  undefined,")
+        if normalized.always_next:
+            lines.append("  { alwaysNext: true },")
         lines.append(")")
         return "\n".join(lines)
     if isinstance(normalized, CompiledOnce):

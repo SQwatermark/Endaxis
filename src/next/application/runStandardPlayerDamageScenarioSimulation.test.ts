@@ -9,6 +9,7 @@ import { endministratorGeneratedOperator } from '../data/operators/generated/end
 import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
 import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
 import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
+import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
@@ -376,6 +377,58 @@ function createGeneratedTangtangComboScenario() {
     skillGroupKey: 'comboSkill',
     startFrame: 1,
     ids: { allocate: kind => `${kind}:tangtang` },
+  }).scenario;
+}
+
+function createGeneratedMifuProtectionScenario() {
+  const scenario = createEmptyScenario('scenario:generated-mifu', '弭弗护盾与战技换槽样本');
+  scenario.battle.durationFrames = 240;
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 300,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:mifu',
+    operator: {
+      operatorSlug: mifuGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: { 1: 1 },
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 80 },
+    skillCasts: [],
+  };
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:mifu:${++nextId}` };
+  const combo = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: mifuGeneratedOperator,
+    skillGroupKey: 'comboSkill',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  const ultimate = placeSkillGroup({
+    scenario: combo,
+    trackIndex: 0,
+    operator: mifuGeneratedOperator,
+    skillGroupKey: 'ultimate',
+    startFrame: 40,
+    ids,
+  }).scenario;
+  return placeSkillGroup({
+    scenario: ultimate,
+    trackIndex: 0,
+    operator: mifuGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 160,
+    ids,
   }).scenario;
 }
 
@@ -900,6 +953,50 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
     expect(spawnedIds.size).toBeGreaterThan(0);
     expect([...spawnedIds].some(id => finishedIds.has(id))).toBe(true);
+  });
+
+  it('runs generated Mifu shield creation and chained battle-skill replacement', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedMifuProtectionScenario(),
+      endFrame: 240,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(30).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+          getOperator: slug => (slug === mifuGeneratedOperator.slug ? mifuGeneratedOperator : null),
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => entry.data?.skillId),
+    ).toEqual(['comboSkill', 'ultimate', 'battleSkill2']);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'CombatStepReached',
+        frame: 1,
+        sourceId: 'track:mifu',
+        data: expect.objectContaining({ skillId: 'comboSkill', kind: 'applyBuff' }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillSlotChanged',
+        sourceId: 'track:mifu',
+        data: { skillGroupKey: 'battleSkill', targetSkillKey: 'battleSkill3' },
+      }),
+    );
   });
 
   it('runs generated Last Rite party Buff events relative to the controlled owner', () => {

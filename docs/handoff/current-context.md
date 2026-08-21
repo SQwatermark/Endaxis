@@ -406,5 +406,16 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 项目模板 ID 与静态资源目录已经分离：自定义干员定义继承 `assetSlug`，头像、天赋和技能图标均从来源资源目录加载，不能把 `project:operator:*` 拼入 `/operators/` URL。浏览器已验证弧光自定义模板仍请求 `/operators/arclight/avatar.webp`。
 - 当前证据边界：干员的派生、编辑、选择和模拟 UI 已接线；武器、装备和套装已具备项目存储、派生函数、校验、序列化与统一列表查询，但尚无创建/定义编辑 UI。Next 时间轴仍以内置样板项目初始化，尚未接入真实项目打开/保存外壳；项目模板 ID 也仍由页面内计数器分配。
 - 本次收尾门禁：`npm run type-check:next`、Next Vitest 180 文件 1184/1184、`git diff --check` 通过。`tmp/` 仍不得提交。
+
+### 2026-08-21：复刻库先行的护盾/霸体闭环与弭弗正式生成
+
+- 新的机制缺口必须先核对解包、IL2CPP 静态转储与 `GameAssembly.dll`；若 `combat-spec` 尚未复刻，则先在复刻库补数据适配、原生运行时语义、证据文档与测试，再接 Endaxis。不得只为让某名干员通过而在生成器中近似实现。当前 `combat-spec` 已提交 `7ce4881 feat: reproduce buff shields` 与 `47f6c53 feat: reproduce sustained super armor actions`。
+- Endaxis 已按上述证据接入 `BuffData.shieldConfigs`：每个 Buff 实例独立持有护盾容量和次数，按伤害类型执行 ratio/scale 换算，按优先级及 Buff 剩余时间排序消费，耗尽时可结束所属 Buff。护盾位于伤害前置事件之后、生命写入和后置事件之前；空吸收表采用原生默认全类型 `1:1`。护盾特效只保留选择位，不进入后端。
+- `DuringBuffEnable` 的 `SetSuperArmorAction` 作为独立持续保护注册；多个实例按原生语义取最大霸体与冲击抗性，Buff 停用或结束时注销。当前 `buffSource` 目标只在来源与宿主身份一致时执行，跨实体来源仍严格失败。
+- 弭弗 `buff_chr_0031_mifu_shield` 的 `FinalShield`、耗尽结束、35 霸体和 100 冲击抗性均已进入正式定义。她的二段/三段战技也通过已有 `ChangeSkillAction` 运行时换槽接入。此次暴露并修正了旧实现把“技能组键”和“基础技能稳定键”混为一谈的问题：弭弗组键是 `battleSkill`，技能键是 `battleSkill1/2/3`。
+- 弭弗 manifest 已从 `outputStage: audit` 提升为 `complete`，11 个技能生成 `mifu.operator.generated.ts`；当前与莱万汀相同，属于完整正式产物但尚未注册到默认 Next 数据仓库。生成器 `--check` 通过。Python 新增护盾、霸体与异名换槽回归；全文件测试仍有 3 个此前已存在且与本轮无关的夹具/断言失败。`tsconfig.next` 的既有错误须以本轮最终门禁结果为准。
+- 弭弗生产回归已贯通连携天赋护盾创建、大招切换 `battleSkill2`、二段战技切换 `battleSkill3`。该回归同时暴露并修正了原生 `IfElseAction/SwitchAction.alwaysNext` 在生成 IR 和运行时丢失的问题：字段现在从严格解析、IR 优化、DSL、校验到运行时完整保留，编辑器修改条件也不会清掉它。证据来自原始动作字段及 `combat-spec` 已有的返回值复刻，不是角色特判。
+- 下一步决定弭弗与莱万汀是否一起注册默认仓库，然后继续伊冯的能力实体宿主目标身份、梨诺的剩余正式阻塞。任何新机制仍遵守复刻库先行规则。
+- 本轮最终门禁：Next Vitest 197 文件、1276/1276 通过；弭弗生成与 `--check` 通过；新增 Python 定向测试 27/27 通过。Python 大夹具恢复为既有 325 项中的 3 个无关失败；`type-check:next` 只剩既有 3 个 `afterKillEntity` 回调联合类型错误；`git diff --check` 通过。尝试全量刷新生成物时在唐糖嵌套 Buff 的空 `spawnedObjectType` 严格校验处停止，未保留半生成的其他干员产物；该目标身份必须按复刻库先行规则取证，不能为全量生成猜默认值。`tmp/` 未纳入版本控制。
 - 本轮新增命令层、Build 投影和场景编译回归，`npm run type-check:next` 通过。当前 Codex 文件沙箱会阻止 esbuild 读取用户目录，Vitest 在加载任意配置文件前即失败；该环境阻塞须在正常终端补跑完整 Next 测试，不能把类型检查写成测试通过。`tmp/` 中的临时 Vitest 配置不得提交。
 - 门禁：Python 375/375、全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1174/1174 均通过。全仓 Vitest 仍有旧版/UI 结构基线失败，与本轮 Next 链路分开；`tmp/` 保持未跟踪且不得提交。

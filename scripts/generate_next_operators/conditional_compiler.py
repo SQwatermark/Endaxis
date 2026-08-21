@@ -256,7 +256,23 @@ class ConditionalCompiler:
         )
         if succeed == EMPTY_SEQUENCE and (fail is None or fail == EMPTY_SEQUENCE):
             return EMPTY_SEQUENCE
+        always_next = getattr(action, "alwaysNext", False)
         if fail is not None and semantic_signature(succeed) == semantic_signature(fail):
-            return succeed
+            if not always_next:
+                return succeed
+            # 两个分支效果相同，不必编译可能尚未覆盖的原生条件；恒真条件仍保留
+            # alwaysNext 对所选公共分支返回值的覆盖语义。
+            return branch(
+                "{ kind: 'actionValueCompare', "
+                "left: { kind: 'constant', value: 0 }, operator: 'equal', "
+                "right: { kind: 'constant', value: 0 } }",
+                succeed,
+                always_next=True,
+            )
         condition_source = self.services.compile_condition(action, path, context)
-        return branch(condition_source, succeed, fail)
+        return branch(
+            condition_source,
+            succeed,
+            fail,
+            always_next=always_next,
+        )

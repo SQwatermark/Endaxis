@@ -25,6 +25,7 @@ import type {
 } from '../damage/playerDamageContext';
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
+import type { DamageType } from '../../game-data/operatorDefinition';
 import {
   SharedSpGainModifier,
   type SharedSpGainAttribute,
@@ -103,6 +104,32 @@ export type BuffMaxStackCount = number | { readonly blackboardKey: string };
 /** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
 export type BuffPriority = number | { readonly blackboardKey: string; readonly negate?: boolean };
 
+export type BuffShieldPriority = 'normal' | 'prioritizeConsume';
+
+export interface BuffShieldDamageAbsorptionDefinition {
+  readonly damageType: DamageType;
+  readonly ratio: BuffDuration;
+  readonly scale: BuffDuration;
+}
+
+export interface BuffShieldDefinition {
+  readonly infinityValue: boolean;
+  readonly value: BuffDuration;
+  readonly damageAbsorptions: readonly BuffShieldDamageAbsorptionDefinition[];
+  readonly absorbCount: BuffTriggerCount;
+  readonly absorbAllDamageWhenConsumed: boolean;
+  readonly removeBuffWhenConsumed: boolean;
+  readonly priority: BuffShieldPriority;
+  /** 只保留原生表现选择位；后端不解释 EffectActionCfg。 */
+  readonly replaceHitEffect: boolean;
+}
+
+export interface BuffSustainedProtectionDefinition {
+  readonly target: 'owner' | 'buffSource';
+  readonly superArmor: BuffDuration;
+  readonly impactResistance: BuffDuration;
+}
+
 /** Buff 生命周期可选择的原生时间域；缺省使用 TimeManager 默认时钟。 */
 export type BuffTimeClock = 'default' | 'global' | 'self';
 
@@ -164,6 +191,8 @@ export interface CombatBuffDefinition<Key extends string> {
    * 当前仅支持固定值；原生动态黑板刷新链还没做通前，不在这里复用属性修正的动态语义。
    */
   readonly sharedSpGainModifiers?: readonly BuffSharedSpGainModifierDefinition[];
+  readonly shields?: readonly BuffShieldDefinition[];
+  readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly actions?: BuffLifecycleActions<Key>;
 }
 
@@ -202,6 +231,7 @@ export class CombatBuff<Key extends string> {
   #triggerRemainingTime = 0;
   #remainingTriggerCount = 0;
   readonly #duringEnableAction: BuffDuringEnableAction<Key> | null;
+  readonly shields: readonly CombatShield<Key>[];
 
   constructor(
     readonly definition: CombatBuffDefinition<Key>,
@@ -250,6 +280,7 @@ export class CombatBuff<Key extends string> {
       );
     }
     this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
+    this.shields = (definition.shields ?? []).map(shield => new CombatShield(this, shield));
   }
 
   get passedTime(): number {
@@ -319,8 +350,10 @@ export class CombatBuff<Key extends string> {
       this.triggerInternal(0);
     }
 
-    this.owner.registerDamageModifiers(this.damageModifiers);
     try {
+      this.owner.registerDamageModifiers(this.damageModifiers);
+      this.owner.registerShields(this.shields);
+      this.owner.registerSustainedProtection(this);
       for (const modifier of this.attributeModifiers) {
         this.owner.attributes.addModifier(modifier);
       }
@@ -329,6 +362,8 @@ export class CombatBuff<Key extends string> {
       this.unregisterSharedSpGainModifiers();
       this.removeAttributeModifiers();
       this.owner.unregisterDamageModifiers(this.damageModifiers);
+      this.owner.unregisterShields(this.shields);
+      this.owner.unregisterSustainedProtection(this);
       this.#enabled = false;
       throw error;
     }
@@ -341,6 +376,8 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.disable?.(this);
     this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
+    this.owner.unregisterShields(this.shields);
+    this.owner.unregisterSustainedProtection(this);
     this.removeAttributeModifiers();
     this.unregisterSharedSpGainModifiers();
     this.#enabled = false;
@@ -362,6 +399,8 @@ export class CombatBuff<Key extends string> {
     this.#stackingGroup?.refreshAfterFinish();
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
+      this.owner.unregisterShields(this.shields);
+      this.owner.unregisterSustainedProtection(this);
       this.removeAttributeModifiers();
       this.unregisterSharedSpGainModifiers();
     }
@@ -551,12 +590,79 @@ export class CombatBuff<Key extends string> {
   }
 }
 
+export class CombatShield<Key extends string> {
+  static readonly epsilon = 0.00001;
+  readonly maxValue: number;
+  readonly maxAbsorbCount: number;
+  readonly #absorptions = new Map<DamageType, readonly [number, number]>();
+  remainingValue: number;
+  remainingAbsorbCount: number;
+  consumed = false;
+
+  constructor(
+    readonly buff: CombatBuff<Key>,
+    readonly definition: BuffShieldDefinition,
+  ) {
+    this.maxValue = Math.max(0, resolveBuffNumber(buff, definition.value, 'shield value'));
+    this.remainingValue = this.maxValue;
+    this.maxAbsorbCount = resolveBuffInteger(buff, definition.absorbCount, 'shield absorb count');
+    this.remainingAbsorbCount = this.maxAbsorbCount;
+    for (const absorption of definition.damageAbsorptions) {
+      this.#absorptions.set(absorption.damageType, [
+        resolveBuffNumber(buff, absorption.ratio, 'shield absorption ratio'),
+        resolveBuffNumber(buff, absorption.scale, 'shield absorption scale'),
+      ]);
+    }
+    this.refreshConsumed();
+  }
+
+  get infiniteValue(): boolean {
+    return this.definition.infinityValue;
+  }
+
+  get infiniteAbsorbCount(): boolean {
+    return this.maxAbsorbCount < 0;
+  }
+
+  absorb(damageType: DamageType, inputValue: number): number {
+    if (this.consumed || inputValue <= CombatShield.epsilon) return inputValue;
+    const [ratio, scale] = this.#absorptions.get(damageType) ?? [1, 1];
+    if (ratio <= CombatShield.epsilon || scale <= CombatShield.epsilon) return inputValue;
+    const configuredBlocked = ratio * inputValue;
+    const cost = configuredBlocked / scale;
+    let remaining: number;
+    if (!this.infiniteValue && this.remainingValue + CombatShield.epsilon < cost) {
+      remaining = inputValue - scale * this.remainingValue;
+      this.remainingValue = 0;
+    } else {
+      if (!this.infiniteValue) this.remainingValue -= cost;
+      remaining = inputValue - configuredBlocked;
+    }
+    if (!this.infiniteAbsorbCount) this.remainingAbsorbCount -= 1;
+    this.refreshConsumed();
+    if (this.consumed && this.definition.absorbAllDamageWhenConsumed) {
+      remaining = inputValue - configuredBlocked;
+    }
+    remaining = Math.max(0, remaining);
+    if (this.consumed && this.definition.removeBuffWhenConsumed) this.buff.finish('other');
+    return remaining;
+  }
+
+  private refreshConsumed(): void {
+    this.consumed =
+      (!this.infiniteAbsorbCount && this.remainingAbsorbCount <= 0) ||
+      (!this.infiniteValue && this.remainingValue <= CombatShield.epsilon);
+  }
+}
+
 /** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
 export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
   readonly #entityTagCounts = new Map<GameplayTagId, number>();
+  readonly #shields: CombatShield<Key>[] = [];
+  readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
   #nextInstanceId = 1;
 
   constructor(
@@ -578,6 +684,18 @@ export class CombatBuffContainer<Key extends string> {
 
   get buffs(): readonly CombatBuff<Key>[] {
     return this.#buffs;
+  }
+
+  get shields(): readonly CombatShield<Key>[] {
+    return this.#shields;
+  }
+
+  get superArmor(): number {
+    return Math.max(0, ...[...this.#sustainedProtections.values()].map(value => value[0]));
+  }
+
+  get impactResistance(): number {
+    return Math.max(0, ...[...this.#sustainedProtections.values()].map(value => value[1]));
   }
 
   /** 添加成功时返回实例；原生叠加策略拒绝本次施加时返回 null。 */
@@ -801,6 +919,84 @@ export class CombatBuffContainer<Key extends string> {
       if (index >= 0) this.#damageModifiers.splice(index, 1);
     }
   }
+
+  registerShields(shields: readonly CombatShield<Key>[]): void {
+    this.#shields.push(...shields);
+    this.#shields.sort(compareShields);
+  }
+
+  unregisterShields(shields: readonly CombatShield<Key>[]): void {
+    for (const shield of shields) {
+      const index = this.#shields.indexOf(shield);
+      if (index >= 0) this.#shields.splice(index, 1);
+    }
+  }
+
+  absorbDamage(damageType: DamageType, inputValue: number): number {
+    let remaining = inputValue;
+    for (const shield of [...this.#shields].reverse()) {
+      if (remaining <= 0) break;
+      remaining = shield.absorb(damageType, remaining);
+    }
+    return remaining;
+  }
+
+  registerSustainedProtection(buff: CombatBuff<Key>): void {
+    const definition = buff.definition.sustainedProtection;
+    if (definition === undefined) return;
+    if (definition.target === 'buffSource' && buff.sourceId !== this.ownerId) {
+      throw new Error(
+        `buff '${buff.definition.id}' targets a distinct buff source for sustained protection`,
+      );
+    }
+    this.#sustainedProtections.set(buff, [
+      resolveBuffNumber(buff, definition.superArmor, 'super armor'),
+      resolveBuffNumber(buff, definition.impactResistance, 'impact resistance'),
+    ]);
+  }
+
+  unregisterSustainedProtection(buff: CombatBuff<Key>): void {
+    this.#sustainedProtections.delete(buff);
+  }
+}
+
+function resolveBuffNumber<Key extends string>(
+  buff: CombatBuff<Key>,
+  value: BuffDuration,
+  label: string,
+): number {
+  const resolved =
+    typeof value === 'number' ? value : buff.blackboard.getNumber(value.blackboardKey);
+  if (resolved === undefined || !Number.isFinite(resolved)) {
+    throw new Error(`buff '${buff.definition.id}' ${label} must resolve to a finite number`);
+  }
+  return resolved;
+}
+
+function resolveBuffInteger<Key extends string>(
+  buff: CombatBuff<Key>,
+  value: BuffTriggerCount,
+  label: string,
+): number {
+  const resolved = resolveBuffNumber(buff, value, label);
+  if (!Number.isInteger(resolved)) {
+    throw new Error(`buff '${buff.definition.id}' ${label} must resolve to an integer`);
+  }
+  return resolved;
+}
+
+function compareShields<Key extends string>(
+  left: CombatShield<Key>,
+  right: CombatShield<Key>,
+): number {
+  const priority =
+    (left.definition.priority === 'prioritizeConsume' ? 1 : 0) -
+    (right.definition.priority === 'prioritizeConsume' ? 1 : 0);
+  if (priority !== 0) return priority;
+  return (
+    (left.buff.remainingDuration ?? Number.POSITIVE_INFINITY) -
+    (right.buff.remainingDuration ?? Number.POSITIVE_INFINITY)
+  );
 }
 
 function resolveBuffTickDelta(clock: BuffTimeClock, deltas: BuffTickDeltas): number {

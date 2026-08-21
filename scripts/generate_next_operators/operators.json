@@ -984,6 +984,14 @@
       "charId": "chr_0032_lizhiyan",
       "outputStage": "audit",
       "runtimeReplacementSkillKeys": ["arcana"],
+      "skillGroups": [
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "skillKeys": ["ultimate", "arcana"]
+        }
+      ],
       "basePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
       "skills": [
         {
@@ -2961,7 +2969,8 @@
       "slug": "mifu",
       "exportName": "mifuGeneratedSource",
       "charId": "chr_0031_mifu",
-      "outputStage": "audit",
+      "outputStage": "complete",
+      "runtimeReplacementSkillKeys": ["battleSkill2", "battleSkill3"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
@@ -3085,7 +3094,11 @@
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0031_mifu_ultimate_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["ultimateSkill"],
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
+          }
         }
       ]
     },

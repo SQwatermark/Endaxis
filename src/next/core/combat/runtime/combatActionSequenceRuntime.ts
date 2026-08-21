@@ -156,8 +156,11 @@ class ConditionalStep extends CombatStep {
     const passed = this.runtime.operations.evaluate(condition, this.operationContext);
     this.runtime.hooks.conditionEvaluated?.(condition, passed);
     const branch = passed ? this.step.whenTrue : this.step.whenFalse;
-    if (branch === undefined) return passed;
-    return this.runtime.createSequence(branch, this.operationContext).executeInstant(context);
+    const result =
+      branch === undefined
+        ? passed
+        : this.runtime.createSequence(branch, this.operationContext).executeInstant(context);
+    return this.step.parameters.alwaysNext === true || result;
   }
 }
 

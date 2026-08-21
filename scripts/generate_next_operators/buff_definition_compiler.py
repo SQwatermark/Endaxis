@@ -295,6 +295,47 @@ def compile_inline_buff_definition(
             for item in source.blackboard
         )
         fields.append("},")
+    if getattr(source, "shields", ()):
+        fields.append("shields: [")
+        for shield in source.shields:
+            fields.extend([
+                "  {",
+                f"    infinityValue: {ts_inline_literal(shield.infinityValue)},",
+                f"    value: {_compile_scalar(shield.value)},",
+                f"    absorbCount: {_compile_scalar(shield.absorbCount)},",
+                f"    absorbAllDamageWhenConsumed: {ts_inline_literal(shield.absorbAllDamageWhenConsumed)},",
+                f"    removeBuffWhenConsumed: {ts_inline_literal(shield.removeBuffWhenConsumed)},",
+                f"    priority: {ts_inline_literal('prioritizeConsume' if shield.priority == 'PrioritizeConsume' else 'normal')},",
+                f"    replaceHitEffect: {ts_inline_literal(shield.replaceHitEffect)},",
+                "    damageAbsorptions: [",
+            ])
+            for absorption in shield.damageAbsorptions:
+                fields.extend([
+                    "      {",
+                    f"        damageType: {ts_inline_literal(absorption.damageType)},",
+                    f"        ratio: {_compile_scalar(absorption.ratio)},",
+                    f"        scale: {_compile_scalar(absorption.scale)},",
+                    "      },",
+                ])
+            fields.extend(["    ],", "  },"])
+        fields.append("],")
+    if getattr(source, "sustainedProtections", ()):
+        if len(source.sustainedProtections) != 1:
+            raise ValueError(f"{path}: multiple sustained protection actions are unsupported")
+        protection = source.sustainedProtections[0]
+        if protection.target.targetSource not in {"Owner", "Source"} or not all((
+            not protection.target.targetGroupKey,
+            not protection.target.validatorTypes,
+            not protection.target.postProcessorTypes,
+        )):
+            raise ValueError(f"{path}: unsupported sustained protection target")
+        fields.extend([
+            "sustainedProtection: {",
+            f"  target: {ts_inline_literal('owner' if protection.target.targetSource == 'Owner' else 'buffSource')},",
+            f"  superArmor: {_compile_scalar(protection.superArmor)},",
+            f"  impactResistance: {_compile_scalar(protection.impactResistance)},",
+            "},",
+        ])
     if getattr(source, "runtimeSkillSlotReplacements", ()):
         fields.append("skillSlotReplacements: [")
         for replacement in source.runtimeSkillSlotReplacements:

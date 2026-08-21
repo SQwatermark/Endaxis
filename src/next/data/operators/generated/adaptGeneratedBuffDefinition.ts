@@ -86,6 +86,48 @@ export function adaptGeneratedBuffDefinition(
         value: scalarValue(modifier.value),
       };
     }),
+    ...(source.shields === undefined
+      ? {}
+      : {
+          shields: source.shields.map(shield => ({
+            infinityValue: shield.infinityValue,
+            value: scalarValue(shield.value),
+            absorbCount: scalarValue(shield.absorbCount),
+            absorbAllDamageWhenConsumed: shield.absorbAllDamageWhenConsumed,
+            removeBuffWhenConsumed: shield.removeBuffWhenConsumed,
+            priority: shield.priority === 'PrioritizeConsume' ? 'prioritizeConsume' : 'normal',
+            replaceHitEffect: shield.replaceHitEffect,
+            damageAbsorptions: shield.damageAbsorptions.map(absorption => ({
+              damageType: absorption.damageType as import('../../../core/game-data/operatorDefinition').DamageType,
+              ratio: scalarValue(absorption.ratio),
+              scale: scalarValue(absorption.scale),
+            })),
+          })),
+        }),
+    ...(source.sustainedProtections === undefined || source.sustainedProtections.length === 0
+      ? {}
+      : source.sustainedProtections.length !== 1
+        ? (() => {
+            throw new Error(`buff '${source.buffId}' has multiple sustained protection actions`);
+          })()
+        : {
+            sustainedProtection: {
+              target:
+                source.sustainedProtections[0]!.target.targetSource === 'Owner'
+                  ? 'owner'
+                  : source.sustainedProtections[0]!.target.targetSource === 'Source'
+                    ? 'buffSource'
+                    : (() => {
+                        throw new Error(
+                          `buff '${source.buffId}' uses unsupported sustained protection target`,
+                        );
+                      })(),
+              superArmor: scalarValue(source.sustainedProtections[0]!.superArmor),
+              impactResistance: scalarValue(
+                source.sustainedProtections[0]!.impactResistance,
+              ),
+            },
+          }),
   };
 }
 
@@ -93,7 +135,7 @@ function scalarValue(
   source: GeneratedScalarSource,
   negate = false,
 ): number | { readonly blackboardKey: string; readonly negate?: boolean } {
-  if (source.levelValues !== null) {
+  if (source.levelValues !== null && source.blackboardKey === null) {
     throw new Error('generated Buff scalar still contains unresolved level values');
   }
   if (source.blackboardKey === null) return negate ? -source.value : source.value;

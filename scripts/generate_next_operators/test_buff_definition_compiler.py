@@ -54,6 +54,8 @@ def definition(**overrides):
         "auxiliaryActions": (),
         "targetGroupWrites": (),
         "skillReplacements": (),
+        "shields": (),
+        "sustainedProtections": (),
         "unparsedPayloads": (),
         "useTimeDilationDt": False,
         "onlyUseSelfTimeDilation": False,
@@ -237,6 +239,48 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
 
         self.assertIn("stackingType: 'refresh'", result)
         self.assertNotIn("lifecycleSequences", result)
+
+    def test_compiles_shield_and_sustained_protection(self) -> None:
+        source = definition(
+            shields=(
+                SimpleNamespace(
+                    infinityValue=False,
+                    value=scalar(0, "FinalShield"),
+                    absorbCount=scalar(-1),
+                    absorbAllDamageWhenConsumed=False,
+                    removeBuffWhenConsumed=True,
+                    priority="PrioritizeConsume",
+                    replaceHitEffect=True,
+                    damageAbsorptions=(
+                        SimpleNamespace(
+                            damageType="heat",
+                            ratio=scalar(0.5),
+                            scale=scalar(2),
+                        ),
+                    ),
+                ),
+            ),
+            sustainedProtections=(
+                SimpleNamespace(
+                    target=SimpleNamespace(
+                        targetSource="Source",
+                        targetGroupKey="",
+                        validatorTypes=(),
+                        postProcessorTypes=(),
+                    ),
+                    superArmor=scalar(35),
+                    impactResistance=scalar(100),
+                ),
+            ),
+        )
+
+        compiled = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("shields: [", compiled)
+        self.assertIn("value: { blackboardKey: 'FinalShield' }", compiled)
+        self.assertIn("priority: 'prioritizeConsume'", compiled)
+        self.assertIn("target: 'buffSource'", compiled)
+        self.assertIn("superArmor: 35", compiled)
 
     def test_rejects_guarded_event_when_it_has_a_projected_action(self) -> None:
         source = definition(

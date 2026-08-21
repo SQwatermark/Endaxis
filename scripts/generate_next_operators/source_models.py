@@ -577,6 +577,34 @@ class BuffDefinitionSource:
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()
     comboQteActions: tuple["BuffComboQteSource", ...] = ()
     pauseTimeActions: tuple["BuffPauseTimeSource", ...] = ()
+    shields: tuple["BuffShieldSource", ...] = ()
+    sustainedProtections: tuple["BuffSustainedProtectionSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffShieldAbsorptionSource:
+    damageType: str
+    ratio: ScalarSource
+    scale: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffShieldSource:
+    infinityValue: bool
+    value: ScalarSource
+    damageAbsorptions: tuple[BuffShieldAbsorptionSource, ...]
+    absorbCount: ScalarSource
+    absorbAllDamageWhenConsumed: bool
+    removeBuffWhenConsumed: bool
+    priority: str
+    replaceHitEffect: bool
+
+
+@dataclass(frozen=True)
+class BuffSustainedProtectionSource:
+    target: "TargetReferenceSource"
+    superArmor: ScalarSource
+    impactResistance: ScalarSource
 
 
 @dataclass(frozen=True)
@@ -1402,6 +1430,8 @@ class ConditionalActionSource:
     conditions: tuple[ConditionSource, ...]
     succeedActions: tuple[ConditionalBranchActionSource, ...]
     failActions: tuple[ConditionalBranchActionSource, ...]
+    # 原生 IfElseAction/SwitchAction 的返回值覆盖；为真时外层序列继续。
+    alwaysNext: bool = False
     executionFrames: tuple[int, ...] = ()
     projectedAbilityEntitySpawns: tuple[AbilityEntitySpawnPayload, ...] = ()
     projectedProjectileLaunches: tuple[ConditionalProjectileProjection, ...] = ()

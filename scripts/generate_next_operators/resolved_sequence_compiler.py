@@ -383,7 +383,7 @@ def compile_resolved_sequence(
                 skillReplacements=(),
                 runtimeSkillSlotReplacements=(
                     {
-                        "skillGroupKey": relation["baseSkillKey"],
+                        "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
                         "targetSkillKey": relation["replacementSkillKey"],
                         "revertedSkillKey": relation["baseSkillKey"],
                         "inheritOriginSkillCooldownProgress": False,
@@ -1186,7 +1186,7 @@ def compile_resolved_sequence(
                     step_lines.extend(
                         [
                             "step('changeSkillSlot', {",
-                            f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                            f"  skillGroupKey: {ts_inline_literal(relation.get('skillGroupKey', relation['baseSkillKey']))},",
                             f"  targetSkillKey: {ts_inline_literal(relation['replacementSkillKey'])},",
                             "})",
                         ]
@@ -1205,7 +1205,7 @@ def compile_resolved_sequence(
                 raise AssertionError(f"{skill.key}: missing proven slot replacement relation")
             step_lines = [
                 "step('changeSkillSlot', {",
-                f"  skillGroupKey: {ts_inline_literal(relation['baseSkillKey'])},",
+                f"  skillGroupKey: {ts_inline_literal(relation.get('skillGroupKey', relation['baseSkillKey']))},",
                 f"  targetSkillKey: {ts_inline_literal(relation['baseSkillKey'])},",
                 "})",
             ]

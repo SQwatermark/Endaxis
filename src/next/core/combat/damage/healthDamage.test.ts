@@ -101,4 +101,39 @@ describe('executeHealthDamage', () => {
       'afterKillEntity',
     ]);
   });
+
+  it('runs shield absorption after before events and exposes the reduced value afterwards', () => {
+    const values: number[] = [];
+    const target = new CombatVitals({
+      health: 100,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+
+    executeHealthDamage({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'heat',
+      tags: [],
+      result: createDamageResult(80),
+      target,
+      clock: new CombatClock(),
+      receipt: { record: entry => values.push(Number(entry.data?.value)) },
+      emitSourceEvent: (event, payload) => {
+        if (event === 'beforeOutputDamage' || event === 'outputDamage') {
+          values.push(payload.result.value);
+        }
+      },
+      emitTargetEvent: () => undefined,
+      absorbDamage: (_damageType, value) => value - 50,
+    });
+
+    expect(values).toEqual([80, 30, 30]);
+    expect(target.health).toBe(70);
+  });
 });

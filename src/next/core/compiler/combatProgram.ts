@@ -195,7 +195,7 @@ export interface ResolvedCombatStepParameters {
   consumeStatus: CombatStepParameters['consumeStatus'];
   jumpTimeline: CombatStepParameters['jumpTimeline'];
   finishTimeline: CombatStepParameters['finishTimeline'];
-  conditional: { condition: CombatCondition };
+  conditional: CombatStepParameters['conditional'];
   once: CombatStepParameters['once'];
   repeatEachTick: CombatStepParameters['repeatEachTick'];
   setContextFlag: CombatStepParameters['setContextFlag'];
