@@ -26,6 +26,7 @@ import {
   STANDARD_TIME_MANAGER_DELTA_MODE,
   timeDilationRuntimeConfig,
 } from '../data/combat/timeDilationConfig';
+import { gameplayTagRegistry } from '../data/combat/gameplayTagCatalog';
 import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
 
@@ -92,6 +93,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     criticalSamples: input.criticalSamples,
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
     enemyVitals,
+    tagRegistry: gameplayTagRegistry,
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
     ...(input.elementalInflictionDocument === undefined

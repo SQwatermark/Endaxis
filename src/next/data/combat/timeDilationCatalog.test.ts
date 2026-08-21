@@ -4,6 +4,8 @@ import { timeDilationRuntimeConfig } from './timeDilationConfig';
 import {
   TIME_DILATION_NAMED_CURVE_DEFINITIONS,
   TIME_DILATION_NAMED_CURVE_KEYS,
+  TIME_DILATION_PRIORITY_DEFINITIONS,
+  TIME_DILATION_PRIORITY_OPTIONS,
   TIME_DILATION_SLOT_DEFINITIONS,
   timeDilationSlotName,
 } from './timeDilationCatalog';
@@ -16,6 +18,18 @@ describe('time-dilation version catalog', () => {
     expect(timeDilationSlotName(-1660475044)).toBe('TimeDilation/Layer/Global/UltiSkill');
     expect(TIME_DILATION_SLOT_DEFINITIONS).toHaveLength(8);
     expect(timeDilationSlotName(0)).toBeUndefined();
+  });
+
+  it('projects native priority tags into their runtime comparison values', () => {
+    expect(TIME_DILATION_PRIORITY_DEFINITIONS).toHaveLength(10);
+    expect(
+      TIME_DILATION_PRIORITY_DEFINITIONS.find(
+        definition => definition.tagPath === 'TimeDilation/Priority/UltiSkill',
+      ),
+    ).toMatchObject({ tagId: -1742631616, value: 100 });
+    expect(TIME_DILATION_PRIORITY_OPTIONS.map(option => option.value)).toEqual([
+      10, 15, 20, 21, 30, 50, 100,
+    ]);
   });
 
   it('exposes every curve recovered from the shared native config', () => {

@@ -52,7 +52,7 @@ import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
-import { gameplayTagId } from '../tags/gameplayTags';
+import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
 
@@ -109,6 +109,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
    * 伤害写入、生命条件求值和失衡恢复推进都引用这一实例，环境不再自行构造或回退到静态生命值。
    */
   readonly enemyVitals: CombatVitals;
+  /** 当前游戏版本的完整标签层级；缺省时只执行裸 ID 精确匹配。 */
+  readonly tagRegistry?: GameplayTagRegistry;
   /** 当前帧主控身份由场景控制时间线提供；仅在伤害修正使用该条件时需要。 */
   readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
 }
@@ -128,24 +130,8 @@ const strictTerminal: CombatOperationExecutor = {
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
-  readonly #enemyBuffs = new CombatBuffContainer(
-    'enemy',
-    new CombatAttributeSet<string>(),
-    undefined,
-    null,
-    undefined,
-    (buff, reason) => this.#recordBuffFinished(buff, reason),
-  );
-  readonly #enemyBuffRuntime = new BuffDefinitionOperationTarget(
-    this.#enemyBuffs,
-    {
-      get: () => undefined,
-      compile: entry => this.#compileInlineBuffDefinition(entry),
-    },
-    undefined,
-    this.#buffAbilityEventRegistrar('enemy'),
-    event => this.#emit('enemy', 'addedBuff', event),
-  );
+  readonly #enemyBuffs: CombatBuffContainer<string>;
+  readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
@@ -160,6 +146,24 @@ export class StandardPlayerDamageEnvironment {
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
+    this.#enemyBuffs = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet<string>(),
+      options.tagRegistry,
+      null,
+      undefined,
+      (buff, reason) => this.#recordBuffFinished(buff, reason),
+    );
+    this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
+      this.#enemyBuffs,
+      {
+        get: () => undefined,
+        compile: entry => this.#compileInlineBuffDefinition(entry),
+      },
+      undefined,
+      this.#buffAbilityEventRegistrar('enemy'),
+      event => this.#emit('enemy', 'addedBuff', event),
+    );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
@@ -178,7 +182,7 @@ export class StandardPlayerDamageEnvironment {
           new CombatBuffContainer(
             entityId,
             new CombatAttributeSet<string>(),
-            undefined,
+            options.tagRegistry,
             null,
             entityBlackboard,
             (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
@@ -529,7 +533,7 @@ export class StandardPlayerDamageEnvironment {
           panel === undefined
             ? new CombatAttributeSet<string>()
             : createOperatorAttackAttributes(panel),
-          undefined,
+          this.options.tagRegistry,
           null,
           undefined,
           (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),

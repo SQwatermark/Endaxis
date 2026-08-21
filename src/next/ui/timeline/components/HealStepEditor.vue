@@ -15,6 +15,7 @@ import {
 } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
 
 type HealStep = Extract<CombatStepDefinition, { kind: 'heal' }>;
 type FormulaField = 'multiplier' | 'addition';
@@ -138,15 +139,7 @@ function amountValue(): number | undefined {
   return resolveLevelValueForEditor(props.step.parameters.amount, props.skillLevel);
 }
 
-function setTagIds(event: Event): void {
-  const raw = (event.target as HTMLTextAreaElement).value.trim();
-  if (raw === '') {
-    update({ ...props.step.parameters, tagIds: [] });
-    return;
-  }
-  const tokens = raw.split(/[\s,]+/);
-  const tagIds = tokens.map(Number);
-  if (tagIds.some(value => !Number.isInteger(value))) return;
+function setTagIds(tagIds: readonly number[]): void {
   update({ ...props.step.parameters, tagIds });
 }
 
@@ -258,7 +251,7 @@ const operandLabels = () => ({
         :label="t('nextTimeline.skillEditing.healTagIds')"
         :help="t('nextTimeline.skillEditing.fieldHelp.healTagIds')"
       />
-      <textarea :value="step.parameters.tagIds.join(', ')" rows="2" @change="setTagIds" />
+      <GameplayTagIdsEditor :ids="step.parameters.tagIds" :minimum="0" @update="setTagIds" />
     </label>
   </div>
 </template>
@@ -273,13 +266,5 @@ const operandLabels = () => ({
 
 .heal-formula-editor :deep(.operand-editor) {
   grid-template-columns: minmax(0, 1fr);
-}
-
-textarea {
-  min-width: 0;
-  resize: vertical;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input, #16161a);
-  color: var(--ea-fg);
 }
 </style>

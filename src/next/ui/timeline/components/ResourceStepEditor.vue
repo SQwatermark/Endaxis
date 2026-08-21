@@ -5,6 +5,7 @@
  * 只处理 changeResource 与 changeResourceByActionValue。每次更新都回传完整步骤对象，
  * 并保留 parameters 中未展示的字段；动态数值交给 ActionValueOperandEditor 编辑。
  */
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   COMBAT_RESOURCES,
@@ -24,6 +25,7 @@ import {
 } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
 
 type ResourceStep = Extract<
   CombatStepDefinition,
@@ -33,6 +35,10 @@ type ResourceStep = Extract<
 const props = defineProps<{ step: ResourceStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
+const recoveryTagIds = computed(() => {
+  const id = props.step.parameters.ultimateRecoveryTagId;
+  return id === undefined ? [] : [id];
+});
 
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
@@ -147,15 +153,11 @@ function setBooleanMetadata(
   update({ ...props.step, parameters } as ResourceStep);
 }
 
-function setRecoveryTag(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value;
+function setRecoveryTags(ids: readonly number[]): void {
   const parameters = { ...props.step.parameters };
-  if (raw === '') delete parameters.ultimateRecoveryTagId;
-  else {
-    const value = Number(raw);
-    if (!Number.isFinite(value)) return;
-    parameters.ultimateRecoveryTagId = value;
-  }
+  const id = ids[0];
+  if (id === undefined) delete parameters.ultimateRecoveryTagId;
+  else parameters.ultimateRecoveryTagId = id;
   update({ ...props.step, parameters } as ResourceStep);
 }
 </script>
@@ -279,11 +281,11 @@ function setRecoveryTag(event: Event): void {
           :label="t('nextTimeline.skillEditing.recoveryTagId')"
           :help="t('nextTimeline.skillEditing.fieldHelp.recoveryTagId')"
         />
-        <input
-          type="number"
-          step="1"
-          :value="step.parameters.ultimateRecoveryTagId ?? ''"
-          @input="setRecoveryTag"
+        <GameplayTagIdsEditor
+          :ids="recoveryTagIds"
+          :minimum="0"
+          :maximum="1"
+          @update="setRecoveryTags"
         />
       </label>
       <label class="step-editor__check step-editor__check--field">

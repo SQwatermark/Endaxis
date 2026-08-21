@@ -13,6 +13,7 @@ import {
   type CombatTarget,
 } from '../../../core/game-data/operatorDefinition';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
 
 type BuffManagementStep = Extract<
   CombatStepDefinition,
@@ -57,9 +58,6 @@ const readQuery = computed(() => {
 const readBuffIdsText = computed(() =>
   readQuery.value?.kind === 'id' ? readQuery.value.buffIds.join(', ') : '',
 );
-const readTagIdsText = computed(() =>
-  readQuery.value?.kind === 'tag' ? readQuery.value.buffTagIds.join(', ') : '',
-);
 const readTagQueryType = computed(() =>
   readQuery.value?.kind === 'tag' ? readQuery.value.tagQueryType : 'hasAny',
 );
@@ -85,16 +83,6 @@ function parseStringList(value: string): readonly string[] {
     .split(/[\n,]/)
     .map(item => item.trim())
     .filter(Boolean);
-}
-
-function parseIntegerList(value: string): readonly number[] | undefined {
-  const raw = value
-    .split(/[\n,]/)
-    .map(item => item.trim())
-    .filter(Boolean);
-  const parsed = raw.map(Number);
-  if (parsed.length === 0 || parsed.some(item => !Number.isInteger(item))) return undefined;
-  return parsed;
 }
 
 function setTarget(event: Event): void {
@@ -138,10 +126,8 @@ function setReadBuffIds(event: Event): void {
   }
 }
 
-function setReadTagIds(event: Event): void {
+function setReadTagIds(buffTagIds: readonly number[]): void {
   if (!usesQuery.value) return;
-  const buffTagIds = parseIntegerList((event.target as HTMLTextAreaElement).value);
-  if (!buffTagIds) return;
   if (props.step.kind === 'readBuffBlackboard') {
     if (props.step.parameters.query.kind !== 'tag') return;
     update({
@@ -214,10 +200,8 @@ function setDirectBuffIds(event: Event): void {
   }
 }
 
-function setDirectTagIds(event: Event): void {
+function setDirectTagIds(buffTagIds: readonly number[]): void {
   if (props.step.kind !== 'finishBuffsByTag') return;
-  const buffTagIds = parseIntegerList((event.target as HTMLTextAreaElement).value);
-  if (!buffTagIds) return;
   update({ ...props.step, parameters: { ...props.step.parameters, buffTagIds } });
 }
 
@@ -295,7 +279,10 @@ function setReason(event: Event): void {
             :label="t('nextTimeline.skillEditing.buffTagIds')"
             :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
           />
-          <textarea :value="readTagIdsText" @change="setReadTagIds" />
+          <GameplayTagIdsEditor
+            :ids="readQuery?.kind === 'tag' ? readQuery.buffTagIds : []"
+            @update="setReadTagIds"
+          />
         </label>
       </template>
       <label v-if="step.kind === 'readBuffBlackboard'">
@@ -335,7 +322,7 @@ function setReason(event: Event): void {
           :label="t('nextTimeline.skillEditing.buffTagIds')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
         />
-        <textarea :value="step.parameters.buffTagIds.join(', ')" @change="setDirectTagIds" />
+        <GameplayTagIdsEditor :ids="step.parameters.buffTagIds" @update="setDirectTagIds" />
       </label>
     </template>
 

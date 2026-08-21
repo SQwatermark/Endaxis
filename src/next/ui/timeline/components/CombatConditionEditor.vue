@@ -28,13 +28,10 @@ import {
   type OperatorAttribute,
 } from '../../../core/game-data/operatorDefinition';
 import { ENEMY_RANKS, type EnemyRank } from '../../../core/game-data/enemyRank';
-import {
-  createCombatCondition,
-  parseConditionIntegerList,
-  parseConditionStringList,
-} from '../combatConditionEditorViewModel';
+import { createCombatCondition, parseConditionStringList } from '../combatConditionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
 
 const RecursiveConditionEditor = defineAsyncComponent(() => import('./CombatConditionEditor.vue'));
 const TAG_QUERY_TYPES = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
@@ -167,13 +164,13 @@ function setContextValueKind(event: Event): void {
   });
 }
 
-function setIntegerList(field: 'buffTagIds' | 'tagIds', event: Event): void {
-  const values = parseConditionIntegerList((event.target as HTMLTextAreaElement).value);
-  if (!values) return;
-  if (field === 'buffTagIds' && props.condition.kind === 'buffStackCompare')
+function setGameplayTagIds(values: readonly number[]): void {
+  if (props.condition.kind === 'buffStackCompare')
     emit('update', { ...props.condition, buffTagIds: values });
-  else if (field === 'tagIds' && props.condition.kind === 'entityTagMatch')
+  else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tagIds: values });
+  else if (props.condition.kind === 'eventBuffTagsMatch')
+    emit('update', { ...props.condition, buffTagIds: values });
 }
 
 function setBuffIds(event: Event): void {
@@ -222,6 +219,12 @@ function setEventTagMatch(event: Event): void {
     return;
   const match = (event.target as HTMLSelectElement).value as (typeof EVENT_TAG_MATCH_TYPES)[number];
   if (EVENT_TAG_MATCH_TYPES.includes(match)) emit('update', { ...props.condition, match });
+}
+
+function setEventBuffTagMatch(event: Event): void {
+  if (props.condition.kind !== 'eventBuffTagsMatch') return;
+  const match = (event.target as HTMLSelectElement).value as (typeof TAG_QUERY_TYPES)[number];
+  if (TAG_QUERY_TYPES.includes(match)) emit('update', { ...props.condition, match });
 }
 
 function toggleEventDamageTag(tag: DamageTag, event: Event): void {
@@ -575,15 +578,9 @@ function removeChild(index: number): void {
         ><EditorFieldLabel
           :label="t('nextTimeline.skillEditing.buffTagIds')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
-        /><textarea
-          :value="
-            (condition.kind === 'buffStackCompare' ? condition.buffTagIds : condition.tagIds).join(
-              ', ',
-            )
-          "
-          @change="
-            setIntegerList(condition.kind === 'buffStackCompare' ? 'buffTagIds' : 'tagIds', $event)
-          "
+        /><GameplayTagIdsEditor
+          :ids="condition.kind === 'buffStackCompare' ? condition.buffTagIds : condition.tagIds"
+          @update="setGameplayTagIds"
         />
       </label>
       <template v-if="condition.kind === 'buffStackCompare'"
@@ -696,6 +693,27 @@ function removeChild(index: number): void {
       />
       <textarea :value="condition.buffIds.join('\n')" @input="setBuffIds" />
     </label>
+
+    <template v-if="condition.kind === 'eventBuffTagsMatch'">
+      <label class="condition-editor__field">
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.tagQueryType')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+        />
+        <select :value="condition.match" @change="setEventBuffTagMatch">
+          <option v-for="type in TAG_QUERY_TYPES" :key="type" :value="type">
+            {{ t(`nextTimeline.skillEditing.tagQueryTypes.${type}`) }}
+          </option>
+        </select>
+      </label>
+      <label class="condition-editor__field">
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.buffTagIds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+        />
+        <GameplayTagIdsEditor :ids="condition.buffTagIds" @update="setGameplayTagIds" />
+      </label>
+    </template>
 
     <template v-if="condition.kind === 'eventDamageFeaturesMatch'">
       <label class="condition-editor__field"

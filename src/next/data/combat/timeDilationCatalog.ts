@@ -5,6 +5,7 @@
  * 公共曲线保持原生关键帧；运行时与编辑器必须消费同一份定义。
  */
 import type { TimeScaleCurveKeyDefinition } from '../../core/game-data/operatorDefinition';
+import { requireGameplayTagId } from './gameplayTagCatalog';
 
 export interface TimeDilationSlotDefinition {
   readonly id: number;
@@ -12,16 +13,59 @@ export interface TimeDilationSlotDefinition {
   readonly scope: 'global' | 'entity';
 }
 
+export interface TimeDilationPriorityDefinition {
+  readonly tagId: number;
+  readonly tagPath: string;
+  readonly value: number;
+}
+
+function slot(
+  name: string,
+  scope: TimeDilationSlotDefinition['scope'],
+): TimeDilationSlotDefinition {
+  return Object.freeze({ id: requireGameplayTagId(name), name, scope });
+}
+
+function priority(tagPath: string, value: number): TimeDilationPriorityDefinition {
+  return Object.freeze({ tagId: requireGameplayTagId(tagPath), tagPath, value });
+}
+
 export const TIME_DILATION_SLOT_DEFINITIONS = Object.freeze([
-  { id: -1660475044, name: 'TimeDilation/Layer/Global/UltiSkill', scope: 'global' },
-  { id: -693453437, name: 'TimeDilation/Layer/Global/GamePlay', scope: 'global' },
-  { id: 1464849466, name: 'TimeDilation/Layer/Entity/HitStop', scope: 'entity' },
-  { id: -1855252810, name: 'TimeDilation/Layer/Entity/Frozen', scope: 'entity' },
-  { id: -1451582143, name: 'TimeDilation/Layer/Entity/DashSucceed', scope: 'entity' },
-  { id: 257664179, name: 'TimeDilation/Layer/Entity/VisualAdjust', scope: 'entity' },
-  { id: -1767339671, name: 'TimeDilation/Layer/Entity/UltTangtang', scope: 'entity' },
-  { id: 197328068, name: 'TimeDilation/Layer/Entity/Seal', scope: 'entity' },
+  slot('TimeDilation/Layer/Global/UltiSkill', 'global'),
+  slot('TimeDilation/Layer/Global/GamePlay', 'global'),
+  slot('TimeDilation/Layer/Entity/HitStop', 'entity'),
+  slot('TimeDilation/Layer/Entity/Frozen', 'entity'),
+  slot('TimeDilation/Layer/Entity/DashSucceed', 'entity'),
+  slot('TimeDilation/Layer/Entity/VisualAdjust', 'entity'),
+  slot('TimeDilation/Layer/Entity/UltTangtang', 'entity'),
+  slot('TimeDilation/Layer/Entity/Seal', 'entity'),
 ] as const satisfies readonly TimeDilationSlotDefinition[]);
+
+export const TIME_DILATION_PRIORITY_DEFINITIONS = Object.freeze([
+  priority('TimeDilation/Priority/UltiSkill', 100),
+  priority('TimeDilation/Priority/HitStop', 10),
+  priority('TimeDilation/Priority/Frozen', 50),
+  priority('TimeDilation/Priority/DashSucceed', 10),
+  priority('TimeDilation/Priority/BreakPoise', 20),
+  priority('TimeDilation/Priority/ComboSkill', 30),
+  priority('TimeDilation/Priority/GlobalSlowMotion', 10),
+  priority('TimeDilation/Priority/GlobalSlowMotionPro', 21),
+  priority('TimeDilation/Priority/Interrupt', 15),
+  priority('TimeDilation/Priority/VisualAdjust', 50),
+] as const satisfies readonly TimeDilationPriorityDefinition[]);
+
+export const TIME_DILATION_PRIORITY_OPTIONS = Object.freeze(
+  [...new Set(TIME_DILATION_PRIORITY_DEFINITIONS.map(definition => definition.value))]
+    .sort((left, right) => left - right)
+    .map(value =>
+      Object.freeze({
+        value,
+        tagPaths: TIME_DILATION_PRIORITY_DEFINITIONS.filter(
+          definition => definition.value === value,
+        ).map(definition => definition.tagPath),
+      }),
+    ),
+);
 
 const key = (
   time: number,

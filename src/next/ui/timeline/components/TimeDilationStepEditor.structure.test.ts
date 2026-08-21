@@ -5,8 +5,10 @@ import curveEditorSource from './TimeScaleCurveEditor.vue?raw';
 describe('TimeDilationStepEditor structure', () => {
   it('selects recovered native slots and shared named curves instead of exposing raw text fields', () => {
     expect(editorSource).toContain('TIME_DILATION_SLOT_DEFINITIONS');
+    expect(editorSource).toContain('TIME_DILATION_PRIORITY_OPTIONS');
     expect(editorSource).toContain('TIME_DILATION_NAMED_CURVE_KEYS');
     expect(editorSource).toContain('v-for="option in slotOptions"');
+    expect(editorSource).toContain('v-for="option in priorityOptions"');
     expect(editorSource).toContain('v-for="key in namedCurveOptions"');
   });
 

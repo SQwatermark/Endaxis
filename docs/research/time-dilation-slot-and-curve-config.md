@@ -54,6 +54,16 @@
 本次 TypeTree 导出已经恢复 `interrupt_weakness` 的全部三帧及其余五条曲线的完整关键帧。
 Next 的运行时装配、下拉列表和只读曲线查看器现在共用同一份版本化定义。
 
+## 优先级映射
+
+原生动作中的 `timeDilationPriority` 同样是 GameplayTag，但正式 DSL 的 `priority` 是
+`TimeDilationConfig.priorityMap` 转换后的比较值，不再是 tagId。十条来源标签形成七个
+比较值；`HitStop`、`DashSucceed`、`GlobalSlowMotion` 共享 10，`Frozen` 与
+`VisualAdjust` 共享 50，其余为 `Interrupt=15`、`BreakPoise=20`、
+`GlobalSlowMotionPro=21`、`ComboSkill=30`、`UltiSkill=100`。
+
+因此编辑器按数值分组显示来源标签，而没有把比较值伪装成可逆的 GameplayTag ID。
+
 ## 提取与校验
 
 台式机当前 VFS manifest：

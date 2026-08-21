@@ -23,6 +23,7 @@ import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
 
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
 type OptionalField =
@@ -143,6 +144,15 @@ function setDefinitionNumber(
     if (!Number.isFinite(value) || value < 0) return;
     next[field] = value;
   }
+  setDefinition(next);
+}
+
+function setDefinitionTagIds(field: 'applyTagIds' | 'extendTagIds', ids: readonly number[]): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  const next = { ...definition };
+  if (ids.length === 0) delete next[field];
+  else next[field] = ids;
   setDefinition(next);
 }
 
@@ -397,6 +407,28 @@ function removeAssignment(key: string): void {
           type="text"
           :value="step.parameters.definition.stackingKey ?? ''"
           @input="setDefinitionText('stackingKey', $event)"
+        />
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.buffApplyTags')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffApplyTags')"
+        />
+        <GameplayTagIdsEditor
+          :ids="step.parameters.definition.applyTagIds ?? []"
+          :minimum="0"
+          @update="setDefinitionTagIds('applyTagIds', $event)"
+        />
+      </label>
+      <label>
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.buffExtendTags')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffExtendTags')"
+        />
+        <GameplayTagIdsEditor
+          :ids="step.parameters.definition.extendTagIds ?? []"
+          :minimum="0"
+          @update="setDefinitionTagIds('extendTagIds', $event)"
         />
       </label>
       <label>

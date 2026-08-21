@@ -24,6 +24,7 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 import TimeScaleCurveEditor from './TimeScaleCurveEditor.vue';
 import {
   TIME_DILATION_NAMED_CURVE_KEYS,
+  TIME_DILATION_PRIORITY_OPTIONS,
   TIME_DILATION_SLOT_DEFINITIONS,
   timeDilationNamedCurveKeys,
 } from '../../../data/combat/timeDilationCatalog';
@@ -67,6 +68,20 @@ const namedCurveOptions = computed(() => {
     return [curve.key, ...TIME_DILATION_NAMED_CURVE_KEYS];
   }
   return TIME_DILATION_NAMED_CURVE_KEYS;
+});
+const priorityOptions = computed(() => {
+  const current = props.step.parameters.priority;
+  const options = TIME_DILATION_PRIORITY_OPTIONS.map(option => ({
+    value: option.value,
+    label: `${option.tagPaths.join(' / ')} (${option.value})`,
+  }));
+  if (!options.some(option => option.value === current)) {
+    options.unshift({
+      value: current,
+      label: `${current} — ${t('nextTimeline.skillEditing.unknownTimeDilationPriority')}`,
+    });
+  }
+  return options;
 });
 const curvePreviewKeys = computed<readonly TimeScaleCurveKeyDefinition[]>(() => {
   const curve = ordinary.value?.parameters.curve;
@@ -385,12 +400,11 @@ function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQu
         :label="t('nextTimeline.skillEditing.timeDilationPriority')"
         :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationPriority')"
       />
-      <input
-        type="number"
-        step="1"
-        :value="step.parameters.priority"
-        @input="setUltimatePriority"
-      />
+      <select :value="step.parameters.priority" @change="setUltimatePriority">
+        <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
+      </select>
     </label>
     <label class="step-editor__operand">
       <EditorFieldLabel
@@ -462,12 +476,11 @@ function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQu
           :label="t('nextTimeline.skillEditing.timeDilationPriority')"
           :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationPriority')"
         />
-        <input
-          type="number"
-          step="1"
-          :value="step.parameters.priority"
-          @input="setOrdinaryNumber('priority', $event)"
-        />
+        <select :value="step.parameters.priority" @change="setOrdinaryNumber('priority', $event)">
+          <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
       </label>
       <label class="step-editor__operand">
         <EditorFieldLabel
