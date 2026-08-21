@@ -177,6 +177,7 @@ KNOWN_TARGET_VALIDATOR_TYPES = {
     "TargetContainsValidator",
 }
 KNOWN_TARGET_POST_PROCESSOR_TYPES = {
+    "CircularOrderSort",
     "ConvertToSlot",
     "ExcludeTarget",
     "PriorityFilter",

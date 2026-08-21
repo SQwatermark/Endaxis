@@ -128,6 +128,85 @@ describe('AbilityEntityOperationExecutor', () => {
     ).toBe(true);
   });
 
+  it('applies native circular slot ordering in the zero-space projection', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    for (const index of [2, 0, 3, 1]) {
+      entities.spawn({
+        abilityEntityId: 'place',
+        definition: { lifetime: { kind: 'infinite' } },
+        ownerId: 'arcane',
+        source: { kind: 'operator', operatorId: 'arcane' },
+        blackboardAssignments: { EntityBB_index: index },
+      });
+    }
+    const executor = new AbilityEntityOperationExecutor('arcane', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const targetContext = new RuntimeTargetContext();
+
+    executor.execute(
+      {
+        kind: 'findOwnerSpawnedAbilityEntities',
+        parameters: {
+          saveToContextKey: 'places',
+          abilityEntityIds: ['place'],
+          circularOrder: {
+            indexBlackboardKey: 'EntityBB_index',
+            desiredCount: 4,
+            reverseFlag: 1,
+          },
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+
+    expect(
+      targetContext
+        .get('places')
+        .map(target => entities.entityBlackboard(target).getNumber('EntityBB_index')),
+    ).toEqual([0, 3, 2, 1]);
+  });
+
+  it('clears circular query results on count mismatch and preserves finder order on bad slots', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    for (const index of [1, 1]) {
+      entities.spawn({
+        abilityEntityId: 'place',
+        definition: { lifetime: { kind: 'infinite' } },
+        ownerId: 'arcane',
+        source: { kind: 'operator', operatorId: 'arcane' },
+        blackboardAssignments: { EntityBB_index: index },
+      });
+    }
+    const executor = new AbilityEntityOperationExecutor('arcane', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const targetContext = new RuntimeTargetContext();
+    const execute = (desiredCount: number) =>
+      executor.execute(
+        {
+          kind: 'findOwnerSpawnedAbilityEntities',
+          parameters: {
+            saveToContextKey: 'places',
+            abilityEntityIds: ['place'],
+            circularOrder: {
+              indexBlackboardKey: 'EntityBB_index',
+              desiredCount,
+              reverseFlag: -1,
+            },
+          },
+        },
+        { blackboard: new ActionBlackboard(), targetContext },
+      );
+
+    execute(3);
+    expect(targetContext.get('places')).toEqual([]);
+    execute(2);
+    expect(targetContext.get('places')).toHaveLength(2);
+  });
+
   it('picks one stable Context handle by a blackboard index and overwrites the output group', () => {
     const executor = new AbilityEntityOperationExecutor(
       'zhuang-fangyi',

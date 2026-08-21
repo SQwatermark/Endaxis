@@ -13,6 +13,7 @@ from collections import OrderedDict
 from operator_ability_entity_linker import link_operator_ability_entity_definitions
 
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
+from target_group_parser import parse_circular_order_sort
 
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
@@ -1667,6 +1668,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "fixture.contextCenterQuery",
         )
         self.assertIn("abilityEntityIds: ['water_entity']", context_center_query)
+        circular_query = compile_skill_target_group_ability_entity_query(
+            replace(
+                write,
+                postProcessorTypes=("CircularOrderSort",),
+                circularOrderIndexKey="EntityBB_index",
+                circularOrderDesiredCount=8,
+                circularOrderReverseFlag=1,
+                circularOrderRangeCheckTarget=parse_target_reference(
+                    target_settings_fixture(
+                        "InstantSearch", finder_type="MainTargetFinder"
+                    ),
+                    "fixture.rangeCheckTarget",
+                ),
+            ),
+            templates,
+            "fixture.circularQuery",
+        )
+        self.assertIn(
+            "circularOrder: { indexBlackboardKey: 'EntityBB_index', "
+            "desiredCount: 8, reverseFlag: 1 }",
+            circular_query,
+        )
 
     def test_target_group_non_empty_proof_covers_exhaustive_enemy_or_point_paths(
         self,
@@ -1830,6 +1853,37 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 writes=(smart_target, main_character, fixed_point),
             )
         )
+
+    def test_circular_order_sort_preserves_recovered_payload(self) -> None:
+        selector = {
+            "validatorData": [],
+            "postProcessorData": [{
+                "$type": "Example.Selector+CircularOrderSort+Data, Example",
+                "indexKey": "EntityBB_index",
+                "heightOffset": {
+                    "useBlackboardKey": False, "value": 8.35, "blackboardKey": "",
+                },
+                "rangeCheckTarget": target_settings_fixture(
+                    "InstantSearch", finder_type="MainTargetFinder"
+                ),
+                "rangeThreshold": {
+                    "useBlackboardKey": False, "value": 31, "blackboardKey": "",
+                },
+                "reverseFlag": {
+                    "useBlackboardKey": False, "value": -1, "blackboardKey": "",
+                },
+                "desireCount": {
+                    "useBlackboardKey": False, "value": 8, "blackboardKey": "",
+                },
+            }],
+        }
+
+        parsed = parse_circular_order_sort(selector, "fixture.selector")
+
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed[:5], ("EntityBB_index", 8, -1.0, 8.35, 31.0))
+        self.assertEqual(parsed[5].finderType, "MainTargetFinder")
 
     def test_target_group_writes_preserve_finder_merge_and_branch_path(self) -> None:
         find_action = {

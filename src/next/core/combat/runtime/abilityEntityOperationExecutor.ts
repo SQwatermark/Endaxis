@@ -49,7 +49,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       if (context?.targetContext === undefined) {
         throw new Error('AbilityEntity query requires a combat target context');
       }
-      const targets = this.#entities.findOwnerSpawned({
+      let targets = this.#entities.findOwnerSpawned({
         ownerId: this.#operatorId,
         ...(step.parameters.abilityEntityIds === undefined
           ? {}
@@ -66,6 +66,39 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
             }
           : {}),
       });
+      const circularOrder = step.parameters.circularOrder;
+      if (circularOrder !== undefined) {
+        if (targets.length !== circularOrder.desiredCount) {
+          targets = [];
+        } else {
+          const indexed = new Array<RuntimeTargetRef | undefined>(targets.length);
+          let valid = true;
+          for (const target of targets) {
+            const index = this.#entities
+              .entityBlackboard(target)
+              .getNumber(circularOrder.indexBlackboardKey);
+            if (
+              index === undefined ||
+              !Number.isInteger(index) ||
+              index < 0 ||
+              index >= targets.length ||
+              indexed[index] !== undefined
+            ) {
+              valid = false;
+              break;
+            }
+            indexed[index] = target;
+          }
+          if (valid) {
+            // 所有实例在零空间模型中共点；原生最近槽位回退的首个稳定起点为索引 0。
+            const direction = circularOrder.reverseFlag < 0 ? 1 : -1;
+            targets = indexed.map((_, offset) => {
+              const index = (direction * offset + indexed.length) % indexed.length;
+              return indexed[index]!;
+            });
+          }
+        }
+      }
       context.targetContext.set(step.parameters.saveToContextKey, targets);
       if (step.parameters.saveCountToBlackboardKey !== undefined) {
         context.blackboard.assignDynamic(step.parameters.saveCountToBlackboardKey, targets.length);

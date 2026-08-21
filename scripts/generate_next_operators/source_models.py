@@ -1669,6 +1669,12 @@ class TargetGroupWriteSource:
     smartTargetFallsBackToMainTarget: bool = False
     distanceValidatorsPassAtZero: bool = False
     priorityFilterMaxTargets: int | None = None
+    circularOrderIndexKey: str | None = None
+    circularOrderDesiredCount: int | None = None
+    circularOrderReverseFlag: float | None = None
+    circularOrderHeightOffset: float | None = None
+    circularOrderRangeThreshold: float | None = None
+    circularOrderRangeCheckTarget: TargetReferenceSource | None = None
     pickIndexValue: float | None = None
     pickIndexBlackboardKey: str | None = None
 

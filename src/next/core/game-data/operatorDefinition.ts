@@ -547,6 +547,13 @@ export interface CombatStepParameters {
     sameSourceSkillCast?: boolean;
     /** 可选地把同一查询结果数量写入动作黑板，后续复用 actionValueCompare。 */
     saveCountToBlackboardKey?: string;
+    /** 原生 CircularOrderSort 在项目零空间投影下以槽位 0 为起点执行的环排序。 */
+    circularOrder?: {
+      indexBlackboardKey: string;
+      desiredCount: number;
+      /** 保留原生符号语义：非负递减，负值递增。 */
+      reverseFlag: number;
+    };
   };
   /** 从既有 Context 目标组按运行时索引选出一个稳定句柄，覆盖写入新组。 */
   pickContextTarget: {

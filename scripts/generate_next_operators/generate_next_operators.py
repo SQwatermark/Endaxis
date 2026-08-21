@@ -442,6 +442,16 @@ TARGET_GROUP_WRITE_INTERNAL_KEYS = frozenset(
         "priorityFilterMaxTargets",
     }
 )
+TARGET_GROUP_WRITE_OPTIONAL_EVIDENCE_KEYS = frozenset(
+    {
+        "circularOrderIndexKey",
+        "circularOrderDesiredCount",
+        "circularOrderReverseFlag",
+        "circularOrderHeightOffset",
+        "circularOrderRangeThreshold",
+        "circularOrderRangeCheckTarget",
+    }
+)
 
 
 def serialize_audit_value(value: Any) -> Any:
@@ -463,6 +473,9 @@ def serialize_audit_value(value: Any) -> Any:
                     (field.name, getattr(value, field.name)) for field in fields(value)
                 )
                 if key not in TARGET_GROUP_WRITE_INTERNAL_KEYS
+                and not (
+                    key in TARGET_GROUP_WRITE_OPTIONAL_EVIDENCE_KEYS and item is None
+                )
             }
         )
     if isinstance(value, BuffDefinitionSource):
@@ -514,6 +527,9 @@ def omit_empty_execution_frames(value: Any) -> Any:
                     (field.name, getattr(value, field.name)) for field in fields(value)
                 )
                 if key not in TARGET_GROUP_WRITE_INTERNAL_KEYS
+                and not (
+                    key in TARGET_GROUP_WRITE_OPTIONAL_EVIDENCE_KEYS and item is None
+                )
             }
         )
     if hasattr(value, "__dataclass_fields__"):
@@ -6173,7 +6189,8 @@ def target_group_write_ability_entity_collection_identity(
         or write.finderType != "OwnerSpawnedEntityFinder"
         or write.finderSpawnedObjectType != "AbilityEntity"
         or any(
-            processor != "PriorityFilter" for processor in write.postProcessorTypes
+            processor not in {"PriorityFilter", "CircularOrderSort"}
+            for processor in write.postProcessorTypes
         )
         or write.validatorTypes.count("TagValidator") != 1
         or write.validatorTypes.count("SkillCastIdValidator") > 1
@@ -6224,6 +6241,20 @@ def compile_skill_target_group_ability_entity_query(
         fields.append(
             "saveCountToBlackboardKey: "
             f"{ts_inline_literal(save_count_to_blackboard_key)}"
+        )
+    if "CircularOrderSort" in write.postProcessorTypes:
+        if (
+            write.circularOrderIndexKey is None
+            or write.circularOrderDesiredCount is None
+            or write.circularOrderReverseFlag is None
+            or write.circularOrderRangeCheckTarget is None
+        ):
+            raise ValueError(f"{path}: incomplete CircularOrderSort evidence")
+        fields.append(
+            "circularOrder: { indexBlackboardKey: "
+            f"{ts_inline_literal(write.circularOrderIndexKey)}, desiredCount: "
+            f"{write.circularOrderDesiredCount}, reverseFlag: "
+            f"{write.circularOrderReverseFlag} }}"
         )
     return f"step('findOwnerSpawnedAbilityEntities', {{ {', '.join(fields)} }})"
 

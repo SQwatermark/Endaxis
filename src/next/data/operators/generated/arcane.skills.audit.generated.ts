@@ -48,11 +48,14 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 sequence(
-                  step('calculateActionValue', {
-                    key: 'will',
-                    operation: 'multiply',
-                    left: { kind: 'blackboard', key: 'will' },
-                    right: { kind: 'constant', value: 1 },
+                  step('storeSourceAttributeValue', {
+                    attribute: { kind: 'specific', key: 'will' },
+                    stage: 'armedNonConverted',
+                    useFloor: false,
+                    divisor: { kind: 'constant', value: 1 },
+                    multiplier: { kind: 'constant', value: 1 },
+                    base: { kind: 'constant', value: 0 },
+                    targetKey: 'will',
                   }),
                   step('calculateActionValue', {
                     key: 'rate_final',
@@ -89,8 +92,10 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                         right: { kind: 'blackboard', key: 'rate_pre' },
                       }),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -127,11 +132,14 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 sequence(
-                  step('calculateActionValue', {
-                    key: 'will',
-                    operation: 'multiply',
-                    left: { kind: 'blackboard', key: 'will' },
-                    right: { kind: 'constant', value: 1 },
+                  step('storeSourceAttributeValue', {
+                    attribute: { kind: 'specific', key: 'will' },
+                    stage: 'armedNonConverted',
+                    useFloor: false,
+                    divisor: { kind: 'constant', value: 1 },
+                    multiplier: { kind: 'constant', value: 1 },
+                    base: { kind: 'constant', value: 0 },
+                    targetKey: 'will',
                   }),
                   step('calculateActionValue', {
                     key: 'rate_final',
@@ -168,10 +176,13 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                         right: { kind: 'blackboard', key: 'rate_pre' },
                       }),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -379,11 +390,18 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
       scheduled(
         10,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([6.2, 6.9, 7.5, 8.1, 8.7, 9.4, 10, 10.6, 11.2, 12, 12.9, 14]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([6.2, 6.9, 7.5, 8.1, 8.7, 9.4, 10, 10.6, 11.2, 12, 12.9, 14]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -424,21 +442,35 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         11,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         12,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:29'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:29'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -451,17 +483,26 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
         13,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:43'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([7.1, 7.8, 8.5, 9.2, 9.9, 10.7, 11.4, 12.1, 12.8, 13.7, 14.7, 16]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:43'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -474,6 +515,8 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -495,11 +538,18 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
       scheduled(
         5,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack311:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:17'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack311:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:17'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -512,17 +562,26 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
         13,
         sequence(
-          step('dealDamage', {
-            damageType: 'nature',
-            attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
-            tags: ['normalAttack'],
-          }, '12:basicAttack311:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:28'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: percentages([17, 18, 20, 22, 23, 25, 27, 28, 30, 32, 35, 38]),
+                tags: ['normalAttack'],
+              }, '12:basicAttack311:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:28'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -535,6 +594,8 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -644,16 +705,6 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
           }, '12:basicAttack46:direct25:chr_0032_lizhiyan_attack411:actionOrder2:34'),
         ),
       ),
-      scheduled(
-        16,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0032_lizhiyan_attack4_effect',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-        ),
-      ),
     ],
   },
   {
@@ -695,6 +746,8 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -702,15 +755,22 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
         22,
         sequence(
           branch(
-            { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_attack5' } },
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
             sequence(
-              step('createTimedMarker', {
-                target: 'caster',
-                markerId: 'lizhiyan_attack5',
-                durationSeconds: { kind: 'constant', value: 0.1 },
-                autoFinishByAction: false,
-              }),
+              branch(
+                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_attack5' } },
+                sequence(
+                  step('createTimedMarker', {
+                    target: 'caster',
+                    markerId: 'lizhiyan_attack5',
+                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    autoFinishByAction: false,
+                  }),
+                ),
+              ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -870,6 +930,8 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -944,8 +1006,11 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
                               right: { kind: 'constant', value: 1 },
                             }),
                           ),
+                          undefined,
+                          { alwaysNext: true },
                         ),
                       ),
+                      { alwaysNext: true },
                     ),
                     step('applyElementalInfliction', { element: 'nature', isExtra: false }),
                     branch(
@@ -958,21 +1023,22 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
                       sequence(
                         step('dealDamage', {
                           damageType: 'nature',
-                          attackScale: percentages([222, 245, 267, 289, 311, 333, 356, 378, 400, 428, 461, 500]),
+                          attackScale: { kind: 'blackboard', key: 'atk_scale_wisd' },
                           tags: ['normalSkill'],
                           features: ['canBreakWeakness'],
-                          stagger: 10,
-                        }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder2:14'),
+                          stagger: { kind: 'blackboard', key: 'poise' },
+                        }, '89:abilityentity_chr_0032_lizhiyan_normal_skill:chr_0032_lizhiyan_normal_skill_abilityrange211:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder2:14'),
                       ),
                       sequence(
                         step('dealDamage', {
                           damageType: 'nature',
-                          attackScale: percentages([133, 147, 160, 173, 187, 200, 213, 227, 240, 257, 277, 300]),
+                          attackScale: { kind: 'blackboard', key: 'atk_scale_will' },
                           tags: ['normalSkill'],
                           features: ['canBreakWeakness'],
-                          stagger: 10,
-                        }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[2]11:actionOrder2:17'),
+                          stagger: { kind: 'blackboard', key: 'poise' },
+                        }, '89:abilityentity_chr_0032_lizhiyan_normal_skill:chr_0032_lizhiyan_normal_skill_abilityrange211:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[2]11:actionOrder2:17'),
                       ),
+                      { alwaysNext: true },
                     ),
                   ),
                 ),
@@ -1133,6 +1199,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                           },
                         }),
                       ),
+                      { alwaysNext: true },
                     ),
                   ),
                   1800,
@@ -1246,14 +1313,20 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                             sequence(
                               step('applyElementalInfliction', { element: 'heat', isExtra: false }),
                             ),
+                            undefined,
+                            { alwaysNext: true },
                           ),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
           branch(
             {
@@ -1302,11 +1375,14 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                     desiredKey: 'spell_vul_rate_per_will',
                     outputKey: 'spell_vul_rate_per_will',
                   }),
-                  step('calculateActionValue', {
-                    key: 'will',
-                    operation: 'multiply',
-                    left: { kind: 'blackboard', key: 'will' },
-                    right: { kind: 'constant', value: 1 },
+                  step('storeSourceAttributeValue', {
+                    attribute: { kind: 'specific', key: 'will' },
+                    stage: 'armedNonConverted',
+                    useFloor: false,
+                    divisor: { kind: 'constant', value: 1 },
+                    multiplier: { kind: 'constant', value: 1 },
+                    base: { kind: 'constant', value: 0 },
+                    targetKey: 'will',
                   }),
                   step('calculateActionValue', {
                     key: 'spell_vul_rate_calc',
@@ -1353,10 +1429,12 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                         },
                       }),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
               ),
             ),
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'nature',
@@ -1490,11 +1568,14 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                         desiredKey: 'spell_vul_rate_per_will',
                         outputKey: 'spell_vul_rate_per_will',
                       }),
-                      step('calculateActionValue', {
-                        key: 'will',
-                        operation: 'multiply',
-                        left: { kind: 'blackboard', key: 'will' },
-                        right: { kind: 'constant', value: 1 },
+                      step('storeSourceAttributeValue', {
+                        attribute: { kind: 'specific', key: 'will' },
+                        stage: 'armedNonConverted',
+                        useFloor: false,
+                        divisor: { kind: 'constant', value: 1 },
+                        multiplier: { kind: 'constant', value: 1 },
+                        base: { kind: 'constant', value: 0 },
+                        targetKey: 'will',
                       }),
                       step('calculateActionValue', {
                         key: 'spell_vul_rate_calc',
@@ -1528,12 +1609,16 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                             value: { kind: 'blackboard', key: 'spell_vul_rate_potential' },
                           }),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1604,6 +1689,8 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'blackboard', key: 'cd_minus' },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1668,6 +1755,8 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               step('dealDamage', {
                 damageType: 'nature',
@@ -1686,6 +1775,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                 stagger: 10,
               }, '6:arcana11:conditional19:timelineActions[16]19:_sequenceActionData10:actionData3:[1]11:failActions10:actionData3:[0]11:actionOrder2:76'),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1721,4 +1811,4 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
 
 export const arcaneEntityBlackboardInitializers = [{ key: 'EntityBB_wisd_greater_will', condition: { kind: 'deckAttributeCompare', left: 'intellect', operator: 'greaterOrEqual', right: 'will' }, trueValue: 1, falseValue: 0 }] as const satisfies readonly OperatorEntityBlackboardInitializerDefinition[];
 
-export const arcaneSkillSlotReplacementRelations = [{ skillSlot: 'UltimateSkill', baseSkillKey: 'ultimate', replacementSkillKey: 'arcana', activatedByBuffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner', activationEvent: 'DuringBuffEnable', activationActionIndex: 6, revertOnReplacementCastFrame: 0, revertActionIndex: 62, inheritOriginSkillCooldownProgress: false }] as const;
+export const arcaneSkillSlotReplacementRelations = [{ skillSlot: 'UltimateSkill', baseSkillKey: 'ultimate', replacementSkillKey: 'arcana', activatedByBuffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner', activationEvent: 'DuringBuffEnable', activationActionIndex: 6, inheritOriginSkillCooldownProgress: false, revertOnReplacementCastFrame: 0, revertActionIndex: 62, skillGroupKey: 'ultimate' }] as const;

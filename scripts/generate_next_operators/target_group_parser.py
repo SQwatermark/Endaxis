@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from source_models import TargetGroupInputSource, TargetGroupWriteSource
+from source_models import TargetGroupInputSource, TargetGroupWriteSource, TargetReferenceSource
 from source_schema import (
     TARGET_GROUP_FIND_ACTION_FIELDS,
     TARGET_GROUP_MERGE_ACTION_FIELDS,
@@ -135,6 +135,63 @@ def priority_filter_max_targets(value: Any, path: str) -> int | None:
     return require_non_negative_int(processor.get("maxNum"), f"{processor_path}.maxNum")
 
 
+def parse_circular_order_sort(
+    value: Any,
+    path: str,
+) -> tuple[str, int, float, float, float, TargetReferenceSource] | None:
+    """严格读取已由 1.4.4 机器码闭环的 CircularOrderSort 载荷。"""
+    selector = require_dict(value, path)
+    matches: list[tuple[dict[str, Any], str]] = []
+    for index, raw_processor in enumerate(
+        require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+    ):
+        processor_path = f"{path}.postProcessorData[{index}]"
+        processor = require_dict(raw_processor, processor_path)
+        if selector_component_name(processor, processor_path) == "CircularOrderSort":
+            matches.append((processor, processor_path))
+    if not matches:
+        return None
+    if len(matches) != 1:
+        raise ValueError(f"{path}.postProcessorData: expected one CircularOrderSort")
+    processor, processor_path = matches[0]
+    if set(processor) != {
+        "$type", "indexKey", "heightOffset", "rangeCheckTarget",
+        "rangeThreshold", "reverseFlag", "desireCount",
+    }:
+        raise ValueError(f"{processor_path}: unexpected CircularOrderSort fields")
+
+    index_key = processor.get("indexKey")
+    if not isinstance(index_key, str) or not index_key:
+        raise ValueError(f"{processor_path}.indexKey: expected non-empty string")
+
+    def constant_number(field: str) -> float:
+        scalar_path = f"{processor_path}.{field}"
+        scalar = require_dict(processor.get(field), scalar_path)
+        if set(scalar) != {"useBlackboardKey", "value", "blackboardKey"}:
+            raise ValueError(f"{scalar_path}: unexpected scalar fields")
+        if scalar.get("useBlackboardKey") is not False or scalar.get("blackboardKey") != "":
+            raise ValueError(f"{scalar_path}: blackboard scalar is not yet supported")
+        result = scalar.get("value")
+        if not isinstance(result, (int, float)) or isinstance(result, bool):
+            raise ValueError(f"{scalar_path}.value: expected number")
+        return float(result)
+
+    desired = constant_number("desireCount")
+    if not desired.is_integer() or desired <= 0:
+        raise ValueError(f"{processor_path}.desireCount.value: expected positive integer")
+    return (
+        index_key,
+        int(desired),
+        constant_number("reverseFlag"),
+        constant_number("heightOffset"),
+        constant_number("rangeThreshold"),
+        parse_target_reference(
+            processor.get("rangeCheckTarget"),
+            f"{processor_path}.rangeCheckTarget",
+        ),
+    )
+
+
 def parse_target_group_writes(
     root: dict[str, Any], source_name: str
 ) -> tuple[TargetGroupWriteSource, ...]:
@@ -181,6 +238,10 @@ def parse_target_group_writes(
                     value.get("selectorData"),
                     f"{source_name}.{'.'.join(path)}.selectorData",
                 )
+            )
+            circular_order = parse_circular_order_sort(
+                value.get("selectorData"),
+                f"{source_name}.{'.'.join(path)}.selectorData",
             )
             finder_data = require_dict(
                 require_dict(
@@ -248,6 +309,24 @@ def parse_target_group_writes(
                     priorityFilterMaxTargets=priority_filter_max_targets(
                         value.get("selectorData"),
                         f"{source_name}.{'.'.join(path)}.selectorData",
+                    ),
+                    circularOrderIndexKey=(
+                        None if circular_order is None else circular_order[0]
+                    ),
+                    circularOrderDesiredCount=(
+                        None if circular_order is None else circular_order[1]
+                    ),
+                    circularOrderReverseFlag=(
+                        None if circular_order is None else circular_order[2]
+                    ),
+                    circularOrderHeightOffset=(
+                        None if circular_order is None else circular_order[3]
+                    ),
+                    circularOrderRangeThreshold=(
+                        None if circular_order is None else circular_order[4]
+                    ),
+                    circularOrderRangeCheckTarget=(
+                        None if circular_order is None else circular_order[5]
                     ),
                     inputTargets=(),
                     intervalSeconds=interval,

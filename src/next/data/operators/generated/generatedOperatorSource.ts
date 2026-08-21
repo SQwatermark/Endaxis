@@ -1244,6 +1244,12 @@ export interface GeneratedTargetGroupWriteSource {
   readonly smartTargetFallsBackToMainTarget?: boolean;
   readonly distanceValidatorsPassAtZero?: boolean;
   readonly priorityFilterMaxTargets?: number | null;
+  readonly circularOrderIndexKey?: string | null;
+  readonly circularOrderDesiredCount?: number | null;
+  readonly circularOrderReverseFlag?: number | null;
+  readonly circularOrderHeightOffset?: number | null;
+  readonly circularOrderRangeThreshold?: number | null;
+  readonly circularOrderRangeCheckTarget?: GeneratedTargetReferenceSource | null;
   readonly pickIndexValue?: number | null;
   readonly pickIndexBlackboardKey?: string | null;
 }

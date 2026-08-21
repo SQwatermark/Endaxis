@@ -812,6 +812,17 @@ function validateCombatStep(
       if (parameters.sameSourceSkillCast !== undefined) {
         requireBoolean(parameters, 'sameSourceSkillCast', `${path}.parameters`, out);
       }
+      if (parameters.circularOrder !== undefined) {
+        const orderPath = `${path}.parameters.circularOrder`;
+        const order = asRecord(parameters.circularOrder, orderPath, out);
+        if (order !== null) {
+          requireString(order, 'indexBlackboardKey', orderPath, out);
+          const desiredCount = requireNonNegativeInteger(order, 'desiredCount', orderPath, out);
+          if (desiredCount === 0)
+            push(out, `${orderPath}.desiredCount`, 'expected a positive integer');
+          requireFiniteNumber(order, 'reverseFlag', orderPath, out);
+        }
+      }
       break;
     }
     case 'pickContextTarget':
