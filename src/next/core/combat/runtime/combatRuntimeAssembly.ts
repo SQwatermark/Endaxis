@@ -13,7 +13,11 @@ import type {
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
-import type { CombatTarget, SkillType } from '../../game-data/operatorDefinition';
+import type {
+  BuffApplicationTarget,
+  CombatTarget,
+  SkillType,
+} from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
@@ -224,6 +228,8 @@ export interface CombatRuntimeAssemblyOptions {
     operatorId: string,
     buffSourceId?: string,
   ) => CombatVitals;
+  /** 按稳定干员 ID 返回生命账本，供队伍生命比例选择器使用。 */
+  readonly resolveOperatorVitals?: (operatorId: string) => CombatVitals;
   /**
    * 返回处理伤害、Buff、附着和条件等职责的后续执行器。
    * 共享技力与战技扣费转能由装配器统一包在该执行器外层。
@@ -453,6 +459,7 @@ export class CombatRuntimeAssembly {
           options.createOperationExecutor,
           options.isOperatorControlled,
           options.resolveVitals,
+          options.resolveOperatorVitals,
         ),
       );
       this.#abilitySystems.set(
@@ -778,6 +785,7 @@ export class CombatRuntimeAssembly {
     createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'],
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'],
+    resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): SkillRuntime {
     const operatorId = operator.operatorId;
     if (program.operatorId !== operatorId) {
@@ -795,6 +803,7 @@ export class CombatRuntimeAssembly {
       createDelegate,
       isOperatorControlled,
       resolveVitals,
+      resolveOperatorVitals,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
     });
     const cooldownBinding = this.#resolveSkillCooldown(operatorId, program);
@@ -1013,6 +1022,7 @@ export class CombatRuntimeAssembly {
       createDelegate: options.createOperationExecutor,
       isOperatorControlled: options.isOperatorControlled,
       resolveVitals: options.resolveVitals,
+      resolveOperatorVitals: options.resolveOperatorVitals,
       getNonReturnedSpCost: () => cast?.nonReturnedSpCost ?? 0,
     });
   }
@@ -1025,6 +1035,7 @@ export class CombatRuntimeAssembly {
     readonly createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'];
     readonly isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'];
     readonly resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'];
+    readonly resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'];
     readonly getNonReturnedSpCost: () => number;
   }): CombatOperationExecutor {
     const {
@@ -1035,6 +1046,7 @@ export class CombatRuntimeAssembly {
       createDelegate,
       isOperatorControlled,
       resolveVitals,
+      resolveOperatorVitals,
       getNonReturnedSpCost,
     } = options;
     const operatorId = operator.operatorId;
@@ -1099,9 +1111,12 @@ export class CombatRuntimeAssembly {
       sourceActionId: program.castId ?? program.skillId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
-        target === 'party' || target === 'partyExceptCaster'
-          ? this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? operatorId : undefined)
-          : [this.#resolveBuffTarget(target, operatorId)],
+        this.#resolveBuffApplicationTargets(
+          target,
+          operatorId,
+          isOperatorControlled,
+          resolveOperatorVitals,
+        ),
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
@@ -1237,9 +1252,12 @@ export class CombatRuntimeAssembly {
       sourceActionId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
-        target === 'party' || target === 'partyExceptCaster'
-          ? this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? operatorId : undefined)
-          : [this.#resolveBuffTarget(target, operatorId)],
+        this.#resolveBuffApplicationTargets(
+          target,
+          operatorId,
+          options.isOperatorControlled,
+          options.resolveOperatorVitals,
+        ),
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, options),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
@@ -1482,5 +1500,58 @@ export class CombatRuntimeAssembly {
         }
         return target;
       });
+  }
+
+  #resolveBuffApplicationTargets(
+    target: Exclude<BuffApplicationTarget, 'currentAbilityEntity'>,
+    casterId: string,
+    isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
+    resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
+  ): readonly BuffOperationTarget[] {
+    if (target === 'party' || target === 'partyExceptCaster') {
+      return this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? casterId : undefined);
+    }
+    if (
+      target !== 'casterAndControlledOperator' &&
+      target !== 'casterAndLowestHealthRatioOperatorExceptCaster'
+    ) {
+      return [this.#resolveBuffTarget(target, casterId)];
+    }
+    let selectedId: string;
+    if (target === 'casterAndControlledOperator') {
+      if (isOperatorControlled === undefined) {
+        throw new Error(`Buff target '${target}' requires the scenario control timeline`);
+      }
+      const controlled = this.#operatorOrder.filter(operatorId =>
+        isOperatorControlled(operatorId, this.clock.frame),
+      );
+      if (controlled.length !== 1) {
+        throw new Error(`Buff target '${target}' requires exactly one controlled operator`);
+      }
+      selectedId = controlled[0]!;
+    } else {
+      if (resolveOperatorVitals === undefined) {
+        throw new Error(`Buff target '${target}' requires operator health ledgers`);
+      }
+      const candidates = [...this.#operatorOrder].reverse().filter(id => id !== casterId);
+      if (candidates.length === 0) {
+        throw new Error(`Buff target '${target}' has no teammate except the caster`);
+      }
+      selectedId = candidates[0]!;
+      for (const candidateId of candidates.slice(1)) {
+        const candidate = resolveOperatorVitals(candidateId);
+        const selected = resolveOperatorVitals(selectedId);
+        if (candidate.health / candidate.maxHealth < selected.health / selected.maxHealth) {
+          selectedId = candidateId;
+        }
+      }
+    }
+    return [...new Set([casterId, selectedId])].map(operatorId => {
+      const runtime = this.#operatorBuffs.get(operatorId);
+      if (runtime === undefined) {
+        throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+      }
+      return runtime;
+    });
   }
 }

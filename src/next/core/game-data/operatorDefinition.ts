@@ -149,9 +149,11 @@ export const BUFF_APPLICATION_TARGETS = [
   ...COMBAT_TARGETS,
   'party',
   'partyExceptCaster',
+  'casterAndControlledOperator',
+  'casterAndLowestHealthRatioOperatorExceptCaster',
   'currentAbilityEntity',
 ] as const;
-/** Buff 施加允许面向单体、能力实体、全队或显式排除动作来源的队友集合。 */
+/** Buff 施加允许面向单体、能力实体，以及由原生队伍选择器严格证明的集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
 
 export const BUFF_APPLICATION_SOURCES = [...COMBAT_TARGETS, 'currentAbilityEntity'] as const;
@@ -661,7 +663,13 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
   finishBuffsByTag: {
-    target: Exclude<BuffApplicationTarget, 'party' | 'partyExceptCaster'>;
+    target: Exclude<
+      BuffApplicationTarget,
+      | 'party'
+      | 'partyExceptCaster'
+      | 'casterAndControlledOperator'
+      | 'casterAndLowestHealthRatioOperatorExceptCaster'
+    >;
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
     reason: 'early' | 'absorbed' | 'other';

@@ -31,6 +31,7 @@ from generate_next_operators import (
     resolve_latest_target_group_write_at,
     target_group_write_guarantees_single_enemy,
     target_group_write_guarantees_non_empty,
+    target_group_write_buff_application_target,
     target_group_is_guaranteed_non_empty_at,
     target_group_write_ability_entity_collection_identity,
     collect_timed_marker_damage_gates,
@@ -822,6 +823,67 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "fixture.tagQueries",
             ),
             ("combo_lance", "ultimate_lance"),
+        )
+
+    def test_merge_target_resolves_caster_and_selected_teammate_buff_collections(self) -> None:
+        def source_write(key: str, role: str, branch: str, action_index: int):
+            return TargetGroupWriteSource(
+                startFrame=20,
+                endFrame=21,
+                actionIndex=action_index,
+                actionPath=("root", branch, "actionData", "[0]"),
+                targetGroupKey=key,
+                producerType="FindTargetAction",
+                finderType="CharacterTeamFinder",
+                finderFactionTarget=None,
+                finderTargetObjectType=None,
+                finderCheckAlive=None,
+                validatorTypes=(),
+                postProcessorTypes=(),
+                inputTargets=(),
+                intervalSeconds=None,
+                characterTeamSelectionRole=role,
+            )
+
+        def merge_write(key: str, branch: str, action_index: int):
+            return TargetGroupWriteSource(
+                startFrame=20,
+                endFrame=21,
+                actionIndex=action_index,
+                actionPath=("root", branch, "actionData", "[1]"),
+                targetGroupKey="shieldTar",
+                producerType="MergeTargetAction",
+                finderType=None,
+                finderFactionTarget=None,
+                finderTargetObjectType=None,
+                finderCheckAlive=None,
+                validatorTypes=(),
+                postProcessorTypes=(),
+                inputTargets=(
+                    TargetGroupInputSource("Context", key, None, None, None, None, (), ()),
+                    TargetGroupInputSource("Owner", "", None, None, None, None, (), ()),
+                ),
+                intervalSeconds=None,
+            )
+
+        controlled = source_write("mainChar", "controlledOperator", "fail", 29)
+        controlled_merge = merge_write("mainChar", "fail", 30)
+        lowest = source_write(
+            "aMate", "lowestHealthRatioOperatorExceptCaster", "succeed", 26
+        )
+        lowest_merge = merge_write("aMate", "succeed", 27)
+
+        self.assertEqual(
+            target_group_write_buff_application_target(
+                controlled_merge, (controlled, controlled_merge)
+            ),
+            "casterAndControlledOperator",
+        )
+        self.assertEqual(
+            target_group_write_buff_application_target(
+                lowest_merge, (lowest, lowest_merge)
+            ),
+            "casterAndLowestHealthRatioOperatorExceptCaster",
         )
 
     def test_ability_entity_time_dilation_target_requires_closure_proof(self) -> None:

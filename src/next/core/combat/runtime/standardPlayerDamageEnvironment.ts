@@ -68,6 +68,7 @@ type EnvironmentOptions = Pick<
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
   | 'resolveVitals'
+  | 'resolveOperatorVitals'
   | 'probabilitySamples'
 >;
 
@@ -213,6 +214,7 @@ export class StandardPlayerDamageEnvironment {
         return this.#resolveHealTarget(target, operatorId, this.#requireClock().frame, buffSourceId)
           .vitals;
       },
+      resolveOperatorVitals: operatorId => this.#requireOperatorVitals(operatorId),
     };
   }
 

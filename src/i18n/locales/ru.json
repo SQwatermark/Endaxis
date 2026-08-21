@@ -1377,6 +1377,9 @@
         "caster": "Исполнитель",
         "enemy": "Враг",
         "party": "Все операторы",
+        "partyExceptCaster": "Команда без исполнителя",
+        "casterAndControlledOperator": "Исполнитель и управляемый оператор",
+        "casterAndLowestHealthRatioOperatorExceptCaster": "Исполнитель и союзник с наименьшей долей здоровья",
         "currentAbilityEntity": "Текущая сущность способности"
       },
       "inheritSkillCast": "Наследовать источник навыка",

@@ -669,7 +669,9 @@ def compile_conditional_branch_action(
                 target_group_key=buff_application.targetGroupKey,
                 writes=target_group_writes,
             )
-            context_application_target = target_group_write_buff_application_target(write)
+            context_application_target = target_group_write_buff_application_target(
+                write, target_group_writes
+            )
             if (
                 context_application_target is None
                 and (

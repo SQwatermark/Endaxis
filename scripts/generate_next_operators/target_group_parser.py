@@ -144,13 +144,9 @@ def parse_target_group_writes(
                     finderCheckAlive=finder_check_alive,
                     validatorTypes=validators,
                     postProcessorTypes=post_processors,
-                    characterTeamSelectionRole=(
-                        parse_character_team_selection_role(
-                            value.get("selectorData"),
-                            f"{source_name}.{'.'.join(path)}.selectorData",
-                        )
-                        if target_group_key == "CureTarget"
-                        else None
+                    characterTeamSelectionRole=parse_character_team_selection_role(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
                     ),
                     excludesCurrentTarget=selector_excludes_plain_current_target(
                         value.get("selectorData"),

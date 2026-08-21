@@ -11,7 +11,7 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：320 个。
-- 无角色专用声明即可进入通用 DSL：313 个。
+- 无角色专用声明即可进入通用 DSL：314 个。
 - 当前整名干员完整直转：24 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
 - 当前技能入口中已结构化的事件监听器：17 个。
@@ -44,7 +44,7 @@
 | Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     16 | 是       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
-| Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
+| Catcher        | `chr_0020_meurs`    |    9 |      9 |      8 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
 | Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      9 | 是       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
@@ -61,9 +61,9 @@
 
 | 阻塞类别                | 技能数 |
 | ----------------------- | -----: |
-| `buff-source-or-target` |      2 |
 | `condition-other`       |      2 |
 | `root-action-coverage`  |      2 |
+| `buff-source-or-target` |      1 |
 | `other`                 |      1 |
 
 ## 技能事件监听器

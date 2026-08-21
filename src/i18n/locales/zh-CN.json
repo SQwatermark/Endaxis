@@ -1494,6 +1494,9 @@
         "caster": "施法者",
         "enemy": "敌人",
         "party": "全队干员",
+        "partyExceptCaster": "除施法者外的队友",
+        "casterAndControlledOperator": "施法者与当前主控",
+        "casterAndLowestHealthRatioOperatorExceptCaster": "施法者与除自己外生命比例最低的队友",
         "currentAbilityEntity": "当前能力实体"
       },
       "inheritSkillCast": "继承技能释放身份",

@@ -4373,7 +4373,8 @@ def compile_buff_application_values(
     root_skill_context: bool,
     path: str,
     context_application_target: Literal[
-        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "enemy", "party", "partyExceptCaster", "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity"
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
@@ -4424,7 +4425,8 @@ def compile_buff_application(
     *,
     root_skill_context: bool = True,
     context_application_target: Literal[
-        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "enemy", "party", "partyExceptCaster", "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity"
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     current_ability_entity_owner: bool = False,
@@ -4648,7 +4650,8 @@ def compile_conditional_buff_application(
     *,
     root_skill_context: bool = False,
     context_application_target: Literal[
-        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "enemy", "party", "partyExceptCaster", "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity"
     ] | None = None,
     input_target: Literal["enemy"] | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
@@ -5898,7 +5901,14 @@ def compile_skill_target_group_ability_entity_query(
 
 def target_group_write_buff_application_target(
     write: TargetGroupWriteSource | None,
-) -> Literal["enemy", "party", "partyExceptCaster"] | None:
+    writes: tuple[TargetGroupWriteSource, ...] = (),
+) -> Literal[
+    "enemy",
+    "party",
+    "partyExceptCaster",
+    "casterAndControlledOperator",
+    "casterAndLowestHealthRatioOperatorExceptCaster",
+] | None:
     """把已闭环的目标组写入归约为 Buff 施加支持的单体或集合目标。"""
     if write is None:
         return None
@@ -5913,6 +5923,46 @@ def target_group_write_buff_application_target(
             return "party"
         if write.validatorTypes == ("ExcludeOwnerValidator",):
             return "partyExceptCaster"
+    if (
+        write.producerType == "MergeTargetAction"
+        and not write.validatorTypes
+        and not write.postProcessorTypes
+        and len(write.inputTargets) == 2
+    ):
+        owner_inputs = tuple(
+            item
+            for item in write.inputTargets
+            if item.targetSource == "Owner"
+            and not item.targetGroupKey
+            and item.finderType is None
+            and not item.validatorTypes
+            and not item.postProcessorTypes
+        )
+        context_inputs = tuple(
+            item
+            for item in write.inputTargets
+            if item.targetSource == "Context"
+            and item.targetGroupKey
+            and item.finderType is None
+            and not item.validatorTypes
+            and not item.postProcessorTypes
+        )
+        if len(owner_inputs) == 1 and len(context_inputs) == 1:
+            context_key = context_inputs[0].targetGroupKey
+            candidates = tuple(
+                candidate
+                for candidate in writes
+                if candidate.targetGroupKey == context_key
+                and candidate.startFrame == write.startFrame
+                and candidate.actionIndex < write.actionIndex
+                and candidate.actionPath[:-1] == write.actionPath[:-1]
+            )
+            if len(candidates) == 1:
+                role = candidates[0].characterTeamSelectionRole
+                if role == "controlledOperator":
+                    return "casterAndControlledOperator"
+                if role == "lowestHealthRatioOperatorExceptCaster":
+                    return "casterAndLowestHealthRatioOperatorExceptCaster"
     return None
 
 

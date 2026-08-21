@@ -333,8 +333,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
     const resolved = this.dependencies.resolveApplicationTargets?.(target);
     if (resolved !== undefined) return resolved;
-    if (target === 'party' || target === 'partyExceptCaster') {
-      throw new Error('party Buff application requires a collection target resolver');
+    if (
+      target === 'party' ||
+      target === 'partyExceptCaster' ||
+      target === 'casterAndControlledOperator' ||
+      target === 'casterAndLowestHealthRatioOperatorExceptCaster'
+    ) {
+      throw new Error('collection Buff application requires a collection target resolver');
     }
     return [this.dependencies.resolveTarget(target)];
   }

@@ -1500,6 +1500,9 @@
         "caster": "Caster",
         "enemy": "Enemy",
         "party": "All operators",
+        "partyExceptCaster": "Party except caster",
+        "casterAndControlledOperator": "Caster and controlled operator",
+        "casterAndLowestHealthRatioOperatorExceptCaster": "Caster and lowest-health-ratio teammate",
         "currentAbilityEntity": "Current ability entity"
       },
       "inheritSkillCast": "Inherit skill-cast identity",

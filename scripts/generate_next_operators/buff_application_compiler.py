@@ -40,7 +40,12 @@ def compile_buff_application_values(
     root_skill_context: bool,
     path: str,
     context_application_target: Literal[
-        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "enemy",
+        "party",
+        "partyExceptCaster",
+        "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster",
+        "currentAbilityEntity",
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
@@ -80,7 +85,13 @@ def compile_buff_application_values(
     elif buff_source not in supported_sources:
         raise ValueError(f"{path}: unsupported Buff source {buff_source!r}")
     target: Literal[
-        "caster", "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "caster",
+        "enemy",
+        "party",
+        "partyExceptCaster",
+        "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster",
+        "currentAbilityEntity",
     ] | None
     if target_source == "Context" and context_application_target is not None:
         target = context_application_target
@@ -160,7 +171,10 @@ def compile_buff_application_values(
             # 集合施加只决定创建多少个实例；每个实例进入生命周期后，
             # Owner 都由运行时切换为该 Buff 的实际宿主。
             lifecycle_owner_target = "caster" if target in {
-                "party", "partyExceptCaster"
+                "party",
+                "partyExceptCaster",
+                "casterAndControlledOperator",
+                "casterAndLowestHealthRatioOperatorExceptCaster",
             } else target
             return compile_inline_buff_behaviors(
                 event_source,
@@ -188,7 +202,15 @@ def compile_buff_application_values(
                     scheduled_path,
                     buff_owner_target=cast(
                         Literal["caster", "enemy", "currentAbilityEntity"],
-                        "caster" if target in {"party", "partyExceptCaster"} else target,
+                        "caster"
+                        if target
+                        in {
+                            "party",
+                            "partyExceptCaster",
+                            "casterAndControlledOperator",
+                            "casterAndLowestHealthRatioOperatorExceptCaster",
+                        }
+                        else target,
                     ),
                     buff_definitions=buff_definitions,
                     invoked_child_context=invoked_child_context,
@@ -228,7 +250,12 @@ def compile_buff_application(
     *,
     root_skill_context: bool = True,
     context_application_target: Literal[
-        "enemy", "party", "partyExceptCaster", "currentAbilityEntity"
+        "enemy",
+        "party",
+        "partyExceptCaster",
+        "casterAndControlledOperator",
+        "casterAndLowestHealthRatioOperatorExceptCaster",
+        "currentAbilityEntity",
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     current_ability_entity_owner: bool = False,

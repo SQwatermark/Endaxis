@@ -27,7 +27,7 @@ __all__ = [
 
 
 def parse_character_team_selection_role(value: Any, path: str) -> str | None:
-    """只识别治疗已取证的主控与“排除主控后最低生命比例”选择器。"""
+    """识别已取证的主控与最低生命比例队友选择器。"""
     selector = require_dict(value, path)
     finder = selector.get("finderData")
     if not isinstance(finder, dict) or selector_component_name(finder, f"{path}.finderData") != "CharacterTeamFinder":
@@ -47,9 +47,9 @@ def parse_character_team_selection_role(value: Any, path: str) -> str | None:
         return None
     if validators or len(processors) not in {1, 2}:
         return None
-    excludes_controlled = len(processors) == 2
-    priority_index = 1 if excludes_controlled else 0
-    if excludes_controlled:
+    exclusion_role: str | None = None
+    priority_index = 1 if len(processors) == 2 else 0
+    if len(processors) == 2:
         exclusion = require_dict(processors[0], f"{path}.postProcessorData[0]")
         if selector_component_name(exclusion, f"{path}.postProcessorData[0]") != "ExcludeTarget":
             return None
@@ -59,13 +59,23 @@ def parse_character_team_selection_role(value: Any, path: str) -> str | None:
             exclusion.get("excludedTargetSettings"),
             f"{path}.postProcessorData[0].excludedTargetSettings",
         )
-        if not (
+        if (
             excluded.targetSource == "Context"
             and excluded.targetGroupKey == "Main"
             and excluded.finderType is None
             and not excluded.validatorTypes
             and not excluded.postProcessorTypes
         ):
+            exclusion_role = "Controlled"
+        elif (
+            excluded.targetSource == "Owner"
+            and not excluded.targetGroupKey
+            and excluded.finderType is None
+            and not excluded.validatorTypes
+            and not excluded.postProcessorTypes
+        ):
+            exclusion_role = "Caster"
+        else:
             return None
     priority_path = f"{path}.postProcessorData[{priority_index}]"
     priority = require_dict(processors[priority_index], priority_path)
@@ -108,11 +118,9 @@ def parse_character_team_selection_role(value: Any, path: str) -> str | None:
         and buff_filter.get("buffStackNumType") == "BuffCount"
     ):
         return None
-    return (
-        "lowestHealthRatioOperatorExceptControlled"
-        if excludes_controlled
-        else "lowestHealthRatioOperator"
-    )
+    if exclusion_role is None:
+        return "lowestHealthRatioOperator"
+    return f"lowestHealthRatioOperatorExcept{exclusion_role}"
 
 
 def parse_spawned_entity_selector_identity(
