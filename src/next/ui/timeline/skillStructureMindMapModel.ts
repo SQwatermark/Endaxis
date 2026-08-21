@@ -230,6 +230,36 @@ function eventResponseNode(
   };
 }
 
+function inlineBuffDefinitionNode(
+  definition: SkillBuffDefinition,
+  id: string,
+  sourcePath: string,
+  label: string,
+  buffId: string,
+  editorSection: number,
+): SkillStructureNode {
+  const root = buildBuffStructureMindMap(buffId, definition);
+  function project(node: SkillStructureNode): SkillStructureNode {
+    return {
+      ...node,
+      id: node.id === root.id ? id : `${id}:${node.id}`,
+      sourcePath: node.sourcePath === '' ? sourcePath : `${sourcePath}.${node.sourcePath}`,
+      editorSection,
+      children: node.children.map(project),
+      ...(node.id === root.id
+        ? {
+            label,
+            kind: '内联 Buff 定义',
+            summary: `${buffId} · ${root.summary}`,
+            details: { BuffID: buffId, ...root.details },
+            relationToParent: 'port' as const,
+          }
+        : {}),
+    };
+  }
+  return project(root);
+}
+
 function stepNode(
   step: CombatStepDefinition,
   id: string,
@@ -323,6 +353,25 @@ function stepNode(
             true,
             false,
           ),
+    );
+  } else if (step.kind === 'applyPhysicalInfliction') {
+    children.push(
+      inlineBuffDefinitionNode(
+        step.parameters.noGuardDefinition,
+        `${id}:no-guard-definition`,
+        `${sourcePath}.parameters.noGuardDefinition`,
+        '破防层 Buff',
+        step.parameters.noGuardBuffId,
+        editorSection,
+      ),
+      inlineBuffDefinitionNode(
+        step.parameters.fractureDefinition,
+        `${id}:fracture-definition`,
+        `${sourcePath}.parameters.fractureDefinition`,
+        '碎甲 Buff',
+        step.parameters.fractureBuffId,
+        editorSection,
+      ),
     );
   }
 

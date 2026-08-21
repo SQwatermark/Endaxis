@@ -24,6 +24,7 @@ import EventListenerStepEditor from './EventListenerStepEditor.vue';
 import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
 import SkillCooldownStepEditor from './SkillCooldownStepEditor.vue';
+import PhysicalInflictionStepEditor from './PhysicalInflictionStepEditor.vue';
 import {
   EDITABLE_COMBAT_STEP_KINDS,
   type EditableCombatStepKind,
@@ -97,6 +98,9 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'heal'">
         <HealStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'applyPhysicalInfliction'">
+        <PhysicalInflictionStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'"

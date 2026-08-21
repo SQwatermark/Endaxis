@@ -80,6 +80,27 @@ describe('skillStructureMindMapModel', () => {
                   condition: { kind: 'casterControlled' },
                 },
               },
+              {
+                kind: 'applyPhysicalInfliction',
+                parameters: {
+                  type: 'fracture',
+                  target: 'enemy',
+                  isExtra: false,
+                  noGuardBuffId: 'buff_physical_no_guard',
+                  noGuardDefinition: {
+                    stackingType: 'unlimited',
+                    durationSeconds: 10,
+                    lifecycleSequences: {
+                      enable: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                    },
+                  },
+                  fractureBuffId: 'buff_physical_fracture',
+                  fractureDefinition: {
+                    stackingType: 'refresh',
+                    durationSeconds: 5,
+                  },
+                },
+              },
             ],
           },
         },
@@ -126,6 +147,16 @@ describe('skillStructureMindMapModel', () => {
     );
     expect(nodes.get('sequence:0:step:1:response:0:condition')?.sourcePath).toBe(
       'scheduledSequences[0].sequence.steps[1].parameters.responses[0].condition',
+    );
+    expect(nodes.get('sequence:0:step:4')?.children.map(node => node.label)).toEqual([
+      '破防层 Buff',
+      '碎甲 Buff',
+    ]);
+    expect(nodes.get('sequence:0:step:4:no-guard-definition')?.relationToParent).toBe('port');
+    expect(
+      nodes.get('sequence:0:step:4:no-guard-definition:buff:lifecycle:enable:step:0')?.sourcePath,
+    ).toBe(
+      'scheduledSequences[0].sequence.steps[4].parameters.noGuardDefinition.lifecycleSequences.enable.steps[0]',
     );
     expect(nodes.get('sequence:0:step:1:response:0:sequence:step:0')?.sourcePath).toBe(
       'scheduledSequences[0].sequence.steps[1].parameters.responses[0].sequence.steps[0]',

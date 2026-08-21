@@ -1128,6 +1128,22 @@ function reset(): void {
           </header>
           <p class="node-inspector__hint">此节点只承载有序子步骤，请使用导图节点上的＋添加。</p>
         </section>
+
+        <section v-else-if="selectedStructureNode" class="editor-section node-inspector">
+          <header class="node-inspector__header">
+            <div>
+              <span>{{ selectedStructureNode.kind }}</span>
+              <strong>{{ selectedStructureNode.label }}</strong>
+            </div>
+          </header>
+          <dl class="node-inspector__details">
+            <template v-for="(value, key) in selectedStructureNode.details" :key="key">
+              <dt>{{ key }}</dt>
+              <dd>{{ value }}</dd>
+            </template>
+          </dl>
+          <p class="node-inspector__hint">此处只显示本层字段；子结构在左侧导图中展开和选择。</p>
+        </section>
       </main>
     </div>
 
@@ -1357,6 +1373,23 @@ function reset(): void {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 4px;
+}
+.node-inspector__details {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.45fr) minmax(0, 1fr);
+  margin: 0;
+  padding: 10px 12px;
+}
+.node-inspector__details dt,
+.node-inspector__details dd {
+  min-width: 0;
+  margin: 0;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ea-border-soft);
+  overflow-wrap: anywhere;
+}
+.node-inspector__details dt {
+  color: var(--ea-fg-muted);
 }
 .node-inspector__hint {
   margin: 0;
