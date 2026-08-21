@@ -1105,6 +1105,7 @@ function validateCombatStep(
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&
                     response.event !== 'beforeCastSkill' &&
+                    response.event !== 'skillEnd' &&
                     response.event !== 'addedBuff' &&
                     response.event !== 'finishedBuff' &&
                     response.event !== 'afterKillEntity'

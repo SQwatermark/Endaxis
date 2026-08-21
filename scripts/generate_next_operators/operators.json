@@ -3106,7 +3106,8 @@
       "slug": "liino",
       "exportName": "liinoGeneratedSource",
       "charId": "chr_0035_liino",
-      "outputStage": "audit",
+      "outputStage": "complete",
+      "runtimeReplacementSkillKeys": ["battleSkillEnd"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
@@ -3117,6 +3118,56 @@
         { "key": "potential3", "compile": "skillCooldownAndBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "skillBlackboardPatch" }
+      ],
+      "skillGroups": [
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        },
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill", "battleSkillEnd", "battleSkillCombo"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        }
       ],
       "skills": [
         {
@@ -3138,6 +3189,18 @@
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0035_liino_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0035_liino_attack4.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "source": "chr_0035_liino_attack5.json",
@@ -3151,6 +3214,12 @@
           "skillType": "finisher",
           "source": "chr_0035_liino_power_attack.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "powerAttack"] }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0035_liino_plunging_attack_end.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "plungingAttack"] }
         },
         {
           "key": "battleSkill",
@@ -3169,6 +3238,12 @@
           "skillType": "battleSkill",
           "source": "chr_0035_liino_normal_skill_combo.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0035_liino_ultimate_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
         }
       ]
     }

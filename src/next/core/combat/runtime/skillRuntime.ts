@@ -42,7 +42,7 @@ export interface CombatAbilityDamageEvent {
 /** AbilitySystem 在技能正式启动前发出的施放事件。 */
 export interface CombatAbilitySkillEvent {
   readonly kind: 'abilitySkill';
-  readonly event: 'beforeCastSkill';
+  readonly event: 'beforeCastSkill' | 'skillEnd';
   readonly sourceId: string;
   readonly targetId: string;
   readonly skillType: import('../../game-data/operatorDefinition').SkillType;
@@ -97,6 +97,8 @@ interface SkillRuntimeDependencies {
   readonly cooldown?: SkillCooldown;
   /** 共享账本只能由一个运行实例逐帧推进。 */
   readonly advancesCooldown?: boolean;
+  /** 原生 CastEnd 清理完成后向所有者 AbilitySystem 同步发布 OnSkillEnd。 */
+  readonly emitSkillEnd?: (payload: CombatAbilitySkillEvent) => void;
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
@@ -300,6 +302,7 @@ export class SkillRuntime {
     if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillEnded');
+    this.#emitSkillEnd();
   }
 
   interrupt(reason: RuntimeSkillInterruptReason): void {
@@ -308,6 +311,7 @@ export class SkillRuntime {
     if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillInterrupted', { reason });
+    this.#emitSkillEnd();
   }
 
   createSequence(sequence: ResolvedActionSequence): ActionSequence {
@@ -416,6 +420,17 @@ export class SkillRuntime {
     }
     timeline.finish(this.#passedFrames, this.#context);
     this.record('SkillTimelineFinished');
+  }
+
+  #emitSkillEnd(): void {
+    this.#dependencies.emitSkillEnd?.({
+      kind: 'abilitySkill',
+      event: 'skillEnd',
+      sourceId: this.#program.operatorId,
+      targetId: this.#program.operatorId,
+      skillType: this.#program.skillType,
+      skillId: this.#program.sourceSkillId ?? this.#program.skillId,
+    });
   }
 }
 

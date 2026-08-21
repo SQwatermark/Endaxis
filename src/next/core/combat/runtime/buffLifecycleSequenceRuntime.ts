@@ -30,7 +30,7 @@ import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinitio
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
-  event: ResolvedSkillBuffAbilityEventResponse['event'],
+  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
   priority: number,
   handle: (payload: unknown) => void,
   samePriorityKey?: string,
@@ -506,7 +506,7 @@ function normalizeBuffAbilityEvent(
       buffId: source.buffId,
     };
   }
-  if (event === 'beforeCastSkill') {
+  if (event === 'beforeCastSkill' || event === 'skillEnd') {
     if (
       source.skillType !== 'basicAttack' &&
       source.skillType !== 'battleSkill' &&

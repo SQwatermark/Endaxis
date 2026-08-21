@@ -261,6 +261,12 @@ def compile_conditional_branch_action(
             step_key_prefix=step_key_prefix,
             source_path=action.actionPath,
             source_order=(getattr(action, "serverActionIndex", None) or action.actionIndex,),
+            ignored_buff_ids=ignored_buff_ids,
+            buff_definitions=buff_definitions,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=current_buff_environment,
+            invoked_child_context=invoked_child_context,
+            projectile_launch=projection.launch,
         )
         if compiled is not None:
             return compiled
@@ -511,6 +517,15 @@ def compile_conditional_branch_action(
                 writes=target_group_writes,
             )
             target_role = None if write is None else write.characterTeamSelectionRole
+        elif (
+            heal.target.targetSource == "Target"
+            and not heal.target.targetGroupKey
+            and heal.target.finderType is None
+            and not heal.target.validatorTypes
+            and not heal.target.postProcessorTypes
+            and input_target == "caster"
+        ):
+            target_role = "caster"
         if target_role is None:
             raise ValueError(f"{path}: HealAction target identity is unresolved")
         if heal.attribute is None:

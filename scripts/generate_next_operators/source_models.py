@@ -579,6 +579,19 @@ class BuffDefinitionSource:
     pauseTimeActions: tuple["BuffPauseTimeSource", ...] = ()
     shields: tuple["BuffShieldSource", ...] = ()
     sustainedProtections: tuple["BuffSustainedProtectionSource", ...] = ()
+    animationEndBuffApplications: tuple["BuffAnimationEndApplicationSource", ...] = ()
+    projectileLaunches: tuple[ProjectileLaunchSource, ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffAnimationEndApplicationSource:
+    """PlayAnimationAction 结束时执行的 Buff 应用及其已证实生命周期。"""
+
+    naturalEndFrame: int
+    sequenceIndex: int
+    animationActionIndex: int
+    executeOnNormalEndOnly: bool
+    application: AuxiliaryActionSource
 
 
 @dataclass(frozen=True)
@@ -996,6 +1009,12 @@ class AbilityEntityDurationConditionSource:
 
 
 @dataclass(frozen=True)
+class ObjectTypeMatchConditionSource:
+    target: TargetReferenceSource
+    objectTypeMask: str | int
+
+
+@dataclass(frozen=True)
 class ConditionSource:
     sourceType: str
     supported: bool
@@ -1020,6 +1039,7 @@ class ConditionSource:
     damageDecorateMask: "DamageDecorateMaskConditionSource | None" = None
     contextBuffId: "BuffIdInContextConditionSource | None" = None
     abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
+    objectTypeMatch: "ObjectTypeMatchConditionSource | None" = None
     deckAttributeCompare: "DeckAttributeCompareConditionSource | None" = None
     probability: ScalarSource | None = None
     # 原生 OrConditionAction：各 SequenceAction 内部全满足，组间任一满足。
@@ -1277,6 +1297,7 @@ class AuraActionSource:
     nestedCombatActions: tuple[str, ...]
     airborneOutputs: tuple[AirborneOutputSource, ...] = ()
     actionInAuraBuffFinishes: tuple[BuffFinishPayload, ...] = ()
+    actionWhenExitAuraBuffFinishes: tuple[BuffFinishPayload, ...] = ()
     actionWhenExitAuraBuffApplications: tuple[BuffApplicationPayload, ...] = ()
 
 
@@ -1320,6 +1341,7 @@ class ProjectileLaunchPayload:
     skillTriggers: tuple[ProjectileSkillTriggerSource, ...]
     assignBlackboard: bool = False
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
+    target: TargetReferenceSource | None = None
 
 
 @dataclass(frozen=True)

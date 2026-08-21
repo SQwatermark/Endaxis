@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
 from action_kinds import AUDITED_COMBAT_ACTION_NAMES
 from action_payload_parser import (
+    parse_buff_application_payload,
     parse_blackboard_mutation_payload,
     parse_scalar,
     parse_tag_query,
@@ -17,7 +19,9 @@ from conditional_parser import parse_conditional_actions
 from source_models import (
     AbilityEntityHitSource,
     AbilityEntitySpawnPayload,
+    AuxiliaryActionSource,
     BuffAttributeModifierSource,
+    BuffAnimationEndApplicationSource,
     BuffComboQteSource,
     BuffDamageModifierSource,
     BuffDamageNumberComparisonSource,
@@ -31,6 +35,7 @@ from source_models import (
     BuffShieldAbsorptionSource,
     BuffShieldSource,
     BuffSustainedProtectionSource,
+    ConditionalActionSource,
     HealthConditionSource,
     ScalarSource,
     UnparsedBuffPayloadSource,
@@ -201,8 +206,132 @@ class BuffDefinitionParserServices:
     parse_resource_gains: Callable[..., Any]
     parse_target_group_writes: Callable[..., Any]
     resolve_ability_entity_payload: Callable[..., Any]
+    resolve_conditional_projectile_triggers: Callable[..., Any]
     target_reference_is_plain: Callable[..., Any]
     walk_actions: Callable[..., Any]
+    parse_projectile_launches: Callable[..., Any]
+
+
+def parse_buff_animation_end_applications(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffAnimationEndApplicationSource, ...]:
+    """严格解析 PlayAnimationAction.onEndAction 中已复刻的 CreateBuffAction。"""
+    result: list[BuffAnimationEndApplicationSource] = []
+    for timeline_index, raw_timeline in enumerate(
+        require_list(buff.get("timelineActions"), f"{source_name}.timelineActions")
+    ):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        start_frame = timeline.get("_startFrame")
+        if not isinstance(start_frame, int) or isinstance(start_frame, bool) or start_frame < 0:
+            raise ValueError(f"{timeline_path}._startFrame: expected non-negative integer")
+        sequence = require_dict(
+            timeline.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData"
+        )
+        for raw_action in require_list(
+            sequence.get("actionData"), f"{timeline_path}.actionData"
+        ):
+            action = require_dict(raw_action, f"{timeline_path}.actionData[]")
+            if (
+                action_name(str(action.get("$type", ""))) != "PlayAnimationAction"
+                or action.get("isEnable") is False
+            ):
+                continue
+            action_index = require_server_action_index(
+                action, f"{timeline_path}.PlayAnimationAction"
+            )
+            duration = action.get("duration")
+            blend_out = action.get("blendOut")
+            if (
+                not isinstance(duration, (int, float))
+                or isinstance(duration, bool)
+                or not math.isfinite(duration)
+            ):
+                raise ValueError(
+                    f"{timeline_path}.PlayAnimationAction.duration: expected finite number"
+                )
+            if (
+                not isinstance(blend_out, (int, float))
+                or isinstance(blend_out, bool)
+                or not math.isfinite(blend_out)
+            ):
+                raise ValueError(
+                    f"{timeline_path}.PlayAnimationAction.blendOut: expected finite number"
+                )
+            callback_seconds = float(duration) - float(blend_out)
+            if callback_seconds < 0:
+                raise ValueError(
+                    f"{timeline_path}.PlayAnimationAction: blendOut exceeds duration"
+                )
+            execute_normal_only = require_bool(
+                action.get("executeOnNormalEndOnly"),
+                f"{timeline_path}.PlayAnimationAction.executeOnNormalEndOnly",
+            )
+            on_end = require_dict(
+                action.get("onEndAction"),
+                f"{timeline_path}.PlayAnimationAction.onEndAction",
+            )
+            callback_actions = require_list(
+                on_end.get("actionData"),
+                f"{timeline_path}.PlayAnimationAction.onEndAction.actionData",
+            )
+            for raw_callback in callback_actions:
+                callback = require_dict(
+                    raw_callback,
+                    f"{timeline_path}.PlayAnimationAction.onEndAction.actionData[]",
+                )
+                if callback.get("isEnable") is False:
+                    continue
+                if action_name(str(callback.get("$type", ""))) != "CreateBuffAction":
+                    raise ValueError(
+                        f"{timeline_path}.PlayAnimationAction.onEndAction: unsupported callback action"
+                    )
+                callback_path = (
+                    f"{timeline_path}.PlayAnimationAction.onEndAction.CreateBuffAction"
+                )
+                payload = parse_buff_application_payload(
+                    callback, callback_path, blackboard
+                )
+                auto_finish = require_bool(
+                    callback.get("autoFinishByAction"),
+                    f"{callback_path}.autoFinishByAction",
+                )
+                callback_index = require_server_action_index(callback, callback_path)
+                for entry in payload.buffs:
+                    application = AuxiliaryActionSource(
+                        startFrame=start_frame,
+                        endFrame=start_frame,
+                        actionIndex=callback_index,
+                        actionType="CreateBuffAction",
+                        sourceId=entry.buffId,
+                        classification=entry.classification,
+                        targetSource=payload.targetSource,
+                        targetGroupKey=payload.targetGroupKey,
+                        count=payload.count,
+                        buffSource=payload.buffSource,
+                        buffSourceContextKey=payload.buffSourceContextKey,
+                        inheritSourceSkillCastInfo=payload.inheritSourceSkillCastInfo,
+                        blackboardAssignments=entry.blackboardAssignments,
+                        nestedCombatActions=(),
+                        targetFinderType=payload.targetFinderType,
+                        targetValidatorTypes=payload.targetValidatorTypes,
+                        targetPostProcessorTypes=payload.targetPostProcessorTypes,
+                        sequenceIndex=timeline_index,
+                        autoFinishByAction=auto_finish,
+                    )
+                    result.append(
+                        BuffAnimationEndApplicationSource(
+                            naturalEndFrame=start_frame
+                            + math.ceil(callback_seconds * 30),
+                            sequenceIndex=timeline_index,
+                            animationActionIndex=action_index,
+                            executeOnNormalEndOnly=execute_normal_only,
+                            application=application,
+                        )
+                    )
+    return tuple(result)
 
 
 def parse_buff_apply_tag_ids(buff: dict[str, Any], source_name: str) -> tuple[int, ...]:
@@ -1011,6 +1140,7 @@ def resolve_buff_definitions(
     parse_target_group_writes = services.parse_target_group_writes
     resolve_ability_entity_payload = services.resolve_ability_entity_payload
     walk_actions = services.walk_actions
+    parse_projectile_launches = services.parse_projectile_launches
     dirs = (
         (buff_source_dirs,)
         if isinstance(buff_source_dirs, Path)
@@ -1093,6 +1223,45 @@ def resolve_buff_definitions(
                 )
             ),
         )
+        if skill_source_dir is not None:
+            resolved_events = []
+            for event_index, event in enumerate(event_actions):
+                resolved_sequences = []
+                for sequence_index, sequence in enumerate(event.sequences):
+                    if not sequence.actions:
+                        resolved_sequences.append(sequence)
+                        continue
+                    wrapper = ConditionalActionSource(
+                        startFrame=0,
+                        endFrame=0,
+                        actionIndex=sequence_index,
+                        actionPath=(
+                            "buffEventAction" if event.eventSource == "buff" else "abilityEventAction",
+                            str(event_index),
+                            "actions",
+                            str(sequence_index),
+                        ),
+                        conditions=(),
+                        succeedActions=sequence.actions,
+                        failActions=(),
+                    )
+                    resolved = services.resolve_conditional_projectile_triggers(
+                        (wrapper,),
+                        adapted_root,
+                        source_file,
+                        skill_source_dir,
+                        0,
+                        (buff_id,),
+                        blackboard,
+                        (event_index, sequence_index),
+                    )[0]
+                    resolved_sequences.append(
+                        replace(sequence, actions=resolved.succeedActions)
+                    )
+                resolved_events.append(
+                    replace(event, sequences=tuple(resolved_sequences))
+                )
+            event_actions = tuple(resolved_events)
         ignite_event_actions = parse_buff_ignite_event_actions(buff, source_file, blackboard)
         auxiliary_actions = parse_auxiliary_actions(
             adapted_root,
@@ -1100,6 +1269,10 @@ def resolve_buff_definitions(
             skill_source_dir or source_path.parent,
             blackboard,
         )
+        animation_end_applications = parse_buff_animation_end_applications(
+            buff, source_file, blackboard
+        )
+        projectile_launches = parse_projectile_launches(adapted_root, source_file)
         pause_event_names = {action.event for action in pause_time_actions}
         event_actions = tuple(
             event
@@ -1213,6 +1386,8 @@ def resolve_buff_definitions(
             pauseTimeActions=pause_time_actions,
             shields=shields,
             sustainedProtections=sustained_protections,
+            animationEndBuffApplications=animation_end_applications,
+            projectileLaunches=projectile_launches,
         )
         pending.extend(
             child_id

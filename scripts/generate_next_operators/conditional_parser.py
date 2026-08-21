@@ -62,6 +62,7 @@ from source_models import (
     PoiseConditionSource,
     LegacyBuffFinishPayload,
     MainOperatorConditionSource,
+    ObjectTypeMatchConditionSource,
     SequenceGuardActionSource,
     ScalarSource,
     SkillHasHitConditionSource,
@@ -1018,6 +1019,28 @@ def parse_conditional_actions(
                     ),
                 ),
             )
+        if condition_type == "CheckObjectTypeMatch":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "target", "objectTypeMask",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            mask = condition.get("objectTypeMask")
+            if not isinstance(mask, (str, int)) or isinstance(mask, bool):
+                raise ValueError(f"{path}.objectTypeMask: expected flags")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                objectTypeMatch=ObjectTypeMatchConditionSource(
+                    target=parse_target_reference(condition.get("target"), f"{path}.target"),
+                    objectTypeMask=mask,
+                ),
+            )
         return ConditionSource(
             sourceType=condition_type,
             supported=False,
@@ -1441,7 +1464,6 @@ def parse_conditional_actions(
                         and action.get("useFloor") is False
                         and divisor.blackboardKey is None
                         and divisor.value == 1
-                        and base.blackboardKey is None
                         and isinstance(output_key, str)
                         and output_key
                     )
@@ -1453,7 +1475,11 @@ def parse_conditional_actions(
                             right=parse_scalar(
                                 action.get("multiplierValue"), source_path, inherited_blackboard
                             ),
-                            addend=None if base.value == 0 else base,
+                            addend=(
+                                None
+                                if base.blackboardKey is None and base.value == 0
+                                else base
+                            ),
                         )
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)

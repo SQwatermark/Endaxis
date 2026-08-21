@@ -1991,8 +1991,10 @@ def _make_buff_definition_parser_services() -> BuffDefinitionParserServices:
         parse_resource_gains=parse_resource_gains,
         parse_target_group_writes=parse_target_group_writes,
         resolve_ability_entity_payload=resolve_ability_entity_payload,
+        resolve_conditional_projectile_triggers=resolve_conditional_projectile_triggers,
         target_reference_is_plain=target_reference_is_plain,
         walk_actions=walk_actions,
+        parse_projectile_launches=parse_projectile_launches,
     )
 
 
@@ -4738,9 +4740,86 @@ def compile_immediate_projectile_children(
     step_key_prefix: str | None = None,
     source_path: tuple[str, ...] = (),
     source_order: tuple[int, ...] = (),
+    ignored_buff_ids: frozenset[str] = frozenset(),
+    buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    projectile_launch: ProjectileLaunchPayload | None = None,
 ) -> str | None:
     """编译命中帧同步完成的投射物子技能；延迟、递归与实体生成继续留给调度层。"""
 
+    if projectile_children_are_inline_conditional(triggered_skills):
+        projectile_target = None if projectile_launch is None else projectile_launch.target
+        input_target = (
+            "caster"
+            if projectile_target is not None
+            and projectile_target.targetSource in {"Source", "Owner"}
+            and not projectile_target.targetGroupKey
+            and not projectile_target.validatorTypes
+            and not projectile_target.postProcessorTypes
+            else "enemy"
+        )
+        compiled_children: list[CompiledNode] = []
+        for hit_index, hit in enumerate(triggered_skills):
+            for condition_index, condition in enumerate(hit.conditionalActions):
+                condition_path = (
+                    f"{path}.triggeredSkills[{hit_index}].conditionalActions[{condition_index}]"
+                )
+                object_type_match = (
+                    condition.conditions[0].objectTypeMatch
+                    if len(condition.conditions) == 1
+                    else None
+                )
+                if (
+                    object_type_match is not None
+                    and object_type_match.target.targetSource == "Target"
+                    and not object_type_match.target.targetGroupKey
+                    and not object_type_match.target.validatorTypes
+                    and not object_type_match.target.postProcessorTypes
+                    and input_target == "caster"
+                    and object_type_match.objectTypeMask == "Character"
+                ):
+                    compiled_children.append(
+                        _compile_conditional_branch_ir(
+                            condition.succeedActions,
+                            f"{condition_path}.succeedActions",
+                            ignored_buff_ids=ignored_buff_ids,
+                            damage_tags=damage_tags,
+                            runtime_blackboard_keys=runtime_blackboard_keys,
+                            target_group_writes=hit.localTargetGroupWrites,
+                            input_target="caster",
+                            step_key_prefix=step_key_prefix,
+                            buff_definitions=buff_definitions,
+                            buff_owner_target=buff_owner_target,
+                            current_buff_environment=current_buff_environment,
+                            invoked_child_context=invoked_child_context,
+                        )
+                    )
+                    continue
+                compiled_children.append(
+                    _compile_conditional_action_ir(
+                        condition,
+                        condition_path,
+                        ignored_buff_ids=ignored_buff_ids,
+                        damage_tags=damage_tags,
+                        runtime_blackboard_keys=runtime_blackboard_keys,
+                        target_group_writes=hit.localTargetGroupWrites,
+                        input_target=input_target,
+                        step_key_prefix=step_key_prefix,
+                        buff_definitions=buff_definitions,
+                        buff_owner_target=buff_owner_target,
+                        current_buff_environment=current_buff_environment,
+                        invoked_child_context=invoked_child_context,
+                    )
+                )
+        lines = ["sequence("]
+        for compiled_child in compiled_children:
+            child_lines = indent_source(render_compiled_node(compiled_child), 2)
+            child_lines[-1] += ","
+            lines.extend(child_lines)
+        lines.append(")")
+        return "\n".join(lines)
     if not projectile_children_are_immediate(triggered_skills):
         return None
     hit = triggered_skills[0]
@@ -6451,7 +6530,7 @@ def evaluate_zero_distance_condition(
             and reference.finderType is None
         ):
             return (
-                reference.targetGroupKey == "smart_target" and root_skill_context
+                reference.targetGroupKey in {"smart_target", "trigger"}
             ) or reference.targetGroupKey in present_context_keys
         # 原生 Target 读取当前动作输入；序列化中的 targetGroupKey
         # 是无效残留，不能据此否定 ForEach 当前实体。

@@ -92,6 +92,7 @@ export type StandardPlayerDamageEvent =
   | 'elementalInflictionStarted'
   | 'poiseRecovered'
   | 'beforeCastSkill'
+  | 'skillEnd'
   | 'addedBuff'
   | 'finishedBuff';
 
@@ -566,6 +567,7 @@ export class StandardPlayerDamageEnvironment {
         | 'takeCriticalDamage'
         | 'outputDamage'
         | 'beforeCastSkill'
+        | 'skillEnd'
         | 'addedBuff'
         | 'finishedBuff',
       priority: number,

@@ -424,6 +424,15 @@ def parse_aura_actions(
                         for index, action in enumerate(in_actions)
                         if action_name(str(action["$type"])) == "FinishBuffAdvanced"
                     ),
+                    actionWhenExitAuraBuffFinishes=tuple(
+                        parse_buff_finish_payload(
+                            action,
+                            f"{action_path}.actionWhenExitAura.actionData[{index}]",
+                            inherited_blackboard,
+                        )
+                        for index, action in enumerate(_exit_actions)
+                        if action_name(str(action["$type"])) == "FinishBuffAdvanced"
+                    ),
                     actionWhenExitAuraBuffApplications=tuple(
                         parse_buff_application_payload(
                             action,

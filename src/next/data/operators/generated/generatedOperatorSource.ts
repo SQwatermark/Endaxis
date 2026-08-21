@@ -384,6 +384,16 @@ export interface GeneratedBuffDefinitionSource {
   readonly pauseTimeActions?: readonly GeneratedBuffPauseTimeSource[];
   readonly shields?: readonly GeneratedBuffShieldSource[];
   readonly sustainedProtections?: readonly GeneratedBuffSustainedProtectionSource[];
+  /** PlayAnimationAction 结束回调中结构化恢复出的 Buff 应用。 */
+  readonly animationEndBuffApplications?: readonly {
+    readonly naturalEndFrame: number;
+    readonly sequenceIndex: number;
+    readonly animationActionIndex: number;
+    readonly executeOnNormalEndOnly: boolean;
+    readonly application: GeneratedAuxiliaryActionSource;
+  }[];
+  /** Buff 本地时间线中的投射物发射审计事实。 */
+  readonly projectileLaunches?: readonly GeneratedProjectileLaunchSource[];
   readonly runtimeSkillSlotReplacements?: readonly {
     readonly skillGroupKey: string;
     readonly targetSkillKey: string;
@@ -693,6 +703,7 @@ export interface GeneratedAuraActionSource {
   readonly airborneOutputs: readonly GeneratedAirborneOutputSource[];
   readonly actionInAuraBuffFinishes: readonly GeneratedBuffFinishPayload[];
   readonly actionWhenExitAuraBuffApplications: readonly GeneratedBuffApplicationPayload[];
+  readonly actionWhenExitAuraBuffFinishes?: readonly GeneratedBuffFinishPayload[];
 }
 
 export interface GeneratedTargetIdentityConditionSource {
@@ -804,6 +815,10 @@ export interface GeneratedConditionSource {
   readonly damageDecorateMask?: GeneratedDamageDecorateMaskConditionSource | null;
   readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
   readonly abilityEntityDuration?: GeneratedAbilityEntityDurationConditionSource;
+  readonly objectTypeMatch?: {
+    readonly target: GeneratedTargetReferenceSource;
+    readonly objectTypeMask: string | number;
+  } | null;
   readonly deckAttributeCompare?: GeneratedDeckAttributeCompareConditionSource | null;
   readonly probability?: GeneratedScalarSource | null;
   readonly anyConditionGroups?: readonly (readonly GeneratedConditionSource[])[];
@@ -988,6 +1003,7 @@ export interface GeneratedProjectileLaunchPayload {
   readonly skillTriggers: readonly GeneratedProjectileSkillTriggerSource[];
   readonly assignBlackboard: boolean;
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
+  readonly target?: GeneratedTargetReferenceSource;
 }
 
 export interface GeneratedConditionalProjectileProjection {

@@ -131,7 +131,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_atkup_owner",
@@ -259,7 +263,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_buff_atkup",
@@ -525,7 +533,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_end",
@@ -599,7 +611,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_endtag_finish",
@@ -733,7 +749,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitl",
@@ -983,7 +1003,121 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [
+        {
+          "naturalEndFrame": 60,
+          "sequenceIndex": 0,
+          "animationActionIndex": 0,
+          "executeOnNormalEndOnly": false,
+          "application": {
+            "startFrame": 0,
+            "endFrame": 0,
+            "actionIndex": 1,
+            "actionType": "CreateBuffAction",
+            "sourceId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
+            "classification": null,
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "count": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "buffSource": "ActionSource",
+            "inheritSourceSkillCastInfo": true,
+            "blackboardAssignments": {
+              "music_frame": {
+                "value": 0.0,
+                "blackboardKey": "music_frame",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            },
+            "nestedCombatActions": [],
+            "buffSourceContextKey": "",
+            "sequenceIndex": 0,
+            "autoFinishByAction": false
+          }
+        }
+      ],
+      "projectileLaunches": [
+        {
+          "launchFrame": 24,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 32,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l_vfx02",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 25,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 33,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r_vfx02",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 28,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l_vfx01",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 29,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r_vfx01",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitr",
@@ -1233,7 +1367,121 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [
+        {
+          "naturalEndFrame": 63,
+          "sequenceIndex": 0,
+          "animationActionIndex": 0,
+          "executeOnNormalEndOnly": false,
+          "application": {
+            "startFrame": 0,
+            "endFrame": 0,
+            "actionIndex": 1,
+            "actionType": "CreateBuffAction",
+            "sourceId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
+            "classification": null,
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "count": {
+              "value": 1.0,
+              "blackboardKey": null,
+              "levelValues": null
+            },
+            "buffSource": "ActionSource",
+            "inheritSourceSkillCastInfo": true,
+            "blackboardAssignments": {
+              "music_frame": {
+                "value": 0.0,
+                "blackboardKey": "music_frame",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            },
+            "nestedCombatActions": [],
+            "buffSourceContextKey": "",
+            "sequenceIndex": 0,
+            "autoFinishByAction": false
+          }
+        }
+      ],
+      "projectileLaunches": [
+        {
+          "launchFrame": 24,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 32,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 25,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 33,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 28,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_l",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 29,
+          "projectileId": "projectile_chr_0035_liino_normal_attack_r",
+          "skillTriggers": [
+            {
+              "event": "block",
+              "skillId": "chr_0035_liino_normal_skill_projhit_hit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
@@ -1400,7 +1648,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cd_uishow",
@@ -1535,7 +1787,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
@@ -1630,7 +1886,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_damage",
@@ -1773,8 +2033,241 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  }
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        0,
+                        0,
+                        0,
+                        3
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_normal_attack_soundwave",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0035_liino_normal_skill_soundwave_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_normal_skill_soundwave_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckObjectTypeMatch",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": {
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "objectTypeMask": "Character"
+                              },
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "StoreAttributeValue",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 2,
+                              "blackboardCalculation": {
+                                "key": "final_heal_value",
+                                "operation": "Multiply",
+                                "left": {
+                                  "value": 0,
+                                  "blackboardKey": "agility",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 1.0,
+                                  "blackboardKey": "heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "addend": {
+                                  "value": 0.0,
+                                  "blackboardKey": "heal_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "HealAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "heal": {
+                                "healType": "Normal",
+                                "healer": "ActionSource",
+                                "alwaysNext": true,
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "attribute": null,
+                                "multiplier": {
+                                  "value": 0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "addition": {
+                                  "value": 0.0,
+                                  "blackboardKey": "final_heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "tagIds": [
+                                  -320297214
+                                ]
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 6,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_physical_no_guard",
+                                    "classification": null,
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Target",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            }
+                          ],
+                          "alwaysNext": true
+                        }
+                      ],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "HealAction",
+                        "IfElseAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
                 }
               ],
               "priority": 0
@@ -1816,8 +2309,241 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  }
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        0,
+                        1,
+                        1,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_normal_attack_soundwave_chrdung",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0035_liino_normal_skill_soundwave_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_normal_skill_soundwave_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckObjectTypeMatch",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": {
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "objectTypeMask": "Character"
+                              },
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "StoreAttributeValue",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 2,
+                              "blackboardCalculation": {
+                                "key": "final_heal_value",
+                                "operation": "Multiply",
+                                "left": {
+                                  "value": 0,
+                                  "blackboardKey": "agility",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 1.0,
+                                  "blackboardKey": "heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "addend": {
+                                  "value": 0.0,
+                                  "blackboardKey": "heal_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "HealAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "heal": {
+                                "healType": "Normal",
+                                "healer": "ActionSource",
+                                "alwaysNext": true,
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "attribute": null,
+                                "multiplier": {
+                                  "value": 0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "addition": {
+                                  "value": 0.0,
+                                  "blackboardKey": "final_heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "tagIds": [
+                                  -320297214
+                                ]
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 6,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_physical_no_guard",
+                                    "classification": null,
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Target",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            }
+                          ],
+                          "alwaysNext": true
+                        }
+                      ],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "HealAction",
+                        "IfElseAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
                 }
               ],
               "priority": 0
@@ -1839,7 +2565,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_smile_vfx",
@@ -1934,7 +2664,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_tag",
@@ -2288,6 +3022,7 @@ export const liinoGeneratedSource = {
                         "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -2313,7 +3048,8 @@ export const liinoGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -2655,6 +3391,23 @@ export const liinoGeneratedSource = {
           "nestedCombatActions": [],
           "airborneOutputs": [],
           "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0035_liino_normalskill_buff_atkup"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "finishLayerCount": null
+            }
+          ],
           "actionWhenExitAuraBuffApplications": []
         },
         {
@@ -2784,6 +3537,7 @@ export const liinoGeneratedSource = {
           ],
           "airborneOutputs": [],
           "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
           "actionWhenExitAuraBuffApplications": [
             {
               "buffs": [
@@ -2835,7 +3589,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx",
@@ -3252,7 +4010,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx_airflow",
@@ -3347,7 +4109,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_check",
@@ -3547,6 +4313,7 @@ export const liinoGeneratedSource = {
                             1474064594
                           ]
                         },
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -3620,7 +4387,8 @@ export const liinoGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -3646,7 +4414,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_extraattack",
@@ -3913,6 +4685,7 @@ export const liinoGeneratedSource = {
                         },
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -3967,6 +4740,7 @@ export const liinoGeneratedSource = {
                               },
                               "damageDecorateMask": null,
                               "contextBuffId": null,
+                              "objectTypeMatch": null,
                               "deckAttributeCompare": null,
                               "probability": null,
                               "anyConditionGroups": [],
@@ -4110,6 +4884,7 @@ export const liinoGeneratedSource = {
                                     "twoDirectionAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
+                                    "objectTypeMatch": null,
                                     "deckAttributeCompare": null,
                                     "probability": null,
                                     "anyConditionGroups": [],
@@ -4329,21 +5104,24 @@ export const liinoGeneratedSource = {
                                       "inheritSourceSkillCastInfo": true
                                     }
                                   }
-                                ]
+                                ],
+                                "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -4391,7 +5169,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_hit",
@@ -4465,7 +5247,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_ui_vfx",
@@ -4710,6 +5496,7 @@ export const liinoGeneratedSource = {
                         "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -4794,6 +5581,7 @@ export const liinoGeneratedSource = {
                               "twoDirectionAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
+                              "objectTypeMatch": null,
                               "deckAttributeCompare": null,
                               "probability": null,
                               "anyConditionGroups": [],
@@ -4858,6 +5646,7 @@ export const liinoGeneratedSource = {
                                     "twoDirectionAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
+                                    "objectTypeMatch": null,
                                     "deckAttributeCompare": null,
                                     "probability": null,
                                     "anyConditionGroups": [],
@@ -4943,7 +5732,8 @@ export const liinoGeneratedSource = {
                                     "skillCooldownAdjustment": null,
                                     "buffIgnite": null
                                   }
-                                ]
+                                ],
+                                "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -5047,7 +5837,8 @@ export const liinoGeneratedSource = {
                               }
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "alwaysNext": true
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
@@ -5080,7 +5871,8 @@ export const liinoGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -5275,7 +6067,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential",
@@ -5522,7 +6318,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential_enterfight",
@@ -5588,7 +6388,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide",
@@ -5858,7 +6662,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_attack",
@@ -6128,7 +6936,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio",
@@ -6398,7 +7210,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_finish",
@@ -6521,7 +7337,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_fire",
@@ -6622,7 +7442,110 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_showhide_audio_ultskill",
+      "sourceFile": "buff_chr_0035_liino_showhide_audio_ultskill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": true,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ShowHideActorAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ShowHideActorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_finish",
@@ -6745,7 +7668,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_fire",
@@ -6876,7 +7803,348 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_showhide_ultskill",
+      "sourceFile": "buff_chr_0035_liino_showhide_ultskill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": true,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ShowHideActorAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ShowHideActorAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_finish",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0035_liino_showhide_finish"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_showhide_finish",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_showhide_finish",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_spellenhance",
+      "sourceFile": "buff_chr_0035_liino_spellenhance.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": -1.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "HighPriority",
+        "stackingKey": "liino_spellenhance",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "spellenhance_rate",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "spellenhance_rate",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EnhancedAction",
+            "EnhancedAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnhancedAction",
+                "EnhancedAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter",
@@ -7007,7 +8275,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
@@ -7138,7 +8410,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_normalskill",
@@ -7392,7 +8668,269 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
+      "sourceFile": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            3.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "HighPriority",
+        "stackingKey": "liino_talent",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "shelter",
+          "levelValues": [
+            -0.2
+          ]
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 3.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal_rate",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "liino_talent",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter",
+          "value": -0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          -0.2
+                        ]
+                      },
+                      "heal_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_rate",
+                        "levelValues": [
+                          0.1
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0035_liino_talent_shelter_finishtime"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "shelter": {
+                            "value": 0.0,
+                            "blackboardKey": "shelter",
+                            "levelValues": [
+                              -0.2
+                            ]
+                          },
+                          "heal_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "heal_rate",
+                            "levelValues": [
+                              0.1
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "shelter": {
+                            "value": 0.0,
+                            "blackboardKey": "shelter",
+                            "levelValues": [
+                              -0.2
+                            ]
+                          },
+                          "heal_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "heal_rate",
+                            "levelValues": [
+                              0.1
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_normalskill",
@@ -7644,7 +9182,3571 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_talent_shelter_ultskill",
+      "sourceFile": "buff_chr_0035_liino_talent_shelter_ultskill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "HighPriority",
+        "stackingKey": "liino_talent",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "shelter",
+          "levelValues": [
+            -0.2
+          ]
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": -1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal_rate",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "liino_talent",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter",
+          "value": -0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_talent_shelter",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          -0.2
+                        ]
+                      },
+                      "heal_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "heal_rate",
+                        "levelValues": [
+                          0.2
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0035_liino_talent_shelter"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_talent_shelter",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "shelter": {
+                            "value": 0.0,
+                            "blackboardKey": "shelter",
+                            "levelValues": [
+                              -0.2
+                            ]
+                          },
+                          "heal_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "heal_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_talent_shelter",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "shelter": {
+                            "value": 0.0,
+                            "blackboardKey": "shelter",
+                            "levelValues": [
+                              -0.2
+                            ]
+                          },
+                          "heal_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "heal_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
+      "sourceFile": "buff_chr_0035_liino_ultskill_buff_atkup.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": -1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "finish_duration",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spellenhance_rate",
+          "value": 0.2,
+          "isDynamic": true
+        },
+        {
+          "key": "spellenhance_will_rate",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffEnable",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_spellenhance",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "spellenhance_rate",
+                        "levelValues": [
+                          0.2
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          -1.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0035_liino_spellenhance"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_spellenhance",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "spellenhance_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "spellenhance_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              -1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_spellenhance",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "spellenhance_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "spellenhance_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              -1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_music_damage",
+      "sourceFile": "buff_chr_0035_liino_ultskill_music_damage.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "vfx_music_duration",
+          "levelValues": [
+            20.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 3.0,
+          "blackboardKey": "music_damage_trigger",
+          "levelValues": [
+            3.0
+          ]
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_3",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "music_damage_trigger",
+          "value": 3.0,
+          "isDynamic": true
+        },
+        {
+          "key": "ultheal02_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal02_value",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal_value",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "vfx_music_duration",
+          "value": 20.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "LaunchProjectile",
+            "LaunchProjectile",
+            "EffectAction",
+            "PlaySoundAction"
+          ],
+          "combatActions": [
+            "LaunchProjectile"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "LaunchProjectile",
+                "LaunchProjectile",
+                "EffectAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [
+                "LaunchProjectile",
+                "LaunchProjectile"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_soundwave",
+                    "skillTriggers": [
+                      {
+                        "event": "hit",
+                        "skillId": "chr_0035_liino_ultimate_skill_soundwave_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        0,
+                        0,
+                        0,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_soundwave",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_soundwave_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_soundwave_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckObjectTypeMatch",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": {
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "objectTypeMask": "Character"
+                              },
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "StoreAttributeValue",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 2,
+                              "blackboardCalculation": {
+                                "key": "final_heal_value",
+                                "operation": "Multiply",
+                                "left": {
+                                  "value": 0,
+                                  "blackboardKey": "agility",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 1.0,
+                                  "blackboardKey": "ultheal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "addend": {
+                                  "value": 0.0,
+                                  "blackboardKey": "ultheal_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "HealAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "heal": {
+                                "healType": "Normal",
+                                "healer": "ActionSource",
+                                "alwaysNext": true,
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "attribute": null,
+                                "multiplier": {
+                                  "value": 0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "addition": {
+                                  "value": 0.0,
+                                  "blackboardKey": "final_heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "tagIds": [
+                                  -1499119779
+                                ]
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 5,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 5,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CheckObjectTypeMatch",
+                                    "supported": false,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": {
+                                      "target": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "objectTypeMask": "Enemy"
+                                    },
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "InterruptAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 7,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "interrupt": {
+                                      "attacker": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "defender": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "tar",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "overrideSuperArmorLimit": -1.0,
+                                      "immobilizedTime": 1.0
+                                    }
+                                  },
+                                  {
+                                    "actionType": "DamageAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 8,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "damageUnits": [
+                                      {
+                                        "damageType": "Pulse",
+                                        "attributeType": "Hp",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 1.0,
+                                          "blackboardKey": "atk_scale_3",
+                                          "levelValues": [
+                                            0.1
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": null,
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 512
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "failActions": [],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "alwaysNext": true
+                        }
+                      ],
+                      "auxiliaryActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 17,
+                          "actionType": "CreateBuffAction",
+                          "sourceId": "buff_physical_no_guard",
+                          "classification": null,
+                          "targetSource": "Target",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "inheritSourceSkillCastInfo": true,
+                          "blackboardAssignments": {},
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": "",
+                          "sequenceIndex": 0,
+                          "autoFinishByAction": false
+                        }
+                      ],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "DamageAction",
+                        "HealAction",
+                        "IfElseAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_soundwave_heal",
+                    "skillTriggers": [
+                      {
+                        "event": "hit",
+                        "skillId": "chr_0035_liino_ultimate_skill_soundwave_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        0,
+                        0,
+                        0,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_soundwave_heal",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_soundwave_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_soundwave_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 0,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckObjectTypeMatch",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": {
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "objectTypeMask": "Character"
+                              },
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "StoreAttributeValue",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 2,
+                              "blackboardCalculation": {
+                                "key": "final_heal_value",
+                                "operation": "Multiply",
+                                "left": {
+                                  "value": 0,
+                                  "blackboardKey": "agility",
+                                  "levelValues": null
+                                },
+                                "right": {
+                                  "value": 1.0,
+                                  "blackboardKey": "ultheal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "addend": {
+                                  "value": 0.0,
+                                  "blackboardKey": "ultheal_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "HealAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "heal": {
+                                "healType": "Normal",
+                                "healer": "ActionSource",
+                                "alwaysNext": true,
+                                "target": {
+                                  "targetSource": "Target",
+                                  "targetGroupKey": "",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                },
+                                "attribute": null,
+                                "multiplier": {
+                                  "value": 0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "addition": {
+                                  "value": 0.0,
+                                  "blackboardKey": "final_heal_value",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "tagIds": [
+                                  -1499119779
+                                ]
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 5,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 5,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CheckObjectTypeMatch",
+                                    "supported": false,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": {
+                                      "target": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "objectTypeMask": "Enemy"
+                                    },
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "InterruptAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 7,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "interrupt": {
+                                      "attacker": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "defender": {
+                                        "targetSource": "Target",
+                                        "targetGroupKey": "tar",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      },
+                                      "overrideSuperArmorLimit": -1.0,
+                                      "immobilizedTime": 1.0
+                                    }
+                                  },
+                                  {
+                                    "actionType": "DamageAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 8,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "damageUnits": [
+                                      {
+                                        "damageType": "Pulse",
+                                        "attributeType": "Hp",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 1.0,
+                                          "blackboardKey": "atk_scale_3",
+                                          "levelValues": [
+                                            0.1
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": null,
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 512
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "failActions": [],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "alwaysNext": true
+                        }
+                      ],
+                      "auxiliaryActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 17,
+                          "actionType": "CreateBuffAction",
+                          "sourceId": "buff_physical_no_guard",
+                          "classification": null,
+                          "targetSource": "Target",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "inheritSourceSkillCastInfo": true,
+                          "blackboardAssignments": {},
+                          "nestedCombatActions": [],
+                          "buffSourceContextKey": "",
+                          "sequenceIndex": 0,
+                          "autoFinishByAction": false
+                        }
+                      ],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "DamageAction",
+                        "HealAction",
+                        "IfElseAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_music_heal",
+      "sourceFile": "buff_chr_0035_liino_ultskill_music_heal.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.5,
+          "blackboardKey": "duration",
+          "levelValues": [
+            2.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 0.5,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 2.0,
+          "isDynamic": false
+        },
+        {
+          "key": "final_heal_value",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "heal_rate",
+          "value": 500.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal_value",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "potential_1",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "EffectAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "EffectAction",
+            "StoreAttributeValue",
+            "HealAction"
+          ],
+          "combatActions": [
+            "HealAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "StoreAttributeValue",
+                "HealAction"
+              ],
+              "combatActions": [
+                "HealAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 2,
+                  "blackboardCalculation": {
+                    "key": "final_heal_value",
+                    "operation": "Multiply",
+                    "left": {
+                      "value": 0,
+                      "blackboardKey": "agility",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": "heal_value",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "addend": {
+                      "value": 0.0,
+                      "blackboardKey": "heal_rate",
+                      "levelValues": [
+                        500.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "HealAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "heal": {
+                    "healType": "Normal",
+                    "healer": "ActionSource",
+                    "alwaysNext": true,
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "main",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "attribute": null,
+                    "multiplier": {
+                      "value": 0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "addition": {
+                      "value": 0.0,
+                      "blackboardKey": "final_heal_value",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "tagIds": [
+                      -1499119779
+                    ]
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_music_heal_start",
+      "sourceFile": "buff_chr_0035_liino_ultskill_music_heal_start.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.5,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.5
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 0.5,
+          "isDynamic": false
+        },
+        {
+          "key": "final_heal_value",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "heal_rate",
+          "value": 500.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal_value",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "potential_1",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "StoreAttributeValue",
+            "HealAction"
+          ],
+          "combatActions": [
+            "HealAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "StoreAttributeValue",
+                "HealAction"
+              ],
+              "combatActions": [
+                "HealAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "blackboardCalculation": {
+                    "key": "final_heal_value",
+                    "operation": "Multiply",
+                    "left": {
+                      "value": 0,
+                      "blackboardKey": "agility",
+                      "levelValues": null
+                    },
+                    "right": {
+                      "value": 1.0,
+                      "blackboardKey": "heal_value",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "addend": {
+                      "value": 0.0,
+                      "blackboardKey": "heal_rate",
+                      "levelValues": [
+                        500.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "HealAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "heal": {
+                    "healType": "Normal",
+                    "healer": "ActionSource",
+                    "alwaysNext": true,
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "main",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "attribute": null,
+                    "multiplier": {
+                      "value": 0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "addition": {
+                      "value": 0.0,
+                      "blackboardKey": "final_heal_value",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "tagIds": [
+                      -1499119779
+                    ]
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_music_tag",
+      "sourceFile": "buff_chr_0035_liino_ultskill_music_tag.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            15.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 15.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration_atkup",
+          "value": -1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "finish_duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "healtaken_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter_duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter_teammate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spellenhance_rate",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "talent_a",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [
+        -499637408
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "AuraAction",
+            "CreateBuffAction",
+            "CreateBuffAction",
+            "CompareFloat",
+            "AuraAction"
+          ],
+          "combatActions": [
+            "AuraAction",
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 3,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_atkup_owner",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration_atkup",
+                        "levelValues": [
+                          -1.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 4,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "spellenhance_rate",
+                        "levelValues": [
+                          0.2
+                        ]
+                      },
+                      "finish_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "finish_duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0035_liino_atkup_owner",
+            "buff_chr_0035_liino_normalskill_buff_atkup",
+            "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
+            "buff_chr_0035_liino_talent_shelter_ultskill",
+            "buff_chr_0035_liino_ultskill_buff_atkup"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "AuraAction",
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "AuraAction",
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 3,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_atkup_owner",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_atkup",
+                            "levelValues": [
+                              -1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 4,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "spellenhance_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "spellenhance_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          },
+                          "finish_duration": {
+                            "value": 0.0,
+                            "blackboardKey": "finish_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "AuraAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_atkup_owner",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration_atkup",
+                            "levelValues": [
+                              -1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "spellenhance_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "spellenhance_rate",
+                            "levelValues": [
+                              0.2
+                            ]
+                          },
+                          "finish_duration": {
+                            "value": 0.0,
+                            "blackboardKey": "finish_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CompareFloat",
+                "AuraAction"
+              ],
+              "combatActions": [
+                "AuraAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 5,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 5,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "GE",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "talent_a",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 1.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "AuraAction",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 7,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 0,
+          "sourceFile": "buff_chr_0035_liino_ultskill_music_tag.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[0]",
+            "actionData",
+            "[0]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "liino_spellenhance",
+          "auraType": "GlobalAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Box",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 0.0,
+            "heightKey": "",
+            "radius": 0.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": "Character",
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": false,
+            "factionTarget": "Anti",
+            "factionTargetType": "Good",
+            "filterObjectType": true,
+            "objectType": "Character",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": true,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionSource",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0035_liino_normalskill_buff_atkup",
+              "classification": null,
+              "blackboardAssignments": {
+                "atk_up": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_up",
+                  "levelValues": [
+                    0.0
+                  ]
+                },
+                "finish_duration": {
+                  "value": 0.0,
+                  "blackboardKey": "finish_duration",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              }
+            },
+            {
+              "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
+              "classification": null,
+              "blackboardAssignments": {
+                "spellenhance_rate": {
+                  "value": 0.0,
+                  "blackboardKey": "spellenhance_rate",
+                  "levelValues": [
+                    0.2
+                  ]
+                },
+                "finish_duration": {
+                  "value": 0.0,
+                  "blackboardKey": "finish_duration",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              }
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "TimedMarker",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": true,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [
+            "FinishBuffAdvanced",
+            "FinishBuffAdvanced"
+          ],
+          "nestedCombatActions": [],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0035_liino_normalskill_buff_atkup"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "finishLayerCount": null
+            },
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "buffCheckType": "Id",
+              "buffIds": [
+                "buff_chr_0035_liino_ultskill_buff_atkup"
+              ],
+              "tagQueryType": "hasAny",
+              "buffTagIds": [],
+              "finishAll": true,
+              "limitSource": false,
+              "isFinishedEarly": false,
+              "isAbsorbed": false,
+              "finishLayerCount": null
+            }
+          ],
+          "actionWhenExitAuraBuffApplications": []
+        },
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 7,
+          "sourceFile": "buff_chr_0035_liino_ultskill_music_tag.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[1]",
+            "actionData",
+            "[2]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "liino_shelter",
+          "auraType": "RangedAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Capsule",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 3.5,
+            "heightKey": "",
+            "radius": 6.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": 0,
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": false,
+            "factionTarget": "Anti",
+            "factionTargetType": "Good",
+            "filterObjectType": true,
+            "objectType": "Character",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": false,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionSource",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0035_liino_talent_shelter_ultskill",
+              "classification": null,
+              "blackboardAssignments": {
+                "shelter": {
+                  "value": 0.0,
+                  "blackboardKey": "shelter",
+                  "levelValues": [
+                    0.0
+                  ]
+                },
+                "heal_rate": {
+                  "value": 0.0,
+                  "blackboardKey": "healtaken_rate",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              }
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "AbilityEntity",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": true,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [
+            "CreateBuffAction"
+          ],
+          "nestedCombatActions": [
+            "CreateBuffAction"
+          ],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": [
+            {
+              "buffs": [
+                {
+                  "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
+                  "classification": null,
+                  "blackboardAssignments": {
+                    "shelter": {
+                      "value": 0.0,
+                      "blackboardKey": "shelter",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "duration": {
+                      "value": 0.0,
+                      "blackboardKey": "shelter_duration",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "heal_rate": {
+                      "value": 0.0,
+                      "blackboardKey": "healtaken_rate",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  }
+                }
+              ],
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "buffSourceContextKey": "",
+              "inheritSourceSkillCastInfo": true
+            }
+          ]
+        }
+      ],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_music_vfx",
+      "sourceFile": "buff_chr_0035_liino_ultskill_music_vfx.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "vfx_music_duration",
+          "levelValues": [
+            20.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "vfx_music_duration",
+          "value": 20.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "EffectAction",
+            "EffectAction",
+            "EffectAction",
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "EffectAction",
+                "EffectAction",
+                "EffectAction",
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "FindTargetAction",
+            "EffectAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 8,
+              "targetGroupKey": "teammate",
+              "finderType": "CharacterTeamFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionSource",
+              "selectorOwner": "ActionOwner"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FindTargetAction",
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 8,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "teammate",
+              "producerType": "FindTargetAction",
+              "finderType": "CharacterTeamFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_refrainobtainusp",
+      "sourceFile": "buff_chr_0035_liino_ultskill_refrainobtainusp.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            1.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 1.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "RefrainObtainUsp"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "RefrainObtainUsp"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
+      "sourceFile": "buff_chr_0035_liino_ultskill_weaponvisible.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            15.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 15.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CharWeaponVisibleAction",
+            "CharWeaponVisibleAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CharWeaponVisibleAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CharWeaponVisibleAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnSkillEnd",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Environment",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
+      "sourceFile": "buff_chr_0035_liino_ultskill_weaponvisible_show.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            10.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": "rate",
+          "levelValues": null
+        },
+        "negatePriority": true,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CharWeaponVisibleAction",
+            "CharWeaponVisibleAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CharWeaponVisibleAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CharWeaponVisibleAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnSkillEnd",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Environment",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -7722,7 +12824,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -7833,7 +12939,11 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -7905,7 +13015,674 @@ export const liinoGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_physical_no_guard",
+      "sourceFile": "buff_physical_no_guard.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 20.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            20.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "EnhanceAndRefresh",
+        "stackingKey": "common_debuff",
+        "priority": {
+          "value": 100.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 4.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 20.0,
+          "isDynamic": false
+        },
+        {
+          "key": "skip_handle_cryst_break",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        1075718177
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CompareFloat",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_handle_cryst_break",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_handle_cryst_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CompareFloat",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "skip_handle_cryst_break",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_physical_handle_cryst_break",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_no_guard_fake",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_no_guard_fake"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_no_guard_fake",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_no_guard_fake",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffAfterTryEnhanced",
+          "orderedActionTypes": [
+            "OnPhysicalNoGuardStart",
+            "IgniteAction",
+            "CheckBuffStackNumAdvanced",
+            "CompareFloat",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "IgniteAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 7,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_handle_cryst_break",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_handle_cryst_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnPhysicalNoGuardStart"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteAction"
+              ],
+              "combatActions": [
+                "IgniteAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IgniteAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": {
+                    "source": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "igniteType": "NoGuard",
+                    "successTargetContextKey": ""
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "CompareFloat",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 7,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 6,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 6,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "skip_handle_cryst_break",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 7,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_physical_handle_cryst_break",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     }
   ],
   "skills": [
@@ -8472,7 +14249,8 @@ export const liinoGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -8515,6 +14293,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8559,7 +14338,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -8602,6 +14382,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8646,7 +14427,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -9434,7 +15216,8 @@ export const liinoGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -9463,6 +15246,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9488,7 +15272,8 @@ export const liinoGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -9531,6 +15316,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9575,7 +15361,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -9618,6 +15405,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9662,7 +15450,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -10782,6 +16571,4303 @@ export const liinoGeneratedSource = {
       "timelineFinishes": []
     },
     {
+      "key": "basicAttack3",
+      "skillId": "chr_0035_liino_attack3",
+      "skillType": "basicAttack",
+      "sourceFile": "chr_0035_liino_attack3.json",
+      "timelineBlockFrames": 24,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "cooldownSeconds": 0.0,
+      "costFrame": 12,
+      "costType": "UltimateSp",
+      "costValue": 0.0,
+      "offsetRecordFrame": 12,
+      "allowNextWindows": [
+        {
+          "startFrame": 24,
+          "endFrame": 44,
+          "skillIds": [
+            "chr_0035_liino_attack4"
+          ]
+        }
+      ],
+      "inputCacheWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 44,
+          "mappings": [
+            {
+              "cmdType": "Attack",
+              "skillId": "chr_0035_liino_attack4",
+              "cacheEndByAction": true,
+              "clearOffsetTargetSkillIdOnEnd": false,
+              "overrideCacheTime": false,
+              "cacheTime": {
+                "useBlackboardKey": false,
+                "value": 0.0,
+                "blackboardKey": ""
+              }
+            }
+          ]
+        }
+      ],
+      "timelineActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 163,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionTypes": [
+            "CheckEntityNum",
+            "SnapToTargetWithRangeAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 14,
+          "actionTypes": [
+            "CheckEntityNum",
+            "SnapToTargetWithRangeAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionTypes": [
+            "SelfRotateAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 20,
+          "actionTypes": [
+            "CustomRootMotionAction"
+          ]
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 40,
+          "actionTypes": [
+            "CustomRootMotionAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 18,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 19,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 21,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 21,
+          "actionTypes": [
+            "DamageAction",
+            "DefiniteValueCalculation",
+            "EnemyHurtAnimAction",
+            "CameraImpulseAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 12,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 14,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 18,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 20,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 12,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 14,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 18,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 20,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 27,
+          "actionTypes": [
+            "SetSuperArmorAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 34,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 33,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 33,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 32,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 40,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 43,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 22,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 73,
+          "endFrame": 95,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 36,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 36,
+          "endFrame": 136,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 49,
+          "actionTypes": [
+            "VoiceTriggerAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 31,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 46,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 44,
+          "actionTypes": [
+            "ComboCacheAction"
+          ]
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 44,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        }
+      ],
+      "directDamageHits": [
+        {
+          "startFrame": 12,
+          "endFrame": 21,
+          "actionIndex": 16,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.29,
+                  0.31,
+                  0.33,
+                  0.35,
+                  0.37,
+                  0.4,
+                  0.42,
+                  0.46,
+                  0.5
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 14
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 34,
+          "actionIndex": 32,
+          "actionPath": [
+            "timelineActions[26]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[26]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 33,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[27]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[27]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 33,
+          "actionIndex": 40,
+          "actionPath": [
+            "timelineActions[28]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[28]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 43,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 32,
+          "actionIndex": 44,
+          "actionPath": [
+            "timelineActions[29]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[29]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "inflictions": [],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 12,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack3_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 14,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack3_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack3_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 18,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack3_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 20,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack3_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 12,
+          "projectileId": "projectile_chr_0035_liino_attack3_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 14,
+          "projectileId": "projectile_chr_0035_liino_attack3_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack3_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 18,
+          "projectileId": "projectile_chr_0035_liino_attack3_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 20,
+          "projectileId": "projectile_chr_0035_liino_attack3_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        }
+      ],
+      "projectileTriggeredSkills": [
+        {
+          "launchFrame": 12,
+          "actionOrder": [
+            21
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_2",
+                    "levelValues": [
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 14,
+          "actionOrder": [
+            22
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_2",
+                    "levelValues": [
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 16,
+          "actionOrder": [
+            23
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_2",
+                    "levelValues": [
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 18,
+          "actionOrder": [
+            24
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_2",
+                    "levelValues": [
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 20,
+          "actionOrder": [
+            25
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack3_l_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack3_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack3_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.01,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02,
+                  0.02
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale_2",
+                    "levelValues": [
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.01,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02,
+                      0.02
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0035_liino_showhide_attack",
+        "buff_chr_0035_liino_showhide_audio",
+        "buff_chr_0035_liino_showhide_audio_fire",
+        "buff_chr_0035_liino_showhide_fire"
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            0.22,
+            0.24,
+            0.26,
+            0.29,
+            0.31,
+            0.33,
+            0.35,
+            0.37,
+            0.4,
+            0.42,
+            0.46,
+            0.5
+          ],
+          "atk_scale_2": [
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02
+          ],
+          "display_atk_scale": [
+            0.27,
+            0.29,
+            0.32,
+            0.35,
+            0.37,
+            0.4,
+            0.43,
+            0.45,
+            0.48,
+            0.51,
+            0.56,
+            0.6
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_2",
+          "value": 0.1,
+          "isDynamic": false
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "actionIndex": 8,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "actionIndex": 9,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "actionIndex": 10,
+          "actionPath": [
+            "timelineActions[8]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "actionIndex": 12,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 18,
+          "actionIndex": 13,
+          "actionPath": [
+            "timelineActions[11]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 19,
+          "actionIndex": 14,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 21,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar2",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        }
+      ],
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 34,
+          "actionIndex": 32,
+          "actionPath": [
+            "timelineActions[26]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[26]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 33,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[27]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[27]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 39,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 33,
+          "actionIndex": 40,
+          "actionPath": [
+            "timelineActions[28]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[28]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 43,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 32,
+          "actionIndex": 44,
+          "actionPath": [
+            "timelineActions[29]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[29]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 47,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": [],
+      "timeDilations": [],
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
+    },
+    {
+      "key": "basicAttack4",
+      "skillId": "chr_0035_liino_attack4",
+      "skillType": "basicAttack",
+      "sourceFile": "chr_0035_liino_attack4.json",
+      "timelineBlockFrames": 18,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "cooldownSeconds": 0.0,
+      "costFrame": 8,
+      "costType": "UltimateSp",
+      "costValue": 0.0,
+      "offsetRecordFrame": 5,
+      "allowNextWindows": [
+        {
+          "startFrame": 18,
+          "endFrame": 33,
+          "skillIds": [
+            "chr_0035_liino_attack5"
+          ]
+        }
+      ],
+      "inputCacheWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 33,
+          "mappings": [
+            {
+              "cmdType": "Attack",
+              "skillId": "chr_0035_liino_attack5",
+              "cacheEndByAction": true,
+              "clearOffsetTargetSkillIdOnEnd": false,
+              "overrideCacheTime": false,
+              "cacheTime": {
+                "useBlackboardKey": false,
+                "value": 0.0,
+                "blackboardKey": ""
+              }
+            }
+          ]
+        }
+      ],
+      "timelineActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 212,
+          "actionTypes": [
+            "PlayAnimationWithStep"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "actionTypes": [
+            "SelfRotateAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "CustomRootMotionAction"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 5,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 7,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 10,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 5,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 7,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 10,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 5,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 7,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 10,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 5,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 7,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 10,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 13,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 16,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 56,
+          "actionTypes": [
+            "SetSuperArmorAction"
+          ]
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 20,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 71,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 70,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 64,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 63,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 212,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 134,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 35,
+          "endFrame": 88,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "actionTypes": [
+            "VoiceTriggerAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 33,
+          "actionTypes": [
+            "ComboCacheAction"
+          ]
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 33,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 71,
+          "actionIndex": 25,
+          "actionPath": [
+            "timelineActions[25]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[25]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 70,
+          "actionIndex": 29,
+          "actionPath": [
+            "timelineActions[26]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[26]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 64,
+          "actionIndex": 33,
+          "actionPath": [
+            "timelineActions[27]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[27]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 63,
+          "actionIndex": 37,
+          "actionPath": [
+            "timelineActions[28]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[28]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "inflictions": [],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 7,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 10,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 13,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 7,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 10,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 13,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_attack4_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0035_liino_attack4_l_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 7,
+          "projectileId": "projectile_chr_0035_liino_attack4_l_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 10,
+          "projectileId": "projectile_chr_0035_liino_attack4_l_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 13,
+          "projectileId": "projectile_chr_0035_liino_attack4_l_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack4_l_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0035_liino_attack4_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 7,
+          "projectileId": "projectile_chr_0035_liino_attack4_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 10,
+          "projectileId": "projectile_chr_0035_liino_attack4_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 13,
+          "projectileId": "projectile_chr_0035_liino_attack4_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 16,
+          "projectileId": "projectile_chr_0035_liino_attack4_r_02",
+          "skillTriggers": [],
+          "assignBlackboard": false,
+          "entityBlackboardAssignments": []
+        }
+      ],
+      "projectileTriggeredSkills": [
+        {
+          "launchFrame": 5,
+          "actionOrder": [
+            3
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 7,
+          "actionOrder": [
+            4
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 10,
+          "actionOrder": [
+            5
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 13,
+          "actionOrder": [
+            6
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 16,
+          "actionOrder": [
+            7
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_l",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 5,
+          "actionOrder": [
+            8
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 7,
+          "actionOrder": [
+            9
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 10,
+          "actionOrder": [
+            10
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 13,
+          "actionOrder": [
+            11
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        },
+        {
+          "launchFrame": 16,
+          "actionOrder": [
+            12
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_attack4_r",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_attack4_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_attack4_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.036,
+                  0.04,
+                  0.043,
+                  0.047,
+                  0.05,
+                  0.054,
+                  0.058,
+                  0.061,
+                  0.065,
+                  0.069,
+                  0.075,
+                  0.081
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 128
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.0,
+                    "blackboardKey": "atk_scale",
+                    "levelValues": [
+                      0.036,
+                      0.04,
+                      0.043,
+                      0.047,
+                      0.05,
+                      0.054,
+                      0.058,
+                      0.061,
+                      0.065,
+                      0.069,
+                      0.075,
+                      0.081
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 128
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0035_liino_showhide_attack",
+        "buff_chr_0035_liino_showhide_audio",
+        "buff_chr_0035_liino_showhide_audio_fire",
+        "buff_chr_0035_liino_showhide_fire"
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            0.036,
+            0.04,
+            0.043,
+            0.047,
+            0.05,
+            0.054,
+            0.058,
+            0.061,
+            0.065,
+            0.069,
+            0.075,
+            0.081
+          ],
+          "display_atk_scale": [
+            0.36,
+            0.4,
+            0.43,
+            0.47,
+            0.5,
+            0.54,
+            0.58,
+            0.61,
+            0.65,
+            0.69,
+            0.75,
+            0.81
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.22,
+          "isDynamic": false
+        }
+      ],
+      "blackboardKeys": [],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
+      "buffHolds": [],
+      "targetGroupWrites": [],
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 71,
+          "actionIndex": 25,
+          "actionPath": [
+            "timelineActions[25]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[25]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 28,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 70,
+          "actionIndex": 29,
+          "actionPath": [
+            "timelineActions[26]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[26]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 32,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 64,
+          "actionIndex": 33,
+          "actionPath": [
+            "timelineActions[27]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[27]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 36,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 63,
+          "actionIndex": 37,
+          "actionPath": [
+            "timelineActions[28]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio_fire"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[28]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 40,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio_fire",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": [],
+      "timeDilations": [],
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
+    },
+    {
       "key": "basicAttack5",
       "skillId": "chr_0035_liino_attack5",
       "skillType": "basicAttack",
@@ -11124,6 +21210,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11179,6 +21266,7 @@ export const liinoGeneratedSource = {
                     "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -11240,14 +21328,16 @@ export const liinoGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11290,6 +21380,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11334,7 +21425,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -11377,6 +21469,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11421,7 +21514,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11464,6 +21558,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11508,7 +21603,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -11551,6 +21647,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11595,7 +21692,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -11825,6 +21923,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11880,6 +21979,7 @@ export const liinoGeneratedSource = {
                     "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -11941,14 +22041,16 @@ export const liinoGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11991,6 +22093,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12035,7 +22138,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -12078,6 +22182,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12122,7 +22227,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -12165,6 +22271,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12209,7 +22316,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -12252,6 +22360,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12296,7 +22405,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -12804,6 +22914,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12848,7 +22959,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -12891,6 +23003,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12935,7 +23048,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -12978,6 +23092,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13022,7 +23137,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -13290,6 +23406,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13334,7 +23451,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -13377,6 +23495,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13421,7 +23540,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -13464,6 +23584,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13508,7 +23629,963 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": [],
+      "timeDilations": [],
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
+    },
+    {
+      "key": "plungingAttack",
+      "skillId": "chr_0035_liino_plunging_attack_end",
+      "skillType": "plungingAttack",
+      "sourceFile": "chr_0035_liino_plunging_attack_end.json",
+      "timelineBlockFrames": 11,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "cooldownSeconds": 0.0,
+      "costFrame": 0,
+      "costType": "UltimateSp",
+      "costValue": 0.0,
+      "offsetRecordFrame": 0,
+      "allowNextWindows": [
+        {
+          "startFrame": 11,
+          "endFrame": 20,
+          "skillIds": [
+            "chr_0012_avywen_attack1"
           ]
+        }
+      ],
+      "inputCacheWindows": [],
+      "timelineActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 121,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 9,
+          "actionTypes": [
+            "ContinuousFindTargetAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 2,
+          "actionTypes": [
+            "DamageAction",
+            "DefiniteValueCalculation",
+            "EnemyHurtAnimAction"
+          ]
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 8,
+          "actionTypes": [
+            "DamageAction",
+            "DefiniteValueCalculation",
+            "EnemyHurtAnimAction"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 2,
+          "actionTypes": [
+            "CameraImpulseAction"
+          ]
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 20,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 20,
+          "actionTypes": [
+            "SetSuperArmorAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 50,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 2,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 5,
+          "actionTypes": [
+            "EffectAction",
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 8,
+          "actionTypes": [
+            "EffectAction",
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 3,
+          "actionTypes": [
+            "EffectAction",
+            "LaunchProjectile"
+          ]
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 6,
+          "actionTypes": [
+            "EffectAction",
+            "LaunchProjectile"
+          ]
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 9,
+          "actionTypes": [
+            "LaunchProjectile",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 19,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 19,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionTypes": [
+            "IfElseAction",
+            "InheritBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 50,
+          "endFrame": 105,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 121,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 61,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        }
+      ],
+      "directDamageHits": [
+        {
+          "startFrame": 2,
+          "endFrame": 2,
+          "actionIndex": 2,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.64,
+                  0.7,
+                  0.77,
+                  0.83,
+                  0.9,
+                  0.96,
+                  1.02,
+                  1.09,
+                  1.15,
+                  1.23,
+                  1.33,
+                  1.44
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 1152
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 2
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 8,
+          "actionIndex": 5,
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale_2",
+                "levelValues": [
+                  0.16,
+                  0.18,
+                  0.19,
+                  0.21,
+                  0.22,
+                  0.24,
+                  0.26,
+                  0.27,
+                  0.29,
+                  0.31,
+                  0.33,
+                  0.36
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 1152
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 3
+        }
+      ],
+      "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 19,
+          "actionIndex": 23,
+          "actionPath": [
+            "timelineActions[14]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 28,
+          "actionPath": [
+            "timelineActions[16]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 31,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "inflictions": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 19,
+          "actionIndex": 27,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_fire",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 32,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_audio_fire",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 17,
+          "autoFinishByAction": true
+        }
+      ],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 2,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [
+            {
+              "event": "reach",
+              "skillId": "chr_0035_liino_plunging_attack_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 5,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 8,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 3,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 6,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        },
+        {
+          "launchFrame": 9,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "skillTriggers": [],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        }
+      ],
+      "projectileTriggeredSkills": [
+        {
+          "launchFrame": 2,
+          "actionOrder": [
+            13
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_plunging_attack",
+          "triggerEvent": "reach",
+          "triggerSkillId": "chr_0035_liino_plunging_attack_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_plunging_attack_projhit.json",
+          "damageUnits": [],
+          "directDamageHits": [],
+          "conditionalActions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [
+        "buff_chr_0035_liino_showhide_attack",
+        "buff_chr_0035_liino_showhide_audio",
+        "buff_chr_0035_liino_showhide_audio_fire",
+        "buff_chr_0035_liino_showhide_fire"
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            0.64,
+            0.7,
+            0.77,
+            0.83,
+            0.9,
+            0.96,
+            1.02,
+            1.09,
+            1.15,
+            1.23,
+            1.33,
+            1.44
+          ],
+          "atk_scale_2": [
+            0.16,
+            0.18,
+            0.19,
+            0.21,
+            0.22,
+            0.24,
+            0.26,
+            0.27,
+            0.29,
+            0.31,
+            0.33,
+            0.36
+          ],
+          "display_atk_scale": [
+            0.8,
+            0.88,
+            0.96,
+            1.04,
+            1.12,
+            1.2,
+            1.28,
+            1.36,
+            1.44,
+            1.54,
+            1.66,
+            1.8
+          ]
+        },
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.4,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_2",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale",
+        "atk_scale_2"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "DamageAction",
+        "IfElseAction",
+        "LaunchProjectile"
+      ],
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 2,
+          "endFrame": 9,
+          "actionIndex": 1,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "ContinuousFindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Anti",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": 0.0333333351
+        }
+      ],
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 19,
+          "actionIndex": 23,
+          "actionPath": [
+            "timelineActions[14]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_attack"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[14]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 26,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_attack",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 17,
+          "actionIndex": 28,
+          "actionPath": [
+            "timelineActions[16]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckBuffStackNumAdvanced",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "buffStack": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "buffCheckType": "Id",
+                "buffIds": [
+                  "buff_chr_0035_liino_showhide_audio"
+                ],
+                "tagQueryType": "hasAny",
+                "buffTagIds": [],
+                "countType": "BuffCount",
+                "comparison": "GE",
+                "value": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "limitSkillCastId": false
+              },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[16]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 31,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_showhide_audio",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -14080,7 +25157,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 45,
@@ -14160,7 +25238,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -14203,6 +25282,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14247,7 +25327,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -14290,6 +25371,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14334,7 +25416,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -14377,6 +25460,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14421,7 +25505,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -14464,6 +25549,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14554,7 +25640,8 @@ export const liinoGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -15230,6 +26317,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -15262,7 +26350,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -15448,7 +26552,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -15608,177 +26728,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 12,
-                      "actionOrder": [
-                        17,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -15788,162 +26738,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 12,
-              "actionOrder": [
-                17,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         },
@@ -15993,6 +26788,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -16025,7 +26821,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -16211,7 +27023,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -16371,177 +27199,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 12,
-                      "actionOrder": [
-                        18,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -16551,162 +27209,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 12,
-              "actionOrder": [
-                18,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         },
@@ -16756,6 +27259,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -16788,7 +27292,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -16974,7 +27494,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -17134,177 +27670,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_03",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 16,
-                      "actionOrder": [
-                        19,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_03",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -17314,162 +27680,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 16,
-              "actionOrder": [
-                19,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_03",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         },
@@ -17519,6 +27730,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -17551,7 +27763,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -17737,7 +27965,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -17897,177 +28141,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_04",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 16,
-                      "actionOrder": [
-                        20,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_04",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -18077,162 +28151,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 16,
-              "actionOrder": [
-                20,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack_vfx_04",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         },
@@ -18282,6 +28201,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -18314,7 +28234,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -18500,7 +28436,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -18660,177 +28612,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 14,
-                      "actionOrder": [
-                        21,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -18840,162 +28622,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 14,
-              "actionOrder": [
-                21,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         },
@@ -19045,6 +28672,7 @@ export const liinoGeneratedSource = {
                   "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -19077,7 +28705,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "smart_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -19263,7 +28907,23 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "InstantSearch",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionSource",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -19423,177 +29083,7 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
-              "projectedProjectileLaunches": [
-                {
-                  "launch": {
-                    "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-                    "skillTriggers": [
-                      {
-                        "event": "block",
-                        "skillId": "chr_0035_liino_normal_skill_projhit"
-                      }
-                    ],
-                    "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  },
-                  "triggeredSkills": [
-                    {
-                      "launchFrame": 14,
-                      "actionOrder": [
-                        22,
-                        1,
-                        0
-                      ],
-                      "assumedTravelFrames": 0,
-                      "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-                      "triggerEvent": "block",
-                      "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-                      "excludedByPrimaryTargetMarker": false,
-                      "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-                      "damageUnits": [
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 1.0,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.18,
-                              0.2,
-                              0.21,
-                              0.23,
-                              0.25,
-                              0.27,
-                              0.28,
-                              0.3,
-                              0.32,
-                              0.34,
-                              0.37,
-                              0.4
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 4352
-                        },
-                        {
-                          "damageType": "Pulse",
-                          "attributeType": "Poise",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": {
-                            "value": 10.0,
-                            "blackboardKey": "poise",
-                            "levelValues": [
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5,
-                              0.5
-                            ]
-                          },
-                          "definiteValue": null,
-                          "damageDecorateMask": 0
-                        }
-                      ],
-                      "directDamageHits": [
-                        {
-                          "startFrame": 0,
-                          "endFrame": 4,
-                          "actionIndex": 3,
-                          "damageUnits": [
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Hp",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 1.0,
-                                "blackboardKey": "atk_scale",
-                                "levelValues": [
-                                  0.18,
-                                  0.2,
-                                  0.21,
-                                  0.23,
-                                  0.25,
-                                  0.27,
-                                  0.28,
-                                  0.3,
-                                  0.32,
-                                  0.34,
-                                  0.37,
-                                  0.4
-                                ]
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": null,
-                              "definiteValue": null,
-                              "damageDecorateMask": 4352
-                            },
-                            {
-                              "damageType": "Pulse",
-                              "attributeType": "Poise",
-                              "calculation": "standard",
-                              "attackScale": {
-                                "value": 0.0,
-                                "blackboardKey": null,
-                                "levelValues": null
-                              },
-                              "calculationMultiplier": null,
-                              "poiseValue": {
-                                "value": 10.0,
-                                "blackboardKey": "poise",
-                                "levelValues": [
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5,
-                                  0.5
-                                ]
-                              },
-                              "definiteValue": null,
-                              "damageDecorateMask": 0
-                            }
-                          ],
-                          "timedMarkerGate": null,
-                          "sequenceIndex": 1
-                        }
-                      ],
-                      "conditionalActions": [],
-                      "auxiliaryActions": [],
-                      "resourceGains": [],
-                      "inflictions": [],
-                      "combatActions": [
-                        "DamageAction"
-                      ],
-                      "cycleTruncated": false,
-                      "nestedProjectileTriggeredSkills": [],
-                      "abilityEntityHits": [],
-                      "auraActions": []
-                    }
-                  ]
-                }
-              ]
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -19603,162 +29093,7 @@ export const liinoGeneratedSource = {
             "LaunchProjectile"
           ],
           "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [
-            {
-              "launchFrame": 14,
-              "actionOrder": [
-                22,
-                1,
-                0
-              ],
-              "assumedTravelFrames": 0,
-              "projectileId": "projectile_chr_0035_liino_normal_attack_vfx",
-              "triggerEvent": "block",
-              "triggerSkillId": "chr_0035_liino_normal_skill_projhit",
-              "excludedByPrimaryTargetMarker": false,
-              "sourceFile": "chr_0035_liino_normal_skill_projhit.json",
-              "damageUnits": [
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 1.0,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.18,
-                      0.2,
-                      0.21,
-                      0.23,
-                      0.25,
-                      0.27,
-                      0.28,
-                      0.3,
-                      0.32,
-                      0.34,
-                      0.37,
-                      0.4
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 4352
-                },
-                {
-                  "damageType": "Pulse",
-                  "attributeType": "Poise",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.0,
-                    "blackboardKey": null,
-                    "levelValues": null
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": {
-                    "value": 10.0,
-                    "blackboardKey": "poise",
-                    "levelValues": [
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5,
-                      0.5
-                    ]
-                  },
-                  "definiteValue": null,
-                  "damageDecorateMask": 0
-                }
-              ],
-              "directDamageHits": [
-                {
-                  "startFrame": 0,
-                  "endFrame": 4,
-                  "actionIndex": 3,
-                  "damageUnits": [
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 1.0,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.18,
-                          0.2,
-                          0.21,
-                          0.23,
-                          0.25,
-                          0.27,
-                          0.28,
-                          0.3,
-                          0.32,
-                          0.34,
-                          0.37,
-                          0.4
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 4352
-                    },
-                    {
-                      "damageType": "Pulse",
-                      "attributeType": "Poise",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.0,
-                        "blackboardKey": null,
-                        "levelValues": null
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": {
-                        "value": 10.0,
-                        "blackboardKey": "poise",
-                        "levelValues": [
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5,
-                          0.5
-                        ]
-                      },
-                      "definiteValue": null,
-                      "damageDecorateMask": 0
-                    }
-                  ],
-                  "timedMarkerGate": null,
-                  "sequenceIndex": 1
-                }
-              ],
-              "conditionalActions": [],
-              "auxiliaryActions": [],
-              "resourceGains": [],
-              "inflictions": [],
-              "combatActions": [
-                "DamageAction"
-              ],
-              "cycleTruncated": false,
-              "nestedProjectileTriggeredSkills": [],
-              "abilityEntityHits": [],
-              "auraActions": []
-            }
-          ],
+          "nestedProjectileTriggeredSkills": [],
           "abilityEntityHits": [],
           "auraActions": []
         }
@@ -20600,7 +29935,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 45,
@@ -20680,7 +30016,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -20723,6 +30060,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -20767,7 +30105,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -20810,6 +30149,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -20854,7 +30194,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -20897,6 +30238,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -20941,7 +30283,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -20984,6 +30327,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -21074,7 +30418,8 @@ export const liinoGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [
@@ -21186,6 +30531,7 @@ export const liinoGeneratedSource = {
           "nestedCombatActions": [],
           "airborneOutputs": [],
           "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
           "actionWhenExitAuraBuffApplications": []
         }
       ],
@@ -22533,7 +31879,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -22613,7 +31960,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -22656,6 +32004,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22700,7 +32049,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -22743,6 +32093,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22787,7 +32138,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 1862,
@@ -22830,6 +32182,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22874,7 +32227,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -23784,7 +33138,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -23864,7 +33219,8 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 0,
@@ -23907,6 +33263,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -23951,7 +33308,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -23994,6 +33352,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -24038,7 +33397,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 1862,
@@ -24081,6 +33441,7 @@ export const liinoGeneratedSource = {
               "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -24125,7 +33486,8 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -24786,6 +34148,10287 @@ export const liinoGeneratedSource = {
           "sequenceIndex": 5
         }
       ]
+    },
+    {
+      "key": "ultimate",
+      "skillId": "chr_0035_liino_ultimate_skill",
+      "skillType": "ultimate",
+      "sourceFile": "chr_0035_liino_ultimate_skill.json",
+      "timelineBlockFrames": 77,
+      "blockBoundarySource": "AllowNextSkillAction.startFrame",
+      "cooldownSeconds": 0.0,
+      "costFrame": 0,
+      "costType": "UltimateSp",
+      "costValue": 100.0,
+      "offsetRecordFrame": 0,
+      "allowNextWindows": [
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "skillIds": [
+            "chr_0035_liino_normal_skill_end"
+          ]
+        },
+        {
+          "startFrame": 163,
+          "endFrame": 527,
+          "skillIds": [
+            "chr_0035_liino_combo_skill"
+          ]
+        },
+        {
+          "startFrame": 527,
+          "endFrame": 580,
+          "skillIds": [
+            "chr_0035_liino_normal_skill",
+            "chr_0035_liino_combo_skill",
+            "chr_0035_liino_attack1"
+          ]
+        }
+      ],
+      "inputCacheWindows": [
+        {
+          "startFrame": 77,
+          "endFrame": 580,
+          "mappings": [
+            {
+              "cmdType": "NormalSkill",
+              "skillId": "chr_0012_avywen_normal_skill",
+              "cacheEndByAction": true,
+              "clearOffsetTargetSkillIdOnEnd": false,
+              "overrideCacheTime": true,
+              "cacheTime": {
+                "useBlackboardKey": false,
+                "value": 0.3,
+                "blackboardKey": ""
+              }
+            },
+            {
+              "cmdType": "ComboSkill",
+              "skillId": "chr_0012_avywen_combo_skill",
+              "cacheEndByAction": true,
+              "clearOffsetTargetSkillIdOnEnd": false,
+              "overrideCacheTime": true,
+              "cacheTime": {
+                "useBlackboardKey": false,
+                "value": 0.3,
+                "blackboardKey": ""
+              }
+            }
+          ]
+        }
+      ],
+      "timelineActions": [
+        {
+          "startFrame": 407,
+          "endFrame": 408,
+          "actionTypes": [
+            "FinishBuffAdvanced"
+          ]
+        },
+        {
+          "startFrame": 540,
+          "endFrame": 541,
+          "actionTypes": [
+            "FinishBuffAdvanced"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 163,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 163,
+          "endFrame": 407,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 407,
+          "endFrame": 660,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 540,
+          "endFrame": 660,
+          "actionTypes": [
+            "PlayAnimationAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 30,
+          "actionTypes": [
+            "TimeDilationAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionTypes": [
+            "CheckEntityNum",
+            "Selector",
+            "FindTargetAction",
+            "Selector",
+            "FindTargetAction",
+            "Selector",
+            "TeleportAction",
+            "SelfRotateAction"
+          ]
+        },
+        {
+          "startFrame": 76,
+          "endFrame": 76,
+          "actionTypes": [
+            "SpawnAbilityEntity"
+          ]
+        },
+        {
+          "startFrame": 80,
+          "endFrame": 80,
+          "actionTypes": [
+            "FindTargetAction",
+            "Selector",
+            "CreateBuffAction",
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 513,
+          "endFrame": 514,
+          "actionTypes": [
+            "FindTargetAction",
+            "Selector",
+            "SimpleCalcBBAction",
+            "SimpleCalcBBAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 508,
+          "endFrame": 508,
+          "actionTypes": [
+            "SimpleCalcBBAction",
+            "LaunchProjectile",
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 439,
+          "actionTypes": [
+            "AddDynamicCcsAction"
+          ]
+        },
+        {
+          "startFrame": 439,
+          "endFrame": 508,
+          "actionTypes": [
+            "AddDynamicCcsAction"
+          ]
+        },
+        {
+          "startFrame": 508,
+          "endFrame": 527,
+          "actionTypes": [
+            "AddDynamicCcsAction",
+            "OverrideCameraFollowAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 543,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "ChangeSkillAction"
+          ]
+        },
+        {
+          "startFrame": 137,
+          "endFrame": 527,
+          "actionTypes": [
+            "EventListenerAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 539,
+          "actionTypes": [
+            "AddTagAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 543,
+          "actionTypes": [
+            "SetSuperArmorAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "StoreAttributeValue",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 477,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "ReceiveMoveInputAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 137,
+          "actionTypes": [
+            "ChannelingCastingAction"
+          ]
+        },
+        {
+          "startFrame": 508,
+          "endFrame": 527,
+          "actionTypes": [
+            "ChannelingCastingAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 509,
+          "actionTypes": [
+            "SkillAIMoveAction",
+            "Selector"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 509,
+          "actionTypes": [
+            "AddTagAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 580,
+          "actionTypes": [
+            "ComboCacheAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        },
+        {
+          "startFrame": 163,
+          "endFrame": 527,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        },
+        {
+          "startFrame": 527,
+          "endFrame": 580,
+          "actionTypes": [
+            "AllowNextSkillAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 523,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 520,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 64,
+          "endFrame": 523,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 520,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 77,
+          "actionTypes": [
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "AnimatedCameraAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 80,
+          "actionTypes": [
+            "CreateBuffAction",
+            "Selector",
+            "SetSuperArmorAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "HideUIAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "UltimateTimeAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "UltimateShowAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "ChannelingCastingAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "AddTagAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 31,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 27,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 34,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 52,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 31,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 31,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 27,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 305,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "EffectAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 406,
+          "actionTypes": [
+            "IfElseAction",
+            "CreateBuffAction",
+            "CreateBuffAction"
+          ]
+        },
+        {
+          "startFrame": 406,
+          "endFrame": 540,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 540,
+          "endFrame": 660,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 406,
+          "endFrame": 540,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 540,
+          "endFrame": 660,
+          "actionTypes": [
+            "CharWeaponVisibleAction"
+          ]
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 77,
+          "actionTypes": [
+            "VoiceTriggerAction"
+          ]
+        },
+        {
+          "startFrame": 127,
+          "endFrame": 252,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 365,
+          "endFrame": 438,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 541,
+          "endFrame": 633,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 689,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 332,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 497,
+          "endFrame": 567,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        },
+        {
+          "startFrame": 396,
+          "endFrame": 489,
+          "actionTypes": [
+            "PlaySoundAction"
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "conditionalActions": [
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionIndex": 54,
+          "actionPath": [
+            "timelineActions[22]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "LE",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "fnlatk_up",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": "will_max",
+                "levelValues": [
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.5,
+                  0.55,
+                  0.6
+                ]
+              },
+              "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_music_tag",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "ultmusic_duration",
+                        "levelValues": [
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0
+                        ]
+                      },
+                      "finish_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "finish_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1
+                        ]
+                      },
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "fnlatk_up",
+                        "levelValues": null
+                      },
+                      "talent_a": {
+                        "value": 0.0,
+                        "blackboardKey": "talent_a",
+                        "levelValues": null
+                      },
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "shelter_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "healtaken_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "healtaken_rate",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 57,
+              "blackboardMutation": {
+                "key": "fnlatk_up",
+                "operation": "Assign",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "will_max",
+                  "levelValues": [
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.5,
+                    0.55,
+                    0.6
+                  ]
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_music_tag",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "ultmusic_duration",
+                        "levelValues": [
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0
+                        ]
+                      },
+                      "finish_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "finish_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1
+                        ]
+                      },
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "fnlatk_up",
+                        "levelValues": null
+                      },
+                      "talent_a": {
+                        "value": 0.0,
+                        "blackboardKey": "talent_a",
+                        "levelValues": null
+                      },
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "shelter_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "healtaken_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "healtaken_rate",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 406,
+          "actionIndex": 108,
+          "actionPath": [
+            "timelineActions[65]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckTagMatch",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "entityTag": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "tagQueryType": "hasAny",
+                "tagIds": [
+                  828446949
+                ]
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[65]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 110,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[65]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 111,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "inflictions": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 76,
+          "endFrame": 76,
+          "actionIndex": 19,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0035_liino_ult_skill_projhit:chr_0035_liino_ultimate_skill_projhit_abilityentity",
+          "classification": null,
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [
+            "LaunchProjectile"
+          ],
+          "buffSourceContextKey": null,
+          "sequenceIndex": 8,
+          "autoFinishByAction": null
+        },
+        {
+          "startFrame": 80,
+          "endFrame": 80,
+          "actionIndex": 21,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_ultskill_music_heal_start",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "heal_target",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "heal_value": {
+              "value": 0.0,
+              "blackboardKey": "ultheal03_value",
+              "levelValues": [
+                0.76,
+                0.91,
+                1.06,
+                1.21,
+                1.29,
+                1.36,
+                1.44,
+                1.51,
+                1.59,
+                1.63,
+                1.66,
+                1.7
+              ]
+            },
+            "heal_rate": {
+              "value": 0.0,
+              "blackboardKey": "ultheal03_rate",
+              "levelValues": [
+                324.0,
+                388.8,
+                453.6,
+                518.4,
+                550.8,
+                583.2,
+                615.6,
+                648.0,
+                680.4,
+                696.6,
+                712.8,
+                729.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 9,
+          "autoFinishByAction": false
+        },
+        {
+          "startFrame": 513,
+          "endFrame": 514,
+          "actionIndex": 26,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_ultskill_music_heal",
+          "classification": null,
+          "targetSource": "Context",
+          "targetGroupKey": "heal_target",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "heal_value": {
+              "value": 0.0,
+              "blackboardKey": "ultheal02_value",
+              "levelValues": null
+            },
+            "heal_rate": {
+              "value": 0.0,
+              "blackboardKey": "ultheal02_rate",
+              "levelValues": null
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 10,
+          "autoFinishByAction": false
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionIndex": 42,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_ultskill_refrainobtainusp",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 15,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 543,
+          "actionIndex": 43,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_normalskill_ui_vfx",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 16,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionIndex": 51,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_ultskill_music_vfx",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "vfx_music_duration": {
+              "value": 0.0,
+              "blackboardKey": "ultmusic_duration",
+              "levelValues": [
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 20,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 477,
+          "actionIndex": 59,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_ultskill_music_damage",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {
+            "vfx_music_duration": {
+              "value": 0.0,
+              "blackboardKey": "ultmusic_duration",
+              "levelValues": [
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0,
+                15.0
+              ]
+            },
+            "atk_scale_3": {
+              "value": 0.0,
+              "blackboardKey": "atk_scale_3",
+              "levelValues": [
+                0.27,
+                0.29,
+                0.32,
+                0.35,
+                0.37,
+                0.4,
+                0.42,
+                0.45,
+                0.48,
+                0.51,
+                0.55,
+                0.6
+              ]
+            },
+            "music_damage_trigger": {
+              "value": 0.0,
+              "blackboardKey": "ultmusic_trigger",
+              "levelValues": [
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5,
+                1.5
+              ]
+            },
+            "ultheal_value": {
+              "value": 0.0,
+              "blackboardKey": "ultheal_value",
+              "levelValues": [
+                0.08,
+                0.1,
+                0.12,
+                0.13,
+                0.14,
+                0.15,
+                0.16,
+                0.17,
+                0.18,
+                0.18,
+                0.18,
+                0.19
+              ]
+            },
+            "ultheal_rate": {
+              "value": 0.0,
+              "blackboardKey": "ultheal_rate",
+              "levelValues": [
+                36.0,
+                43.2,
+                50.4,
+                57.6,
+                61.2,
+                64.8,
+                68.4,
+                72.0,
+                75.6,
+                77.4,
+                79.2,
+                81.0
+              ]
+            }
+          },
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 23,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 523,
+          "actionIndex": 72,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_ultskill",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 33,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 520,
+          "actionIndex": 73,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_fire",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 34,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 64,
+          "endFrame": 523,
+          "actionIndex": 74,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_audio",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 35,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 520,
+          "actionIndex": 75,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_audio_fire",
+          "classification": null,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 36,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 77,
+          "actionIndex": 76,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_chr_0035_liino_showhide_audio_ultskill",
+          "classification": null,
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 37,
+          "autoFinishByAction": true
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 80,
+          "actionIndex": 81,
+          "actionType": "CreateBuffAction",
+          "sourceId": "buff_common_damage_immune_medium",
+          "classification": "incomingDamageProtection",
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "count": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "buffSource": "ActionSource",
+          "inheritSourceSkillCastInfo": true,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": "",
+          "sequenceIndex": 39,
+          "autoFinishByAction": true
+        }
+      ],
+      "blackboardCalculations": [
+        {
+          "startFrame": 513,
+          "endFrame": 514,
+          "actionIndex": 24,
+          "key": "ultheal02_rate",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "ultheal_rate",
+            "levelValues": [
+              36.0,
+              43.2,
+              50.4,
+              57.6,
+              61.2,
+              64.8,
+              68.4,
+              72.0,
+              75.6,
+              77.4,
+              79.2,
+              81.0
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "final_value",
+            "levelValues": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          },
+          "addend": null,
+          "sequenceIndex": 10
+        },
+        {
+          "startFrame": 513,
+          "endFrame": 514,
+          "actionIndex": 25,
+          "key": "ultheal02_value",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "ultheal_value",
+            "levelValues": [
+              0.08,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.16,
+              0.17,
+              0.18,
+              0.18,
+              0.18,
+              0.19
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "final_value",
+            "levelValues": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          },
+          "addend": null,
+          "sequenceIndex": 10
+        },
+        {
+          "startFrame": 508,
+          "endFrame": 508,
+          "actionIndex": 27,
+          "key": "atk_scale_4",
+          "operation": "Multiply",
+          "left": {
+            "value": 0.0,
+            "blackboardKey": "atk_scale_3",
+            "levelValues": [
+              0.27,
+              0.29,
+              0.32,
+              0.35,
+              0.37,
+              0.4,
+              0.42,
+              0.45,
+              0.48,
+              0.51,
+              0.55,
+              0.6
+            ]
+          },
+          "right": {
+            "value": 0.0,
+            "blackboardKey": "final_value",
+            "levelValues": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          },
+          "addend": null,
+          "sequenceIndex": 11
+        }
+      ],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [
+        {
+          "startFrame": 407,
+          "endFrame": 408,
+          "actionIndex": 0,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0035_liino_normalskill_music_animation_musicloop"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
+          "sequenceIndex": 0
+        },
+        {
+          "startFrame": 540,
+          "endFrame": 541,
+          "actionIndex": 1,
+          "targetSource": "Source",
+          "targetGroupKey": "",
+          "buffCheckType": "Id",
+          "buffIds": [
+            "buff_chr_0035_liino_normalskill_music_animation_musicloop"
+          ],
+          "tagQueryType": "hasAny",
+          "buffTagIds": [],
+          "finishAll": true,
+          "limitSource": false,
+          "isFinishedEarly": false,
+          "isAbsorbed": false,
+          "finishLayerCount": null,
+          "sourceActionType": "FinishBuffAdvanced",
+          "sequenceIndex": 1
+        }
+      ],
+      "resourceGains": [],
+      "projectileLaunches": [
+        {
+          "launchFrame": 508,
+          "projectileId": "projectile_chr_0035_liino_ultskill_soundwave_02",
+          "skillTriggers": [
+            {
+              "event": "hit",
+              "skillId": "chr_0035_liino_ultimate_skill_soundwave_02_projhit"
+            }
+          ],
+          "assignBlackboard": true,
+          "entityBlackboardAssignments": []
+        }
+      ],
+      "projectileTriggeredSkills": [
+        {
+          "launchFrame": 508,
+          "actionOrder": [
+            28
+          ],
+          "assumedTravelFrames": 0,
+          "projectileId": "projectile_chr_0035_liino_ultskill_soundwave_02",
+          "triggerEvent": "hit",
+          "triggerSkillId": "chr_0035_liino_ultimate_skill_soundwave_02_projhit",
+          "excludedByPrimaryTargetMarker": false,
+          "sourceFile": "chr_0035_liino_ultimate_skill_soundwave_02_projhit.json",
+          "damageUnits": [
+            {
+              "damageType": "Pulse",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 1.0,
+                "blackboardKey": "atk_scale_4",
+                "levelValues": [
+                  0.1
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 512
+            }
+          ],
+          "directDamageHits": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "damageUnits": [
+                {
+                  "damageType": "Pulse",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 1.0,
+                    "blackboardKey": "atk_scale_4",
+                    "levelValues": [
+                      0.1
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 512
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 0
+            }
+          ],
+          "conditionalActions": [],
+          "auxiliaryActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 10,
+              "actionType": "CreateBuffAction",
+              "sourceId": "buff_physical_no_guard",
+              "classification": null,
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "count": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "buffSource": "ActionSource",
+              "inheritSourceSkillCastInfo": true,
+              "blackboardAssignments": {},
+              "nestedCombatActions": [],
+              "buffSourceContextKey": "",
+              "sequenceIndex": 0,
+              "autoFinishByAction": false
+            }
+          ],
+          "resourceGains": [],
+          "inflictions": [],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction"
+          ],
+          "cycleTruncated": false,
+          "nestedProjectileTriggeredSkills": [],
+          "abilityEntityHits": [],
+          "auraActions": []
+        }
+      ],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 76,
+          "actionOrder": [
+            19
+          ],
+          "abilityEntityId": "abilityentity_chr_0035_liino_ult_skill_projhit",
+          "skillId": "chr_0035_liino_ultimate_skill_projhit_abilityentity",
+          "sourceFile": "chr_0035_liino_ultimate_skill_projhit_abilityentity.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0035_liino_ult_skill_projhit",
+            "skillId": "chr_0035_liino_ultimate_skill_projhit_abilityentity",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[1]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[1]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 76,
+                      "actionOrder": [
+                        19,
+                        1,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[1]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 76,
+                      "actionOrder": [
+                        19,
+                        1,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[1]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 76,
+                      "actionOrder": [
+                        19,
+                        1,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[1]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 6,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 76,
+                      "actionOrder": [
+                        19,
+                        1,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 3,
+              "endFrame": 3,
+              "actionIndex": 7,
+              "actionPath": [
+                "timelineActions[2]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[2]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 79,
+                      "actionOrder": [
+                        19,
+                        7,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[2]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 79,
+                      "actionOrder": [
+                        19,
+                        7,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[2]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 11,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 79,
+                      "actionOrder": [
+                        19,
+                        7,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[2]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 79,
+                      "actionOrder": [
+                        19,
+                        7,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 6,
+              "endFrame": 6,
+              "actionIndex": 13,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[3]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 15,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 82,
+                      "actionOrder": [
+                        19,
+                        13,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[3]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 16,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 82,
+                      "actionOrder": [
+                        19,
+                        13,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[3]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 17,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 82,
+                      "actionOrder": [
+                        19,
+                        13,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[3]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 18,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 82,
+                      "actionOrder": [
+                        19,
+                        13,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 8,
+              "endFrame": 8,
+              "actionIndex": 19,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 21,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_l"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 84,
+                      "actionOrder": [
+                        19,
+                        19,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_l",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_l.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 22,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_r"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 84,
+                      "actionOrder": [
+                        19,
+                        19,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_r",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_r.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 23,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_l"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 84,
+                      "actionOrder": [
+                        19,
+                        19,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_l",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_l.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 24,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_r"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 84,
+                      "actionOrder": [
+                        19,
+                        19,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_r",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_r.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 11,
+              "endFrame": 11,
+              "actionIndex": 25,
+              "actionPath": [
+                "timelineActions[5]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 27,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_l"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 87,
+                      "actionOrder": [
+                        19,
+                        25,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_l",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_l.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 28,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_r"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 87,
+                      "actionOrder": [
+                        19,
+                        25,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_r",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_r.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 29,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_l"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 87,
+                      "actionOrder": [
+                        19,
+                        25,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_l",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_l.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[5]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 30,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_r"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 87,
+                      "actionOrder": [
+                        19,
+                        25,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_r",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_r.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 15,
+              "endFrame": 15,
+              "actionIndex": 31,
+              "actionPath": [
+                "timelineActions[6]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 33,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 91,
+                      "actionOrder": [
+                        19,
+                        31,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 34,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 91,
+                      "actionOrder": [
+                        19,
+                        31,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 35,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 91,
+                      "actionOrder": [
+                        19,
+                        31,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[6]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 36,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 91,
+                      "actionOrder": [
+                        19,
+                        31,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 18,
+              "endFrame": 18,
+              "actionIndex": 37,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 39,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 94,
+                      "actionOrder": [
+                        19,
+                        37,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 40,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 94,
+                      "actionOrder": [
+                        19,
+                        37,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 41,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 94,
+                      "actionOrder": [
+                        19,
+                        37,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[7]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 42,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 94,
+                      "actionOrder": [
+                        19,
+                        37,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_03",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 40,
+              "endFrame": 40,
+              "actionIndex": 43,
+              "actionPath": [
+                "timelineActions[8]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[8]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 45,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_bomb",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_damage_02"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 116,
+                      "actionOrder": [
+                        19,
+                        43,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_bomb",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_damage_02",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_damage_02.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale_2",
+                            "levelValues": [
+                              2.84,
+                              3.13,
+                              3.41,
+                              3.7,
+                              3.98,
+                              4.27,
+                              4.55,
+                              4.83,
+                              5.12,
+                              5.47,
+                              5.9,
+                              6.4
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 10.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 4,
+                          "actionIndex": 3,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 1.0,
+                                "blackboardKey": "atk_scale_2",
+                                "levelValues": [
+                                  2.84,
+                                  3.13,
+                                  3.41,
+                                  3.7,
+                                  3.98,
+                                  4.27,
+                                  4.55,
+                                  4.83,
+                                  5.12,
+                                  5.47,
+                                  5.9,
+                                  6.4
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 4608
+                            },
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Poise",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": {
+                                "value": 10.0,
+                                "blackboardKey": "poise",
+                                "levelValues": [
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0
+                                ]
+                              },
+                              "definiteValue": null,
+                              "damageDecorateMask": 0
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[8]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 46,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_bomb",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit_damage_02"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 116,
+                      "actionOrder": [
+                        19,
+                        43,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_bomb",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit_damage_02",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit_damage_02.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 1.0,
+                            "blackboardKey": "atk_scale_2",
+                            "levelValues": [
+                              2.84,
+                              3.13,
+                              3.41,
+                              3.7,
+                              3.98,
+                              4.27,
+                              4.55,
+                              4.83,
+                              5.12,
+                              5.47,
+                              5.9,
+                              6.4
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 4608
+                        },
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Poise",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": {
+                            "value": 10.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0,
+                              20.0
+                            ]
+                          },
+                          "definiteValue": null,
+                          "damageDecorateMask": 0
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 4,
+                          "actionIndex": 3,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 1.0,
+                                "blackboardKey": "atk_scale_2",
+                                "levelValues": [
+                                  2.84,
+                                  3.13,
+                                  3.41,
+                                  3.7,
+                                  3.98,
+                                  4.27,
+                                  4.55,
+                                  4.83,
+                                  5.12,
+                                  5.47,
+                                  5.9,
+                                  6.4
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 4608
+                            },
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Poise",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": {
+                                "value": 10.0,
+                                "blackboardKey": "poise",
+                                "levelValues": [
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0,
+                                  20.0
+                                ]
+                              },
+                              "definiteValue": null,
+                              "damageDecorateMask": 0
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 21,
+              "endFrame": 21,
+              "actionIndex": 47,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 49,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_01",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 97,
+                      "actionOrder": [
+                        19,
+                        47,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_01",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 50,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_01",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 97,
+                      "actionOrder": [
+                        19,
+                        47,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_01",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 51,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_01",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 97,
+                      "actionOrder": [
+                        19,
+                        47,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_01",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[9]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 52,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_01",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 97,
+                      "actionOrder": [
+                        19,
+                        47,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_01",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 25,
+              "endFrame": 25,
+              "actionIndex": 53,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 55,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 101,
+                      "actionOrder": [
+                        19,
+                        53,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 56,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 101,
+                      "actionOrder": [
+                        19,
+                        53,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 57,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 101,
+                      "actionOrder": [
+                        19,
+                        53,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[10]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 58,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 101,
+                      "actionOrder": [
+                        19,
+                        53,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            },
+            {
+              "startFrame": 28,
+              "endFrame": 28,
+              "actionIndex": 59,
+              "actionPath": [
+                "timelineActions[11]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckEntityNum",
+                  "supported": false,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "entityCount": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "smart_target",
+                    "minimumCount": 1,
+                    "comparison": "GE",
+                    "containsHittableTarget": false,
+                    "excludeDeadEntity": false,
+                    "storeKey": ""
+                  },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 61,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 104,
+                      "actionOrder": [
+                        19,
+                        59,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 62,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 104,
+                      "actionOrder": [
+                        19,
+                        59,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 63,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 104,
+                      "actionOrder": [
+                        19,
+                        59,
+                        0
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_l_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[11]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 64,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                    "skillTriggers": [
+                      {
+                        "event": "reach",
+                        "skillId": "chr_0035_liino_ultimate_skill_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "bullet_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": true,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": "FixedPointFinder",
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 104,
+                      "actionOrder": [
+                        19,
+                        59,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0035_liino_ultskill_r_02",
+                      "triggerEvent": "reach",
+                      "triggerSkillId": "chr_0035_liino_ultimate_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0035_liino_ultimate_skill_projhit.json",
+                      "damageUnits": [
+                        {
+                          "damageType": "Pulse",
+                          "attributeType": "Hp",
+                          "calculation": "standard",
+                          "attackScale": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.07,
+                              0.08,
+                              0.09,
+                              0.09,
+                              0.1,
+                              0.11,
+                              0.11,
+                              0.12,
+                              0.13,
+                              0.14,
+                              0.15,
+                              0.16
+                            ]
+                          },
+                          "calculationMultiplier": null,
+                          "poiseValue": null,
+                          "definiteValue": null,
+                          "damageDecorateMask": 512
+                        }
+                      ],
+                      "directDamageHits": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 1,
+                          "damageUnits": [
+                            {
+                              "damageType": "Pulse",
+                              "attributeType": "Hp",
+                              "calculation": "standard",
+                              "attackScale": {
+                                "value": 0.0,
+                                "blackboardKey": "atk_scale",
+                                "levelValues": [
+                                  0.07,
+                                  0.08,
+                                  0.09,
+                                  0.09,
+                                  0.1,
+                                  0.11,
+                                  0.11,
+                                  0.12,
+                                  0.13,
+                                  0.14,
+                                  0.15,
+                                  0.16
+                                ]
+                              },
+                              "calculationMultiplier": null,
+                              "poiseValue": null,
+                              "definiteValue": null,
+                              "damageDecorateMask": 512
+                            }
+                          ],
+                          "timedMarkerGate": null,
+                          "sequenceIndex": 1
+                        }
+                      ],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "DamageAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "LaunchProjectile"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "atk_scale_2",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "poise",
+              "value": 0.0,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": []
+        }
+      ],
+      "referencedBuffIds": [
+        "buff_chr_0035_liino_normalskill_music_cry_vfx",
+        "buff_chr_0035_liino_normalskill_ui_vfx",
+        "buff_chr_0035_liino_showhide_audio",
+        "buff_chr_0035_liino_showhide_audio_fire",
+        "buff_chr_0035_liino_showhide_audio_ultskill",
+        "buff_chr_0035_liino_showhide_fire",
+        "buff_chr_0035_liino_showhide_ultskill",
+        "buff_chr_0035_liino_ultskill_music_damage",
+        "buff_chr_0035_liino_ultskill_music_heal",
+        "buff_chr_0035_liino_ultskill_music_heal_start",
+        "buff_chr_0035_liino_ultskill_music_tag",
+        "buff_chr_0035_liino_ultskill_music_vfx",
+        "buff_chr_0035_liino_ultskill_refrainobtainusp",
+        "buff_chr_0035_liino_ultskill_weaponvisible",
+        "buff_chr_0035_liino_ultskill_weaponvisible_show",
+        "buff_common_damage_immune_medium"
+      ],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {
+          "atk_scale": [
+            0.07,
+            0.08,
+            0.09,
+            0.09,
+            0.1,
+            0.11,
+            0.11,
+            0.12,
+            0.13,
+            0.14,
+            0.15,
+            0.16
+          ],
+          "atk_scale_2": [
+            2.84,
+            3.13,
+            3.41,
+            3.7,
+            3.98,
+            4.27,
+            4.55,
+            4.83,
+            5.12,
+            5.47,
+            5.9,
+            6.4
+          ],
+          "atk_scale_3": [
+            0.27,
+            0.29,
+            0.32,
+            0.35,
+            0.37,
+            0.4,
+            0.42,
+            0.45,
+            0.48,
+            0.51,
+            0.55,
+            0.6
+          ],
+          "atk_up": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "display_atk_scale": [
+            1.42,
+            1.56,
+            1.71,
+            1.85,
+            1.99,
+            2.13,
+            2.28,
+            2.42,
+            2.56,
+            2.74,
+            2.95,
+            3.2
+          ],
+          "finish_duration": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "poise": [
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0
+          ],
+          "ultheal03_rate": [
+            324.0,
+            388.8,
+            453.6,
+            518.4,
+            550.8,
+            583.2,
+            615.6,
+            648.0,
+            680.4,
+            696.6,
+            712.8,
+            729.0
+          ],
+          "ultheal03_value": [
+            0.76,
+            0.91,
+            1.06,
+            1.21,
+            1.29,
+            1.36,
+            1.44,
+            1.51,
+            1.59,
+            1.63,
+            1.66,
+            1.7
+          ],
+          "ultheal_rate": [
+            36.0,
+            43.2,
+            50.4,
+            57.6,
+            61.2,
+            64.8,
+            68.4,
+            72.0,
+            75.6,
+            77.4,
+            79.2,
+            81.0
+          ],
+          "ultheal_value": [
+            0.08,
+            0.1,
+            0.12,
+            0.13,
+            0.14,
+            0.15,
+            0.16,
+            0.17,
+            0.18,
+            0.18,
+            0.18,
+            0.19
+          ],
+          "ultmusic_duration": [
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0
+          ],
+          "ultmusic_trigger": [
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5,
+            1.5
+          ],
+          "will_max": [
+            0.4,
+            0.4,
+            0.4,
+            0.4,
+            0.45,
+            0.45,
+            0.45,
+            0.45,
+            0.45,
+            0.5,
+            0.55,
+            0.6
+          ],
+          "will_up": [
+            0.00018,
+            0.0002,
+            0.00021,
+            0.00023,
+            0.00025,
+            0.00027,
+            0.00028,
+            0.0003,
+            0.00032,
+            0.00034,
+            0.00037,
+            0.0004
+          ]
+        },
+        "cooldownSeconds": [
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0,
+          20.0
+        ],
+        "costTypes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "costValues": [
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0,
+          160.0
+        ]
+      },
+      "declaredBlackboard": [
+        {
+          "key": "atk_scale",
+          "value": 5.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_3",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_4",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_value",
+          "value": 3.0,
+          "isDynamic": false
+        },
+        {
+          "key": "finish_duration",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "fnlatk_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "healtaken_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "music_loop",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "potential_2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "pulse_vul_duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "pulse_vul_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 5.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter_duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "shelter_teammate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spell_vulnerable_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spellenhance_rate",
+          "value": 0.2,
+          "isDynamic": false
+        },
+        {
+          "key": "talent0_usp",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "talent_a",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "talent_b",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "teammate_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal02_rate",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "ultheal02_value",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "ultheal03_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal03_value",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultheal_value",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ultmusic_atk_ratio",
+          "value": 0.5,
+          "isDynamic": false
+        },
+        {
+          "key": "ultmusic_duration",
+          "value": 7.5,
+          "isDynamic": false
+        },
+        {
+          "key": "ultmusic_trigger",
+          "value": 1.5,
+          "isDynamic": false
+        },
+        {
+          "key": "will_max",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "will_up",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "blackboardKeys": [
+        "atk_scale_3",
+        "final_value",
+        "fnlatk_up",
+        "ultheal_rate",
+        "ultheal_value",
+        "will_max",
+        "will_up"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_3",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale_4",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_up",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "display_atk_scale",
+          "declaredInSkill": false,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "final_value",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "finish_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "fnlatk_up",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "healtaken_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "music_loop",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "potential_2",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "pulse_vul_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "pulse_vul_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "radius",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "shelter",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "shelter_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "shelter_teammate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "spell_vulnerable_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "spellenhance_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "talent0_usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "talent_a",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "talent_b",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "teammate_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal02_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal02_value",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": true,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal03_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal03_value",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal_rate",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultheal_value",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultmusic_atk_ratio",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultmusic_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "ultmusic_trigger",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "will_max",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "will_up",
+          "declaredInSkill": true,
+          "suppliedByPatch": true,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "unresolvedCombatActions": [
+        "CreateBuffAction",
+        "IfElseAction",
+        "LaunchProjectile",
+        "SpawnAbilityEntity"
+      ],
+      "buffHolds": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 10,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar1",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 11,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "succeedActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 14,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[1]"
+          ],
+          "targetGroupKey": "maintar",
+          "producerType": "FindTargetAction",
+          "finderType": "MainTargetFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]",
+            "failActions",
+            "actionData",
+            "[2]"
+          ],
+          "targetGroupKey": "pos",
+          "producerType": "FindTargetAction",
+          "finderType": "FixedPointFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 80,
+          "endFrame": 80,
+          "actionIndex": 20,
+          "actionPath": [
+            "timelineActions[9]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "heal_target",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        },
+        {
+          "startFrame": 513,
+          "endFrame": 514,
+          "actionIndex": 23,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "heal_target",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null
+        }
+      ],
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "actionIndex": 8,
+          "actionPath": [
+            "timelineActions[7]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 10,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 11,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 14,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 15,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "FindTargetAction",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[7]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 16,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionIndex": 54,
+          "actionPath": [
+            "timelineActions[22]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CompareFloat",
+              "supported": true,
+              "comparison": "LE",
+              "left": {
+                "value": 0.0,
+                "blackboardKey": "fnlatk_up",
+                "levelValues": null
+              },
+              "right": {
+                "value": 0.0,
+                "blackboardKey": "will_max",
+                "levelValues": [
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.45,
+                  0.5,
+                  0.55,
+                  0.6
+                ]
+              },
+              "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 56,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_music_tag",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "ultmusic_duration",
+                        "levelValues": [
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0
+                        ]
+                      },
+                      "finish_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "finish_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1
+                        ]
+                      },
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "fnlatk_up",
+                        "levelValues": null
+                      },
+                      "talent_a": {
+                        "value": 0.0,
+                        "blackboardKey": "talent_a",
+                        "levelValues": null
+                      },
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "shelter_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "healtaken_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "healtaken_rate",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 57,
+              "blackboardMutation": {
+                "key": "fnlatk_up",
+                "operation": "Assign",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "will_max",
+                  "levelValues": [
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.45,
+                    0.5,
+                    0.55,
+                    0.6
+                  ]
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[22]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "failActions",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 58,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_music_tag",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "ultmusic_duration",
+                        "levelValues": [
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0,
+                          15.0
+                        ]
+                      },
+                      "finish_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "finish_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1,
+                          0.1
+                        ]
+                      },
+                      "spellenhance_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "fnlatk_up",
+                        "levelValues": null
+                      },
+                      "talent_a": {
+                        "value": 0.0,
+                        "blackboardKey": "talent_a",
+                        "levelValues": null
+                      },
+                      "shelter": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "shelter_duration": {
+                        "value": 0.0,
+                        "blackboardKey": "shelter_duration",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      },
+                      "healtaken_rate": {
+                        "value": 0.0,
+                        "blackboardKey": "healtaken_rate",
+                        "levelValues": [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        },
+        {
+          "startFrame": 77,
+          "endFrame": 406,
+          "actionIndex": 108,
+          "actionPath": [
+            "timelineActions[65]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckTagMatch",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "entityTag": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "tagQueryType": "hasAny",
+                "tagIds": [
+                  828446949
+                ]
+              },
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[65]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 110,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "failActions": [
+            {
+              "actionType": "CreateBuffAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[65]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 111,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "buffApplication": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "alwaysNext": true
+        }
+      ],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": [
+        {
+          "startFrame": 137,
+          "endFrame": 527,
+          "actionIndex": 45,
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "event": "OnAddedBuff",
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "CreateBuffAction",
+                "FinishBuffAdvanced",
+                "JumpToAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 47,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 47,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 48,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0035_liino_normalskill_music_animation_musicloop"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "JumpToAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 49,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timelineJumpDestinationFrame": 540
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "sequenceIndex": 18
+        }
+      ],
+      "timeDilations": [
+        {
+          "startFrame": 0,
+          "endFrame": 30,
+          "actionIndex": 6,
+          "kind": "normal",
+          "priority": -2059842104,
+          "scope": "entity",
+          "slot": 1464849466,
+          "duration": {
+            "value": 1.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "namedCurve": "RESETto1",
+          "inlineCurve": [],
+          "finishByAction": false,
+          "ignoredTargets": [],
+          "targets": [
+            "caster"
+          ],
+          "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
+          "influenceSkillCooldown": null,
+          "targetScale": null,
+          "sequenceIndex": 6,
+          "effectAbilityEntityTargets": []
+        },
+        {
+          "startFrame": 0,
+          "endFrame": 77,
+          "actionIndex": 84,
+          "kind": "ultimate",
+          "priority": -1742631616,
+          "scope": null,
+          "slot": null,
+          "duration": null,
+          "namedCurve": null,
+          "inlineCurve": [],
+          "finishByAction": true,
+          "ignoredTargets": [],
+          "targets": [],
+          "omittedAbilityEntityTargets": 0,
+          "ignoredAbilityEntityTargets": [],
+          "influenceSkillCooldown": null,
+          "targetScale": 0.0,
+          "sequenceIndex": 41,
+          "effectAbilityEntityTargets": []
+        }
+      ],
+      "skillReplacements": [
+        {
+          "startFrame": 77,
+          "endFrame": 527,
+          "actionIndex": 44,
+          "skillSource": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "skillSlot": "NormalSkill",
+          "targetSkillId": "chr_0035_liino_normal_skill_end",
+          "overrideCacheTime": false,
+          "cacheTime": {
+            "value": 0.1,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "lifeTimeType": "FinishByAction",
+          "duration": {
+            "value": 10.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "inheritOriginSkillCooldownProgress": true,
+          "specificRevertedSkillId": true,
+          "revertedSkillId": "chr_0035_liino_normal_skill"
+        }
+      ],
+      "intervalDamageHits": [],
+      "timelineJumps": [
+        {
+          "startFrame": 137,
+          "endFrame": 527,
+          "destFrame": 540,
+          "actionIndex": 49,
+          "actionPath": [
+            "timelineActions[18]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]",
+            "abilityActionMap",
+            "[0]",
+            "actions",
+            "[0]",
+            "actionData",
+            "[3]"
+          ],
+          "conditionActionTypes": [],
+          "directConditions": [],
+          "directConditionNegated": [],
+          "directAnyConditions": [],
+          "directAnyConditionNegated": [],
+          "directConditionsSupported": false,
+          "isOnlySequenceAction": false,
+          "isOnlyBranchAction": false,
+          "isRootContainerOnlySequenceAction": true,
+          "sequenceIndex": 18
+        }
+      ],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
     }
   ]
 } as const satisfies GeneratedOperatorSource;

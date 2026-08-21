@@ -1043,6 +1043,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'takeCriticalDamage'
     | 'outputDamage'
     | 'beforeCastSkill'
+    | 'skillEnd'
     | 'addedBuff'
     | 'finishedBuff'
     | 'afterKillEntity';

@@ -9,6 +9,7 @@ const ABILITY_EVENTS = [
   'takeCriticalDamage',
   'outputDamage',
   'beforeCastSkill',
+  'skillEnd',
   'addedBuff',
   'finishedBuff',
 ] as const satisfies readonly SkillBuffAbilityEventResponse['event'][];

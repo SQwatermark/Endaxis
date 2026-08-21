@@ -18,6 +18,10 @@
 
 `LaunchProjectile` 只从开启的 `castSkillOnHit/Block/Reach/Finish` 槽位读取子技能 ID；关闭槽位残留的非空字符串没有运行时回调语义。完全没有已启用子技能回调的投射物只剩空间与表现行为，在 Next 的零距离模型中不生成战斗步骤；开启槽位仍必须解析并闭合对应 SkillData。证据见 `combat-spec/docs/launch-projectile-skill-routing.md`。
 
+投射物子技能同时保留发射动作 `targetSettings` 的输入身份；固定单敌人模型只投影实际可触发的 `hit/reach/finish`，必定命中不会伪造 `block`。`PlayAnimationAction.onEndAction` 当前严格支持 `CreateBuffAction`：自然回调帧按复刻库确认的 `duration - blendOut` 向上投影到 30 FPS；`executeOnNormalEndOnly=false` 时同时接入 Buff 提前结束，并用同一实例的 `once` 作用域去重。`OnSkillEnd` 使用真实技能自然结束与中断事件，不按时间线块宽度另造事件；证据见 `combat-spec/docs/play-animation-action-lifecycle.md` 与 `combat-spec/docs/skill-end.md`。
+
+Aura 对目标的进入、离开和整体结束是实例生命周期，而不是一次性的范围查询。Next 的零空间模型中，已证明命中全队/全体敌人的目标会持续留在 Aura 内直到宿主动作结束；因此 Aura 进入时施加的 Buff 使用 `finishByAction` 绑定宿主生命周期。若原生 `actionWhenExitAura` 只是按 ID、全量、无限来源地清理同一组 Aura Buff，生成器会严格核对 ID 集合后将它归并进这条生命周期，不重复生成第二次清理。证据见 `combat-spec/docs/aura-influence-lifecycle.md`。
+
 `BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 
 干员的稳定 slug、原始数据名称与本地化展示名必须分开：例如技术身份 `arcane` 的中文展示名是“诀”。展示名的权威对照本是 `src/i18n/game-locales/<locale>/operators.json`，由 `getOperatorGameName` 读取；本目录的 `operators.json` 不重复保存名称。生成审计中的原始英文 `operatorName` 可保留来源事实，UI 和面向用户的中文文档不得把它当作中文展示名。
@@ -326,7 +330,7 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - `AirborneAction` 当前只在陈千语连携已证明的直接 Aura 形状中进入正式 DSL：根时间轴 `RangedAura` 以 plain Owner 扫描唯一敌对木桩、每目标最多执行一次，内部顺序为 `AirborneAction -> DamageAction`。生成器输出 `outputAirborne(enemy)`，同步派发 `airborneOutput` 后才由既有递归命中调度继续伤害；`OnBeforeOutputAirborne` 响应中的 `SetSkillCdAtOnce(Source, ComboSkill, Reduce percentage)` 复用统一冷却链。浮空高度、方向、特效、位移与控制持续时间仍保留在来源审计边界，不进入无空间、无敌方主动行为的木桩状态。其他 Aura 生命周期或 Airborne 载荷不得套用该归约。
 - 事件监听器的有序响应可解析空条件 `JumpToAction` 并生成 `jumpTimeline`。该开关只在 `parse_ordered_action_sequence` 的临时事件外壳中启用，普通技能根时间轴仍由 `parse_timeline_jumps` 独占，不能重复投影。事件中的 `CheckDamageDecorateMask`、`CheckBuffIdInContext` 等顺序守卫继续包住跳帧；带非空内部条件、主控/Guard 限制或未知字段的跳帧仍拒绝。
 - 条件分支中的能力实体按精确 `actionPath` 留在各自分支，并递归内联各自 `childSkill`；子伤害不会提升为根技能无条件命中。条件实体可继续生成嵌套实体和实体局部 Aura。同帧 `FixedPointFinder` 只提供空间位置时，按零空间模型删除位置目标但保留实体实例。友方 Aura 可归约为全队或排除施法者，敌方 Aura 可归约为唯一敌人，每目标最多一次与唯一实例模型等价。Snowshine 终结技由此完整编译；Tangtang 普通战技继续在更深层的施法 ID 限定 Buff 层数查询处严格阻塞。
-- 干员级 Buff 定义目录递归收集能力实体、投射物及条件分支 Aura 的引用；audit 阶段逐根解析，单个未知定义只留下独立问题，不再清空其他已证明定义。`DuringBuffEnable` 可生成可重启动的 `lifecycleSequences.enable`；动作时长 Slow 用 `finishByAction` 与宿主序列对称结束。公共 Buff 数据证明 `VulnerableAction` 的 `Physical` 只匹配物理伤害，`Spell` 只匹配 heat/electric/cryo/nature，标准伤害环境以 `eventDamageTypesMatch` 执行该过滤。
+- 干员级 Buff 定义目录递归收集能力实体、投射物及条件分支 Aura 的引用；audit 阶段逐根解析，单个未知定义只留下独立问题，不再清空其他已证明定义。`OnBuffEnable` 先于 `DuringBuffEnable` 进入可重启动的 `lifecycleSequences.enable`，`OnBuffDisable` 进入 `lifecycleSequences.disable`；动作时长 Slow 用 `finishByAction` 与宿主序列对称结束。生命周期顺序以 `combat-spec/docs/buff-lifecycle.md` 的反编译结论为准。公共 Buff 数据证明 `VulnerableAction` 的 `Physical` 只匹配物理伤害，`Spell` 只匹配 heat/electric/cryo/nature，标准伤害环境以 `eventDamageTypesMatch` 执行该过滤。
 - `CheckBuffStackNumAdvanced` / `SaveBuffStackNumAdvanced` 保留 `limitSkillCastId`。启用时生成 `sameSourceSkillCast: true`，运行时只累计与当前技能或继承 Buff 施法序号相同的实例；缺少施法身份立即失败。
 - 条件分支内 `SpawnAbilityEntity(saveToContext)` 的单例来源只沿同一分支的后续兄弟动作传播；它可以支撑紧随其后的 Context Buff、定时标记或时长操作，但不会从 key 名、另一分支或未成功编译的生成动作推断来源。
 - 根技能与能力实体子技能中的 `OwnerSpawnedEntityFinder + AbilityEntity + TagValidator` 会先按版本化模板 born tag 解析为明确实体 ID，再生成 `findOwnerSpawnedAbilityEntities`。可选 `SkillCastIdValidator` 映射为 `sameSourceSkillCast`；`CheckEntityNum.storeKey` 非空时复用查询计数写入动作黑板，否则用 `contextTargetCountCompare` 读取 Context 实际集合长度。查询和后续 `ForEach` 都保留完整多实例集合。

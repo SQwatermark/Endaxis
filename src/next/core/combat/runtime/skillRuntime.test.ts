@@ -23,6 +23,7 @@ function createBattleSkillRuntime(
   costFrame?: number,
   cooldownFrames?: number,
   skillDefinition: SkillDefinition = findPerlicaSkill('battleSkill'),
+  emitSkillEnd?: ConstructorParameters<typeof SkillRuntime>[1]['emitSkillEnd'],
 ) {
   const clock = new CombatClock();
   const resources = new CombatResources({
@@ -71,6 +72,7 @@ function createBattleSkillRuntime(
     operations,
     allocateSkillCastId: () => nextSkillCastId++,
     semanticEvents,
+    emitSkillEnd,
   });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
@@ -78,6 +80,42 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('publishes skillEnd after both natural completion and interruption', () => {
+    const natural = vi.fn();
+    const naturalFixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      { key: 'natural-end', timelineBlockFrames: 0, scheduledSequences: [] },
+      natural,
+    );
+    naturalFixture.runtime.tryStart();
+    naturalFixture.runtime.advanceFrame();
+    expect(natural).toHaveBeenCalledOnce();
+    expect(natural).toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'skillEnd', skillId: 'natural-end' }),
+    );
+
+    const interrupted = vi.fn();
+    const interruptedFixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      {
+        key: 'interrupted-end',
+        timelineBlockFrames: 10,
+        scheduledSequences: [{ startFrame: 0, endFrame: 10, sequence: { steps: [] } }],
+      },
+      interrupted,
+    );
+    interruptedFixture.runtime.tryStart();
+    interruptedFixture.runtime.interrupt('castNextSkill');
+    expect(interrupted).toHaveBeenCalledOnce();
+    expect(interrupted).toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'skillEnd', skillId: 'interrupted-end' }),
+    );
+  });
+
   it('exposes the native rounded local execute frame to timeline actions', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'local-frame-fixture',

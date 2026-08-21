@@ -7,10 +7,12 @@ from types import SimpleNamespace
 from typing import Any, Callable, Literal
 
 from compiler_ir import (
+    atom,
     CompiledNode,
     EMPTY_SEQUENCE as COMPILED_EMPTY_SEQUENCE,
     render as render_compiled_node,
     render_sequence_children as render_compiled_sequence_children,
+    once,
 )
 from source_models import BuffDefinitionSource, SkillSource, TargetGroupWriteSource
 from source_utils import indent_source, require_list, ts_inline_literal
@@ -119,13 +121,37 @@ def compile_inline_buff_event_responses(
         response_lines.append("],")
         return "\n".join(response_lines)
     start_sequences: list[CompiledNode] = []
-    enable_sequences: list[CompiledNode] = []
+    enable_once_sequences: list[CompiledNode] = []
+    during_enable_sequences: list[CompiledNode] = []
+    disable_sequences: list[CompiledNode] = []
     finish_sequences: list[CompiledNode] = []
     trigger_sequences: list[CompiledNode] = []
     enhance_changed_sequences: list[CompiledNode] = []
     after_enhance_sequences: list[CompiledNode] = []
     ability_response_lines: list[str] = []
     ability_response_count = 0
+    for animation_index, animation in enumerate(
+        getattr(source, "animationEndBuffApplications", ())
+    ):
+        if animation.executeOnNormalEndOnly:
+            continue
+        application_source = services.compile_buff_application(
+            animation.application,
+            f"{path}.animationEndBuffApplications[{animation_index}].application",
+            root_skill_context=False,
+            input_target="enemy",
+            buff_definitions=buff_definitions,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=True,
+        )
+        finish_sequences.append(
+            once(
+                ts_inline_literal(
+                    f"animation-end:{source.buffId}:{animation.sequenceIndex}:{animation.animationActionIndex}"
+                ),
+                atom(application_source),
+            )
+        )
     for qte_index, qte in enumerate(getattr(source, "comboQteActions", ())):
         mutation = services.compile_blackboard_mutation(
             qte.triggerMutation,
@@ -257,8 +283,14 @@ def compile_inline_buff_event_responses(
             ):
                 continue
             is_start = event.eventSource == "buff" and event.event == "OnBuffStart"
-            is_enable = (
+            is_enable_once = (
+                event.eventSource == "buff" and event.event == "OnBuffEnable"
+            )
+            is_during_enable = (
                 event.eventSource == "buff" and event.event == "DuringBuffEnable"
+            )
+            is_disable = (
+                event.eventSource == "buff" and event.event == "OnBuffDisable"
             )
             is_finish = event.eventSource == "buff" and event.event == "OnBuffFinish"
             is_trigger = event.eventSource == "buff" and event.event == "OnBuffTrigger"
@@ -280,6 +312,9 @@ def compile_inline_buff_event_responses(
             is_before_cast_skill = (
                 event.eventSource == "ability" and event.event == "OnBeforeCastSkill"
             )
+            is_skill_end = (
+                event.eventSource == "ability" and event.event == "OnSkillEnd"
+            )
             is_added_buff = (
                 event.eventSource == "ability" and event.event == "OnAddedBuff"
             )
@@ -288,6 +323,33 @@ def compile_inline_buff_event_responses(
             )
             is_finished_buff = (
                 event.eventSource == "ability" and event.event == "OnFinishedBuff"
+            )
+            step_key_event = (
+                "enable"
+                if is_enable_once
+                else "duringEnable"
+                if is_during_enable
+                else "disable"
+                if is_disable
+                else "start"
+                if is_start
+                else "finish"
+                if is_finish
+                else "trigger"
+                if is_trigger
+                else "afterEnhance"
+                if is_after_enhance
+                else "enhanceChanged"
+                if is_enhance_changed
+                else "beforeTakeDamage"
+                if is_before_take_damage
+                else "takeCriticalDamage"
+                if is_take_critical_damage
+                else "outputDamage"
+                if is_output_damage
+                else "beforeCastSkill"
+                if is_before_cast_skill
+                else "skillEnd"
             )
             compiled = _compile_conditional_branch_ir(
                 event_sequence.actions,
@@ -301,42 +363,7 @@ def compile_inline_buff_event_responses(
                     if event.eventSource == "buff" and buff_owner_target == "enemy"
                     else None
                 ),
-                step_key_prefix=(
-                    f"{source.buffId}:enable:{sequence_index}"
-                    if is_enable
-                    else (
-                        f"{source.buffId}:start:{sequence_index}"
-                        if is_start
-                        else (
-                        f"{source.buffId}:finish:{sequence_index}"
-                        if is_finish
-                        else (
-                            f"{source.buffId}:trigger:{sequence_index}"
-                            if is_trigger
-                            else (
-                            f"{source.buffId}:afterEnhance:{sequence_index}"
-                            if is_after_enhance
-                            else (
-                                f"{source.buffId}:enhanceChanged:{sequence_index}"
-                                if is_enhance_changed
-                            else (
-                                    f"{source.buffId}:beforeTakeDamage:{sequence_index}"
-                                    if is_before_take_damage
-                                    else (
-                                        f"{source.buffId}:takeCriticalDamage:{sequence_index}"
-                                        if is_take_critical_damage
-                                        else (
-                                        f"{source.buffId}:outputDamage:{sequence_index}"
-                                        if is_output_damage
-                                        else f"{source.buffId}:beforeCastSkill:{sequence_index}"
-                                        )
-                                    )
-                                )
-                            ))
-                            )
-                        )
-                    )
-                ),
+                step_key_prefix=f"{source.buffId}:{step_key_event}:{sequence_index}",
                 buff_definitions=buff_definitions,
                 buff_ability_damage_event=(
                     is_before_take_damage
@@ -356,8 +383,14 @@ def compile_inline_buff_event_responses(
             )
             if compiled == COMPILED_EMPTY_SEQUENCE:
                 continue
-            if is_enable:
-                enable_sequences.append(compiled)
+            if is_enable_once:
+                enable_once_sequences.append(compiled)
+                continue
+            if is_during_enable:
+                during_enable_sequences.append(compiled)
+                continue
+            if is_disable:
+                disable_sequences.append(compiled)
                 continue
             if is_start:
                 start_sequences.append(compiled)
@@ -379,6 +412,7 @@ def compile_inline_buff_event_responses(
                 or is_take_critical_damage
                 or is_output_damage
                 or is_before_cast_skill
+                or is_skill_end
                 or is_added_buff
                 or is_after_kill_entity
                 or is_finished_buff
@@ -396,6 +430,8 @@ def compile_inline_buff_event_responses(
                 if is_output_damage
                 else "beforeCastSkill"
                 if is_before_cast_skill
+                else "skillEnd"
+                if is_skill_end
                 else "addedBuff"
                 if is_added_buff
                 else "afterKillEntity"
@@ -416,7 +452,9 @@ def compile_inline_buff_event_responses(
             )
             ability_response_count += 1
     lifecycle_sequences = (
-        enable_sequences
+        enable_once_sequences
+        or during_enable_sequences
+        or disable_sequences
         or start_sequences
         or finish_sequences
         or trigger_sequences
@@ -431,7 +469,10 @@ def compile_inline_buff_event_responses(
     if lifecycle_sequences:
         lines.append("lifecycleSequences: {")
         for lifecycle_name, sequences in (
-            ("enable", enable_sequences),
+            # 原生 OnEnable 先瞬时执行 OnBuffEnable，再启动 DuringBuffEnable；两组
+            # 共用 Endaxis 的 enable 动作树可保持这个固定顺序，并由 disable 结束持续节点。
+            ("enable", [*enable_once_sequences, *during_enable_sequences]),
+            ("disable", disable_sequences),
             ("start", start_sequences),
             ("finish", finish_sequences),
             ("trigger", trigger_sequences),
@@ -702,6 +743,33 @@ def compile_inline_buff_scheduled_sequences(
     target_group_writes = (trigger_write, *source.targetGroupWrites)
     compiled: list[tuple[int, int, int, list[str]]] = []
 
+    for animation_index, animation in enumerate(
+        getattr(source, "animationEndBuffApplications", ())
+    ):
+        application_source = compile_buff_application(
+            animation.application,
+            f"{path}.animationEndBuffApplications[{animation_index}].application",
+            root_skill_context=False,
+            input_target="enemy",
+            buff_definitions=buff_definitions,
+            buff_owner_target=buff_owner_target,
+            current_buff_environment=True,
+        )
+        callback = once(
+            ts_inline_literal(
+                f"animation-end:{source.buffId}:{animation.sequenceIndex}:{animation.animationActionIndex}"
+            ),
+            atom(application_source),
+        )
+        compiled.append(
+            (
+                animation.naturalEndFrame,
+                animation.sequenceIndex,
+                animation.animationActionIndex,
+                render_compiled_node(callback).splitlines(),
+            )
+        )
+
     for index, action in enumerate(source.auxiliaryActions):
         if (
             action.actionType == "SpawnAbilityEntity"
@@ -940,6 +1008,25 @@ def compile_inline_buff_scheduled_sequences(
         covered_actions.update(finish.sourceActionType for finish in source.buffFinishes)
     if source.resourceGains:
         covered_actions.add("ObtainCostAction")
+    if getattr(source, "animationEndBuffApplications", ()):
+        covered_actions.update({"PlayAnimationAction", "CreateBuffAction"})
+    projectile_launches = getattr(source, "projectileLaunches", ())
+    if projectile_launches:
+        unsupported_projectile_triggers = sorted(
+            {
+                trigger.event
+                for launch in projectile_launches
+                for trigger in launch.skillTriggers
+                if trigger.event != "block"
+            }
+        )
+        if unsupported_projectile_triggers:
+            raise ValueError(
+                f"{path}: Buff projectile triggers require combat projection: "
+                f"{unsupported_projectile_triggers}"
+            )
+        # 固定木桩模型中的必定命中不会走原生 block 回调；投射物本体无其他战斗投影。
+        covered_actions.add("LaunchProjectile")
     uncovered_actions = sorted(set(source.combatActions) - covered_actions)
     if uncovered_actions:
         raise ValueError(

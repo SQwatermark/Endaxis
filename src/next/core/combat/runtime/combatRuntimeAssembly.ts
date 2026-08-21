@@ -234,7 +234,7 @@ export interface CombatRuntimeAssemblyOptions {
   /** 技能施放边界向所有者 AbilitySystem 发出的同步事件。 */
   readonly emitAbilityEvent?: (
     entityId: string,
-    event: 'beforeCastSkill',
+    event: 'beforeCastSkill' | 'skillEnd',
     payload: {
       readonly sourceId: string;
       readonly targetId: string;
@@ -806,6 +806,7 @@ export class CombatRuntimeAssembly {
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
       semanticEvents: this.semanticEvents,
       entityBlackboard,
+      emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       ...cooldownBinding,
     });
     return runtime;

@@ -445,6 +445,11 @@ def compile_aura_action(
                 aura.actionWhenExitAuraTypes == ("CreateBuffAction",)
                 and len(aura.actionWhenExitAuraBuffApplications) == 1
             )
+            or (
+                set(aura.actionWhenExitAuraTypes) == {"FinishBuffAdvanced"}
+                and len(aura.actionWhenExitAuraBuffFinishes)
+                == len(aura.actionWhenExitAuraTypes)
+            )
         )
         and set(aura.nestedCombatActions).issubset(
             set(aura.actionInAuraTypes) | set(aura.actionWhenExitAuraTypes)
@@ -464,6 +469,32 @@ def compile_aura_action(
         )
     if not aura.buffs:
         raise ValueError(f"{path}: Aura has no Buff inputs")
+    if aura.actionWhenExitAuraBuffFinishes:
+        expected_buff_ids = {buff.buffId for buff in aura.buffs}
+        finished_buff_ids: set[str] = set()
+        for index, finish in enumerate(aura.actionWhenExitAuraBuffFinishes):
+            if not (
+                finish.targetSource == "Target"
+                and not finish.targetGroupKey
+                and finish.buffCheckType == "Id"
+                and finish.buffIds
+                and not finish.buffTagIds
+                and finish.finishAll
+                and not finish.limitSource
+                and not finish.isFinishedEarly
+                and not finish.isAbsorbed
+            ):
+                raise ValueError(
+                    f"{path}.actionWhenExitAura.buffFinishes[{index}]: "
+                    "unsupported Aura exit cleanup"
+                )
+            finished_buff_ids.update(finish.buffIds)
+        if finished_buff_ids != expected_buff_ids:
+            raise ValueError(
+                f"{path}.actionWhenExitAura.buffFinishes: cleaned Buff IDs "
+                f"{sorted(finished_buff_ids)!r} do not match Aura Buff IDs "
+                f"{sorted(expected_buff_ids)!r}"
+            )
     compiled: list[str] = []
     if aura.actionInAuraBuffFinishes:
         compiled.append(

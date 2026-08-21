@@ -200,6 +200,7 @@ from keyword_action_parser import parse_keyword_action, parse_timed_keyword_acti
 from time_dilation_parser import parse_time_dilation_target
 from action_payload_parser import parse_heal_payload
 from buff_definition_parser import (
+    parse_buff_animation_end_applications,
     parse_buff_combo_qte_actions,
     parse_buff_pause_time_actions,
     parse_buff_shields,
@@ -2673,6 +2674,56 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(action.succeedActions[0].blackboardCalculation.left.blackboardKey, "maxHealth")
         self.assertIn("step('calculateActionValue'", compiled)
         self.assertIn("key: 'maxHealth'", compiled)
+
+    def test_store_final_agility_preserves_dynamic_multiplier_and_base(self) -> None:
+        def scalar(value: float, key: str = "") -> dict[str, object]:
+            return {
+                "useBlackboardKey": bool(key),
+                "value": value,
+                "blackboardKey": key,
+            }
+
+        root = {
+            "actionGroupData": {
+                "timelineActions": [{
+                    "_startFrame": 0,
+                    "_endFrame": 0,
+                    "_sequenceActionData": {"actionData": [{
+                        "$type": "Example.IfElseAction+Data, Example",
+                        "alwaysNext": False,
+                        "serverActionIndex": 1,
+                        "conditionAction": {"actionData": []},
+                        "succeedActions": {"actionData": [{
+                            "$type": "Example.StoreAttributeValue+Data, Example",
+                            "isEnable": True,
+                            "priorityLevel": "Default",
+                            "priorityOffset": 0,
+                            "serverActionIndex": 2,
+                            "targetSettings": target_settings_fixture("Source"),
+                            "primaryAttributeType": "Specific",
+                            "attributeType": "Agi",
+                            "storeAttributeType": "FinalNonConverted",
+                            "useFloor": False,
+                            "divisorValue": scalar(1),
+                            "multiplierValue": scalar(1, "heal_value"),
+                            "baseValue": scalar(0, "heal_rate"),
+                            "key": "final_heal_value",
+                        }]},
+                        "failActions": {"actionData": []},
+                    }]},
+                }]
+            }
+        }
+
+        parsed = parse_conditional_actions(
+            root,
+            "liino-projectile-hit.json",
+            {"heal_value": (0.2,), "heal_rate": (200,)},
+        )[0].succeedActions[0].blackboardCalculation
+
+        self.assertEqual(parsed.left.blackboardKey, "agility")
+        self.assertEqual(parsed.right.blackboardKey, "heal_value")
+        self.assertEqual(parsed.addend.blackboardKey, "heal_rate")
 
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
@@ -14833,6 +14884,54 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("scheduled(\n    2,", compiled)
         self.assertIn("step('calculateActionValue'", compiled)
         self.assertIn("key: 'duration_effect'", compiled)
+
+    def test_play_animation_end_buff_uses_duration_minus_blend_out(self) -> None:
+        callback = {
+            "$type": "Example.CreateBuffAction+Data, Example",
+            "isEnable": True,
+            "serverActionIndex": 2,
+            "buffs": [
+                {
+                    "buffId": "buff.child",
+                    "assignBlackboard": False,
+                    "assignItems": [],
+                }
+            ],
+            "count": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
+            "targetSettings": target_settings_fixture("Owner"),
+            "buffSource": "ActionSource",
+            "contextKey": "",
+            "inheritSourceSkillCastInfo": True,
+            "autoFinishByAction": False,
+        }
+        buff = {
+            "timelineActions": [
+                {
+                    "_startFrame": 0,
+                    "_endFrame": 67,
+                    "_sequenceActionData": {
+                        "actionData": [
+                            {
+                                "$type": "Example.PlayAnimationAction+Data, Example",
+                                "isEnable": True,
+                                "serverActionIndex": 1,
+                                "duration": 2.233,
+                                "blendOut": 0.25,
+                                "executeOnNormalEndOnly": False,
+                                "onEndAction": {"actionData": [callback]},
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+
+        parsed = parse_buff_animation_end_applications(buff, "buff.fixture.json", {})
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].naturalEndFrame, 60)
+        self.assertFalse(parsed[0].executeOnNormalEndOnly)
+        self.assertEqual(parsed[0].application.sourceId, "buff.child")
 
     def test_buff_local_timeline_reuses_skill_cost_ultimate_energy_step(self) -> None:
         action = AuxiliaryActionSource(
