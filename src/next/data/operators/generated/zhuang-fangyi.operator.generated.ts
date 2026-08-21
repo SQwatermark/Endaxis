@@ -1841,6 +1841,27 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         ),
       },
     },
+    'buff_chr_0030_zhuangfy_passive_check_sword': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 0.03,
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: -1,
+      blackboard: {
+        'swordRange': 50,
+        'swordsNum': 0,
+      },
+      lifecycleSequences: {
+        trigger: sequence(
+          step('modifyActionValue', {
+            key: 'EntityBB_SwordNum',
+            operation: 'assign',
+            value: { kind: 'blackboard', key: 'swordsNum' },
+          }),
+        ),
+      },
+    },
     'buff_chr_0030_zhuangfy_talent1_base': {
       stackingType: 'stack',
       priority: 1,
@@ -2850,6 +2871,25 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         ],
     } },
   },
+  passiveSkills: [
+    {
+      key: 'chr_0030_zhuangfy_check_sword_passive',
+      blackboard: {
+        'swordNum': 0,
+        'swordRange': 50,
+      },
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0030_zhuangfy_passive_check_sword',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'swordRange': { kind: 'blackboard', key: 'swordRange' },
+          },
+        }),
+      ),
+    },
+  ],
   talents: [
     {
       key: 'talent1',

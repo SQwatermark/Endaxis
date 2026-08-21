@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from source_utils import require_bool, require_dict, require_list
+from source_utils import require_bool, require_dict, require_list, require_number
 from source_models import SkillEventListenerSource
 
 
@@ -31,6 +31,7 @@ class PassiveSkillSource:
     declared_blackboard_keys: tuple[str, ...]
     buffs: tuple[PassiveBuffApplicationSource, ...]
     unsupported_reasons: tuple[str, ...]
+    blackboard_values: tuple[tuple[str, float], ...] = ()
     event_listeners: tuple[SkillEventListenerSource, ...] = ()
     event_buff_ids: tuple[str, ...] = ()
 
@@ -77,12 +78,22 @@ def parse_passive_skill(skill_id: str, source_dir: Path) -> PassiveSkillSource:
         raise ValueError(f"{source_file}.passiveSkillType: expected non-empty string")
 
     declared_keys: list[str] = []
+    blackboard_values: list[tuple[str, float]] = []
     for index, raw_item in enumerate(require_list(root.get("blackboard"), f"{source_file}.blackboard")):
         item = require_dict(raw_item, f"{source_file}.blackboard[{index}]")
         key = item.get("key")
         if not isinstance(key, str) or not key:
             raise ValueError(f"{source_file}.blackboard[{index}].key: expected non-empty string")
         declared_keys.append(key)
+        blackboard_values.append(
+            (
+                key,
+                require_number(
+                    item.get("valueDouble", 0),
+                    f"{source_file}.blackboard[{index}].valueDouble",
+                ),
+            )
+        )
     if len(set(declared_keys)) != len(declared_keys):
         raise ValueError(f"{source_file}.blackboard: duplicate key")
 
@@ -112,6 +123,7 @@ def parse_passive_skill(skill_id: str, source_dir: Path) -> PassiveSkillSource:
         declared_blackboard_keys=tuple(sorted(declared_keys)),
         buffs=buffs,
         unsupported_reasons=tuple(dict.fromkeys(reasons)),
+        blackboard_values=tuple(sorted(blackboard_values)),
     )
 
 

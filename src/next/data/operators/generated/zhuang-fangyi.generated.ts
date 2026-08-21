@@ -1750,6 +1750,230 @@ export const zhuangFangyiGeneratedSource = {
       "presentationOnlySwitchActionIndexes": []
     },
     {
+      "buffId": "buff_chr_0030_zhuangfy_passive_check_sword",
+      "sourceFile": "buff_chr_0030_zhuangfy_passive_check_sword.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.03,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "swordRange",
+          "value": 50.0,
+          "isDynamic": false
+        },
+        {
+          "key": "swordsNum",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "FindTargetAction",
+            "CheckEntityNum",
+            "NotifyCharPassiveUIAction",
+            "ModifyDynamicBlackboard"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 0,
+              "targetGroupKey": "swordsInRange",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator",
+                "DistanceValidator"
+              ],
+              "postProcessorTypes": [],
+              "spawnedObjectType": "AbilityEntity",
+              "tagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -13979809
+                  ]
+                ]
+              ],
+              "center": "ActionSource",
+              "selectorOwner": "ActionSource"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FindTargetAction",
+                "CheckEntityNum",
+                "NotifyCharPassiveUIAction",
+                "ModifyDynamicBlackboard"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "blackboardMutation": {
+                    "key": "EntityBB_SwordNum",
+                    "operation": "Assign",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "swordsNum",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "swordsInRange",
+              "producerType": "FindTargetAction",
+              "finderType": "OwnerSpawnedEntityFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [
+                "TagValidator",
+                "DistanceValidator"
+              ],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "finderSpawnedObjectType": "AbilityEntity",
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -13979809
+                  ]
+                ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
+            }
+          ]
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
       "buffId": "buff_chr_0030_zhuangfy_potential1",
       "sourceFile": "buff_chr_0030_zhuangfy_potential1.json",
       "sourceAvailable": true,

@@ -184,6 +184,108 @@ def _effect_payload_kinds(entry: dict[str, Any], path: str) -> tuple[str, ...]:
     return tuple(kinds)
 
 
+def _render_passive_skill_entry(
+    skill_id: str,
+    source: PassiveSkillSource,
+    values_by_key: dict[str, int | float | list[int | float]],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ],
+    compile_event_listener: Callable[
+        [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
+    ] | None,
+) -> list[str]:
+    lines = ["    {", f"      key: {ts_inline_literal(skill_id)},"]
+    if values_by_key:
+        lines.append("      blackboard: {")
+        for key, value in values_by_key.items():
+            lines.append(f"        {ts_inline_literal(key)}: {ts_inline_literal(value)},")
+        lines.append("      },")
+    lines.append("      enableSequence: sequence(")
+    for application in source.buffs:
+        definition = buff_definitions.get(application.buff_id)
+        if definition is None:
+            raise ValueError(
+                f"passive {skill_id!r}: missing resolved Buff {application.buff_id!r}"
+            )
+        lines.extend(
+            [
+                "        step('applyBuff', {",
+                f"          buffId: {ts_inline_literal(application.buff_id)},",
+                "          definition: {",
+                *(
+                    "            " + line
+                    for line in compile_buff_definition(
+                        definition,
+                        f"passive {skill_id!r}",
+                        buff_definitions,
+                    ).splitlines()
+                ),
+                "          },",
+                "          target: 'caster',",
+                "          inheritSourceSkillCastInfo: false,",
+            ]
+        )
+        if application.assignments:
+            lines.append("          blackboardAssignments: {")
+            for assignment in application.assignments:
+                lines.append(
+                    "            "
+                    f"{ts_inline_literal(assignment.target_key)}: "
+                    f"{{ kind: 'blackboard', key: {ts_inline_literal(assignment.input_key)} }},"
+                )
+            lines.append("          },")
+        lines.append("        }),")
+    if source.event_listeners:
+        if compile_event_listener is None:
+            raise ValueError(f"passive {skill_id!r}: event listener compiler is unavailable")
+        for index, listener in enumerate(source.event_listeners):
+            compiled_listener = compile_event_listener(
+                listener,
+                f"passive {skill_id!r}.eventListeners[{index}]",
+                frozenset(source.declared_blackboard_keys),
+                skill_id,
+                buff_definitions,
+            )
+            if compiled_listener is None:
+                continue
+            listener_lines = compiled_listener.splitlines()
+            listener_lines[-1] += ","
+            lines.extend(f"        {line}" for line in listener_lines)
+    lines.append("      ),")
+    lines.append("    },")
+    return lines
+
+
+def render_base_passive_skills(
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ] = _compile_plain_buff_definition,
+    compile_event_listener: Callable[
+        [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
+    ] | None = None,
+) -> str | None:
+    if not passive_skills:
+        return None
+    lines = ["  passiveSkills: ["]
+    for skill_id, source in passive_skills.items():
+        lines.extend(
+            _render_passive_skill_entry(
+                skill_id,
+                source,
+                dict(source.blackboard_values),
+                buff_definitions,
+                compile_buff_definition,
+                compile_event_listener,
+            )
+        )
+    lines.append("  ],")
+    return "\n".join(lines)
+
+
 def _render_attached_passive_skills(
     effect_entries: list[tuple[str, list[dict[str, Any]]]],
     passive_skills: dict[str, PassiveSkillSource],
@@ -256,66 +358,21 @@ def _render_attached_passive_skills(
             f"passive {skill_id!r}: effect supplies undeclared blackboard keys {sorted(unknown_keys)}"
         )
 
-    lines = ["  passiveSkills: [", "    {", f"      key: {ts_inline_literal(skill_id)},"]
-    if values_by_key:
-        lines.append("      blackboard: {")
-        for key, values in values_by_key.items():
-            value: int | float | list[int | float] = values[0] if len(set(values)) == 1 else values
-            lines.append(f"        {ts_inline_literal(key)}: {ts_inline_literal(value)},")
-        lines.append("      },")
-    lines.append("      enableSequence: sequence(")
-    for application in source.buffs:
-        definition = buff_definitions.get(application.buff_id)
-        if definition is None:
-            raise ValueError(
-                f"passive {skill_id!r}: missing resolved Buff {application.buff_id!r}"
-            )
-        lines.extend(
-            [
-                "        step('applyBuff', {",
-                f"          buffId: {ts_inline_literal(application.buff_id)},",
-                "          definition: {",
-                *(
-                    "            " + line
-                    for line in compile_buff_definition(
-                        definition,
-                        f"passive {skill_id!r}",
-                        buff_definitions,
-                    ).splitlines()
-                ),
-                "          },",
-                "          target: 'caster',",
-                "          inheritSourceSkillCastInfo: false,",
-            ]
+    rendered_values: dict[str, int | float | list[int | float]] = {}
+    for key, values in values_by_key.items():
+        rendered_values[key] = values[0] if len(set(values)) == 1 else values
+    lines = ["  passiveSkills: ["]
+    lines.extend(
+        _render_passive_skill_entry(
+            skill_id,
+            source,
+            rendered_values,
+            buff_definitions,
+            compile_buff_definition,
+            compile_event_listener,
         )
-        if application.assignments:
-            lines.append("          blackboardAssignments: {")
-            for assignment in application.assignments:
-                lines.append(
-                    "            "
-                    f"{ts_inline_literal(assignment.target_key)}: "
-                    f"{{ kind: 'blackboard', key: {ts_inline_literal(assignment.input_key)} }},"
-                )
-            lines.append("          },")
-        lines.append("        }),")
-    if source.event_listeners:
-        if compile_event_listener is None:
-            raise ValueError(f"passive {skill_id!r}: event listener compiler is unavailable")
-        for index, listener in enumerate(source.event_listeners):
-            compiled_listener = compile_event_listener(
-                listener,
-                f"passive {skill_id!r}.eventListeners[{index}]",
-                frozenset(source.declared_blackboard_keys),
-                skill_id,
-                buff_definitions,
-            )
-            if compiled_listener is None:
-                continue
-            listener_lines = compiled_listener.splitlines()
-            listener_lines[-1] += ","
-            lines.extend(f"        {line}" for line in listener_lines)
-    lines.append("      ),")
-    lines.extend(["    },", "  ],"])
+    )
+    lines.append("  ],")
     return "\n".join(lines)
 
 

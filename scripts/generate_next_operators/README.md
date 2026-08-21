@@ -226,7 +226,9 @@ Estella 潜能 5 覆盖 Buff 生命周期中的 `DuringBuffEnable` Aura：常驻
 空效果。正式定义只包含完整通过检查的隐藏被动 Buff；审计失败的依赖不会进入运行时 Buff 目录。
 
 不经天赋/潜能 `attachSkill` 引用的角色基础被动，可在 manifest 用 `basePassiveSkillIds` 只声明
-SkillData 身份；行为仍必须从 SkillData/BuffData 生成，不能在 manifest 重抄规则。当前诀样本会沿
+SkillData 身份；行为仍必须从 SkillData/BuffData 生成，不能在 manifest 重抄规则。基础被动是隐藏
+能力入口，不要求出现在 `CharGrowthTable.skillGroupMap` 的可操作技能组中；生成器会改为严格校验
+对应 SkillData 存在、ID 一致且 `castType=Passive`。当前诀样本会沿
 `chr_0032_lizhiyan_passive -> buff_chr_0032_lizhiyan_passive` 自动识别
 `OnBuffStart` 的 `CompareDeckAttr(owner.Wisd GE owner.Will)` 以及两侧对同一 `EntityBB_` 键的直接
 赋值，并生成静态构筑面板初始化器。目标、属性枚举、比较符、偏移量或分支形状不满足严格子集时

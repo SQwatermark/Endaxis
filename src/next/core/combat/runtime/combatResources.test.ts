@@ -181,6 +181,18 @@ describe('CombatResources', () => {
     expect(resources.returnedSp).toBe(0);
   });
 
+  it('does not touch the SP ledger when the resolved ATB cost is zero', () => {
+    const resources = createResources();
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 0 }])).toEqual({
+      paid: true,
+      nonReturnedSpCost: 0,
+      changes: [],
+    });
+    expect(resources.sp).toBe(100);
+    expect(resources.spRecoveryPauseRemaining).toBe(0);
+  });
+
   it('pauses combat recovery for whole frames after paying SP', () => {
     const resources = createResources();
 

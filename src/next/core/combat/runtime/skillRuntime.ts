@@ -101,6 +101,10 @@ export interface CombatOperationExecutor {
 interface SkillRuntimeDependencies {
   readonly clock: CombatClock;
   readonly resources: CombatResources;
+  /** 原生费用属性在开始门禁和实际扣费时分别重新求值。 */
+  readonly resolveCosts?: (
+    costs: readonly CompiledSkillProgram['costs'][number][],
+  ) => readonly CompiledSkillProgram['costs'][number][];
   readonly receipt: CombatReceiptSink;
   readonly operations: CombatOperationExecutor;
   readonly allocateSkillCastId: () => number;
@@ -241,7 +245,7 @@ export class SkillRuntime {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#program.costs)) {
+    if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#resolvedCosts())) {
       this.record('SkillCostUnavailableAtStart');
     }
 
@@ -372,7 +376,7 @@ export class SkillRuntime {
       this.#attemptedCost = true;
       const payment = this.#dependencies.resources.pay(
         this.#program.operatorId,
-        this.#program.costs,
+        this.#resolvedCosts(),
       );
       if (payment.paid) {
         this.#appliedCost = true;
@@ -415,6 +419,10 @@ export class SkillRuntime {
       }
     }
     this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
+  }
+
+  #resolvedCosts(): readonly CompiledSkillProgram['costs'][number][] {
+    return this.#dependencies.resolveCosts?.(this.#program.costs) ?? this.#program.costs;
   }
 
   #requestTimelineJump(destinationFrame: number): void {

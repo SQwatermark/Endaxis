@@ -1,6 +1,6 @@
 # 当前任务快照
 
-> 更新时间：2026-08-20（Asia/Shanghai）
+> 更新时间：2026-08-22（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 ## 1. 当前目标与边界
@@ -14,8 +14,8 @@
 ## 2. Git 基线
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
-- 分支：`feature/next`
-- 本轮开发前的 HEAD：`298ebf65 feat(next): compile operator progression effects`；实际 HEAD 始终以 `git log` 为准。
+- 当前工作分支：`codex/time-dilation-curve-editor`（后续整合目标仍为 `feature/next`）。
+- 本轮开发前的 HEAD：`59b4f084 feat(next): complete Zhuang Fangyi conversion`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -459,3 +459,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 同一终结技 Buff 同时替换普通战技与连携技时，运行时换槽投影改为按目标技能幂等合并，不再由后一条覆盖前一条。`buff_chr_0030_zhuangfy_ult_base` 现同时包含 `battleSkill -> enhancedBattleSkill` 和 `comboSkill -> enhancedComboSkill`，分别保留冷却不继承/继承的原生差异。
 - 庄方宜 manifest 已提升为 `outputStage: complete`，15 个来源技能全部生成；稳定入口已从旧手写定义切到 `zhuang-fangyi.operator.generated.ts`，旧 audit-only 技能文件删除。`conversionSupport` 为 `complete`，2 项天赋、5 项潜能与 12 个等级的全技能编译矩阵均通过；生成产物与 `--check`、`npm run type-check:next`、相关 Next Vitest 9 文件 204/204 通过。完整 Python 聚合仍有既有陈旧夹具，不能宣称全绿；`tmp/` 继续不得提交。
 - 下一步先为庄方宜补默认仓库生产场景回归，至少覆盖终结技换槽和普通/强化战技能力实体伤害链；随后继续正式化其他 29 名横向审计完整干员。梨诺缺失能力实体模板继续失败关闭，不猜寿命和组件。
+
+### 2026-08-22：庄方宜默认仓库生产链路贯通
+
+- 默认仓库生产回归现以真实时间轴放置终结技和普通战技块；终结技在第 78 帧把战技槽切换为强化战技，原时间轴块仍按组键解析到当前槽位形态，不需要改写用户放置内容。强化战技生成剑与攻击能力实体，攻击实体子技能完成电磁附着、伤害和失衡输出。
+- 庄方宜角色自带的 `chr_0030_zhuangfy_check_sword_passive` 已作为角色级基础被动接入。它与天赋/潜能启用的被动分开存储和编译：SkillData 自带 `swordRange=50` 默认黑板，开战时安装 `buff_chr_0030_zhuangfy_passive_check_sword`，周期查询 owner 生成且 born tag 匹配的剑实体、统计多实例集合并写入共享 `EntityBB_SwordNum`。没有用默认 0 掩盖缺失生产者。
+- `basePassiveSkillIds` 只声明隐藏 Passive SkillData 身份；基础被动不要求出现在 `CharGrowthTable.skillGroupMap` 的可操作技能组中，但仍严格校验文件存在、ID 一致及 `castType=Passive`。生成产物新增角色级 `passiveSkills`，场景装配在所有构筑养成被动之外始终启用一次。
+- Buff 单独引用能力实体时，编译器现在保留对应能力实体闭包并交给运行时装配；Buff 引用的实体子技能不会因没有根技能引用而丢失。仅用于表现镜像、且已被生成器明确标记忽略的能力实体时间膨胀 Context 可缺省为空集合，真实 effect target 仍严格要求 Context 存在。
+- 原生属性 `AtbCostAddition` 已先在 `combat-spec` 提交 `2099d86` 复刻：`Skill._GetAtbCost = max(0, baseCost + owner.AtbCostAddition)`，检查与扣费读取同一最终值。Endaxis 接入运行时属性重求值；庄方宜一次性免费 Buff 使强化战技最终费用为 0。原生 `_ApplyCost` 对不大于 epsilon 的最终 ATB 费用不调用 `CostAtb`，因此 Next 不发 `SpChanged(0)`、不启动技力恢复暂停，但仍记录技能费用阶段成功。
+- 换槽目标技能没有被放置时，源/目标两侧都不存在冷却账本属于合法状态；运行时只改变槽位，不伪造冷却。仅一侧账本缺失仍失败关闭，避免错误继承。
+- 当前门禁：庄方宜单干员生成与 `--check`、`npm run type-check:next`、完整 Next Vitest 198 文件 1320/1320，以及基础被动渲染定向 Python 测试通过。完整 Python 聚合仍有既有 15 个错误和 3 个失败的陈旧夹具/断言，不能宣称全绿；`tmp/` 仍未跟踪且不得提交。
+- 下一步继续从已经横向审计完整但尚未成为正式默认仓库产物的干员中选择资产闭合样本，增加“生成定义 → 默认仓库 → 真实时间轴 → 标准模拟回执”的生产回归。梨诺缺失模板保持失败关闭；同时可补庄方宜强化连携与免费 Buff 仅消费一次的第二条生产回归。

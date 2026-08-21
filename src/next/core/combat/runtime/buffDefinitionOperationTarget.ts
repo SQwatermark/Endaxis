@@ -63,6 +63,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.entityBlackboard;
   }
 
+  getAttributeValue(attribute: string): number {
+    return this.container.attributes.get(attribute as Key);
+  }
+
   apply(request: BuffApplicationRequest): boolean {
     return this.#apply(request) !== null;
   }

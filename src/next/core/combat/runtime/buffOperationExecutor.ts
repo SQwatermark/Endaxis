@@ -35,6 +35,8 @@ export interface BuffLifecycleOperationSource {
 export interface BuffOperationTarget {
   /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
   readonly ownerId: string;
+  /** 只读原生属性值；技能费用等非 Buff 操作不得反向持有具体容器。 */
+  getAttributeValue?(attribute: string): number;
   /** 支持内联生命周期行为的目标由场景装配根配置；普通查询目标可以不实现。 */
   configureLifecycleOperations?(
     resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,

@@ -26,7 +26,7 @@ import type {
   ScenarioDocument,
   SkillCastDocument,
 } from '../project/schema';
-import { compileOperatorBuffDefinitions, compileSkill } from './compileSkill';
+import { compileOperatorBuffResources, compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
   compileOperatorInitializationPrograms,
@@ -323,7 +323,11 @@ function compileResolvedTimelineTracks(
   const operators: CombatOperatorProgram[] = [];
   const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
   let order = 0;
-  const compiledCommonBuffDefinitions = compileOperatorBuffDefinitions(commonBuffDefinitions);
+  const compiledCommonBuffResources = compileOperatorBuffResources(
+    commonBuffDefinitions,
+    commonAbilityEntityDefinitions,
+  );
+  const compiledCommonBuffDefinitions = compiledCommonBuffResources.buffDefinitions;
 
   for (const { track, operatorInstance, operator } of tracks) {
     const duplicateAbilityEntityIds = [
@@ -365,9 +369,11 @@ function compileResolvedTimelineTracks(
     const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades, {
       skipUncompiledSkillGroups: true,
     });
-    const compiledOperatorBuffDefinitions = compileOperatorBuffDefinitions(
+    const compiledOperatorBuffResources = compileOperatorBuffResources(
       operator.buffDefinitions,
+      abilityEntityDefinitions,
     );
+    const compiledOperatorBuffDefinitions = compiledOperatorBuffResources.buffDefinitions;
     const duplicateBuffIds = Object.keys(compiledOperatorBuffDefinitions).filter(
       buffId => buffId in compiledCommonBuffDefinitions,
     );
@@ -380,13 +386,20 @@ function compileResolvedTimelineTracks(
       ...compiledCommonBuffDefinitions,
       ...compiledOperatorBuffDefinitions,
     };
+    const buffAbilityEntityDefinitions = {
+      ...compiledCommonBuffResources.abilityEntityDefinitions,
+      ...compiledOperatorBuffResources.abilityEntityDefinitions,
+    };
     operators.push({
       operatorId: track.id,
       ...(Object.keys(buffDefinitions).length === 0 ? {} : { buffDefinitions }),
+      ...(Object.keys(buffAbilityEntityDefinitions).length === 0
+        ? {}
+        : { abilityEntityDefinitions: buffAbilityEntityDefinitions }),
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       skillSlotGroups: compileSkillSlotGroups(operator),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
-      passivePrograms: compileOperatorPassivePrograms(activeUpgrades),
+      passivePrograms: compileOperatorPassivePrograms(activeUpgrades, operator.passiveSkills),
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
       skills: compiledSkills,
     });

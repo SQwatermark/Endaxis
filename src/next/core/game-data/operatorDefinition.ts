@@ -1445,6 +1445,8 @@ export interface OperatorDefinition {
   comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
   /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */
   entityBlackboardInitializers?: readonly OperatorEntityBlackboardInitializerDefinition[];
+  /** 角色自身始终安装的隐藏基础被动；与受构筑开关控制的天赋/潜能被动分开。 */
+  passiveSkills?: readonly OperatorPassiveSkillDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   talents: readonly OperatorUpgradeDefinition[];
   potentials: readonly OperatorUpgradeDefinition[];

@@ -99,7 +99,7 @@ describe('resolveOperatorPanel', () => {
     expect(panel.attributes.will).toBe(264);
     expect(panel.attack).toBe(836);
     expect(panel.receipt).toContainEqual({
-      source: { kind: 'operatorUpgrade', upgradeKey: 'willAndBattleSkillDamage' },
+      source: { kind: 'operatorUpgrade', upgradeKey: 'potential2' },
       stat: 'will',
       operation: 'flat',
       value: 20,

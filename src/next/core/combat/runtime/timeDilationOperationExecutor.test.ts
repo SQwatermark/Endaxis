@@ -212,6 +212,34 @@ describe('TimeDilationOperationExecutor', () => {
     expect(timeDilation.getEntityScale('enemy')).toBe(0);
   });
 
+  it('treats an absent optional ignored AbilityEntity Context as an empty set', () => {
+    const timeDilation = runtime();
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
+      resolveContextAbilityEntityId: instanceId => logicalAbilityEntityRuntimeId(instanceId),
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    });
+
+    expect(() =>
+      executor.execute(
+        {
+          kind: 'startUltimateTimeDilation',
+          parameters: {
+            priority: PRIORITY,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+            ignoredAbilityEntityTargets: [{ kind: 'context', contextKey: 'optional-model' }],
+          },
+        },
+        { blackboard: new ActionBlackboard(), targetContext: new RuntimeTargetContext() },
+      ),
+    ).not.toThrow();
+    expect(timeDilation.getEntityScale('enemy')).toBe(0);
+  });
+
   it('keeps the ultimate caster running and stops the constant scale with the action', () => {
     const timeDilation = runtime();
     const executor = new TimeDilationOperationExecutor({

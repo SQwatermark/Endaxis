@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 import { perlica } from '../../data/operators/perlica';
-import { compileOperatorBuffDefinitions, compileSkill } from './compileSkill';
+import {
+  compileOperatorBuffDefinitions,
+  compileOperatorBuffResources,
+  compileSkill,
+} from './compileSkill';
 
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -137,6 +141,60 @@ describe('compileSkill', () => {
         },
       }),
     ).toThrow('must not depend on a skill level inside an operator Buff');
+  });
+
+  it('compiles AbilityEntity definitions referenced only by an operator Buff', () => {
+    const resources = compileOperatorBuffResources(
+      {
+        spawner: {
+          stackingType: 'unique',
+          lifecycleSequences: {
+            start: {
+              steps: [
+                {
+                  kind: 'spawnAbilityEntity',
+                  parameters: { abilityEntityId: 'entity', dieWhenSourceDies: true },
+                },
+              ],
+            },
+          },
+        },
+      },
+      {
+        entity: {
+          lifetime: { kind: 'limited', durationSeconds: 1 },
+          childSkill: {
+            skillId: 'entity-child',
+            scheduledSequences: [
+              {
+                startFrame: 1,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'dealDamage',
+                      parameters: { damageType: 'physical', attackScale: 2, tags: [] },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    );
+
+    expect(resources.buffDefinitions.spawner?.lifecycleSequences?.start?.steps[0]).toEqual({
+      kind: 'spawnAbilityEntity',
+      parameters: { abilityEntityId: 'entity', dieWhenSourceDies: true },
+    });
+    expect(resources.abilityEntityDefinitions.entity).toMatchObject({
+      childSkill: {
+        skillId: 'entity-child',
+        timelineActions: [
+          { startFrame: 1, sequence: { steps: [{ parameters: { attackScale: 2 } }] } },
+        ],
+      },
+    });
   });
 
   it('resolves heal multiplier and addition at the selected skill level', () => {

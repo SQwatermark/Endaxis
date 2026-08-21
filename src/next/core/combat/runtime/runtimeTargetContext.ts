@@ -19,6 +19,11 @@ export class RuntimeTargetContext {
     return targets;
   }
 
+  /** 可选目标只用于原生“忽略对象”集合；缺失表示当前释放没有生成该对象。 */
+  getOptional(key: string): RuntimeTargetGroup | undefined {
+    return this.#groups.get(key);
+  }
+
   clear(): void {
     this.#groups.clear();
   }

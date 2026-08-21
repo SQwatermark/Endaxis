@@ -8,7 +8,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from passive_skill_parser import PassiveSkillSource
-from progression_renderer import render_potentials, render_talents
+from progression_renderer import render_base_passive_skills, render_potentials, render_talents
 from operator_buff_linker import (
     link_operator_buff_definitions,
     render_operator_buff_definitions,
@@ -161,9 +161,17 @@ def render_operator_definition(
         definitions_by_id,
         compile_progression_buff_definition,
     )
+    base_passive_ids = [str(value) for value in operator.get("basePassiveSkillIds", [])]
+    base_passive_body = render_base_passive_skills(
+        {skill_id: passive_skills[skill_id] for skill_id in base_passive_ids},
+        definitions_by_id,
+        compile_progression_buff_definition,
+        compile_passive_event_listener,
+    )
     helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
+    base_passive_sources = [] if base_passive_body is None else [base_passive_body]
     linked_sources, linked_ability_entity_definitions, _ = link_operator_ability_entity_definitions(
-        [source for _, source in skill_entries] + talents + potentials,
+        [source for _, source in skill_entries] + base_passive_sources + talents + potentials,
         shared_ability_entity_definitions,
     )
     linked_sources, linked_buff_definitions, _ = link_operator_buff_definitions(
@@ -171,13 +179,18 @@ def render_operator_definition(
         shared_buff_definitions,
     )
     skill_source_count = len(skill_entries)
+    base_passive_count = len(base_passive_sources)
     talent_count = len(talents)
     skill_entries = [
         (skill, linked_sources[index])
         for index, (skill, _) in enumerate(skill_entries)
     ]
-    talents = linked_sources[skill_source_count : skill_source_count + talent_count]
-    potentials = linked_sources[skill_source_count + talent_count :]
+    if base_passive_count:
+        base_passive_body = linked_sources[skill_source_count]
+    talents = linked_sources[
+        skill_source_count + base_passive_count : skill_source_count + base_passive_count + talent_count
+    ]
+    potentials = linked_sources[skill_source_count + base_passive_count + talent_count :]
     operator_buff_definition_lines = render_operator_buff_definitions(
         linked_buff_definitions
     )
@@ -239,6 +252,7 @@ def render_operator_definition(
                 if entity_blackboard_initializers
                 else []
             ),
+            *([] if base_passive_body is None else base_passive_body.splitlines()),
             "  talents: [",
             *(textwrap.indent(talent, "    ") + "," for talent in talents),
             "  ],",

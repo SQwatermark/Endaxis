@@ -8314,12 +8314,9 @@ def validate_skill_groups(
             f"{operator['slug']}.basePassiveSkillIds: generated skills cannot be base passives: "
             f"{passive_overlap}"
         )
-    unknown_base_passive_ids = sorted(base_passive_ids.difference(actual_ids))
-    if unknown_base_passive_ids:
-        raise ValueError(
-            f"{operator['slug']}.basePassiveSkillIds: ids are absent from native groups: "
-            f"{unknown_base_passive_ids}"
-        )
+    # 基础被动由独立 Passive SkillData 提供身份与行为，不要求同时出现在
+    # CharGrowthTable 的可操作技能组中。collect_operator_passive_skills 已严格
+    # 校验文件存在、skillId 一致且 castType=Passive；这里只需避免它与主动技能重叠。
     routing_only = set(routing_only_ids) | base_passive_ids
     actual_by_type = {
         group_type: [skill_id for skill_id in skill_ids if skill_id not in routing_only]

@@ -882,6 +882,65 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
+  it('changes an unplaced skill group without fabricating cooldown ledgers', () => {
+    const ultimate = skill({
+      castId: 'ultimate-cast',
+      skillGroupKey: 'ultimate',
+      skillId: 'ultimate',
+      skillType: 'ultimate',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: {
+                  skillGroupKey: 'comboSkill',
+                  targetSkillKey: 'enhancedComboSkill',
+                  inheritOriginSkillCooldownProgress: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [ultimate],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'comboSkill',
+          baseSkillKey: 'comboSkill',
+          replacementSkillKeys: ['enhancedComboSkill'],
+        },
+      ],
+    );
+
+    expect(assembly.tryStartSkill('operator', 'ultimate', 'ultimate-cast')).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillSlotChanged',
+        data: expect.objectContaining({
+          skillGroupKey: 'comboSkill',
+          previousSkillKey: 'comboSkill',
+          targetSkillKey: 'enhancedComboSkill',
+          inheritOriginSkillCooldownProgress: true,
+        }),
+      }),
+    );
+  });
+
   it('rejects conflicting cooldown definitions for placed casts of the same skill', () => {
     expect(() =>
       createAssembly([

@@ -57,6 +57,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
           ...this.#resolveAbilityEntityTargetIds(
             step.parameters.ignoredAbilityEntityTargets ?? [],
             context,
+            true,
           ),
         ],
         source,
@@ -84,6 +85,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
                   this.#resolveAbilityEntityTargetIds(
                     parameters.ignoredAbilityEntityTargets ?? [],
                     context,
+                    true,
                   ),
                 ),
               source,
@@ -122,6 +124,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
   #resolveAbilityEntityTargetIds(
     queries: readonly AbilityEntityTargetQuery[],
     context: CombatOperationContext,
+    allowMissingContext = false,
   ): readonly string[] {
     if (queries.length === 0) return [];
     const result: string[] = [];
@@ -130,7 +133,10 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
         if (context.targetContext === undefined) {
           throw new Error('ability-entity Context query requires a combat target context');
         }
-        for (const target of context.targetContext.get(query.contextKey)) {
+        const targets = allowMissingContext
+          ? (context.targetContext.getOptional(query.contextKey) ?? [])
+          : context.targetContext.get(query.contextKey);
+        for (const target of targets) {
           if (target.kind !== 'abilityEntity') {
             throw new Error(
               `time-dilation Context '${query.contextKey}' contains a non-AbilityEntity target`,

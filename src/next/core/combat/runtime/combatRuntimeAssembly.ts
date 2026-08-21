@@ -9,6 +9,7 @@ import type {
   CompiledOperatorUpgradeEventProgram,
   CompiledSkillSlotGroup,
   CompiledSkillProgram,
+  ResolvedAbilityEntityDefinition,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
@@ -98,6 +99,8 @@ export interface CombatOperatorProgram {
   readonly skills: readonly CompiledSkillProgram[];
   /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
   readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
+  /** Buff 生命周期直接引用的、同样与技能等级解耦的能力实体闭包。 */
+  readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
   /** 稳定技能组的基础形态与不可直接放置的运行时替换形态。 */
   readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
   /** 构筑启用的养成初始化行为；在 Buff 生命周期装配后执行一次。 */
@@ -846,6 +849,21 @@ export class CombatRuntimeAssembly {
     runtime = new SkillRuntime(program, {
       clock: this.clock,
       resources: this.resources,
+      resolveCosts: costs =>
+        costs.map(cost =>
+          cost.resource === 'sp'
+            ? {
+                ...cost,
+                value: Math.max(
+                  0,
+                  Math.fround(
+                    cost.value +
+                      (operator.buffRuntime?.getAttributeValue?.('AtbCostAddition') ?? 0),
+                  ),
+                ),
+              }
+            : cost,
+        ),
       receipt: this.receipt,
       operations,
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
@@ -903,14 +921,16 @@ export class CombatRuntimeAssembly {
       if (inheritOriginSkillCooldownProgress && previousSkillKey !== targetSkillKey) {
         const source = this.#skillCooldowns.get(`${operatorId}\u0000${previousSkillKey}`);
         const target = this.#skillCooldowns.get(`${operatorId}\u0000${targetSkillKey}`);
-        if (source === undefined || target === undefined) {
+        if ((source === undefined) !== (target === undefined)) {
           throw new Error(
             `ability skill slot '${skillGroupKey}' cannot inherit cooldown from ` +
               `'${previousSkillKey}' to '${targetSkillKey}' before both skills are assembled`,
           );
         }
-        inheritedCooldownProgress = source.cooldown.snapshot.progress;
-        target.cooldown.setProgress(inheritedCooldownProgress);
+        if (source !== undefined && target !== undefined) {
+          inheritedCooldownProgress = source.cooldown.snapshot.progress;
+          target.cooldown.setProgress(inheritedCooldownProgress);
+        }
       }
     } catch (error) {
       abilitySystem.changeSkillSlot(skillGroupKey, previousSkillKey);
@@ -1134,7 +1154,9 @@ export class CombatRuntimeAssembly {
         },
         semanticEvents: this.semanticEvents,
       },
-      abilityEntityId => program.abilityEntityDefinitions?.[abilityEntityId],
+      abilityEntityId =>
+        program.abilityEntityDefinitions?.[abilityEntityId] ??
+        operator.abilityEntityDefinitions?.[abilityEntityId],
     );
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       abilityEntityOperations,

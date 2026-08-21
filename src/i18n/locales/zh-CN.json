@@ -1769,6 +1769,7 @@
       },
       "stepHelp": {
         "findOwnerSpawnedAbilityEntities": "按当前干员与原生 GameplayTag 查询场景中的逻辑能力实体，把完整结果组和可选数量保存到本次释放上下文。",
+        "pickContextTarget": "按稳定索引从已有 Context 目标组中选取一个实例，并保存为新的 Context 目标组。",
         "forEachContextTarget": "对施法上下文中已经固定的目标句柄逐一同步执行同一个步骤序列。",
         "readAbilityEntityRemainingDuration": "读取当前 Context 迭代目标的有限剩余时长，并写入本次释放的动作黑板。",
         "setAbilityEntityRemainingDuration": "按原生 Assign 子集设置当前 Context 迭代目标的能力实体剩余时长。",

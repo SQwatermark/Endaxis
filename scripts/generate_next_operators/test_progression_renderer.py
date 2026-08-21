@@ -17,6 +17,7 @@ from audit_operator_progression import (
 from progression_renderer import (
     parse_static_attribute_progression,
     parse_ultimate_cost_multiplier,
+    render_base_passive_skills,
     render_potentials,
     render_talents,
 )
@@ -104,6 +105,29 @@ def skill_blackboard_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_renders_base_passive_with_skill_blackboard_defaults(self) -> None:
+        passive = PassiveSkillSource(
+            skill_id="skill.base",
+            source_file="skill.base.json",
+            passive_type="AddBuff",
+            declared_blackboard_keys=("range",),
+            buffs=(PassiveBuffApplicationSource("buff.base", ()),),
+            unsupported_reasons=(),
+            blackboard_values=(("range", 50),),
+        )
+
+        rendered = render_base_passive_skills(
+            {passive.skill_id: passive},
+            {"buff.base": SimpleNamespace(buffId="buff.base")},
+            lambda *_: "stackingType: 'unique',\npriority: 0,",
+        )
+
+        self.assertIsNotNone(rendered)
+        assert rendered is not None
+        self.assertIn("key: 'skill.base'", rendered)
+        self.assertIn("'range': 50", rendered)
+        self.assertIn("buffId: 'buff.base'", rendered)
+
     def test_progression_audit_separates_definition_conversion_from_simulation(self) -> None:
         reaction_event = progression_conversion_item(
             source="potential",

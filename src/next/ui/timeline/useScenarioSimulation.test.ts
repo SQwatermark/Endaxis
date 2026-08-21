@@ -137,33 +137,13 @@ describe('useScenarioSimulation', () => {
       await waitFor(() => result.run.value !== null);
       const previous = result.published.value;
 
-      // 庄方宜的普攻带语义状态条件与状态步骤，标准环境尚未接入，会触发严格失败。
+      // 不存在的定义必须在构筑解析边界严格失败。
       session.commit('placeUnsupportedOperator', () => {
         const next = createPerlicaScenario();
-        next.tracks[0] = {
-          id: 'track:0',
-          operator: {
-            operatorSlug: zhuangFangyi.slug,
-            level: 90,
-            promoted: true,
-            potential: 0,
-            trustLevel: 4,
-            skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-            talentStates: {},
-          },
-          weapon: null,
-          gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-          initialState: { ultimateEnergy: 0 },
-          skillCasts: [],
-        };
-        return placeSkillGroup({
-          scenario: next,
-          trackIndex: 0,
-          operator: zhuangFangyi,
-          skillGroupKey: 'basicAttack',
-          startFrame: 1,
-          ids: { allocate: kind => `${kind}:1` },
-        }).scenario;
+        const track = next.tracks[0];
+        if (track === null || track.operator === null) throw new Error('missing fixture operator');
+        track.operator.operatorSlug = 'missing-operator';
+        return next;
       });
       await waitFor(() => result.error.value !== null);
       expect(result.published.value).toBe(previous);

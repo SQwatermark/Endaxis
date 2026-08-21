@@ -661,16 +661,49 @@ function resolveSkillBuffDefinition(
 export function compileOperatorBuffDefinitions(
   definitions: Readonly<Record<string, SkillBuffDefinition>> | undefined,
 ): Readonly<Record<string, ResolvedSkillBuffDefinition>> {
-  if (definitions === undefined) return {};
-  return Object.fromEntries(
+  return compileOperatorBuffResources(definitions).buffDefinitions;
+}
+
+/**
+ * 编译干员级 Buff 及其直接引用的能力实体闭包。Buff 本身不绑定技能等级，
+ * 因而其后代能力实体同样不得读取等级数组；运行时由来源动作提供施法黑板。
+ */
+export function compileOperatorBuffResources(
+  definitions: Readonly<Record<string, SkillBuffDefinition>> | undefined,
+  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+): {
+  readonly buffDefinitions: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
+  readonly abilityEntityDefinitions: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
+} {
+  const abilityEntities: AbilityEntityCompileContext | undefined =
+    abilityEntityDefinitions === undefined
+      ? undefined
+      : {
+          source: abilityEntityDefinitions,
+          compiled: {},
+          compiling: new Set(),
+        };
+  if (definitions === undefined) {
+    return { buffDefinitions: {}, abilityEntityDefinitions: {} };
+  }
+  const buffDefinitions = Object.fromEntries(
     Object.entries(definitions).map(([buffId, definition]) => {
       if (buffId.length === 0) throw new Error('operator buff definition ID must not be empty');
       return [
         buffId,
-        resolveSkillBuffDefinition(definition, 0, `buffDefinitions.${JSON.stringify(buffId)}`),
+        resolveSkillBuffDefinition(
+          definition,
+          0,
+          `buffDefinitions.${JSON.stringify(buffId)}`,
+          abilityEntities,
+        ),
       ];
     }),
   );
+  return {
+    buffDefinitions,
+    abilityEntityDefinitions: abilityEntities?.compiled ?? {},
+  };
 }
 
 /** 将任意定义来源的等级化动作序列解析为运行时序列。 */

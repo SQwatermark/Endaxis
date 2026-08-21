@@ -27,6 +27,8 @@ export type OperatorRuntimeAttribute =
   | AttackFactorAttribute
   | DamageScaleAttributeKey
   | 'Atk'
+  | 'AtbCostAddition'
+  | 'ComboSkillCooldownRecoveryScalar'
   | 'criticalRate'
   | 'criticalDamageIncrease';
 
@@ -60,6 +62,10 @@ export function createOperatorAttackAttributes(
   // 面板值仍由构筑层持有；这里保存战斗中 Buff 产生的即时增量。
   result.define('criticalRate', 0, {});
   result.define('criticalDamageIncrease', 0, {});
+  // AttributeMetaTable[45]: default 0, no min/max.
+  result.define('AtbCostAddition', 0, {});
+  // AttributeMetaTable[93]: default 1, minimum 0, no maximum.
+  result.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
   return result;
 }
 

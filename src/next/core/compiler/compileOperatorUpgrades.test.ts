@@ -907,6 +907,27 @@ describe('operator upgrade compilation', () => {
     ]);
   });
 
+  it('installs operator base passives independently from active upgrades', () => {
+    const programs = compileOperatorPassivePrograms(
+      [],
+      [
+        {
+          key: 'base-passive',
+          blackboard: { range: 50 },
+          enableSequence: { steps: [] },
+        },
+      ],
+    );
+
+    expect(programs).toEqual([
+      {
+        key: 'base-passive',
+        initialBlackboard: { range: 50 },
+        enableSequence: { steps: [] },
+      },
+    ]);
+  });
+
   it('patches Lifeng potential 3 into the enabled talent passive blackboard', () => {
     const active = resolveActiveOperatorUpgrades(
       build({

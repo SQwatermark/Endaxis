@@ -332,6 +332,8 @@ export class CombatResources {
     const changes: SkillPaymentChange[] = [];
     for (const cost of costs) {
       if (cost.resource === 'sp') {
+        // 原生 Skill._ApplyCost 只在最终 ATB 费用大于 epsilon 时调用 CostAtb。
+        if (cost.value <= RESOURCE_EPSILON) continue;
         const previousValue = this.#sp;
         this.#sp = Math.max(0, this.#sp - cost.value);
         const consumedReturnedSp = Math.min(this.#returnedSp, cost.value);
