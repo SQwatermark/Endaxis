@@ -23,6 +23,42 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('validates the fixed fracture entry and both inline Buff definitions', () => {
+    const definition = baseSkill();
+    definition.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyPhysicalInfliction',
+              parameters: {
+                type: 'fracture',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff_physical_no_guard',
+                noGuardDefinition: { stackingType: 'unlimited' },
+                fractureBuffId: 'buff_physical_fracture',
+                fractureDefinition: { stackingType: 'refresh' },
+              },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(definition)).toEqual([]);
+
+    const parameters = (
+      definition.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps[0]!.parameters;
+    parameters.target = 'caster';
+    expect(validateSkillDefinition(definition)).toContainEqual(
+      expect.objectContaining({ path: expect.stringContaining('.parameters.target') }),
+    );
+  });
+
   it('validates the evidence-backed heal target and attribute formula', () => {
     const definition = baseSkill();
     definition.scheduledSequences = [

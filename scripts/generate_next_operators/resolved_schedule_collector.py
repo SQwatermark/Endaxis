@@ -388,6 +388,18 @@ def collect_resolved_schedule(
     )
     result.extend(
         ResolvedScheduleItemSource(
+            frame=infliction.startFrame,
+            actionOrder=(infliction.actionIndex,),
+            itemType="physicalInfliction",
+            sourcePath=(skill.skillId,),
+            payload=infliction,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(infliction, (), skill.skillId),
+        )
+        for infliction in getattr(skill, "physicalInflictions", ())
+    )
+    result.extend(
+        ResolvedScheduleItemSource(
             frame=listener.startFrame,
             actionOrder=(listener.actionIndex,),
             itemType="eventListener",

@@ -87,6 +87,7 @@ export const DAMAGE_FEATURES = [
   'dot',
   'remainArea',
   'talentDamage',
+  'physicalInfliction',
 ] as const;
 export type DamageFeature = (typeof DAMAGE_FEATURES)[number];
 
@@ -575,6 +576,19 @@ export interface CombatStepParameters {
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
   };
   applyElementalInfliction: { element: InflictionElement; isExtra: boolean };
+  /**
+   * 对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数
+   * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
+   */
+  applyPhysicalInfliction: {
+    type: 'fracture';
+    target: 'enemy';
+    isExtra: boolean;
+    noGuardBuffId: string;
+    noGuardDefinition: SkillBuffDefinition;
+    fractureBuffId: string;
+    fractureDefinition: SkillBuffDefinition;
+  };
   applyElementalReaction: {
     reaction: ElementalReaction;
     target: CombatTarget;
@@ -867,6 +881,7 @@ export const COMBAT_STEP_KINDS = [
   'startCurrentAbilityEntityChildSkill',
   'spawnAbilityEntity',
   'applyElementalInfliction',
+  'applyPhysicalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',

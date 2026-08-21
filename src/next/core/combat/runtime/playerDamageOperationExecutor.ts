@@ -141,13 +141,17 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
     });
     const finalAttackValue = context.resolveFinalAttackValue();
+    const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
     const formulaInput = resolvePlayerActiveDamageInput({
       step,
       finalAttackValue,
       attacker: context.attackerAttributes,
       defender: context.defenderAttributes,
       runtime: {
-        ...this.dependencies.resolveNonRandomRuntimeSnapshot(step),
+        ...runtimeSnapshot,
+        appliesPhysicalInflictionDamageMultiplier:
+          runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
+          (step.parameters.features ?? []).includes('physicalInfliction'),
         criticalSample:
           context.attackerAttributes.criticalRate > 0.00001
             ? this.dependencies.criticalSamples.nextCriticalSample()

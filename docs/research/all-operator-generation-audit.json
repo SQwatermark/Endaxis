@@ -7,10 +7,9 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 317,
-    "completeOperatorCount": 27,
+    "compiledCount": 319,
+    "completeOperatorCount": 29,
     "blockerKinds": {
-      "root-action-coverage": 2,
       "other": 1
     },
     "unresolvedActionPresence": {
@@ -936,11 +935,9 @@
       "operatorName": "Antal",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "root-action-coverage": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0027_tangtang",
@@ -956,11 +953,9 @@
       "operatorName": "Pogranichnik",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "root-action-coverage": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0007_ikut",
@@ -2055,9 +2050,9 @@
       "operatorName": "Antal",
       "skillId": "chr_0023_antal_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "combo_skill: unresolved combat actions are not covered by resolved damage compiler: ['FractureAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "DamageAction",
         "FractureAction",
@@ -2066,7 +2061,7 @@
         "SwitchAction"
       ],
       "conditionCount": 1,
-      "referencedBuffCount": 0,
+      "referencedBuffCount": 2,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
@@ -2600,9 +2595,9 @@
       "operatorName": "Pogranichnik",
       "skillId": "chr_0029_pograni_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "root-action-coverage",
-      "blocker": "normal_skill: unresolved combat actions are not covered by resolved damage compiler: ['FractureAction']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -2612,7 +2607,7 @@
         "SwitchAction"
       ],
       "conditionCount": 4,
-      "referencedBuffCount": 1,
+      "referencedBuffCount": 3,
       "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,

@@ -195,7 +195,7 @@ def compile_combat_condition(
             )
         )
         is not None
-        and target_group_write_guarantees_single_enemy(entity_write)
+        and target_group_write_guarantees_single_enemy(entity_write, target_group_writes)
     ):
         result = {
             "LT": 1 < entity_count.minimumCount,

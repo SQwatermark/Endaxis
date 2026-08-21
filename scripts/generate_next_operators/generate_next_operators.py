@@ -1958,7 +1958,15 @@ def parse_physical_inflictions(
 
 def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
     """收集整棵动作树直接创建或由光环维持的 Buff；不改变其控制流归属。"""
-    return collect_created_buff_ids(root.get("actionGroupData"), source_name)
+    result = set(collect_created_buff_ids(root.get("actionGroupData"), source_name))
+    if any(
+        action_name(action["$type"]) == "FractureAction"
+        for action in walk_actions(root.get("actionGroupData"))
+    ):
+        # FractureAction 原生按固定公共 ID 进入破防/碎甲 Buff 链；这些不是
+        # SkillData 的显式 CreateBuffAction 引用，但仍必须解析并内联定义。
+        result.update(("buff_physical_no_guard", "buff_physical_fracture"))
+    return tuple(sorted(result))
 
 
 def collect_created_buff_ids(value: Any, source_name: str) -> tuple[str, ...]:
@@ -3848,7 +3856,9 @@ def resolve_fixed_combat_target(
         target_group_key,
         target_group_writes,
     )
-    if write is not None and target_group_write_guarantees_single_enemy(write):
+    if write is not None and target_group_write_guarantees_single_enemy(
+        write, target_group_writes
+    ):
         return "enemy"
     return None
 
@@ -3881,6 +3891,9 @@ NATIVE_DAMAGE_FEATURE_BITS = {
     134217728: "shatter",
     268435456: "dot",
     536870912: "remainArea",
+    # 1.4.4 DamageDecorateMask.Fracture。复刻库确认该位选择物理异常伤害倍率，
+    # 它不是技能类型标签，也不等同于 FractureAction 入口本身。
+    1073741824: "physicalInfliction",
     # 1.4.4 DamageDecorateMask.TalentDamage；Rossi 的天赋额外伤害单独使用该位，
     # 普攻流血跳伤则与 Dot 组合为 0x90000000。
     2147483648: "talentDamage",
@@ -4298,6 +4311,130 @@ def compile_infliction(infliction: TimedInflictionSource) -> str:
         f"{{ element: {ts_inline_literal(infliction.element)}, "
         f"isExtra: {ts_inline_literal(infliction.isExtra)} }})"
     )
+
+
+def compile_physical_infliction(
+    payload: Any,
+    path: str,
+    *,
+    root_skill_context: bool,
+    input_target: Literal["enemy"] | None,
+    buff_definitions: dict[str, BuffDefinitionSource] | None,
+    context_action: ConditionalActionSource | None = None,
+    target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
+    read_frame: int | None = None,
+    read_action_index: int | None = None,
+) -> str:
+    """把 FractureAction 编译为统一入口，并内联公共破防/碎甲 Buff 树。"""
+    if payload.physicalType != "fracture":
+        raise ValueError(f"{path}: unsupported physical infliction {payload.physicalType!r}")
+    def resolve(reference: TargetReferenceSource) -> Literal["caster", "enemy"] | None:
+        result = resolve_fixed_combat_target(
+            reference.targetSource,
+            reference.targetGroupKey,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            action=context_action,
+            target_group_writes=target_group_writes,
+        )
+        if (
+            result is None
+            and reference.targetSource == "Context"
+            and reference.targetGroupKey
+            and read_frame is not None
+            and read_action_index is not None
+        ):
+            write = resolve_latest_target_group_write_at(
+                read_frame=read_frame,
+                read_action_index=read_action_index,
+                read_action_path=(),
+                target_group_key=reference.targetGroupKey,
+                writes=target_group_writes,
+            )
+            if write is not None and target_group_write_guarantees_single_enemy(
+                write, target_group_writes
+            ):
+                return "enemy"
+        return result
+
+    attacker = resolve(payload.attackerTarget)
+    target = resolve(payload.target)
+    if attacker != "caster" or target != "enemy":
+        raise ValueError(
+            f"{path}: FractureAction target identity is unresolved "
+            f"({attacker!r} -> {target!r})"
+        )
+    if buff_definitions is None:
+        raise ValueError(f"{path}: FractureAction requires resolved Buff definitions")
+
+    def compile_definition(buff_id: str) -> str:
+        definition = buff_definitions.get(buff_id)
+        if definition is None:
+            raise ValueError(f"{path}: missing Fracture Buff definition {buff_id!r}")
+        has_event_sequences = bool(getattr(definition, "comboQteActions", ())) or any(
+            sequence.actions
+            for event in definition.eventActions
+            for sequence in event.sequences
+        )
+        has_scheduled_sequences = any(
+            getattr(definition, field, ())
+            for field in (
+                "directDamageHits",
+                "intervalDamageHits",
+                "conditionalActions",
+                "blackboardCalculations",
+                "blackboardMutations",
+                "buffBlackboardReads",
+                "buffFinishes",
+                "resourceGains",
+                "auxiliaryActions",
+                "combatActions",
+            )
+        )
+        body = compile_inline_buff_definition(
+            definition,
+            f"{path}.{buff_id}",
+            (
+                lambda source, event_path: compile_inline_buff_behaviors(
+                    source,
+                    event_path,
+                    buff_owner_target="enemy",
+                    buff_definitions=buff_definitions,
+                )
+                if has_event_sequences
+                else None
+            ),
+            (
+                lambda source, scheduled_path: compile_inline_buff_scheduled_sequences(
+                    source,
+                    scheduled_path,
+                    buff_owner_target="enemy",
+                    buff_definitions=buff_definitions,
+                )
+                if has_scheduled_sequences
+                else None
+            ),
+        )
+        return "\n".join(["{", *(f"  {line}" for line in body.splitlines()), "}"])
+
+    no_guard = compile_definition("buff_physical_no_guard").splitlines()
+    fracture = compile_definition("buff_physical_fracture").splitlines()
+    no_guard[-1] += ","
+    fracture[-1] += ","
+    lines = [
+        "step('applyPhysicalInfliction', {",
+        "  type: 'fracture',",
+        "  target: 'enemy',",
+        f"  isExtra: {ts_inline_literal(payload.isExtra)},",
+        "  noGuardBuffId: 'buff_physical_no_guard',",
+        f"  noGuardDefinition: {no_guard[0]}",
+        *(f"  {line}" for line in no_guard[1:]),
+        "  fractureBuffId: 'buff_physical_fracture',",
+        f"  fractureDefinition: {fracture[0]}",
+        *(f"  {line}" for line in fracture[1:]),
+        "})",
+    ]
+    return "\n".join(lines)
 
 
 def compile_keyword_action(
@@ -4946,6 +5083,7 @@ def _make_conditional_leaf_services() -> ConditionalLeafServices:
         compile_global_cooldown_application=compile_global_cooldown_application,
         compile_immediate_projectile_children=compile_immediate_projectile_children,
         compile_keyword_action=compile_keyword_action,
+        compile_physical_infliction=compile_physical_infliction,
         compile_resource_gain=compile_resource_gain,
         compile_time_dilation=compile_time_dilation,
         compile_timed_marker_application=compile_timed_marker_application,
@@ -5651,29 +5789,47 @@ def target_group_branch_is_guaranteed(
     return result is not None and result == (branch_name == "succeedActions")
 
 
-def target_group_write_guarantees_single_enemy(write: TargetGroupWriteSource) -> bool:
-    """只接受已能在固定单敌人模型下闭环的目标查找形状。"""
+def target_group_write_guarantees_single_enemy(
+    write: TargetGroupWriteSource,
+    writes: tuple[TargetGroupWriteSource, ...] = (),
+    _seen: frozenset[tuple[int, int, str]] = frozenset(),
+) -> bool:
+    """证明写入结果恰为唯一敌人；MergeTargetAction 按原生语义去重。"""
+    identity = (write.startFrame, write.actionIndex, write.targetGroupKey)
+    if identity in _seen:
+        return False
+    seen = _seen | {identity}
     if write.validatorTypes or any(
         processor != "PriorityFilter" for processor in write.postProcessorTypes
     ):
         return False
     if write.finderType == "MainTargetFinder":
         return True
-    if write.producerType == "MergeTargetAction" and len(write.inputTargets) == 1:
-        source = write.inputTargets[0]
-        if (
-            source.validatorTypes
-            or source.postProcessorTypes
-            or source.finderType is not None
-        ):
-            return False
-        return (
-            source.targetSource == "MainTarget"
-            or (
-                source.targetSource == "Context"
-                and source.targetGroupKey == "smart_target"
+    if write.producerType == "MergeTargetAction" and write.inputTargets:
+        # 1.4.4 ExecuteInternal 在追加每个包装器前先查询输出集合；多个输入都指向
+        # 同一固定敌人时，合并结果仍恰好只有该敌人。Context 输入必须由合并动作
+        # 之前的支配写入证明，尤其允许 output 同时作为后一个 Merge 的输入。
+        for source in write.inputTargets:
+            if source.validatorTypes or source.postProcessorTypes or source.finderType is not None:
+                return False
+            if source.targetSource == "MainTarget":
+                continue
+            if source.targetSource == "Context" and source.targetGroupKey == "smart_target":
+                continue
+            if source.targetSource != "Context" or not source.targetGroupKey or not writes:
+                return False
+            prior = resolve_latest_target_group_write_at(
+                read_frame=write.startFrame,
+                read_action_index=write.actionIndex,
+                read_action_path=write.actionPath,
+                target_group_key=source.targetGroupKey,
+                writes=writes,
             )
-        )
+            if prior is None or not target_group_write_guarantees_single_enemy(
+                prior, writes, seen
+            ):
+                return False
+        return True
     return (
         write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
         and write.finderType == "HitBoxFinder"
@@ -6719,7 +6875,9 @@ def is_guaranteed_single_enemy_condition(
             write = resolve_latest_target_group_write(
                 action, reference.targetGroupKey, target_group_writes
             )
-            return write is not None and target_group_write_guarantees_single_enemy(write)
+            return write is not None and target_group_write_guarantees_single_enemy(
+                write, target_group_writes
+            )
 
         return reference_is_single_enemy(identity.first) and reference_is_single_enemy(
             identity.second
@@ -6750,7 +6908,7 @@ def is_guaranteed_single_enemy_condition(
                     )
                 )
                 is not None
-                and target_group_write_guarantees_single_enemy(write)
+                and target_group_write_guarantees_single_enemy(write, target_group_writes)
             )
         )
     )
@@ -6805,6 +6963,8 @@ def collect_compilable_conditional_action_types(
                 result.add("ObtainCostAction")
             if getattr(branch_action, "infliction", None) is not None:
                 result.add("SpellInfliction")
+            if getattr(branch_action, "physicalInfliction", None) is not None:
+                result.add("FractureAction")
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
             if getattr(branch_action, "heal", None) is not None:
@@ -7299,6 +7459,7 @@ def _make_resolved_sequence_services() -> ResolvedSequenceServices:
             compile_buff_finish=compile_buff_finish,
             compile_buff_hold=compile_buff_hold,
             compile_infliction=compile_infliction,
+            compile_physical_infliction=compile_physical_infliction,
             compile_keyword_action=compile_keyword_action,
             compile_logical_ability_entity_spawn=compile_logical_ability_entity_spawn,
             compile_resolved_damage_steps=compile_resolved_damage_steps,

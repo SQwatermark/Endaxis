@@ -886,6 +886,58 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "casterAndLowestHealthRatioOperatorExceptCaster",
         )
 
+    def test_merge_target_keeps_the_unique_enemy_identity_across_accumulation(self) -> None:
+        hit = TargetGroupWriteSource(
+            startFrame=28,
+            endFrame=29,
+            actionIndex=65,
+            actionPath=("timelineActions[10]",),
+            targetGroupKey="tar",
+            producerType="FindTargetAction",
+            finderType="HitBoxFinder",
+            finderFactionTarget="Anti",
+            finderTargetObjectType="Normal",
+            finderCheckAlive=True,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+        )
+        first_merge = TargetGroupWriteSource(
+            startFrame=28,
+            endFrame=29,
+            actionIndex=77,
+            actionPath=("timelineActions[14]",),
+            targetGroupKey="total_tar",
+            producerType="MergeTargetAction",
+            finderType=None,
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=(),
+            postProcessorTypes=(),
+            inputTargets=(
+                TargetGroupInputSource("Context", "tar", None, None, None, None, (), ()),
+            ),
+            intervalSeconds=None,
+        )
+        second_hit = replace(hit, startFrame=38, endFrame=39, actionIndex=66)
+        accumulated = replace(
+            first_merge,
+            startFrame=38,
+            endFrame=39,
+            actionIndex=82,
+            inputTargets=(
+                TargetGroupInputSource("Context", "tar", None, None, None, None, (), ()),
+                TargetGroupInputSource(
+                    "Context", "total_tar", None, None, None, None, (), ()
+                ),
+            ),
+        )
+        writes = (hit, first_merge, second_hit, accumulated)
+
+        self.assertTrue(target_group_write_guarantees_single_enemy(accumulated, writes))
+
     def test_ability_entity_time_dilation_target_requires_closure_proof(self) -> None:
         entity_target = target_settings_fixture(
             "InstantSearch",
@@ -4279,6 +4331,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.branch", "buff.root"),
         )
 
+        root["actionGroupData"]["actions"].append(fracture_action_fixture())
+        self.assertEqual(
+            collect_referenced_buff_ids(root, "skill.json"),
+            (
+                "buff.branch",
+                "buff.root",
+                "buff_physical_fracture",
+                "buff_physical_no_guard",
+            ),
+        )
+
     def test_buff_definitions_do_not_use_application_overrides(self) -> None:
         buff = {
             "lifeType": "Limited",
@@ -5571,7 +5634,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(payload.physicalType, "fracture")
         self.assertEqual(payload.target.targetGroupKey, "smart_target")
         self.assertEqual(payload.blowOffDistance.value, 3)
-        with self.assertRaisesRegex(ValueError, "unsupported conditional leaf 'FractureAction'"):
+        with self.assertRaisesRegex(ValueError, "target identity is unresolved"):
             compile_conditional_action(action, "fracture.condition")
 
     def test_root_fracture_action_preserves_timing_and_spatial_evidence(self) -> None:
@@ -5594,6 +5657,12 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(parsed[0].actionIndex, 12)
         self.assertEqual(parsed[0].payload.directionType, "SourceToTarget")
         self.assertTrue(parsed[0].payload.clampToXZ)
+
+    def test_fracture_damage_mask_selects_physical_infliction_multiplier(self) -> None:
+        self.assertEqual(
+            decode_damage_decorate_mask(1073741824, "fracture.damage"),
+            ((), ("physicalInfliction",)),
+        )
 
     def test_conditional_audit_preserves_do_once_resource_gain(self) -> None:
         compare = {

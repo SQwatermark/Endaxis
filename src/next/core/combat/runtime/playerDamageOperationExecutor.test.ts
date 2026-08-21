@@ -118,6 +118,62 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(nextCriticalSample).not.toHaveBeenCalled();
   });
 
+  it('applies the physical infliction multiplier when the generated damage feature requires it', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const snapshots = createAttributeSnapshots(100);
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'antal',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => ({
+        ...snapshots,
+        attacker: {
+          ...snapshots.attacker,
+          physicalInflictionDamageMultiplier: 2,
+        },
+      }),
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      kind: 'dealDamage',
+      parameters: {
+        damageType: 'physical',
+        attackScale: 1,
+        tags: ['normalSkill'],
+        features: ['physicalInfliction'],
+      },
+    });
+
+    expect(targetVitals.health).toBe(800);
+  });
+
   it('uses fixed damage as the calculation result while preserving the damage formula', () => {
     const targetVitals = new CombatVitals({
       health: 1000,

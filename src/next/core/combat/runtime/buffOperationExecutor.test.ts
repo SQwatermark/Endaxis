@@ -12,6 +12,58 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('applies the first no-guard layer before executing the fracture Buff chain', () => {
+    let noGuardCount = 0;
+    const applied: string[] = [];
+    const target = {
+      ownerId: 'enemy',
+      apply: (request: { buffId: string }) => {
+        applied.push(request.buffId);
+        if (request.buffId === 'buff_physical_no_guard') noGuardCount += 1;
+        return true;
+      },
+      getCountByIds: (ids: readonly string[]) =>
+        ids.includes('buff_physical_no_guard') ? noGuardCount : 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'antal',
+      sourceActionId: 'comboSkill',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const step = {
+      kind: 'applyPhysicalInfliction' as const,
+      parameters: {
+        type: 'fracture' as const,
+        target: 'enemy' as const,
+        isExtra: false,
+        noGuardBuffId: 'buff_physical_no_guard',
+        noGuardDefinition: { stackingType: 'unlimited' as const },
+        fractureBuffId: 'buff_physical_fracture',
+        fractureDefinition: { stackingType: 'refresh' as const },
+      },
+    };
+    const context = {
+      blackboard: new ActionBlackboard(),
+      skillCastInfo: {
+        skillCastId: 1,
+        originSkillId: 'comboSkill',
+        nonReturnedSpCost: 0,
+      },
+    };
+
+    expect(executor.execute(step, context)).toBe(true);
+    expect(executor.execute(step, context)).toBe(true);
+    expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
+  });
+
   it('finishes only Buff instances created for the active action interval', () => {
     const finished: string[] = [];
     const target = {

@@ -1272,6 +1272,38 @@ function validateCombatStep(
       }
       break;
     }
+    case 'applyPhysicalInfliction': {
+      if (parameters.type !== 'fracture') {
+        push(out, `${path}.parameters.type`, "expected 'fracture'");
+      }
+      if (parameters.target !== 'enemy') {
+        push(out, `${path}.parameters.target`, "expected 'enemy'");
+      }
+      requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
+      const noGuardBuffId = requireString(parameters, 'noGuardBuffId', `${path}.parameters`, out);
+      const fractureBuffId = requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
+      for (const [definitionKey, buffId] of [
+        ['noGuardDefinition', noGuardBuffId],
+        ['fractureDefinition', fractureBuffId],
+      ] as const) {
+        if (buffId === null) continue;
+        validateCombatStep(
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId,
+              definition: parameters[definitionKey],
+              target: 'enemy',
+              inheritSourceSkillCastInfo: true,
+            },
+          },
+          `${path}.parameters.${definitionKey}`,
+          out,
+          currentTargetAvailable,
+        );
+      }
+      break;
+    }
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
       requireTarget();

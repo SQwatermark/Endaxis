@@ -479,6 +479,7 @@ ResolvedScheduleItemType = Literal[
     "buffHold",
     "resourceGain",
     "infliction",
+    "physicalInfliction",
     "buffApplication",
     "eventListener",
     "timeDilation",
@@ -506,6 +507,7 @@ class ResolvedScheduleItemSource:
         " | BuffHoldSource"
         " | TimedResourceGainSource"
         " | TimedInflictionSource"
+        " | TimedPhysicalInflictionSource"
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"

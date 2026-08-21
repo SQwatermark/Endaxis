@@ -522,6 +522,28 @@ function resolveStep(
         },
       };
     }
+    case 'applyPhysicalInfliction': {
+      const { noGuardDefinition, fractureDefinition, ...parameters } = step.parameters;
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...parameters,
+          noGuardDefinition: resolveSkillBuffDefinition(
+            noGuardDefinition,
+            skillLevel,
+            `${path}.parameters.noGuardDefinition`,
+            abilityEntities,
+          ),
+          fractureDefinition: resolveSkillBuffDefinition(
+            fractureDefinition,
+            skillLevel,
+            `${path}.parameters.fractureDefinition`,
+            abilityEntities,
+          ),
+        },
+      };
+    }
     case 'applyElementalInfliction':
     case 'applyElementalReaction':
     case 'consumeElementalReaction':

@@ -122,6 +122,41 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'applyPhysicalInfliction') {
+      if (context?.skillCastInfo === undefined) {
+        throw new Error('applyPhysicalInfliction requires a skill runtime context');
+      }
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      if (target.apply === undefined) {
+        throw new Error(
+          `physical infliction target '${target.ownerId}' does not support Buff application`,
+        );
+      }
+      const hasNoGuard = target.getCountByIds([step.parameters.noGuardBuffId]) > 0;
+      const request: BuffApplicationRequest = hasNoGuard
+        ? {
+            buffId: step.parameters.fractureBuffId,
+            definition: step.parameters.fractureDefinition,
+            sourceId: this.dependencies.sourceId,
+            ...(this.dependencies.sourceActionId === undefined
+              ? {}
+              : { sourceActionId: this.dependencies.sourceActionId }),
+            blackboardValues: {},
+            skillCastInfo: context.skillCastInfo,
+          }
+        : {
+            buffId: step.parameters.noGuardBuffId,
+            definition: step.parameters.noGuardDefinition,
+            sourceId: this.dependencies.sourceId,
+            ...(this.dependencies.sourceActionId === undefined
+              ? {}
+              : { sourceActionId: this.dependencies.sourceActionId }),
+            blackboardValues: {},
+            skillCastInfo: context.skillCastInfo,
+          };
+      return target.apply(request);
+    }
+
     if (step.kind === 'applyBuff') {
       // 旧手写配置仍由原执行器解释；定义路径只接收原生身份和施加黑板覆盖值。
       if (

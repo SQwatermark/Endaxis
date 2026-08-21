@@ -357,6 +357,15 @@ def audit_skill(
             "audit",
             source,
         )
+        definitions_by_id = {
+            definition.buffId: definition for definition in definitions
+        }
+        physical_definitions = (
+            definitions_by_id
+            if skill.physicalInflictions
+            or count_condition_physical_inflictions(skill.conditionalActions) > 0
+            else {}
+        )
         presentation_only_buff_ids = sorted(
             definition.buffId
             for definition in definitions
@@ -365,9 +374,12 @@ def audit_skill(
         if presentation_only_buff_ids:
             config["ignoreBuffIds"] = presentation_only_buff_ids
         try:
-            if not presentation_only_buff_ids:
+            if not physical_definitions and not presentation_only_buff_ids:
                 raise first_error
-            generator.compile_skill_entries(operator, [skill])
+            if physical_definitions:
+                generator.compile_skill_entries(operator, [skill], physical_definitions)
+            else:
+                generator.compile_skill_entries(operator, [skill])
             stage = "dsl-compiled"
             blocker_kind = None
             blocker = None

@@ -38,6 +38,7 @@ class ConditionalLeafServices:
     compile_global_cooldown_application: Callable[..., Any]
     compile_immediate_projectile_children: Callable[..., Any]
     compile_keyword_action: Callable[..., Any]
+    compile_physical_infliction: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
     compile_time_dilation: Callable[..., Any]
     compile_timed_marker_application: Callable[..., Any]
@@ -112,6 +113,7 @@ def compile_conditional_branch_action(
     compile_global_cooldown_application = services.compile_global_cooldown_application
     compile_immediate_projectile_children = services.compile_immediate_projectile_children
     compile_keyword_action = services.compile_keyword_action
+    compile_physical_infliction = services.compile_physical_infliction
     compile_resource_gain = services.compile_resource_gain
     compile_time_dilation = services.compile_time_dilation
     compile_timed_marker_application = services.compile_timed_marker_application
@@ -773,5 +775,16 @@ def compile_conditional_branch_action(
             "step('applyElementalInfliction', { element: "
             f"{ts_inline_literal(infliction.element)}, isExtra: "
             f"{ts_inline_literal(infliction.isExtra)} }})"
+        )
+    physical_infliction = getattr(action, "physicalInfliction", None)
+    if physical_infliction is not None:
+        return compile_physical_infliction(
+            physical_infliction,
+            path,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+            buff_definitions=buff_definitions,
+            context_action=context_action,
+            target_group_writes=target_group_writes,
         )
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")

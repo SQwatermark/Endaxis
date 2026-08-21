@@ -29,6 +29,7 @@ from source_models import (
     SkillEventListenerSource,
     SkillSource,
     TimedInflictionSource,
+    TimedPhysicalInflictionSource,
     TimedTimelineFinishSource,
     TimedTimelineJumpSource,
     TimedKeywordActionSource,
@@ -146,6 +147,7 @@ class ResolvedSequenceStepServices:
     compile_buff_finish: Callable[..., Any]
     compile_buff_hold: Callable[..., Any]
     compile_infliction: Callable[..., Any]
+    compile_physical_infliction: Callable[..., Any]
     compile_keyword_action: Callable[..., Any]
     compile_logical_ability_entity_spawn: Callable[..., Any]
     compile_resolved_damage_steps: Callable[..., Any]
@@ -220,6 +222,7 @@ def compile_resolved_sequence(
     compile_buff_finish = steps.compile_buff_finish
     compile_buff_hold = steps.compile_buff_hold
     compile_infliction = steps.compile_infliction
+    compile_physical_infliction = steps.compile_physical_infliction
     compile_keyword_action = steps.compile_keyword_action
     compile_logical_ability_entity_spawn = steps.compile_logical_ability_entity_spawn
     compile_resolved_damage_steps = steps.compile_resolved_damage_steps
@@ -354,6 +357,8 @@ def compile_resolved_sequence(
         allowed_actions.update(finish.sourceActionType for finish in skill.buffFinishes)
     if skill.inflictions:
         allowed_actions.add("SpellInfliction")
+    if getattr(skill, "physicalInflictions", ()):
+        allowed_actions.add("FractureAction")
     if combat_auxiliary_actions:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
@@ -1158,6 +1163,18 @@ def compile_resolved_sequence(
         elif item.itemType == "infliction":
             payload = cast(TimedInflictionSource, item.payload)
             step_lines = compile_infliction(payload).splitlines()
+        elif item.itemType == "physicalInfliction":
+            payload = cast(TimedPhysicalInflictionSource, item.payload)
+            step_lines = compile_physical_infliction(
+                payload.payload,
+                f"{skill.key}.schedule[{schedule_index}].physicalInfliction",
+                root_skill_context=item.sourcePath == (skill.skillId,),
+                input_target=item.inputTarget,
+                buff_definitions=buff_definitions,
+                target_group_writes=skill.targetGroupWrites,
+                read_frame=payload.startFrame,
+                read_action_index=payload.actionIndex,
+            ).splitlines()
         elif item.itemType == "buffApplication":
             payload = cast(AuxiliaryActionSource, item.payload)
             context_application_target = None

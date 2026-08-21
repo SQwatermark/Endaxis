@@ -13,6 +13,68 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('compiles both inline physical-infliction Buff trees at the skill level', () => {
+    const skill = {
+      key: 'fracture',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyPhysicalInfliction',
+                parameters: {
+                  type: 'fracture',
+                  target: 'enemy',
+                  isExtra: false,
+                  noGuardBuffId: 'buff_physical_no_guard',
+                  noGuardDefinition: {
+                    stackingType: 'unlimited',
+                    lifecycleSequences: {
+                      start: {
+                        steps: [{ kind: 'dealStagger', parameters: { value: [2, 4] } }],
+                      },
+                    },
+                  },
+                  fractureBuffId: 'buff_physical_fracture',
+                  fractureDefinition: {
+                    stackingType: 'refresh',
+                    scheduledSequences: [
+                      {
+                        startFrame: 0,
+                        sequence: {
+                          steps: [{ kind: 'dealStagger', parameters: { value: [1, 3] } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } satisfies SkillDefinition;
+
+    const compiled = compileSkill({
+      operatorId: 'antal',
+      skillGroupKey: 'comboSkill',
+      skillType: 'comboSkill',
+      skillLevel: 2,
+      skill,
+    });
+    const step = compiled.timelineActions[0]!.sequence.steps[0]!;
+    expect(step.kind).toBe('applyPhysicalInfliction');
+    if (step.kind !== 'applyPhysicalInfliction') return;
+    expect(
+      step.parameters.noGuardDefinition.lifecycleSequences?.start?.steps[0]?.parameters,
+    ).toEqual({ value: 4 });
+    expect(
+      step.parameters.fractureDefinition.scheduledSequences?.[0]?.sequence.steps[0]?.parameters,
+    ).toEqual({ value: 3 });
+  });
+
   it('compiles operator Buff blueprints without a skill-level context', () => {
     expect(
       compileOperatorBuffDefinitions({

@@ -102,6 +102,13 @@ export interface ResolvedCombatStepParameters {
     readonly definition?: ResolvedAbilityEntityDefinition;
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
+  applyPhysicalInfliction: Omit<
+    CombatStepParameters['applyPhysicalInfliction'],
+    'noGuardDefinition' | 'fractureDefinition'
+  > & {
+    readonly noGuardDefinition: ResolvedSkillBuffDefinition;
+    readonly fractureDefinition: ResolvedSkillBuffDefinition;
+  };
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];
   outputAirborne: CombatStepParameters['outputAirborne'];
