@@ -53,6 +53,8 @@ from generate_next_operators import (
     compile_resolved_sequence,
     compile_skill_event_listener,
     compile_time_dilation,
+    gameplay_tag_matches,
+    resolve_ability_entity_ids_from_tag_queries,
     compile_keyword_action,
     event_listener_is_proven_noop,
     compile_resource_gain,
@@ -800,6 +802,27 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(parsed.namedCurve, "interrupt_weakness")
         self.assertEqual(parsed.inlineCurve, ())
+
+    def test_ability_entity_tag_queries_match_registered_descendant_tags(self) -> None:
+        lance_tag = -549424863
+        combo_lance_tag = 1447025331
+        ultimate_lance_tag = -922203198
+
+        self.assertTrue(gameplay_tag_matches(combo_lance_tag, lance_tag))
+        self.assertTrue(gameplay_tag_matches(ultimate_lance_tag, lance_tag))
+        self.assertFalse(gameplay_tag_matches(lance_tag, combo_lance_tag))
+        self.assertEqual(
+            resolve_ability_entity_ids_from_tag_queries(
+                (("HasAny", (lance_tag,)),),
+                {
+                    "combo_lance": {"bornTagIds": [combo_lance_tag]},
+                    "ultimate_lance": {"bornTagIds": [ultimate_lance_tag]},
+                    "unrelated": {"bornTagIds": [10]},
+                },
+                "fixture.tagQueries",
+            ),
+            ("combo_lance", "ultimate_lance"),
+        )
 
     def test_ability_entity_time_dilation_target_requires_closure_proof(self) -> None:
         entity_target = target_settings_fixture(

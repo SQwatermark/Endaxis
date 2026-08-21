@@ -7,12 +7,12 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 312,
-    "completeOperatorCount": 23,
+    "compiledCount": 313,
+    "completeOperatorCount": 24,
     "blockerKinds": {
       "root-action-coverage": 2,
-      "other": 2,
       "condition-other": 2,
+      "other": 1,
       "buff-source-or-target": 2
     },
     "unresolvedActionPresence": {
@@ -1005,11 +1005,9 @@
       "operatorName": "Avywenna",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "other": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0033_camille",
@@ -3599,9 +3597,9 @@
       "operatorName": "Avywenna",
       "skillId": "chr_0012_avywen_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "other",
-      "blocker": "normal_skill.schedule[2].conditionalAction.forEachTargetGroupWrite.validatorTagQueries: ability-entity tag query matches no template evidence",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CheckDistanceCondition",
         "CreateBuffAction",

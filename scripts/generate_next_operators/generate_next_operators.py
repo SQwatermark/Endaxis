@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import binascii
+import functools
 import json
 import math
 import re
@@ -343,6 +345,14 @@ DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE = (
     / "data"
     / "ability-entities"
     / "ability-entity-templates-1.4.4.json"
+)
+DEFAULT_GAMEPLAY_TAG_CATALOG = (
+    REPOSITORY_ROOT
+    / "src"
+    / "next"
+    / "data"
+    / "combat"
+    / "gameplayTagCatalog.generated.ts"
 )
 
 CONNECTED_RUNTIME_ATTRIBUTE_MODIFIERS = {
@@ -3510,6 +3520,68 @@ def compile_condition_operand(source: ScalarSource, path: str) -> str:
     return f"{{ kind: 'constant', value: {ts_inline_literal(value)} }}"
 
 
+def gameplay_tag_id_from_path(path: str) -> int:
+    """按原生 CRC-32 规则计算有符号 GameplayTag ID。"""
+    value = binascii.crc32(path.encode("utf-8")) & 0xFFFFFFFF
+    return value - 0x100000000 if value >= 0x80000000 else value
+
+
+@functools.cache
+def load_gameplay_tag_paths_by_id() -> dict[int, str]:
+    """读取与 Next 配对的版本化 GameplayTag 路径，供生成期层级查询使用。"""
+    source = DEFAULT_GAMEPLAY_TAG_CATALOG.read_text(encoding="utf-8")
+    marker = "export const GAMEPLAY_TAG_PATHS = Object.freeze(["
+    start = source.find(marker)
+    end = source.find("] as const);", start + len(marker))
+    if start < 0 or end < 0:
+        raise ValueError(f"{DEFAULT_GAMEPLAY_TAG_CATALOG}: GameplayTag path list not found")
+    paths = re.findall(r"^  '([^']+)',?$", source[start:end], flags=re.MULTILINE)
+    if not paths:
+        raise ValueError(f"{DEFAULT_GAMEPLAY_TAG_CATALOG}: GameplayTag path list is empty")
+    result = {gameplay_tag_id_from_path(path): path for path in paths}
+    if len(result) != len(paths):
+        raise ValueError(f"{DEFAULT_GAMEPLAY_TAG_CATALOG}: GameplayTag ID collision")
+    return result
+
+
+def gameplay_tag_matches(owned_tag: int, required_tag: int) -> bool:
+    """复现非 exact 标签查询：子标签满足其任意祖先标签。"""
+    if owned_tag == required_tag:
+        return True
+    paths = load_gameplay_tag_paths_by_id()
+    owned_path = paths.get(owned_tag)
+    required_path = paths.get(required_tag)
+    return (
+        owned_path is not None
+        and required_path is not None
+        and owned_path.startswith(f"{required_path}/")
+    )
+
+
+def gameplay_tag_collection_matches(
+    owned_tags: set[int], required_tags: set[int], query_type: str
+) -> bool:
+    """按原生 GameplayTag 容器语义计算 Has/Except Any/All。"""
+    has_any = any(
+        gameplay_tag_matches(owned_tag, required_tag)
+        for owned_tag in owned_tags
+        for required_tag in required_tags
+    )
+    has_all = all(
+        any(gameplay_tag_matches(owned_tag, required_tag) for owned_tag in owned_tags)
+        for required_tag in required_tags
+    )
+    matches = {
+        "HasAny": has_any,
+        "HasAll": has_all,
+        "ExceptAny": not has_any,
+        "ExceptAll": not has_all,
+    }.get(query_type)
+    if matches is None:
+        raise ValueError(f"unsupported GameplayTag query {query_type!r}")
+    return matches
+
+
 def resolve_ability_entity_ids_from_tag_queries(
     tag_queries: tuple[tuple[str, tuple[int, ...]], ...],
     templates: dict[str, dict[str, Any]],
@@ -3528,14 +3600,10 @@ def resolve_ability_entity_ids_from_tag_queries(
                 f"abilityEntityTemplates.{template_id}.bornTagIds",
             )
         )
-        matches = {
-            "HasAny": bool(born_tags & required_tags),
-            "HasAll": required_tags <= born_tags,
-            "ExceptAny": not bool(born_tags & required_tags),
-            "ExceptAll": not required_tags <= born_tags,
-        }.get(query_type)
-        if matches is None:
-            raise ValueError(f"{path}: unsupported tag query {query_type!r}")
+        try:
+            matches = gameplay_tag_collection_matches(born_tags, required_tags, query_type)
+        except ValueError as error:
+            raise ValueError(f"{path}: {error}") from error
         if matches:
             matching_ids.append(template_id)
     if not matching_ids:
@@ -6409,10 +6477,12 @@ def ability_entity_time_dilation_targets_are_closed(
         matching_template_ids = {
             template_id
             for template_id, evidence in templates.items()
-            if required_tag
-            in require_list(
-                evidence.get("bornTagIds"),
-                f"abilityEntityTemplates.{template_id}.bornTagIds",
+            if any(
+                gameplay_tag_matches(owned_tag, required_tag)
+                for owned_tag in require_list(
+                    evidence.get("bornTagIds"),
+                    f"abilityEntityTemplates.{template_id}.bornTagIds",
+                )
             )
         }
         if not matching_template_ids:

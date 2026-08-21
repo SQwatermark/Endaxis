@@ -637,8 +637,12 @@ def compile_resolved_sequence(
                 or trigger.cycleTruncated
                 or trigger.damageUnits
                 or trigger.directDamageHits
-                or trigger.auxiliaryActions
-                or trigger.resourceGains
+                or any(
+                    action.startFrame != 0
+                    or action.actionType != "CreateBuffAction"
+                    for action in trigger.auxiliaryActions
+                )
+                or any(gain.startFrame != 0 for gain in trigger.resourceGains)
                 or trigger.inflictions
                 or trigger.nestedProjectileTriggeredSkills
                 or (
@@ -665,6 +669,10 @@ def compile_resolved_sequence(
                     trigger.conditionalActions
                 )
             )
+            if trigger.auxiliaryActions:
+                covered_actions.add("CreateBuffAction")
+            if trigger.resourceGains:
+                covered_actions.add("ObtainCostAction")
             if compiled_spawns:
                 covered_actions.add("SpawnAbilityEntity")
             if any(action_type not in covered_actions for action_type in trigger.combatActions):
@@ -710,7 +718,7 @@ def compile_resolved_sequence(
                         )
                     )
                     queried_keys.add(context_key)
-            compiled_sources.extend(query_sources)
+            ordered_sources: list[tuple[tuple[int, ...], int, str]] = []
             for condition in trigger.conditionalActions:
                 node = _compile_conditional_action_ir(
                     condition,
@@ -728,7 +736,55 @@ def compile_resolved_sequence(
                     prefer_compiled_ability_entity_spawns=True,
                     compiled_projectile_launches=compiled_projectiles,
                 )
-                compiled_sources.extend(render_compiled_sequence_children(node))
+                for source in render_compiled_sequence_children(node):
+                    ordered_sources.append(
+                        (
+                            native_sequence_order(
+                                condition,
+                                trigger.actionOrder,
+                                trigger.triggerSkillId,
+                            ),
+                            condition.actionIndex,
+                            source,
+                        )
+                    )
+            for action in trigger.auxiliaryActions:
+                source = compile_buff_application(
+                    action,
+                    f"{skill.key}.{trigger.triggerSkillId}.buffApplication",
+                    root_skill_context=False,
+                    input_target="enemy",
+                    buff_definitions=buff_definitions,
+                    invoked_child_context=(skill, config),
+                    ignored_buff_ids=ignored_buff_ids | simulation_no_effect_buff_ids,
+                )
+                ordered_sources.append(
+                    (
+                        native_sequence_order(
+                            action, trigger.actionOrder, trigger.triggerSkillId
+                        ),
+                        action.actionIndex,
+                        source,
+                    )
+                )
+            for gain in trigger.resourceGains:
+                source = compile_resource_gain(
+                    gain,
+                    f"{skill.key}.{trigger.triggerSkillId}.resourceGain",
+                )
+                ordered_sources.append(
+                    (
+                        native_sequence_order(
+                            gain, trigger.actionOrder, trigger.triggerSkillId
+                        ),
+                        gain.actionIndex,
+                        source,
+                    )
+                )
+            compiled_sources.extend(query_sources)
+            compiled_sources.extend(
+                source for _, _, source in sorted(ordered_sources, key=lambda item: item[:2])
+            )
         if not compiled_sources:
             return None
         lines = ["sequence("]
