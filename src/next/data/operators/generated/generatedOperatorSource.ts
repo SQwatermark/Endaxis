@@ -602,7 +602,7 @@ export interface GeneratedAuraTargetFilterSource {
   readonly factionTarget: string;
   readonly factionTargetType: string | number;
   readonly filterObjectType: boolean;
-  readonly objectType: string;
+  readonly objectType: string | number;
   readonly filterSlot: boolean;
   readonly slotIndex: number;
   readonly filterGameplayTag: boolean;
@@ -727,6 +727,30 @@ export interface GeneratedAbilityEntityDurationConditionSource {
   readonly outputKey: string;
 }
 
+export interface GeneratedPoiseConditionSource {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly returnValueIfMissing: boolean;
+  readonly comparison: string;
+  readonly value: GeneratedScalarSource;
+}
+
+export interface GeneratedSuperArmorConditionSource {
+  readonly target: GeneratedTargetReferenceSource;
+  readonly comparison: string;
+  readonly value: GeneratedScalarSource;
+}
+
+export interface GeneratedTwoDirectionAngleConditionSource {
+  readonly dir1Source: GeneratedTargetReferenceSource;
+  readonly dir1Target: GeneratedTargetReferenceSource;
+  readonly dir1DirectionType: string;
+  readonly dir2Source: GeneratedTargetReferenceSource;
+  readonly dir2Target: GeneratedTargetReferenceSource;
+  readonly dir2DirectionType: string;
+  readonly comparison: string;
+  readonly value: GeneratedScalarSource;
+}
+
 export interface GeneratedConditionSource {
   readonly sourceType: string;
   readonly supported: boolean;
@@ -737,8 +761,11 @@ export interface GeneratedConditionSource {
   readonly entityCount?: GeneratedEntityCountConditionSource;
   readonly buffStack?: GeneratedBuffStackConditionSource;
   readonly health?: GeneratedHealthConditionSource;
+  readonly poise?: GeneratedPoiseConditionSource | null;
   readonly mainOperator?: GeneratedMainOperatorConditionSource;
   readonly enemyRank?: GeneratedEnemyRankConditionSource;
+  readonly superArmor?: GeneratedSuperArmorConditionSource | null;
+  readonly twoDirectionAngle?: GeneratedTwoDirectionAngleConditionSource | null;
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
   readonly entityTag?: GeneratedEntityTagConditionSource;
@@ -749,6 +776,9 @@ export interface GeneratedConditionSource {
   readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
   readonly abilityEntityDuration?: GeneratedAbilityEntityDurationConditionSource;
   readonly deckAttributeCompare?: GeneratedDeckAttributeCompareConditionSource | null;
+  readonly probability?: GeneratedScalarSource | null;
+  readonly anyConditionGroups?: readonly (readonly GeneratedConditionSource[])[];
+  readonly anyConditionNegated?: readonly (readonly boolean[])[];
 }
 
 export interface GeneratedDeckAttributeCompareConditionSource {
@@ -1004,6 +1034,9 @@ export interface GeneratedConditionalBranchActionSource {
   };
   readonly keywordAction?: GeneratedTimedKeywordActionSource;
   readonly timelineJumpDestinationFrame?: number;
+  readonly storeCurrentTimelineFrame?: {
+    readonly outputKey: string;
+  } | null;
   /** 仅在该条件分支被选中后开始的时间膨胀动作。 */
   readonly timeDilation?: GeneratedTimedTimeDilationSource;
 }

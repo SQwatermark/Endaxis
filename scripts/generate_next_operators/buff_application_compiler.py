@@ -284,6 +284,31 @@ def compile_aura_action(
     services: BuffApplicationCompilerServices,
 ) -> str:
     """在零空间模型中，把无筛选敌方或友方 Aura 归约为动作区间 Buff。"""
+    object_type_values = {
+        "All": -1,
+        "Invalid": 1,
+        "Character": 8,
+        "Enemy": 16,
+        "Interactive": 32,
+        "Projectile": 64,
+        "FactoryRegion": 128,
+        "Npc": 256,
+        "AbilityEntity": 512,
+        "CinematicEntity": 1024,
+        "RemoteFactoryEntity": 2048,
+        "Creature": 4096,
+        "GodEntity": 8192,
+        "EnemyPart": 16384,
+        "EnemyAll": 16400,
+        "SocialBuilding": 32768,
+    }
+
+    def target_filter_allows_object_type(mask: str | int, target_mask: int) -> bool:
+        numeric_mask = object_type_values.get(mask) if isinstance(mask, str) else mask
+        if numeric_mask is None:
+            raise ValueError(f"{path}: unknown Aura ObjectType {mask!r}")
+        return (numeric_mask & target_mask) != 0
+
     target_filter = aura.targetFilter
     timeline_aura = (
         aura.activationSource == "timeline"
@@ -307,7 +332,6 @@ def compile_aura_action(
         and not aura.root.postProcessorTypes
         and aura.excludeColliderOptions == 0
         and target_filter.checkAlive
-        and not target_filter.filterObjectType
         and not target_filter.filterSlot
         and not target_filter.filterGameplayTag
         and not target_filter.tagIds
@@ -382,12 +406,24 @@ def compile_aura_action(
         common_fixed_area
         and enemy_faction
         and aura.targetObjectType in {0, "Enemy", "EnemyAll"}
+        and (
+            not target_filter.filterObjectType
+            or target_filter_allows_object_type(
+                target_filter.objectType, object_type_values["EnemyAll"]
+            )
+        )
     ):
         application_target = "enemy"
     elif (
         common_fixed_area
         and ally_faction
         and aura.targetObjectType in {0, "Character"}
+        and (
+            not target_filter.filterObjectType
+            or target_filter_allows_object_type(
+                target_filter.objectType, object_type_values["Character"]
+            )
+        )
     ):
         application_target = "partyExceptCaster" if aura.excludeOwner else "party"
     if not (

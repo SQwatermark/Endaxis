@@ -1085,7 +1085,7 @@ def parse_conditional_actions(
         path: tuple[str, ...],
         execution_frames: tuple[int, ...],
     ) -> ConditionalActionSource | None:
-        """把当前真实数据中的 Blackboard 整数 Switch 展开为首个匹配的条件链。"""
+        """把原生 BlackboardDouble Switch 展开为首个匹配的条件链。"""
         source_path = f"{source_name}.{'.'.join(path)}"
         if value.get("alwaysNext") is not True:
             raise ValueError(f"{source_path}.alwaysNext: only true is supported")
@@ -1106,14 +1106,6 @@ def parse_conditional_actions(
                 f"{source_path}.options[{option_index}].value",
                 inherited_blackboard,
             )
-            if (
-                option_value.blackboardKey is not None
-                or not float(option_value.value).is_integer()
-            ):
-                raise ValueError(
-                    f"{source_path}.options[{option_index}].value: "
-                    "expected literal integer"
-                )
             actions = parse_branch(
                 option.get("actionData"),
                 start_frame,

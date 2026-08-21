@@ -184,8 +184,14 @@ def parse_aura_actions(
                 faction_target_type, bool
             ):
                 raise ValueError(f"{filter_path}.targetFactionType: expected string or integer")
-            if not isinstance(object_type, str) or not object_type:
-                raise ValueError(f"{filter_path}.objectType: expected non-empty string")
+            if (
+                not isinstance(object_type, (str, int))
+                or isinstance(object_type, bool)
+                or (isinstance(object_type, str) and not object_type)
+            ):
+                raise ValueError(
+                    f"{filter_path}.objectType: expected ObjectType name or signed integer mask"
+                )
             tag_query = require_dict(
                 target_filter.get("tagQuery"), f"{filter_path}.tagQuery"
             )

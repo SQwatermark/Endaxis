@@ -1181,7 +1181,7 @@ class AuraTargetFilterSource:
     factionTarget: str
     factionTargetType: str | int
     filterObjectType: bool
-    objectType: str
+    objectType: str | int
     filterSlot: bool
     slotIndex: int
     filterGameplayTag: bool

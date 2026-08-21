@@ -536,7 +536,8 @@ def parse_buff_damage_modifiers(
         if not processors_supported:
             continue
         if not processors:
-            raise ValueError(f"{path}.damageProcessors: expected non-empty list")
+            # 原生允许注册空处理器列表；它不会修改任何 DamagePack，因而不进入运行时定义。
+            continue
         result.append(
             BuffDamageModifierSource(
                 enabledSide=enabled_side,
@@ -804,7 +805,7 @@ def parse_buff_combo_qte_actions(
 def parse_buff_pause_time_actions(
     buff: dict[str, Any], source_name: str
 ) -> tuple[BuffPauseTimeSource, ...]:
-    """只接受“单一身份守卫 + PauseBuffTime”两动作响应，避免扩大暂停语义。"""
+    """接受身份守卫、PauseBuffTime 及其后纯 DebugPrint 的已证实响应形状。"""
     result: list[BuffPauseTimeSource] = []
     for event_index, raw_event in enumerate(
         require_list(buff.get("abilityEventAction", []), f"{source_name}.abilityEventAction")
@@ -834,9 +835,13 @@ def parse_buff_pause_time_actions(
             raise ValueError(f"{event_path}: PauseBuffTime requires exactly one event sequence")
         sequence_path, sequence, actions = pause_sequences[0]
         expected_guard = "CheckSkillId" if event_name == "OnBeforeCastSkill" else "CheckBuffIdInContextAdvanced"
-        if [action_name(action.get("$type", "")) for action in actions] != [expected_guard, "PauseBuffTime"]:
+        action_types = [action_name(action.get("$type", "")) for action in actions]
+        if (
+            action_types[:2] != [expected_guard, "PauseBuffTime"]
+            or any(action_type != "DebugPrintAction" for action_type in action_types[2:])
+        ):
             raise ValueError(f"{sequence_path}: unsupported PauseBuffTime response shape")
-        guard, pause = actions
+        guard, pause = actions[:2]
         skill_ids: tuple[str, ...] = ()
         buff_ids: tuple[str, ...] = ()
         if expected_guard == "CheckSkillId":

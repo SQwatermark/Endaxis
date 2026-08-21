@@ -5142,20 +5142,6 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         for field, value, message in (
             ("alwaysNext", False, "only true is supported"),
             ("choice", scalar, "expected Blackboard value"),
-            (
-                "options",
-                [
-                    {
-                        "value": {
-                            "useBlackboardKey": False,
-                            "value": 0.5,
-                            "blackboardKey": "",
-                        },
-                        "actionData": {"actionData": []},
-                    }
-                ],
-                "expected literal integer",
-            ),
         ):
             switch = dict(base_switch)
             switch[field] = value
@@ -5172,6 +5158,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             }
             with self.subTest(field=field), self.assertRaisesRegex(ValueError, message):
                 parse_conditional_actions(root, "switch.json", {})
+
+    def test_conditional_switch_preserves_blackboard_option_value(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.SwitchAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "alwaysNext": True,
+                                    "choice": {
+                                        "useBlackboardKey": True,
+                                        "value": 0,
+                                        "blackboardKey": "count",
+                                    },
+                                    "options": [
+                                        {
+                                            "value": {
+                                                "useBlackboardKey": True,
+                                                "value": 4,
+                                                "blackboardKey": "max_stack",
+                                            },
+                                            "actionData": {
+                                                "actionData": [
+                                                    {
+                                                        "$type": "Example.SpellInfliction+Data, Example",
+                                                        "inflictionType": "Fire",
+                                                        "isExtra": False,
+                                                    }
+                                                ]
+                                            },
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(
+            root,
+            "switch.json",
+            {"count": (0,), "max_stack": (4,)},
+        )[0]
+
+        self.assertEqual(action.conditions[0].right.blackboardKey, "max_stack")
+        compiled = compile_conditional_action(action, "switch.condition")
+        self.assertIn("key: 'max_stack'", compiled)
 
     def test_conditional_audit_does_not_silently_drop_fracture_action(self) -> None:
         root = {
@@ -6211,6 +6251,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].enabledSide, "Defender")
         self.assertEqual(modifiers[0].processors[0].zone, "ProdCalcZone")
         self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "defup")
+
+    def test_empty_buff_damage_modifier_is_inert(self) -> None:
+        modifiers, unsupported = parse_buff_damage_modifiers(
+            {
+                "damageModifier": [
+                    {
+                        "enableSide": "Attacker",
+                        "condition": {
+                            "actionData": [],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "damageProcessors": [],
+                    }
+                ]
+            },
+            "buff.test",
+            {},
+        )
+
+        self.assertEqual(modifiers, ())
+        self.assertEqual(unsupported, 0)
 
     def test_buff_damage_type_modifier_is_preserved(self) -> None:
         modifiers, unsupported = parse_buff_damage_modifiers(
@@ -8542,6 +8604,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 storeKey="",
             ),
         )
+
         action = SimpleNamespace(
             startFrame=5,
             actionIndex=38,
@@ -8577,6 +8640,44 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'enemy'", compiled)
         self.assertIn("tagQueryType: 'hasAny'", compiled)
         self.assertIn("tagIds: [-1110095722, -421286163]", compiled)
+
+    def test_zero_space_ally_aura_accepts_observed_numeric_object_type_mask(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = "Character"
+        action["targetFilter"].update(
+            {
+                "autoSetTargetFaction": False,
+                "factionTarget": "Anti",
+                "targetFactionType": "Good",
+                "filterObjectType": True,
+                "objectType": -65522,
+            }
+        )
+        action["excludeOwner"] = False
+        action["actionInAura"] = {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 51,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(aura.targetFilter.objectType, -65522)
+        self.assertIn(
+            "target: 'party'",
+            compile_aura_action(aura, "fixture.aura", buff_definitions=None),
+        )
 
     def test_conditional_buff_context_compiles_unfiltered_team_target_as_party(self) -> None:
         condition = SimpleNamespace(
@@ -10526,6 +10627,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertTrue(actions[0].paused)
         self.assertEqual(actions[1].buffIds, ("buff.resume",))
         self.assertFalse(actions[1].paused)
+
+    def test_buff_pause_time_accepts_observed_trailing_debug_print(self) -> None:
+        buff = {
+            "abilityEventAction": [
+                {
+                    "abilityEvent": "OnFinishedBuff",
+                    "actions": [
+                        {
+                            "actionData": [
+                                {
+                                    "$type": "Example.Conditions.CheckBuffIdInContextAdvanced+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "checkType": "Id",
+                                    "buffIdList": [
+                                        {
+                                            "useBlackboardKey": False,
+                                            "value": "buff.resume",
+                                            "blackboardKey": "",
+                                        }
+                                    ],
+                                    "query": {"queryType": "HasAny", "tags": []},
+                                    "blackboardKey": "",
+                                },
+                                {
+                                    "$type": "Example.PauseBuffTime+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 2,
+                                    "isPaused": False,
+                                },
+                                {
+                                    "$type": "Example.DebugPrintAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 3,
+                                    "identifier": "observed-mifu-debug",
+                                },
+                            ],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        }
+                    ],
+                }
+            ]
+        }
+
+        actions = parse_buff_pause_time_actions(buff, "buff.mifu.json")
+
+        self.assertEqual(len(actions), 1)
+        self.assertEqual(actions[0].buffIds, ("buff.resume",))
+        self.assertFalse(actions[0].paused)
 
     def test_logical_ability_entity_spawn_compiles_runtime_identity_fields(self) -> None:
         payload = AbilityEntitySpawnPayload(
