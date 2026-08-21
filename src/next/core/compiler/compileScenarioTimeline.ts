@@ -362,7 +362,9 @@ function compileResolvedTimelineTracks(
       order += 1;
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
-    const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades);
+    const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades, {
+      skipUncompiledSkillGroups: true,
+    });
     const compiledOperatorBuffDefinitions = compileOperatorBuffDefinitions(
       operator.buffDefinitions,
     );

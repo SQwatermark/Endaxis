@@ -6,6 +6,1367 @@ export const yvonneGeneratedSource = {
   "slug": "yvonne",
   "buffDefinitions": [
     {
+      "buffId": "buff_chr_0017_yvonne_combo_skill",
+      "sourceFile": "buff_chr_0017_yvonne_combo_skill.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 1.0,
+          "blackboardKey": "interval",
+          "levelValues": [
+            0.75
+          ]
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 4.0,
+          "blackboardKey": "maxcnt",
+          "levelValues": [
+            4.0
+          ]
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_multiplier",
+          "value": 1.5,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_boom",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_tick",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "count",
+          "value": 2.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "has_added_usp",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "has_potential1",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "interval",
+          "value": 0.75,
+          "isDynamic": false
+        },
+        {
+          "key": "maxcnt",
+          "value": 4.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "usp",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "EffectAction",
+            "SetAnimatorParamAction",
+            "CameraImpulseAction",
+            "IfElseAction",
+            "PullAction",
+            "EnemyHurtAnimAction",
+            "ForEachAction",
+            "IfElseAction",
+            "PlaySoundAction",
+            "ModifyDynamicBlackboard",
+            "CompareFloat",
+            "IfElseAction",
+            "PlaySoundAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [
+            {
+              "actionIndex": 11,
+              "target": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "orderedActionTypes": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "skillCasts": []
+            }
+          ],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "SetAnimatorParamAction",
+                "CameraImpulseAction",
+                "IfElseAction",
+                "PullAction",
+                "EnemyHurtAnimAction",
+                "ForEachAction",
+                "IfElseAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [
+                "IfElseAction",
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ModifyDynamicBlackboard",
+                "CompareFloat",
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 25,
+                  "blackboardMutation": {
+                    "key": "count",
+                    "operation": "Add",
+                    "value": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 6,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "succeedActions",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            },
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 8,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[3]",
+                "failActions",
+                "actionData",
+                "[1]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 32,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0017_yvonne_combo_skill_finish",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_scale_boom": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_boom",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "radius": {
+                        "value": 0.0,
+                        "blackboardKey": "radius",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "has_potential1": {
+                        "value": 0.0,
+                        "blackboardKey": "has_potential1",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "poise": {
+                        "value": 0.0,
+                        "blackboardKey": "poise",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "had_added_usp": {
+                        "value": 0.0,
+                        "blackboardKey": "has_added_usp",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "usp": {
+                        "value": 0.0,
+                        "blackboardKey": "usp",
+                        "levelValues": [
+                          10.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0017_yvonne_combo_skill_finish"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 32,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0017_yvonne_combo_skill_finish",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale_boom": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_boom",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "radius": {
+                            "value": 0.0,
+                            "blackboardKey": "radius",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "has_potential1": {
+                            "value": 0.0,
+                            "blackboardKey": "has_potential1",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "poise": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "had_added_usp": {
+                            "value": 0.0,
+                            "blackboardKey": "has_added_usp",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "usp": {
+                            "value": 0.0,
+                            "blackboardKey": "usp",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 32,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0017_yvonne_combo_skill_finish",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale_boom": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_boom",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "radius": {
+                            "value": 0.0,
+                            "blackboardKey": "radius",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "has_potential1": {
+                            "value": 0.0,
+                            "blackboardKey": "has_potential1",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "poise": {
+                            "value": 0.0,
+                            "blackboardKey": "poise",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "had_added_usp": {
+                            "value": 0.0,
+                            "blackboardKey": "has_added_usp",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "usp": {
+                            "value": 0.0,
+                            "blackboardKey": "usp",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "PlaySoundAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_combo_skill_finish",
+      "sourceFile": "buff_chr_0017_yvonne_combo_skill_finish.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.72,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.5,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 999.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_boom",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_tick",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "had_added_usp",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "has_potential1",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "usp",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "SetAnimatorParamAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SetAnimatorParamAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "IfElseAction",
+            "PlaySoundAction",
+            "FindTargetAction",
+            "InterruptAction",
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction",
+            "EnemyHurtAnimAction",
+            "CameraImpulseAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Cryst",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_boom",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Cryst",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 10.0,
+                "blackboardKey": "poise",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "buffApplications": [
+            {
+              "actionIndex": 8,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_cryst_cryst_frozen_triggered",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "count": {
+                        "value": 1.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "extra_duration": {
+                        "value": 2.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_cryst_cryst_frozen_triggered"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 6,
+              "targetGroupKey": "tar",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "center": "ActionOwner",
+              "selectorOwner": "ActionOwner"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction",
+                "PlaySoundAction",
+                "FindTargetAction",
+                "InterruptAction",
+                "CreateBuffAction",
+                "DamageAction",
+                "IfElseAction",
+                "EnemyHurtAnimAction",
+                "CameraImpulseAction"
+              ],
+              "combatActions": [
+                "IfElseAction",
+                "CreateBuffAction",
+                "DamageAction",
+                "IfElseAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_cryst_frozen_triggered",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "extra_duration": {
+                            "value": 2.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "tar",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 6,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "InterruptAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 7,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "interrupt": {
+                    "attacker": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "defender": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "tar",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideSuperArmorLimit": -1.0,
+                    "immobilizedTime": 1.0
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 4,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[4]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_cryst_frozen_triggered",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "extra_duration": {
+                            "value": 2.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Context",
+                    "targetGroupKey": "tar",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Cryst",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_boom",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 12288
+                    },
+                    {
+                      "damageType": "Cryst",
+                      "attributeType": "Poise",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": {
+                        "value": 10.0,
+                        "blackboardKey": "poise",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "definiteValue": null,
+                      "damageDecorateMask": 0
+                    }
+                  ]
+                },
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 10,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 10,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[6]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckEntityNum",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "entityCount": {
+                          "targetSource": "Context",
+                          "targetGroupKey": "tar",
+                          "minimumCount": 1,
+                          "comparison": "GE",
+                          "containsHittableTarget": false,
+                          "excludeDeadEntity": false,
+                          "storeKey": ""
+                        },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      },
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 1.0,
+                          "blackboardKey": "had_added_usp",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 1.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ObtainCostAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[6]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 14,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "resourceGain": {
+                          "resource": "ultimateEnergy",
+                          "amount": {
+                            "value": 5.0,
+                            "blackboardKey": "usp",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "coefficient": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "spGainKind": null,
+                          "spGainSource": null,
+                          "onlyMainOperator": false,
+                          "isPercentValue": false,
+                          "useUltimateRecoveryTag": false,
+                          "ultimateRecoveryTagId": 0,
+                          "ignoreUltimateGainScalar": false
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [
+                      false,
+                      true
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 6,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null
+            }
+          ]
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "FinishOwnerAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishOwnerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_combo_skill_tutorial_marker",
+      "sourceFile": "buff_chr_0017_yvonne_combo_skill_tutorial_marker.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
       "buffId": "buff_chr_0017_yvonne_normal_skill_frozen",
       "sourceFile": "buff_chr_0017_yvonne_normal_skill_frozen.json",
       "sourceAvailable": true,
@@ -95,7 +1456,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_normal_skill_listener",
@@ -333,6 +1698,7 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Tag",
@@ -342,6 +1708,7 @@ export const yvonneGeneratedSource = {
                             1535684437
                           ]
                         },
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -401,7 +1768,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -427,7 +1796,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_normal_skill_projectile",
@@ -600,6 +1973,7 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "targetIdentity": {
                           "first": {
                             "targetSource": "Source",
@@ -636,6 +2010,7 @@ export const yvonneGeneratedSource = {
                         },
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -664,7 +2039,11 @@ export const yvonneGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -759,8 +2138,2878 @@ export const yvonneGeneratedSource = {
                       }
                     ],
                     "assignBlackboard": true,
-                    "entityBlackboardAssignments": []
-                  }
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "tarPos",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        1,
+                        0,
+                        0,
+                        1
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0017_yvonne_normal_skill",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0017_yvonne_normal_skill_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0017_yvonne_normal_skill_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [
+                        {
+                          "startFrame": 0,
+                          "endFrame": 3,
+                          "actionIndex": 4,
+                          "actionPath": [
+                            "timelineActions[1]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[2]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "GE",
+                              "left": {
+                                "value": 0.0,
+                                "blackboardKey": "has_potential2",
+                                "levelValues": [
+                                  0.0
+                                ]
+                              },
+                              "right": {
+                                "value": 1.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            },
+                            {
+                              "sourceType": "CheckEntityNum",
+                              "supported": false,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "entityCount": {
+                                "targetSource": "Context",
+                                "targetGroupKey": "tar",
+                                "minimumCount": 1,
+                                "comparison": "Equals",
+                                "containsHittableTarget": false,
+                                "excludeDeadEntity": false,
+                                "storeKey": ""
+                              },
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]",
+                                "action",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 8,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 3,
+                                "actionIndex": 8,
+                                "actionPath": [
+                                  "timelineActions[1]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[0]",
+                                  "action",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CheckBuffStackNumByTag",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "buffStack": {
+                                      "targetSource": "Target",
+                                      "targetGroupKey": "",
+                                      "buffCheckType": "Tag",
+                                      "buffIds": [],
+                                      "tagQueryType": "hasAny",
+                                      "buffTagIds": [
+                                        1570888476,
+                                        -1411846745
+                                      ],
+                                      "countType": "BuffCount",
+                                      "comparison": "GE",
+                                      "value": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "limitSkillCastId": false
+                                    },
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "IfElseAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 10,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 3,
+                                      "actionIndex": 10,
+                                      "actionPath": [
+                                        "timelineActions[1]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]",
+                                        "action",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CheckBuffStackNumByTag",
+                                          "supported": true,
+                                          "comparison": null,
+                                          "left": null,
+                                          "right": null,
+                                          "skillTypes": [],
+                                          "buffStack": {
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              1570888476
+                                            ],
+                                            "countType": "BuffCount",
+                                            "comparison": "GE",
+                                            "value": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "limitSkillCastId": false
+                                          },
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "SaveBuffStackNumAdvanced",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 12,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffStackRead": {
+                                            "outputKey": "count",
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              1570888476
+                                            ],
+                                            "countType": "BuffCount",
+                                            "limitSkillCastId": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "SimpleCalcBBAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 14,
+                                          "blackboardCalculation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Multiply",
+                                            "left": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale_layer",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "right": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "addend": null
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 15,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 4,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 16,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale2",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ObtainCostAction",
+                                          "actionIndex": 5,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[5]"
+                                          ],
+                                          "serverActionIndex": 17,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "resourceGain": {
+                                            "resource": "sp",
+                                            "amount": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atb_return",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "coefficient": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "spGainKind": "refund",
+                                            "spGainSource": "skill",
+                                            "onlyMainOperator": false,
+                                            "isPercentValue": false,
+                                            "useUltimateRecoveryTag": false,
+                                            "ultimateRecoveryTagId": 0,
+                                            "ignoreUltimateGainScalar": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "DamageAction",
+                                          "actionIndex": 6,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[6]"
+                                          ],
+                                          "serverActionIndex": 18,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "damageUnits": [
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Hp",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 0.0,
+                                                "blackboardKey": "atk_scale_final",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": null,
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 4352
+                                            },
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Poise",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 4.0,
+                                                "blackboardKey": "atk_scale",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": {
+                                                "value": 0.0,
+                                                "blackboardKey": "poise",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 0
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "actionType": "CompareFloat",
+                                          "actionIndex": 7,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[7]"
+                                          ],
+                                          "serverActionIndex": 19,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 3,
+                                            "actionIndex": 19,
+                                            "actionPath": [
+                                              "timelineActions[1]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "action",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[7]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "GT",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "max_count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "ModifyDynamicBlackboard",
+                                                "actionIndex": 8,
+                                                "actionPath": [
+                                                  "timelineActions[1]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[2]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[8]"
+                                                ],
+                                                "serverActionIndex": 20,
+                                                "blackboardMutation": {
+                                                  "key": "max_count",
+                                                  "operation": "Assign",
+                                                  "value": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "count",
+                                                    "levelValues": [
+                                                      0.0
+                                                    ]
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "failActions": [],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "failActions": [
+                                        {
+                                          "actionType": "SaveBuffStackNumAdvanced",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 21,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffStackRead": {
+                                            "outputKey": "count",
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              -1411846745
+                                            ],
+                                            "countType": "BuffCount",
+                                            "limitSkillCastId": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "SimpleCalcBBAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 23,
+                                          "blackboardCalculation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Multiply",
+                                            "left": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale_layer",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "right": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "addend": null
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 24,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 4,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 25,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale2",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ObtainCostAction",
+                                          "actionIndex": 5,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[5]"
+                                          ],
+                                          "serverActionIndex": 26,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "resourceGain": {
+                                            "resource": "sp",
+                                            "amount": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atb_return",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "coefficient": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "spGainKind": "refund",
+                                            "spGainSource": "skill",
+                                            "onlyMainOperator": false,
+                                            "isPercentValue": false,
+                                            "useUltimateRecoveryTag": false,
+                                            "ultimateRecoveryTagId": 0,
+                                            "ignoreUltimateGainScalar": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "DamageAction",
+                                          "actionIndex": 6,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[6]"
+                                          ],
+                                          "serverActionIndex": 27,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "damageUnits": [
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Hp",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 0.0,
+                                                "blackboardKey": "atk_scale_final",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": null,
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 4352
+                                            },
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Poise",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 4.0,
+                                                "blackboardKey": "atk_scale",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": {
+                                                "value": 0.0,
+                                                "blackboardKey": "poise",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 0
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "actionType": "CompareFloat",
+                                          "actionIndex": 7,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[7]"
+                                          ],
+                                          "serverActionIndex": 28,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 3,
+                                            "actionIndex": 28,
+                                            "actionPath": [
+                                              "timelineActions[1]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "action",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[7]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "GT",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "max_count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "ModifyDynamicBlackboard",
+                                                "actionIndex": 8,
+                                                "actionPath": [
+                                                  "timelineActions[1]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[2]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "failActions",
+                                                  "actionData",
+                                                  "[8]"
+                                                ],
+                                                "serverActionIndex": 29,
+                                                "blackboardMutation": {
+                                                  "key": "max_count",
+                                                  "operation": "Assign",
+                                                  "value": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "count",
+                                                    "levelValues": [
+                                                      0.0
+                                                    ]
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "failActions": [],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "conditionNegated": [
+                                        false
+                                      ],
+                                      "alwaysNext": true
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "failActions": [
+                                  {
+                                    "actionType": "ModifyDynamicBlackboard",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 30,
+                                    "blackboardMutation": {
+                                      "key": "atk_scale_final",
+                                      "operation": "Assign",
+                                      "value": {
+                                        "value": 0.0,
+                                        "blackboardKey": "atk_scale",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "ObtainCostAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 31,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "resourceGain": {
+                                      "resource": "sp",
+                                      "amount": {
+                                        "value": 0.0,
+                                        "blackboardKey": "atb_return",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "coefficient": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "spGainKind": "refund",
+                                      "spGainSource": "skill",
+                                      "onlyMainOperator": false,
+                                      "isPercentValue": false,
+                                      "useUltimateRecoveryTag": false,
+                                      "ultimateRecoveryTagId": 0,
+                                      "ignoreUltimateGainScalar": false
+                                    }
+                                  },
+                                  {
+                                    "actionType": "DamageAction",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 32,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "damageUnits": [
+                                      {
+                                        "damageType": "Cryst",
+                                        "attributeType": "Hp",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 0.0,
+                                          "blackboardKey": "atk_scale_final",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": null,
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 4352
+                                      },
+                                      {
+                                        "damageType": "Cryst",
+                                        "attributeType": "Poise",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 4.0,
+                                          "blackboardKey": "atk_scale",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": {
+                                          "value": 0.0,
+                                          "blackboardKey": "poise",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 0
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "actionType": "CompareFloat",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 33,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 3,
+                                      "actionIndex": 33,
+                                      "actionPath": [
+                                        "timelineActions[1]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]",
+                                        "action",
+                                        "actionData",
+                                        "[0]",
+                                        "failActions",
+                                        "actionData",
+                                        "[3]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CompareFloat",
+                                          "supported": true,
+                                          "comparison": "GT",
+                                          "left": {
+                                            "value": 0.0,
+                                            "blackboardKey": "count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "right": {
+                                            "value": 0.0,
+                                            "blackboardKey": "max_count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 4,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 34,
+                                          "blackboardMutation": {
+                                            "key": "max_count",
+                                            "operation": "Assign",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "failActions": [],
+                                      "conditionNegated": [],
+                                      "alwaysNext": false
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "conditionNegated": [
+                                  false
+                                ],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 36,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_common_obtain_ultimate_sp",
+                                    "classification": "skillCostUltimateEnergyGain",
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            },
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "succeedActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 37,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 3,
+                                "actionIndex": 37,
+                                "actionPath": [
+                                  "timelineActions[1]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[3]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CompareFloat",
+                                    "supported": true,
+                                    "comparison": "GT",
+                                    "left": {
+                                      "value": 0.0,
+                                      "blackboardKey": "max_count",
+                                      "levelValues": [
+                                        0.0
+                                      ]
+                                    },
+                                    "right": {
+                                      "value": 0.0,
+                                      "blackboardKey": null,
+                                      "levelValues": null
+                                    },
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "SimpleCalcBBAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 39,
+                                    "blackboardCalculation": {
+                                      "key": "usp_final",
+                                      "operation": "Multiply",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_layer",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "max_count",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "addend": null
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "ModifyDynamicBlackboard",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 40,
+                                    "blackboardMutation": {
+                                      "key": "usp_final",
+                                      "operation": "Add",
+                                      "value": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_base",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "ObtainCostAction",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 41,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "resourceGain": {
+                                      "resource": "ultimateEnergy",
+                                      "amount": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_final",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "coefficient": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "spGainKind": null,
+                                      "spGainSource": null,
+                                      "onlyMainOperator": false,
+                                      "isPercentValue": false,
+                                      "useUltimateRecoveryTag": false,
+                                      "ultimateRecoveryTagId": 0,
+                                      "ignoreUltimateGainScalar": false
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "action",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 43,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 3,
+                                "actionIndex": 43,
+                                "actionPath": [
+                                  "timelineActions[1]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "failActions",
+                                  "actionData",
+                                  "[0]",
+                                  "action",
+                                  "actionData",
+                                  "[0]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CheckBuffStackNumByTag",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "buffStack": {
+                                      "targetSource": "Target",
+                                      "targetGroupKey": "",
+                                      "buffCheckType": "Tag",
+                                      "buffIds": [],
+                                      "tagQueryType": "hasAny",
+                                      "buffTagIds": [
+                                        1570888476,
+                                        -1411846745
+                                      ],
+                                      "countType": "BuffCount",
+                                      "comparison": "GE",
+                                      "value": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "limitSkillCastId": false
+                                    },
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "IfElseAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 45,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 3,
+                                      "actionIndex": 45,
+                                      "actionPath": [
+                                        "timelineActions[1]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "action",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[0]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CheckBuffStackNumByTag",
+                                          "supported": true,
+                                          "comparison": null,
+                                          "left": null,
+                                          "right": null,
+                                          "skillTypes": [],
+                                          "buffStack": {
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              1570888476
+                                            ],
+                                            "countType": "BuffCount",
+                                            "comparison": "GE",
+                                            "value": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "limitSkillCastId": false
+                                          },
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "SaveBuffStackNumAdvanced",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 47,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffStackRead": {
+                                            "outputKey": "count",
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              1570888476
+                                            ],
+                                            "countType": "BuffCount",
+                                            "limitSkillCastId": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "SimpleCalcBBAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 49,
+                                          "blackboardCalculation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Multiply",
+                                            "left": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale_layer",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "right": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "addend": null
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 50,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 4,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 51,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale2",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "DamageAction",
+                                          "actionIndex": 5,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[5]"
+                                          ],
+                                          "serverActionIndex": 52,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "damageUnits": [
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Hp",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 0.0,
+                                                "blackboardKey": "atk_scale_final",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": null,
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 4352
+                                            },
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Poise",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 4.0,
+                                                "blackboardKey": "atk_scale",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": {
+                                                "value": 0.0,
+                                                "blackboardKey": "poise",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 0
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "actionType": "CompareFloat",
+                                          "actionIndex": 6,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[6]"
+                                          ],
+                                          "serverActionIndex": 53,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 3,
+                                            "actionIndex": 53,
+                                            "actionPath": [
+                                              "timelineActions[1]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "action",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[6]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "GT",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "max_count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "ModifyDynamicBlackboard",
+                                                "actionIndex": 7,
+                                                "actionPath": [
+                                                  "timelineActions[1]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[2]",
+                                                  "failActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[7]"
+                                                ],
+                                                "serverActionIndex": 54,
+                                                "blackboardMutation": {
+                                                  "key": "max_count",
+                                                  "operation": "Assign",
+                                                  "value": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "count",
+                                                    "levelValues": [
+                                                      0.0
+                                                    ]
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "failActions": [],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "failActions": [
+                                        {
+                                          "actionType": "SaveBuffStackNumAdvanced",
+                                          "actionIndex": 0,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]"
+                                          ],
+                                          "serverActionIndex": 55,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffStackRead": {
+                                            "outputKey": "count",
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              -1411846745
+                                            ],
+                                            "countType": "BuffCount",
+                                            "limitSkillCastId": false
+                                          }
+                                        },
+                                        {
+                                          "actionType": "SimpleCalcBBAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 57,
+                                          "blackboardCalculation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Multiply",
+                                            "left": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale_layer",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "right": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            },
+                                            "addend": null
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 58,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 4,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 59,
+                                          "blackboardMutation": {
+                                            "key": "atk_scale_final",
+                                            "operation": "Add",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_scale2",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "DamageAction",
+                                          "actionIndex": 5,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[5]"
+                                          ],
+                                          "serverActionIndex": 60,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "damageUnits": [
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Hp",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 0.0,
+                                                "blackboardKey": "atk_scale_final",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": null,
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 4352
+                                            },
+                                            {
+                                              "damageType": "Cryst",
+                                              "attributeType": "Poise",
+                                              "calculation": "standard",
+                                              "attackScale": {
+                                                "value": 4.0,
+                                                "blackboardKey": "atk_scale",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "calculationMultiplier": null,
+                                              "poiseValue": {
+                                                "value": 0.0,
+                                                "blackboardKey": "poise",
+                                                "levelValues": [
+                                                  0.0
+                                                ]
+                                              },
+                                              "definiteValue": null,
+                                              "damageDecorateMask": 0
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "actionType": "CompareFloat",
+                                          "actionIndex": 6,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[6]"
+                                          ],
+                                          "serverActionIndex": 61,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 3,
+                                            "actionIndex": 61,
+                                            "actionPath": [
+                                              "timelineActions[1]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[2]",
+                                              "failActions",
+                                              "actionData",
+                                              "[0]",
+                                              "action",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[0]",
+                                              "failActions",
+                                              "actionData",
+                                              "[6]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "GT",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "max_count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "ModifyDynamicBlackboard",
+                                                "actionIndex": 7,
+                                                "actionPath": [
+                                                  "timelineActions[1]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[2]",
+                                                  "failActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "failActions",
+                                                  "actionData",
+                                                  "[7]"
+                                                ],
+                                                "serverActionIndex": 62,
+                                                "blackboardMutation": {
+                                                  "key": "max_count",
+                                                  "operation": "Assign",
+                                                  "value": {
+                                                    "value": 0.0,
+                                                    "blackboardKey": "count",
+                                                    "levelValues": [
+                                                      0.0
+                                                    ]
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "failActions": [],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "conditionNegated": [
+                                        false
+                                      ],
+                                      "alwaysNext": true
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "failActions": [
+                                  {
+                                    "actionType": "ModifyDynamicBlackboard",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 63,
+                                    "blackboardMutation": {
+                                      "key": "atk_scale_final",
+                                      "operation": "Assign",
+                                      "value": {
+                                        "value": 0.0,
+                                        "blackboardKey": "atk_scale",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "DamageAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 64,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "damageUnits": [
+                                      {
+                                        "damageType": "Cryst",
+                                        "attributeType": "Hp",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 0.0,
+                                          "blackboardKey": "atk_scale_final",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": null,
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 4352
+                                      },
+                                      {
+                                        "damageType": "Cryst",
+                                        "attributeType": "Poise",
+                                        "calculation": "standard",
+                                        "attackScale": {
+                                          "value": 4.0,
+                                          "blackboardKey": "atk_scale",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "calculationMultiplier": null,
+                                        "poiseValue": {
+                                          "value": 0.0,
+                                          "blackboardKey": "poise",
+                                          "levelValues": [
+                                            0.0
+                                          ]
+                                        },
+                                        "definiteValue": null,
+                                        "damageDecorateMask": 0
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "actionType": "CompareFloat",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[0]",
+                                      "action",
+                                      "actionData",
+                                      "[0]",
+                                      "failActions",
+                                      "actionData",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 65,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 3,
+                                      "actionIndex": 65,
+                                      "actionPath": [
+                                        "timelineActions[1]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[2]",
+                                        "failActions",
+                                        "actionData",
+                                        "[0]",
+                                        "action",
+                                        "actionData",
+                                        "[0]",
+                                        "failActions",
+                                        "actionData",
+                                        "[2]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CompareFloat",
+                                          "supported": true,
+                                          "comparison": "GT",
+                                          "left": {
+                                            "value": 0.0,
+                                            "blackboardKey": "count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "right": {
+                                            "value": 0.0,
+                                            "blackboardKey": "max_count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "ModifyDynamicBlackboard",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[1]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[2]",
+                                            "failActions",
+                                            "actionData",
+                                            "[0]",
+                                            "action",
+                                            "actionData",
+                                            "[0]",
+                                            "failActions",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 66,
+                                          "blackboardMutation": {
+                                            "key": "max_count",
+                                            "operation": "Assign",
+                                            "value": {
+                                              "value": 0.0,
+                                              "blackboardKey": "count",
+                                              "levelValues": [
+                                                0.0
+                                              ]
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "failActions": [],
+                                      "conditionNegated": [],
+                                      "alwaysNext": false
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "conditionNegated": [
+                                  false
+                                ],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "failActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 68,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_common_obtain_ultimate_sp",
+                                    "classification": "skillCostUltimateEnergyGain",
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            },
+                            {
+                              "actionType": "IfElseAction",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[1]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[2]",
+                                "failActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 69,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 3,
+                                "actionIndex": 69,
+                                "actionPath": [
+                                  "timelineActions[1]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[2]",
+                                  "failActions",
+                                  "actionData",
+                                  "[3]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CompareFloat",
+                                    "supported": true,
+                                    "comparison": "GT",
+                                    "left": {
+                                      "value": 0.0,
+                                      "blackboardKey": "max_count",
+                                      "levelValues": [
+                                        0.0
+                                      ]
+                                    },
+                                    "right": {
+                                      "value": 0.0,
+                                      "blackboardKey": null,
+                                      "levelValues": null
+                                    },
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "SimpleCalcBBAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[0]"
+                                    ],
+                                    "serverActionIndex": 71,
+                                    "blackboardCalculation": {
+                                      "key": "usp_final",
+                                      "operation": "Multiply",
+                                      "left": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_layer",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "right": {
+                                        "value": 0.0,
+                                        "blackboardKey": "max_count",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "addend": null
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "ModifyDynamicBlackboard",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 72,
+                                    "blackboardMutation": {
+                                      "key": "usp_final",
+                                      "operation": "Add",
+                                      "value": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_base",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      }
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "ObtainCostAction",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[1]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[2]",
+                                      "failActions",
+                                      "actionData",
+                                      "[3]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 73,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "resourceGain": {
+                                      "resource": "ultimateEnergy",
+                                      "amount": {
+                                        "value": 0.0,
+                                        "blackboardKey": "usp_final",
+                                        "levelValues": [
+                                          0.0
+                                        ]
+                                      },
+                                      "coefficient": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "spGainKind": null,
+                                      "spGainSource": null,
+                                      "onlyMainOperator": false,
+                                      "isPercentValue": false,
+                                      "useUltimateRecoveryTag": false,
+                                      "ultimateRecoveryTagId": 0,
+                                      "ignoreUltimateGainScalar": false
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "conditionNegated": [
+                            false,
+                            false
+                          ],
+                          "alwaysNext": true
+                        }
+                      ],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [
+                        "CreateBuffAction",
+                        "DamageAction",
+                        "IfElseAction",
+                        "ObtainCostAction"
+                      ],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
                 }
               ],
               "priority": 0
@@ -782,7 +5031,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_cd",
@@ -1084,7 +5337,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_effect",
@@ -1179,7 +5436,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_new",
@@ -1281,7 +5542,841 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_power_attack",
+      "sourceFile": "buff_chr_0017_yvonne_power_attack.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Refresh",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_talent_0",
+      "sourceFile": "buff_chr_0017_yvonne_talent_0.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "inflict_up",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "status_up",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "targetSide": "Attacker",
+              "attributeType": "CriticalDamageIncrease",
+              "slot": "BaseAddition",
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "inflict_up",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "queryType": "hasAny",
+              "tagIds": [
+                1570888476
+              ]
+            },
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "queryType": "exceptAny",
+              "tagIds": [
+                1535684437
+              ]
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "targetSide": "Attacker",
+              "attributeType": "CriticalDamageIncrease",
+              "slot": "BaseAddition",
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "status_up",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "queryType": "hasAny",
+              "tagIds": [
+                1535684437
+              ]
+            },
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "queryType": "exceptAny",
+              "tagIds": [
+                1570888476
+              ]
+            }
+          ],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": []
+        },
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "Target",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAll",
+          "tagIds": [
+            1570888476,
+            1535684437
+          ],
+          "processors": [
+            {
+              "targetSide": "Attacker",
+              "attributeType": "CriticalDamageIncrease",
+              "slot": "BaseAddition",
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "status_up",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": []
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_talent_1",
+      "sourceFile": "buff_chr_0017_yvonne_talent_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "dmg_up",
+          "value": 0.5,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnOutputBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext",
+            "CheckTimedMarkerCondition",
+            "CreateBuffAction",
+            "CreateTimedMarker"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "CreateTimedMarker"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0017_yvonne_talent_1_valid",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "dmg_up": {
+                        "value": 0.0,
+                        "blackboardKey": "dmg_up",
+                        "levelValues": [
+                          0.5
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0017_yvonne_talent_1_valid"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "CheckTimedMarkerCondition",
+                "CreateBuffAction",
+                "CreateTimedMarker"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateTimedMarker"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0017_yvonne_talent_1_valid",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "dmg_up": {
+                            "value": 0.0,
+                            "blackboardKey": "dmg_up",
+                            "levelValues": [
+                              0.5
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Id",
+                          "buffIds": [
+                            "buff_chr_0017_yvonne_normal_skill_frozen"
+                          ],
+                          "queryType": "HasAny"
+                        },
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckTimedMarkerCondition",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Owner",
+                                "targetGroupKey": "",
+                                "markerId": "chr_0017_yvonne_talent_1",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 2,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_chr_0017_yvonne_talent_1_valid",
+                                    "classification": null,
+                                    "blackboardAssignments": {
+                                      "dmg_up": {
+                                        "value": 0.0,
+                                        "blackboardKey": "dmg_up",
+                                        "levelValues": [
+                                          0.5
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            },
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 3,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[3]"
+                              ],
+                              "serverActionIndex": 3,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Owner",
+                                "targetGroupKey": "",
+                                "markerId": "chr_0017_yvonne_talent_1",
+                                "duration": {
+                                  "value": 0.1,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_chr_0017_yvonne_talent_1_valid",
+      "sourceFile": "buff_chr_0017_yvonne_talent_1_valid.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 15.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Refresh",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 4.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "dmg_up",
+          "value": 0.5,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "ComboCacheAction",
+            "EffectAction",
+            "EffectAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ComboCacheAction",
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnBeforeCastSkill",
+          "orderedActionTypes": [
+            "CheckSkillId",
+            "CreateBuffAttachingSkill"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckSkillId",
+                "CreateBuffAttachingSkill"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill",
@@ -1646,8 +6741,10 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -1700,7 +6797,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1806,8 +6905,10 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -1867,7 +6968,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -2309,7 +7412,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_camera",
@@ -2672,6 +7779,7 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "targetIdentity": {
                           "first": {
                             "targetSource": "MainTarget",
@@ -2708,6 +7816,7 @@ export const yvonneGeneratedSource = {
                         },
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -2801,7 +7910,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -2849,7 +7960,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_camera_child",
@@ -3098,7 +8213,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_end",
@@ -4037,8 +9156,10 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -4098,7 +9219,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -4361,7 +9484,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_environment",
@@ -4458,7 +9585,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_full_effect",
@@ -4539,7 +9670,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_layer",
@@ -4715,7 +9850,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_layer_effect",
@@ -4807,7 +9946,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_potential4_valid",
@@ -4975,8 +10118,10 @@ export const yvonneGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
+                        "objectTypeMatch": null,
                         "deckAttributeCompare": null,
                         "probability": null,
                         "anyConditionGroups": [],
@@ -5024,7 +10169,9 @@ export const yvonneGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -5050,7 +10197,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_robot_end",
@@ -5147,7 +10298,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_shield",
@@ -5236,7 +10391,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice",
@@ -5367,7 +10526,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice_short",
@@ -5498,7 +10661,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice_start",
@@ -5629,7 +10796,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_wepl",
@@ -5724,7 +10895,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_wepr",
@@ -5819,7 +10994,1145 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_cryst_cryst_frozen_triggered",
+      "sourceFile": "buff_common_cryst_cryst_frozen_triggered.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "cryst_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "consumed_layer",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "consumed_type",
+          "value": 2.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "extra_duration",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ReadSkillSettingData",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "count": {
+                        "value": 0.0,
+                        "blackboardKey": "count",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "consumed_type": {
+                        "value": 0.0,
+                        "blackboardKey": "consumed_type",
+                        "levelValues": [
+                          2.0
+                        ]
+                      },
+                      "consumed_layer": {
+                        "value": 0.0,
+                        "blackboardKey": "consumed_layer",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_cryst_cryst_frozen_triggered_do"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ReadSkillSettingData",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              2.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "blackboardMutation": {
+                    "key": "duration",
+                    "operation": "Add",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "extra_duration",
+                      "levelValues": [
+                        0.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              2.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
+      "sourceFile": "buff_common_cryst_cryst_frozen_triggered_do.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 6.5,
+          "blackboardKey": "duration",
+          "levelValues": [
+            5.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "Stack",
+        "stackingKey": "cryst_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "count",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 5.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_phy_dmg_up",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "phy_dmg_up",
+          "value": 0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        1535684437
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "PlaySoundAction",
+            "CheckSuperArmor",
+            "CreateBuffAction",
+            "EffectAction",
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_frozen",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 5.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          5.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_frozen"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "PlaySoundAction",
+                "CheckSuperArmor",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_frozen",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 5.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              5.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_frozen",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 5.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              5.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction",
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 8,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_cryst_triggered_start",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_cryst_triggered_start"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "StoreAttributeValue",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 10,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_cryst_triggered_fx",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_cryst_triggered_fx"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "StoreAttributeValue",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 10,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 9,
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "cryoAbnormalDamageIncrease",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "phy_dmg_up",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "base": {
+                      "value": 1.0,
+                      "blackboardKey": "phy_dmg_up",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "outputKey": "final_phy_dmg_up"
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "OnSpellAbnormalStartFinish"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "OnSpellAbnormalStartFinish"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_cryst_triggered_fx",
+      "sourceFile": "buff_common_cryst_triggered_fx.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "EnemyHurtAnimAction",
+            "EffectAction",
+            "CameraImpulseAction",
+            "HitStopAction",
+            "PlaySoundAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnemyHurtAnimAction",
+                "EffectAction",
+                "CameraImpulseAction",
+                "HitStopAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_cryst_triggered_start",
+      "sourceFile": "buff_common_cryst_triggered_start.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "cryst_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "IgniteBuffTextAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteBuffTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -5897,7 +12210,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -5962,12 +12279,122 @@ export const yvonneGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_do_frozen",
+      "sourceFile": "buff_common_do_frozen.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        -717418722,
+        889346577
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
       "eventActions": [
         {
           "eventSource": "buff",
           "event": "DuringBuffEnable",
           "orderedActionTypes": [
-            "SetSuperArmorAction"
+            "TimeDilationAction"
           ],
           "combatActions": [],
           "damageUnits": [],
@@ -5980,11 +12407,77 @@ export const yvonneGeneratedSource = {
               "onlyMainOperator": false,
               "onlyGuard": false,
               "orderedActionTypes": [
-                "SetSuperArmorAction"
+                "TimeDilationAction"
               ],
               "combatActions": [],
               "buffApplications": [],
-              "actions": [],
+              "actions": [
+                {
+                  "actionType": "TimeDilationAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timeDilation": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "kind": "normal",
+                    "priority": -361293424,
+                    "scope": "entity",
+                    "slot": -1855252810,
+                    "duration": {
+                      "value": 0.0,
+                      "blackboardKey": "duration",
+                      "levelValues": [
+                        9999.0
+                      ]
+                    },
+                    "namedCurve": null,
+                    "inlineCurve": [
+                      {
+                        "time": 0.0,
+                        "value": 0.0,
+                        "inTangent": 0.0,
+                        "outTangent": 0.0,
+                        "weightedMode": 0,
+                        "inWeight": 0.0,
+                        "outWeight": 0.333333343
+                      },
+                      {
+                        "time": 1.0,
+                        "value": 0.0,
+                        "inTangent": 0.0,
+                        "outTangent": 0.0,
+                        "weightedMode": 0,
+                        "inWeight": 0.333333343,
+                        "outWeight": 0.0
+                      }
+                    ],
+                    "finishByAction": true,
+                    "ignoredTargets": [],
+                    "targets": [
+                      "caster"
+                    ],
+                    "omittedAbilityEntityTargets": 0,
+                    "ignoredAbilityEntityTargets": [],
+                    "influenceSkillCooldown": null,
+                    "targetScale": null,
+                    "sequenceIndex": -1,
+                    "effectAbilityEntityTargets": []
+                  }
+                }
+              ],
               "priority": 0
             }
           ],
@@ -6004,7 +12497,259 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_frozen",
+      "sourceFile": "buff_common_frozen.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ForceTriggerWeakness"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ForceTriggerWeakness"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_do_frozen",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          9999.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_do_frozen"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_do_frozen",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              9999.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_do_frozen",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              9999.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -6076,7 +12821,11 @@ export const yvonneGeneratedSource = {
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     }
   ],
   "skills": [
@@ -6324,8 +13073,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -6421,8 +13172,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -6481,7 +13234,11 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     }
                   ],
                   "inflictions": [],
@@ -6833,8 +13590,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -6893,7 +13652,11 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     }
                   ],
                   "inflictions": [],
@@ -7156,6 +13919,10 @@ export const yvonneGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0017_yvonne_combo_skill",
@@ -7241,8 +14008,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -7301,7 +14070,11 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "inflictions": [],
@@ -8039,7 +14812,8 @@ export const yvonneGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -8134,7 +14908,8 @@ export const yvonneGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         }
       ],
       "targetGroupControlFlowActions": [
@@ -8168,8 +14943,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8273,7 +15050,11 @@ export const yvonneGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -8300,8 +15081,10 @@ export const yvonneGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8327,7 +15110,11 @@ export const yvonneGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -8739,8 +15526,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -8765,8 +15554,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -8825,7 +15616,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -9346,8 +16142,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -9372,8 +16170,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -9432,7 +16232,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -9552,8 +16357,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -9578,8 +16385,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -9638,7 +16447,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -10158,8 +16972,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10184,8 +17000,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10244,7 +17062,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -10364,8 +17187,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10390,8 +17215,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10450,7 +17277,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -10570,8 +17402,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10596,8 +17430,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -10656,7 +17492,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -11173,8 +18014,10 @@ export const yvonneGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -11199,8 +18042,10 @@ export const yvonneGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
+                  "objectTypeMatch": null,
                   "deckAttributeCompare": null,
                   "probability": null,
                   "anyConditionGroups": [],
@@ -11259,7 +18104,12 @@ export const yvonneGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -11836,8 +18686,10 @@ export const yvonneGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11940,8 +18792,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -12026,14 +18880,20 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -12350,8 +19210,10 @@ export const yvonneGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12454,8 +19316,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -12540,14 +19404,20 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -13355,8 +20225,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13401,8 +20273,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": {
                       "value": 1.0,
@@ -13488,8 +20362,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -13555,8 +20431,10 @@ export const yvonneGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
+                                "objectTypeMatch": null,
                                 "deckAttributeCompare": null,
                                 "probability": null,
                                 "anyConditionGroups": [],
@@ -13826,8 +20704,10 @@ export const yvonneGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
+                                      "objectTypeMatch": null,
                                       "deckAttributeCompare": null,
                                       "probability": null,
                                       "anyConditionGroups": [],
@@ -13898,7 +20778,11 @@ export const yvonneGeneratedSource = {
                                       }
                                     }
                                   ],
-                                  "failActions": []
+                                  "failActions": [],
+                                  "conditionNegated": [
+                                    false
+                                  ],
+                                  "alwaysNext": true
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -14025,8 +20909,10 @@ export const yvonneGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
+                                      "objectTypeMatch": null,
                                       "deckAttributeCompare": null,
                                       "probability": null,
                                       "anyConditionGroups": [],
@@ -14097,13 +20983,21 @@ export const yvonneGeneratedSource = {
                                       }
                                     }
                                   ],
-                                  "failActions": []
+                                  "failActions": [],
+                                  "conditionNegated": [
+                                    false
+                                  ],
+                                  "alwaysNext": true
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
-                            ]
+                            ],
+                            "conditionNegated": [
+                              false
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -14221,8 +21115,10 @@ export const yvonneGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
+                                "objectTypeMatch": null,
                                 "deckAttributeCompare": null,
                                 "probability": null,
                                 "anyConditionGroups": [],
@@ -14290,13 +21186,21 @@ export const yvonneGeneratedSource = {
                                 }
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -14405,8 +21309,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -14471,13 +21377,21 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -14577,8 +21491,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -14640,13 +21556,21 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -14915,8 +21839,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14961,8 +21887,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": {
                       "value": 1.0,
@@ -15048,8 +21976,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -15115,8 +22045,10 @@ export const yvonneGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
+                                "objectTypeMatch": null,
                                 "deckAttributeCompare": null,
                                 "probability": null,
                                 "anyConditionGroups": [],
@@ -15386,8 +22318,10 @@ export const yvonneGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
+                                      "objectTypeMatch": null,
                                       "deckAttributeCompare": null,
                                       "probability": null,
                                       "anyConditionGroups": [],
@@ -15458,7 +22392,11 @@ export const yvonneGeneratedSource = {
                                       }
                                     }
                                   ],
-                                  "failActions": []
+                                  "failActions": [],
+                                  "conditionNegated": [
+                                    false
+                                  ],
+                                  "alwaysNext": true
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
@@ -15585,8 +22523,10 @@ export const yvonneGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
+                                      "objectTypeMatch": null,
                                       "deckAttributeCompare": null,
                                       "probability": null,
                                       "anyConditionGroups": [],
@@ -15657,13 +22597,21 @@ export const yvonneGeneratedSource = {
                                       }
                                     }
                                   ],
-                                  "failActions": []
+                                  "failActions": [],
+                                  "conditionNegated": [
+                                    false
+                                  ],
+                                  "alwaysNext": true
                                 },
                                 "legacyBuffFinish": null,
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
-                            ]
+                            ],
+                            "conditionNegated": [
+                              false
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -15781,8 +22729,10 @@ export const yvonneGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
+                                "objectTypeMatch": null,
                                 "deckAttributeCompare": null,
                                 "probability": null,
                                 "anyConditionGroups": [],
@@ -15850,13 +22800,21 @@ export const yvonneGeneratedSource = {
                                 }
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -15965,8 +22923,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -16031,13 +22991,21 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -16137,8 +23105,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -16200,13 +23170,21 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -16467,8 +23445,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -16720,8 +23700,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -17129,13 +24111,21 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -17614,7 +24604,8 @@ export const yvonneGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -17669,8 +24660,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -17922,8 +24915,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -18331,13 +25326,21 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -18585,8 +25588,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18834,7 +25839,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -19484,7 +26493,8 @@ export const yvonneGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -19569,8 +26579,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -19818,7 +26830,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -20180,8 +27196,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -20226,7 +27244,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -21127,8 +28149,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -21173,7 +28197,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -21612,8 +28640,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -21658,7 +28688,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -21699,8 +28733,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -21794,7 +28830,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 8,
@@ -21835,8 +28875,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -21930,7 +28972,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -21971,8 +29017,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22066,7 +29114,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 14,
@@ -22107,8 +29159,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22202,7 +29256,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -22243,8 +29301,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22338,7 +29398,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -22379,8 +29443,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22474,7 +29540,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -22506,8 +29576,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -22563,8 +29635,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -22600,7 +29674,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -22767,7 +29857,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -22905,116 +30011,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack2_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 11,
-                        "actionOrder": [
-                          55,
-                          0,
-                          57,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -23047,7 +30047,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -23180,116 +30196,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack2_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 11,
-                  "actionOrder": [
-                    55,
-                    0,
-                    57,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 14,
@@ -23321,8 +30231,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -23378,8 +30290,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -23415,7 +30329,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -23582,7 +30512,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -23720,116 +30666,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 14,
-                        "actionOrder": [
-                          75,
-                          0,
-                          77,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -23862,7 +30702,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -23995,116 +30851,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 14,
-                  "actionOrder": [
-                    75,
-                    0,
-                    77,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -24136,8 +30886,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -24193,8 +30945,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -24230,7 +30984,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -24397,7 +31167,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -24535,116 +31321,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack2_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 17,
-                        "actionOrder": [
-                          95,
-                          0,
-                          97,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -24677,7 +31357,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -24810,116 +31506,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack2_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 17,
-                  "actionOrder": [
-                    95,
-                    0,
-                    97,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -24951,8 +31541,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -25008,8 +31600,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -25045,7 +31639,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -25212,7 +31822,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -25350,116 +31976,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 21,
-                        "actionOrder": [
-                          115,
-                          0,
-                          117,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -25492,7 +32012,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -25625,116 +32161,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 21,
-                  "actionOrder": [
-                    115,
-                    0,
-                    117,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -25899,380 +32329,7 @@ export const yvonneGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileTriggeredSkills": [
-        {
-          "launchFrame": 11,
-          "actionOrder": [
-            55,
-            0,
-            57,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        },
-        {
-          "launchFrame": 14,
-          "actionOrder": [
-            75,
-            0,
-            77,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        },
-        {
-          "launchFrame": 17,
-          "actionOrder": [
-            95,
-            0,
-            97,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack2",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack2_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack2_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        },
-        {
-          "launchFrame": 21,
-          "actionOrder": [
-            115,
-            0,
-            117,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        }
-      ],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0017_yvonne_ultimate_skill_camera",
@@ -26553,8 +32610,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -26599,7 +32658,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -26640,8 +32703,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -26735,7 +32800,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 8,
@@ -26776,8 +32845,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -26871,7 +32942,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -26912,8 +32987,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27007,7 +33084,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 14,
@@ -27048,8 +33129,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27143,7 +33226,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -27184,8 +33271,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27279,7 +33368,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -27320,8 +33413,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27415,7 +33510,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -27447,8 +33546,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27504,8 +33605,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -27541,7 +33644,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -27633,7 +33752,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -27675,7 +33810,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -27708,7 +33847,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -27747,7 +33902,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 14,
@@ -27779,8 +33938,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -27836,8 +33997,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -27873,7 +34036,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -27965,7 +34144,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -28007,7 +34202,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -28040,7 +34239,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -28079,7 +34294,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -28111,8 +34330,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -28168,8 +34389,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -28205,7 +34428,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -28297,7 +34536,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -28339,7 +34594,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -28372,7 +34631,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -28411,7 +34686,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -28443,8 +34722,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -28500,8 +34781,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -28537,7 +34820,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -28629,7 +34928,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -28671,7 +34986,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -28704,7 +35023,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -28743,7 +35078,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -29176,8 +35515,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -29271,7 +35612,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -29312,8 +35657,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -29407,7 +35754,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -29448,8 +35799,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -29543,7 +35896,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -29584,8 +35941,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -29679,7 +36038,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 1,
@@ -29711,8 +36074,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -29768,8 +36133,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -29805,7 +36172,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -29972,7 +36355,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -30109,7 +36508,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -30142,7 +36545,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -30274,7 +36693,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -30306,8 +36729,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -30363,8 +36788,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -30400,7 +36827,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -30567,7 +37010,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -30705,116 +37164,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 4,
-                        "actionOrder": [
-                          57,
-                          0,
-                          59,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -30847,7 +37200,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -30980,116 +37349,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 4,
-                  "actionOrder": [
-                    57,
-                    0,
-                    59,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -31121,8 +37384,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -31178,8 +37443,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -31215,7 +37482,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -31382,7 +37665,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -31519,7 +37818,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -31552,7 +37855,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -31684,7 +38003,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -31716,8 +38039,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -31773,8 +38098,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -31810,7 +38137,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -31977,7 +38320,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -32115,116 +38474,10 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "projectedProjectileLaunches": [
-                  {
-                    "launch": {
-                      "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                      "skillTriggers": [
-                        {
-                          "event": "hit",
-                          "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                        }
-                      ],
-                      "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
-                    },
-                    "triggeredSkills": [
-                      {
-                        "launchFrame": 11,
-                        "actionOrder": [
-                          97,
-                          0,
-                          99,
-                          0
-                        ],
-                        "assumedTravelFrames": 0,
-                        "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                        "triggerEvent": "hit",
-                        "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                        "excludedByPrimaryTargetMarker": false,
-                        "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                        "damageUnits": [
-                          {
-                            "damageType": "Cryst",
-                            "attributeType": "Hp",
-                            "calculation": "standard",
-                            "attackScale": {
-                              "value": 0.9,
-                              "blackboardKey": "atk_scale",
-                              "levelValues": [
-                                0.089,
-                                0.098,
-                                0.107,
-                                0.116,
-                                0.125,
-                                0.134,
-                                0.143,
-                                0.151,
-                                0.16,
-                                0.172,
-                                0.185,
-                                0.2
-                              ]
-                            },
-                            "calculationMultiplier": null,
-                            "poiseValue": null,
-                            "definiteValue": null,
-                            "damageDecorateMask": 128
-                          }
-                        ],
-                        "directDamageHits": [
-                          {
-                            "startFrame": 0,
-                            "endFrame": 3,
-                            "actionIndex": 1,
-                            "damageUnits": [
-                              {
-                                "damageType": "Cryst",
-                                "attributeType": "Hp",
-                                "calculation": "standard",
-                                "attackScale": {
-                                  "value": 0.9,
-                                  "blackboardKey": "atk_scale",
-                                  "levelValues": [
-                                    0.089,
-                                    0.098,
-                                    0.107,
-                                    0.116,
-                                    0.125,
-                                    0.134,
-                                    0.143,
-                                    0.151,
-                                    0.16,
-                                    0.172,
-                                    0.185,
-                                    0.2
-                                  ]
-                                },
-                                "calculationMultiplier": null,
-                                "poiseValue": null,
-                                "definiteValue": null,
-                                "damageDecorateMask": 128
-                              }
-                            ],
-                            "timedMarkerGate": null,
-                            "sequenceIndex": 0
-                          }
-                        ],
-                        "conditionalActions": [],
-                        "auxiliaryActions": [],
-                        "resourceGains": [],
-                        "inflictions": [],
-                        "combatActions": [
-                          "DamageAction"
-                        ],
-                        "cycleTruncated": false,
-                        "nestedProjectileTriggeredSkills": [],
-                        "abilityEntityHits": [],
-                        "auraActions": []
-                      }
-                    ]
-                  }
-                ]
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -32257,7 +38510,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               },
               "projectileTriggeredSkills": [
                 {
@@ -32390,116 +38659,10 @@ export const yvonneGeneratedSource = {
               }
             }
           ],
-          "projectedProjectileLaunches": [
-            {
-              "launch": {
-                "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                "skillTriggers": [
-                  {
-                    "event": "hit",
-                    "skillId": "chr_0017_yvonne_ult_attack1_projhit"
-                  }
-                ],
-                "assignBlackboard": true,
-                "entityBlackboardAssignments": []
-              },
-              "triggeredSkills": [
-                {
-                  "launchFrame": 11,
-                  "actionOrder": [
-                    97,
-                    0,
-                    99,
-                    0
-                  ],
-                  "assumedTravelFrames": 0,
-                  "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-                  "triggerEvent": "hit",
-                  "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-                  "excludedByPrimaryTargetMarker": false,
-                  "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-                  "damageUnits": [
-                    {
-                      "damageType": "Cryst",
-                      "attributeType": "Hp",
-                      "calculation": "standard",
-                      "attackScale": {
-                        "value": 0.9,
-                        "blackboardKey": "atk_scale",
-                        "levelValues": [
-                          0.089,
-                          0.098,
-                          0.107,
-                          0.116,
-                          0.125,
-                          0.134,
-                          0.143,
-                          0.151,
-                          0.16,
-                          0.172,
-                          0.185,
-                          0.2
-                        ]
-                      },
-                      "calculationMultiplier": null,
-                      "poiseValue": null,
-                      "definiteValue": null,
-                      "damageDecorateMask": 128
-                    }
-                  ],
-                  "directDamageHits": [
-                    {
-                      "startFrame": 0,
-                      "endFrame": 3,
-                      "actionIndex": 1,
-                      "damageUnits": [
-                        {
-                          "damageType": "Cryst",
-                          "attributeType": "Hp",
-                          "calculation": "standard",
-                          "attackScale": {
-                            "value": 0.9,
-                            "blackboardKey": "atk_scale",
-                            "levelValues": [
-                              0.089,
-                              0.098,
-                              0.107,
-                              0.116,
-                              0.125,
-                              0.134,
-                              0.143,
-                              0.151,
-                              0.16,
-                              0.172,
-                              0.185,
-                              0.2
-                            ]
-                          },
-                          "calculationMultiplier": null,
-                          "poiseValue": null,
-                          "definiteValue": null,
-                          "damageDecorateMask": 128
-                        }
-                      ],
-                      "timedMarkerGate": null,
-                      "sequenceIndex": 0
-                    }
-                  ],
-                  "conditionalActions": [],
-                  "auxiliaryActions": [],
-                  "resourceGains": [],
-                  "inflictions": [],
-                  "combatActions": [
-                    "DamageAction"
-                  ],
-                  "cycleTruncated": false,
-                  "nestedProjectileTriggeredSkills": [],
-                  "abilityEntityHits": [],
-                  "auraActions": []
-                }
-              ]
-            }
-          ]
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -32540,8 +38703,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -32586,7 +38751,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -32751,194 +38920,7 @@ export const yvonneGeneratedSource = {
       ],
       "resourceGains": [],
       "projectileLaunches": [],
-      "projectileTriggeredSkills": [
-        {
-          "launchFrame": 4,
-          "actionOrder": [
-            57,
-            0,
-            59,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        },
-        {
-          "launchFrame": 11,
-          "actionOrder": [
-            97,
-            0,
-            99,
-            0
-          ],
-          "assumedTravelFrames": 0,
-          "projectileId": "projectile_chr_0017_yvonne_ult_attack1",
-          "triggerEvent": "hit",
-          "triggerSkillId": "chr_0017_yvonne_ult_attack1_projhit",
-          "excludedByPrimaryTargetMarker": false,
-          "sourceFile": "chr_0017_yvonne_ult_attack1_projhit.json",
-          "damageUnits": [
-            {
-              "damageType": "Cryst",
-              "attributeType": "Hp",
-              "calculation": "standard",
-              "attackScale": {
-                "value": 0.9,
-                "blackboardKey": "atk_scale",
-                "levelValues": [
-                  0.089,
-                  0.098,
-                  0.107,
-                  0.116,
-                  0.125,
-                  0.134,
-                  0.143,
-                  0.151,
-                  0.16,
-                  0.172,
-                  0.185,
-                  0.2
-                ]
-              },
-              "calculationMultiplier": null,
-              "poiseValue": null,
-              "definiteValue": null,
-              "damageDecorateMask": 128
-            }
-          ],
-          "directDamageHits": [
-            {
-              "startFrame": 0,
-              "endFrame": 3,
-              "actionIndex": 1,
-              "damageUnits": [
-                {
-                  "damageType": "Cryst",
-                  "attributeType": "Hp",
-                  "calculation": "standard",
-                  "attackScale": {
-                    "value": 0.9,
-                    "blackboardKey": "atk_scale",
-                    "levelValues": [
-                      0.089,
-                      0.098,
-                      0.107,
-                      0.116,
-                      0.125,
-                      0.134,
-                      0.143,
-                      0.151,
-                      0.16,
-                      0.172,
-                      0.185,
-                      0.2
-                    ]
-                  },
-                  "calculationMultiplier": null,
-                  "poiseValue": null,
-                  "definiteValue": null,
-                  "damageDecorateMask": 128
-                }
-              ],
-              "timedMarkerGate": null,
-              "sequenceIndex": 0
-            }
-          ],
-          "conditionalActions": [],
-          "auxiliaryActions": [],
-          "resourceGains": [],
-          "inflictions": [],
-          "combatActions": [
-            "DamageAction"
-          ],
-          "cycleTruncated": false,
-          "nestedProjectileTriggeredSkills": [],
-          "abilityEntityHits": [],
-          "auraActions": []
-        }
-      ],
+      "projectileTriggeredSkills": [],
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0017_yvonne_ultimate_skill_camera",
@@ -33219,8 +39201,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -33314,7 +39298,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -33355,8 +39343,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -33450,7 +39440,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -33491,8 +39485,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -33586,7 +39582,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -33627,8 +39627,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -33722,7 +39724,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 1,
@@ -33754,8 +39760,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -33811,8 +39819,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -33848,7 +39858,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -33940,7 +39966,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -33982,7 +40024,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -34015,7 +40061,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -34054,7 +40116,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 4,
@@ -34086,8 +40152,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -34143,8 +40211,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -34180,7 +40250,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34272,7 +40358,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34314,7 +40416,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -34347,7 +40453,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -34386,7 +40508,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -34418,8 +40544,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -34475,8 +40603,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -34512,7 +40642,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34604,7 +40750,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34646,7 +40808,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -34679,7 +40845,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -34718,7 +40900,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -34750,8 +40936,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -34807,8 +40995,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -34844,7 +41034,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34936,7 +41142,23 @@ export const yvonneGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "maintar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -34978,7 +41200,11 @@ export const yvonneGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -35011,7 +41237,23 @@ export const yvonneGeneratedSource = {
                   }
                 ],
                 "assignBlackboard": true,
-                "entityBlackboardAssignments": []
+                "entityBlackboardAssignments": [],
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
               }
             },
             {
@@ -35050,7 +41292,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -35091,8 +41337,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -35137,7 +41385,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -35751,8 +42003,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -35846,7 +42100,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -35887,8 +42145,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -35982,7 +42242,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -36023,8 +42287,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36118,7 +42384,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 19,
@@ -36159,8 +42429,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36254,7 +42526,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -36295,8 +42571,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36390,7 +42668,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 23,
@@ -36431,8 +42713,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36526,7 +42810,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 25,
@@ -36567,8 +42855,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36662,7 +42952,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 27,
@@ -36703,8 +42997,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36798,7 +43094,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -36839,8 +43139,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36885,7 +43187,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -36908,6 +43214,7 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "timedMarker": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -36918,6 +43225,7 @@ export const yvonneGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36951,8 +43259,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -36986,8 +43296,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -37117,8 +43429,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -37188,8 +43502,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -37240,19 +43556,33 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -38785,8 +45115,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -38880,7 +45212,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -38921,8 +45257,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39016,7 +45354,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -39057,8 +45399,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39152,7 +45496,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 19,
@@ -39193,8 +45541,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39288,7 +45638,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -39329,8 +45683,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39424,7 +45780,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 23,
@@ -39465,8 +45825,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39560,7 +45922,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 25,
@@ -39601,8 +45967,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39696,7 +46064,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 27,
@@ -39737,8 +46109,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39832,7 +46206,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -39873,8 +46251,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39919,7 +46299,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -39942,6 +46326,7 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "timedMarker": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -39952,6 +46337,7 @@ export const yvonneGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -39985,8 +46371,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -40020,8 +46408,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -40151,8 +46541,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -40222,8 +46614,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -40274,19 +46668,33 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -40885,8 +47293,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -40980,7 +47390,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 3,
@@ -41021,8 +47435,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41116,7 +47532,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -41157,8 +47577,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41252,7 +47674,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -41293,8 +47719,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41388,7 +47816,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 9,
@@ -41429,8 +47861,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41524,7 +47958,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -41565,8 +48003,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41660,7 +48100,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -41701,8 +48145,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41796,7 +48242,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -41837,8 +48287,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -41932,7 +48384,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -41973,8 +48429,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -42019,7 +48477,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -42042,6 +48504,7 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "timedMarker": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -42052,6 +48515,7 @@ export const yvonneGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -42085,8 +48549,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -42120,8 +48586,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -42251,8 +48719,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -42322,8 +48792,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -42374,19 +48846,33 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -43919,8 +50405,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44014,7 +50502,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 3,
@@ -44055,8 +50547,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44150,7 +50644,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -44191,8 +50689,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44286,7 +50786,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -44327,8 +50831,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44422,7 +50928,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 9,
@@ -44463,8 +50973,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44558,7 +51070,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -44599,8 +51115,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44694,7 +51212,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -44735,8 +51257,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44830,7 +51354,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -44871,8 +51399,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -44966,7 +51496,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -45007,8 +51541,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -45053,7 +51589,11 @@ export const yvonneGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -45076,6 +51616,7 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "timedMarker": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -45086,6 +51627,7 @@ export const yvonneGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -45119,8 +51661,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -45154,8 +51698,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -45285,8 +51831,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -45356,8 +51904,10 @@ export const yvonneGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
+                          "objectTypeMatch": null,
                           "deckAttributeCompare": null,
                           "probability": null,
                           "anyConditionGroups": [],
@@ -45408,19 +51958,33 @@ export const yvonneGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -45721,8 +52285,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -45868,8 +52434,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -45968,7 +52536,11 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -46114,8 +52686,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -46214,13 +52788,21 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -46261,8 +52843,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -46361,7 +52945,11 @@ export const yvonneGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -46402,8 +52990,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -46449,6 +53039,7 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -46489,6 +53080,7 @@ export const yvonneGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -46536,13 +53128,21 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -47194,6 +53794,7 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -47234,6 +53835,7 @@ export const yvonneGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -47259,7 +53861,11 @@ export const yvonneGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 28,
@@ -47300,8 +53906,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -47447,8 +54055,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -47547,7 +54157,11 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -47693,8 +54307,10 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -47793,13 +54409,21 @@ export const yvonneGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -47840,8 +54464,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -47940,7 +54566,11 @@ export const yvonneGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -47981,8 +54611,10 @@ export const yvonneGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -48028,6 +54660,7 @@ export const yvonneGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -48068,6 +54701,7 @@ export const yvonneGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -48115,13 +54749,21 @@ export const yvonneGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

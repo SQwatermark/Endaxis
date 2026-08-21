@@ -26,6 +26,7 @@ from source_models import (
     BuffDamageModifierSource,
     BuffDamageNumberComparisonSource,
     BuffDamageScaleProcessorSource,
+    BuffDamageTagConditionSource,
     BuffInstantAttributeProcessorSource,
     BuffDefinitionSource,
     BuffLifecycleSource,
@@ -542,26 +543,46 @@ def parse_buff_damage_modifiers(
         damage_types: tuple[str, ...] = ()
         number_comparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
         health_comparisons: tuple[HealthConditionSource, ...] = ()
+        tag_conditions: tuple[BuffDamageTagConditionSource, ...] = ()
         if not condition_types:
             pass
-        elif condition_types == ("CheckTagMatch",):
-            tag_path = f"{path}.condition.actionData[0]"
-            tag_condition = require_dict(condition_actions[0], tag_path)
-            if set(tag_condition) != {
-                "$type", "isEnable", "priorityLevel", "priorityOffset",
-                "serverActionIndex", "checkTarget", "query",
-            }:
-                raise ValueError(f"{tag_path}: unexpected fields {sorted(tag_condition)}")
-            if tag_condition.get("isEnable") is not True:
-                raise ValueError(f"{tag_path}.isEnable: expected true")
-            target = parse_target_reference(
-                tag_condition.get("checkTarget"), f"{tag_path}.checkTarget"
-            )
-            query_type, tag_ids = parse_tag_query(
-                tag_condition.get("query"), f"{tag_path}.query"
-            )
-            if not tag_ids:
-                raise ValueError(f"{path}.condition: empty tag query")
+        elif condition_types and all(value == "CheckTagMatch" for value in condition_types):
+            parsed_tag_conditions: list[BuffDamageTagConditionSource] = []
+            for tag_index, raw_tag_condition in enumerate(condition_actions):
+                tag_path = f"{path}.condition.actionData[{tag_index}]"
+                tag_condition = require_dict(raw_tag_condition, tag_path)
+                if set(tag_condition) != {
+                    "$type", "isEnable", "priorityLevel", "priorityOffset",
+                    "serverActionIndex", "checkTarget", "query",
+                }:
+                    raise ValueError(f"{tag_path}: unexpected fields {sorted(tag_condition)}")
+                if tag_condition.get("isEnable") is not True:
+                    raise ValueError(f"{tag_path}.isEnable: expected true")
+                tag_target = parse_target_reference(
+                    tag_condition.get("checkTarget"), f"{tag_path}.checkTarget"
+                )
+                current_query_type, current_tag_ids = parse_tag_query(
+                    tag_condition.get("query"), f"{tag_path}.query"
+                )
+                if not current_tag_ids:
+                    raise ValueError(f"{tag_path}: empty tag query")
+                parsed_tag_conditions.append(
+                    BuffDamageTagConditionSource(
+                        targetSource=tag_target.targetSource,
+                        targetGroupKey=tag_target.targetGroupKey,
+                        queryType=current_query_type,
+                        tagIds=current_tag_ids,
+                    )
+                )
+            if len(parsed_tag_conditions) == 1:
+                only = parsed_tag_conditions[0]
+                target = parse_target_reference(
+                    condition_actions[0].get("checkTarget"),
+                    f"{path}.condition.actionData[0].checkTarget",
+                )
+                query_type, tag_ids = only.queryType, only.tagIds
+            else:
+                tag_conditions = tuple(parsed_tag_conditions)
         elif condition_types == (
             "CheckMainCharacterCondition", "CheckDamageDecorateMask", "CompareFloat"
         ):
@@ -781,6 +802,7 @@ def parse_buff_damage_modifiers(
                 tagQueryType=query_type,
                 tagIds=tag_ids,
                 processors=tuple(processors),
+                tagConditions=tag_conditions,
                 ownerControlled=owner_controlled,
                 damageTagMatch=damage_tag_match,
                 damageTags=damage_tags,

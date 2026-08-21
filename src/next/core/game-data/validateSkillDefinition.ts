@@ -1108,6 +1108,7 @@ function validateCombatStep(
                     response.event !== 'beforeCastSkill' &&
                     response.event !== 'skillEnd' &&
                     response.event !== 'beforeOutputBuff' &&
+                    response.event !== 'outputBuff' &&
                     response.event !== 'addedBuff' &&
                     response.event !== 'finishedBuff' &&
                     response.event !== 'afterKillEntity'

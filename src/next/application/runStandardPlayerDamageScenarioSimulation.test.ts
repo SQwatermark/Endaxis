@@ -994,7 +994,10 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       expect.objectContaining({
         event: 'SkillSlotChanged',
         sourceId: 'track:mifu',
-        data: { skillGroupKey: 'battleSkill', targetSkillKey: 'battleSkill3' },
+        data: expect.objectContaining({
+          skillGroupKey: 'battleSkill',
+          targetSkillKey: 'battleSkill3',
+        }),
       }),
     );
   });

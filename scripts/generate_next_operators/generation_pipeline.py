@@ -35,6 +35,42 @@ class GenerationPipelineServices:
     write_or_check: Callable[..., Any]
 
 
+def retain_reachable_buff_definitions(
+    root_ids: set[str], definitions: tuple[Any, ...]
+) -> tuple[Any, ...]:
+    """只保留从已启用根 Buff 可达的递归定义。
+
+    `resolve_buff_definitions` 会递归解析 CreateBuffAction 依赖；渲染阶段也必须
+    保留同一闭包，不能在被动审计通过后又把子定义裁掉。
+    """
+
+    definitions_by_id = {definition.buffId: definition for definition in definitions}
+    reachable: set[str] = set()
+    pending = list(root_ids)
+    while pending:
+        buff_id = pending.pop()
+        if buff_id in reachable:
+            continue
+        reachable.add(buff_id)
+        definition = definitions_by_id.get(buff_id)
+        if definition is None:
+            continue
+        pending.extend(
+            child_id
+            for event in (
+                *getattr(definition, "eventActions", ()),
+                *getattr(definition, "igniteEventActions", ()),
+            )
+            for child_id in getattr(event, "createdBuffIds", ())
+            if child_id not in reachable
+        )
+    return tuple(
+        definitions_by_id[buff_id]
+        for buff_id in sorted(reachable)
+        if buff_id in definitions_by_id
+    )
+
+
 def run_generation(*, services: GenerationPipelineServices) -> None:
     audit_passive_skill_generation = services.audit_passive_skill_generation
     collect_operator_passive_skills = services.collect_operator_passive_skills
@@ -228,8 +264,10 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
         buff_definitions_by_id.update(
             {
                 definition.buffId: definition
-                for definition in passive_buff_definitions
-                if definition.buffId in renderable_passive_buff_ids
+                for definition in retain_reachable_buff_definitions(
+                    renderable_passive_buff_ids,
+                    passive_buff_definitions,
+                )
             }
         )
         buff_definitions_by_id.update(
@@ -318,6 +356,9 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             print(f"[{slug}] audited {len(skills)} skills -> {args.output}")
             continue
         remove_obsolete_generated_file(args.output / f"{slug}.skills.generated.ts", args.check)
+        remove_obsolete_generated_file(
+            args.output / f"{slug}.skills.audit.generated.ts", args.check
+        )
         write_or_check(
             args.output / f"{slug}.operator.generated.ts",
             render_operator_definition(

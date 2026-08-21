@@ -2544,7 +2544,11 @@ def audit_passive_skill_generation(
                     )
                     continue
                 try:
-                    compile_inline_buff_definition(definition, f"passive {skill_id!r}")
+                    compile_progression_buff_definition(
+                        definition,
+                        f"passive {skill_id!r}",
+                        definitions_by_id,
+                    )
                 except ValueError as error:
                     reasons.append(str(error))
         if reasons:

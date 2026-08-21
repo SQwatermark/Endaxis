@@ -403,12 +403,22 @@ function addConditionalDamage(
 export function applyOperatorUpgradeSkillPatches(
   programs: readonly CompiledSkillProgram[],
   upgrades: readonly ActiveOperatorUpgrade[],
+  options: { readonly skipUncompiledSkillGroups?: boolean } = {},
 ): readonly CompiledSkillProgram[] {
+  if (options.skipUncompiledSkillGroups === true && programs.length === 0) return programs;
   let patched = programs;
   for (const upgrade of upgrades) {
     for (const [modifierIndex, modifier] of (upgrade.definition.modifiers ?? []).entries()) {
       const path = `${upgrade.source} '${upgrade.definition.key}'.modifiers[${modifierIndex}]`;
       if (PANEL_MODIFIER_KINDS.has(modifier.kind)) continue;
+      if (
+        options.skipUncompiledSkillGroups === true &&
+        'skillGroupKey' in modifier &&
+        !patched.some(program => program.skillGroupKey === modifier.skillGroupKey)
+      ) {
+        // 场景只编译实际放置的技能；未放置组的构筑补丁留给完整定义门禁校验。
+        continue;
+      }
       if (modifier.kind === 'multiplySkillCost') {
         patched = multiplySkillCost(patched, modifier, path);
         continue;

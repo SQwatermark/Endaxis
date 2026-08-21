@@ -25,6 +25,7 @@ import {
   mifu,
   rossi,
   tangtang,
+  yvonne,
 } from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
@@ -42,6 +43,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [tangtang, 10],
   [laevatain, 14],
   [mifu, 9],
+  [yvonne, 16],
 ];
 
 function hasUpgradeBehavior(

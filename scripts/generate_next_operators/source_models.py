@@ -722,6 +722,14 @@ class BuffDamageNumberComparisonSource:
 
 
 @dataclass(frozen=True)
+class BuffDamageTagConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    queryType: str
+    tagIds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class BuffDamageModifierSource:
     enabledSide: str
     targetSource: str
@@ -731,6 +739,7 @@ class BuffDamageModifierSource:
     processors: tuple[
         BuffDamageScaleProcessorSource | BuffInstantAttributeProcessorSource, ...
     ]
+    tagConditions: tuple[BuffDamageTagConditionSource, ...] = ()
     ownerControlled: bool = False
     damageTagMatch: str | None = None
     damageTags: tuple[str, ...] = ()

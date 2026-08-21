@@ -96,6 +96,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeCastSkill'
   | 'skillEnd'
   | 'beforeOutputBuff'
+  | 'outputBuff'
   | 'addedBuff'
   | 'finishedBuff';
 
@@ -172,6 +173,7 @@ export class StandardPlayerDamageEnvironment {
       this.#buffAbilityEventRegistrar('enemy'),
       event => this.#emit('enemy', 'addedBuff', event),
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
+      event => this.#emit(event.sourceId, 'outputBuff', event),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -207,6 +209,7 @@ export class StandardPlayerDamageEnvironment {
           this.#buffAbilityEventRegistrar(entityId),
           event => this.#emit(entityId, 'addedBuff', event),
           event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
+          event => this.#emit(event.sourceId, 'outputBuff', event),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       readSourceAttributeValue: (sourceId, request) =>
@@ -563,6 +566,7 @@ export class StandardPlayerDamageEnvironment {
         this.#buffAbilityEventRegistrar(operatorId),
         event => this.#emit(operatorId, 'addedBuff', event),
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
+        event => this.#emit(event.sourceId, 'outputBuff', event),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
@@ -578,6 +582,7 @@ export class StandardPlayerDamageEnvironment {
         | 'beforeCastSkill'
         | 'skillEnd'
         | 'beforeOutputBuff'
+        | 'outputBuff'
         | 'addedBuff'
         | 'finishedBuff',
       priority: number,

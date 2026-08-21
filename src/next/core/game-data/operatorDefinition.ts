@@ -1083,6 +1083,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'beforeCastSkill'
     | 'skillEnd'
     | 'beforeOutputBuff'
+    | 'outputBuff'
     | 'addedBuff'
     | 'finishedBuff'
     | 'afterKillEntity';

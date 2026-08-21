@@ -480,7 +480,7 @@ function normalizeBuffAbilityEvent(
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
     throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
   }
-  if (event === 'beforeOutputBuff' || event === 'addedBuff') {
+  if (event === 'beforeOutputBuff' || event === 'outputBuff' || event === 'addedBuff') {
     if (
       typeof source.buffId !== 'string' ||
       !Array.isArray(source.buffTagIds) ||

@@ -264,6 +264,7 @@ describe('BuffDefinitionOperationTarget', () => {
       });
     });
     const after = vi.fn();
+    const output = vi.fn();
     const target = new BuffDefinitionOperationTarget(
       container,
       {
@@ -278,6 +279,7 @@ describe('BuffDefinitionOperationTarget', () => {
       undefined,
       after,
       before,
+      output,
     );
     const request = {
       buffId: 'frozen',
@@ -291,6 +293,7 @@ describe('BuffDefinitionOperationTarget', () => {
 
     expect(before).toHaveBeenCalledTimes(2);
     expect(after).toHaveBeenCalledOnce();
+    expect(output).toHaveBeenCalledOnce();
     expect(countsBeforeAttempt).toEqual([0, 1]);
   });
 

@@ -20,3 +20,4 @@ export { camille } from './camille';
 export { tangtang } from './tangtang';
 export { laevatain } from './laevatain';
 export { mifu } from './mifu';
+export { yvonne } from './yvonne';

@@ -188,6 +188,9 @@ def _render_attached_passive_skills(
     effect_entries: list[tuple[str, list[dict[str, Any]]]],
     passive_skills: dict[str, PassiveSkillSource],
     buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ] = _compile_plain_buff_definition,
 ) -> str | None:
     """将各等级同一 attachSkill 合并为一个按等级取值的常驻被动。"""
     if not effect_entries:
@@ -263,9 +266,10 @@ def _render_attached_passive_skills(
                 "          definition: {",
                 *(
                     "            " + line
-                    for line in compile_inline_buff_definition(
+                    for line in compile_buff_definition(
                         definition,
                         f"passive {skill_id!r}",
+                        buff_definitions,
                     ).splitlines()
                 ),
                 "          },",
@@ -1087,6 +1091,9 @@ def render_talents(
     effects: dict[str, Any],
     passive_skills: dict[str, PassiveSkillSource] | None = None,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ] = _compile_plain_buff_definition,
 ) -> list[str]:
     passive_skills = passive_skills or {}
     buff_definitions = buff_definitions or {}
@@ -1129,6 +1136,7 @@ def render_talents(
             attach_entries,
             passive_skills,
             buff_definitions,
+            compile_buff_definition,
         )
         if isinstance(kind, str) and kind.startswith("unmodeled") and kind != "unmodeledMultiTarget":
             # 显式未建模天赋：保留稳定身份和等级数，不生成无证据的 modifiers；
@@ -1322,6 +1330,7 @@ def render_potentials(
             ],
             passive_skills,
             buff_definitions,
+            compile_buff_definition,
         )
         if isinstance(kind, str) and kind.startswith("unmodeled"):
             # 显式未建模潜能：保留稳定身份，不生成无证据的 modifiers；
@@ -1357,6 +1366,7 @@ def render_potentials(
             "skillBlackboardPatchAndAttachedBuff",
             "skillCooldownAndBlackboardPatch",
             "multiplyUltimateCost",
+            "passiveBlackboardPatch",
         }:
             if len(data_list) != 1:
                 raise ValueError(f"{effect_id}: expected one effect entry")
@@ -1412,43 +1422,58 @@ def render_potentials(
                 buff_definitions,
             )
         elif kind == "passiveBlackboardPatch":
-            assert data is not None
-            entry_path = f"PotentialTalentEffectTable.{effect_id}.dataList[0]"
-            if _effect_payload_kinds(data, entry_path) != ("skillBbModifier",):
-                raise ValueError(f"{entry_path}: expected only skillBbModifier")
-            modifier = require_dict(data.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
-            passive_skill_id = modifier.get("skillId")
-            if not isinstance(passive_skill_id, str) or not passive_skill_id:
-                raise ValueError(f"{entry_path}.skillBbModifier.skillId: expected passive skill id")
-            passive = passive_skills.get(passive_skill_id)
-            if passive is None or not passive.can_generate_add_buff:
-                raise ValueError(f"{entry_path}: target passive {passive_skill_id!r} is not generated")
-            blackboard_key = modifier.get("bbKey")
-            if blackboard_key not in passive.declared_blackboard_keys:
-                raise ValueError(
-                    f"{entry_path}: passive {passive_skill_id!r} has no blackboard {blackboard_key!r}"
+            lines = ["  modifiers: ["]
+            for entry_index, raw_entry in enumerate(data_list):
+                entry_path = (
+                    f"PotentialTalentEffectTable.{effect_id}.dataList[{entry_index}]"
                 )
-            operation = SKILL_BB_MODIFIER_OPERATIONS.get(modifier.get("modifyType"))
-            if operation is None:
-                raise ValueError(
-                    f"{entry_path}.skillBbModifier.modifyType: unsupported {modifier.get('modifyType')!r}"
+                entry = require_dict(raw_entry, entry_path)
+                if _effect_payload_kinds(entry, entry_path) != ("skillBbModifier",):
+                    raise ValueError(f"{entry_path}: expected only skillBbModifier")
+                modifier = require_dict(
+                    entry.get("skillBbModifier"), f"{entry_path}.skillBbModifier"
                 )
-            value = float(
-                require_number(modifier.get("floatValue"), f"{entry_path}.skillBbModifier.floatValue")
-            )
-            body = "\n".join(
-                [
-                    "  modifiers: [",
-                    "    {",
-                    "      kind: 'patchPassiveBlackboard',",
-                    f"      passiveSkillKey: {ts_inline_literal(passive_skill_id)},",
-                    f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
-                    f"      operation: {ts_inline_literal(operation)},",
-                    f"      value: {ts_inline_literal(value)},",
-                    "    },",
-                    "  ],",
-                ]
-            )
+                passive_skill_id = modifier.get("skillId")
+                if not isinstance(passive_skill_id, str) or not passive_skill_id:
+                    raise ValueError(
+                        f"{entry_path}.skillBbModifier.skillId: expected passive skill id"
+                    )
+                passive = passive_skills.get(passive_skill_id)
+                if passive is None or not passive.can_generate_add_buff:
+                    raise ValueError(
+                        f"{entry_path}: target passive {passive_skill_id!r} is not generated"
+                    )
+                blackboard_key = modifier.get("bbKey")
+                if blackboard_key not in passive.declared_blackboard_keys:
+                    raise ValueError(
+                        f"{entry_path}: passive {passive_skill_id!r} has no blackboard "
+                        f"{blackboard_key!r}"
+                    )
+                operation = SKILL_BB_MODIFIER_OPERATIONS.get(modifier.get("modifyType"))
+                if operation is None:
+                    raise ValueError(
+                        f"{entry_path}.skillBbModifier.modifyType: unsupported "
+                        f"{modifier.get('modifyType')!r}"
+                    )
+                value = float(
+                    require_number(
+                        modifier.get("floatValue"),
+                        f"{entry_path}.skillBbModifier.floatValue",
+                    )
+                )
+                lines.extend(
+                    [
+                        "    {",
+                        "      kind: 'patchPassiveBlackboard',",
+                        f"      passiveSkillKey: {ts_inline_literal(passive_skill_id)},",
+                        f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
+                        f"      operation: {ts_inline_literal(operation)},",
+                        f"      value: {ts_inline_literal(value)},",
+                        "    },",
+                    ]
+                )
+            lines.append("  ],")
+            body = "\n".join(lines)
         elif kind in {"multiplyReactionDuration", "setReactionEffectiveness", "addUltimateCriticalRate"}:
             assert data is not None
             modifier = require_dict(data.get("skillBbModifier"), f"{effect_id}.skillBbModifier")

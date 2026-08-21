@@ -2784,7 +2784,7 @@
       "slug": "yvonne",
       "exportName": "yvonneGeneratedSource",
       "charId": "chr_0017_yvonne",
-      "outputStage": "audit",
+      "outputStage": "complete",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
         { "index": 1, "key": "talent2", "compile": "attachedPassive" }
@@ -2792,7 +2792,7 @@
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },
         { "key": "potential2", "compile": "staticAttributes" },
-        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential3", "compile": "passiveBlackboardPatch" },
         { "key": "potential4", "compile": "skillBlackboardPatch" },
         { "key": "potential5", "compile": "skillBlackboardPatch" }
       ],

@@ -338,6 +338,9 @@ def compile_inline_buff_event_responses(
             is_before_output_buff = (
                 event.eventSource == "ability" and event.event == "OnBeforeOutputBuff"
             )
+            is_output_buff = (
+                event.eventSource == "ability" and event.event == "OnOutputBuff"
+            )
             is_after_kill_entity = (
                 event.eventSource == "ability" and event.event == "OnAfterKillEntity"
             )
@@ -369,6 +372,8 @@ def compile_inline_buff_event_responses(
                 if is_output_damage
                 else "beforeCastSkill"
                 if is_before_cast_skill
+                else "outputBuff"
+                if is_output_buff
                 else "skillEnd"
             )
             compiled = _compile_conditional_branch_ir(
@@ -400,6 +405,7 @@ def compile_inline_buff_event_responses(
                     or is_before_cast_skill
                     or is_added_buff
                     or is_before_output_buff
+                    or is_output_buff
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
@@ -445,6 +451,7 @@ def compile_inline_buff_event_responses(
                 or is_skill_end
                 or is_added_buff
                 or is_before_output_buff
+                or is_output_buff
                 or is_after_kill_entity
                 or is_finished_buff
             ):
@@ -467,6 +474,8 @@ def compile_inline_buff_event_responses(
                 if is_added_buff
                 else "beforeOutputBuff"
                 if is_before_output_buff
+                else "outputBuff"
+                if is_output_buff
                 else "afterKillEntity"
                 if is_after_kill_entity
                 else "finishedBuff"

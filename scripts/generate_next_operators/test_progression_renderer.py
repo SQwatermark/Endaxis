@@ -893,6 +893,57 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertIn("blackboardKey: 'damage'", rendered[0])
         self.assertIn("blackboardKey: 'stagger'", rendered[0])
 
+    def test_potential_can_patch_multiple_passive_blackboard_values(self) -> None:
+        passive = PassiveSkillSource(
+            skill_id="skill.passive",
+            source_file="skill.passive.json",
+            passive_type="AddBuff",
+            declared_blackboard_keys=("first", "second"),
+            buffs=(PassiveBuffApplicationSource("buff.passive", ()),),
+            unsupported_reasons=(),
+        )
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [
+                    {"key": "potential1", "compile": "passiveBlackboardPatch"}
+                ],
+                "skillGroups": [
+                    {"key": "comboSkill", "skillKeys": ["comboSkill"]},
+                    {"key": "ultimate", "skillKeys": ["ultimate"]},
+                ],
+            },
+            [
+                SimpleNamespace(key="comboSkill", skillId="skill.combo"),
+                SimpleNamespace(key="ultimate", skillId="skill.ultimate"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 1, "potentialEffectId": "effect.potential"}
+                    ]
+                }
+            },
+            {
+                "effect.potential": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="skill.passive", blackboard_key="first", value=0.1
+                        ),
+                        skill_blackboard_entry(
+                            skill_id="skill.passive", blackboard_key="second", value=0.2
+                        ),
+                    ]
+                }
+            },
+            {passive.skill_id: passive},
+        )
+
+        self.assertEqual(rendered[0].count("kind: 'patchPassiveBlackboard'"), 2)
+        self.assertIn("blackboardKey: 'first'", rendered[0])
+        self.assertIn("blackboardKey: 'second'", rendered[0])
+
     def test_potential_can_combine_variant_cooldown_and_blackboard_patches(self) -> None:
         rendered = render_potentials(
             {

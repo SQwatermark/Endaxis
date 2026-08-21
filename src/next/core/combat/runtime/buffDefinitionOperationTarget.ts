@@ -52,6 +52,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
     readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
+    readonly onOutputBuff?: (event: BuffAppliedEvent) => void,
   ) {}
 
   get ownerId(): string {
@@ -91,6 +92,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
     });
     if (applied !== null) {
+      this.onOutputBuff?.(event);
       this.onBuffApplied?.(event);
       this.#buffAppliedObserver?.(event);
     }

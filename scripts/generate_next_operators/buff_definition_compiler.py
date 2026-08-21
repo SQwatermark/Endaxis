@@ -392,6 +392,13 @@ def compile_inline_buff_definition(
                     f"{path}: Buff {source.buffId!r} uses unsupported damage condition target "
                     f"{modifier.targetSource!r}/{modifier.targetGroupKey!r}"
                 )
+            if any(
+                condition.targetSource != "Target" or condition.targetGroupKey
+                for condition in getattr(modifier, "tagConditions", ())
+            ):
+                raise ValueError(
+                    f"{path}: Buff {source.buffId!r} uses unsupported conjunctive tag target"
+                )
             fields.extend([
                 "  {",
                 f"    enabledSide: {ts_inline_literal(DAMAGE_SIDES[modifier.enabledSide])},",
@@ -404,6 +411,15 @@ def compile_inline_buff_definition(
                     "  target: 'enemy',",
                     f"  tagQueryType: {ts_inline_literal(modifier.tagQueryType)},",
                     f"  tagIds: {ts_inline_literal(modifier.tagIds)},",
+                    "}",
+                ])
+            for tag_condition in getattr(modifier, "tagConditions", ()):
+                conditions.append([
+                    "{",
+                    "  kind: 'entityTagMatch',",
+                    "  target: 'enemy',",
+                    f"  tagQueryType: {ts_inline_literal(tag_condition.queryType)},",
+                    f"  tagIds: {ts_inline_literal(tag_condition.tagIds)},",
                     "}",
                 ])
             if getattr(modifier, "ownerControlled", False):

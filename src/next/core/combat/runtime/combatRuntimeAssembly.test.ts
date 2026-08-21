@@ -207,6 +207,18 @@ describe('CombatRuntimeAssembly', () => {
       ],
       [
         'operator',
+        'skillEnd',
+        {
+          event: 'skillEnd',
+          kind: 'abilitySkill',
+          sourceId: 'operator',
+          targetId: 'operator',
+          skillType: 'battleSkill',
+          skillId: 'first',
+        },
+      ],
+      [
+        'operator',
         'beforeCastSkill',
         {
           sourceId: 'operator',

@@ -141,7 +141,13 @@ def render_operator_definition(
             passive_skills, buff_definitions
         )
     talents = render_talents(
-        operator, skills, growth, effects, passive_skills, definitions_by_id
+        operator,
+        skills,
+        growth,
+        effects,
+        passive_skills,
+        definitions_by_id,
+        compile_progression_buff_definition,
     )
     potentials = render_potentials(
         operator,
