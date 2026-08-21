@@ -21,6 +21,12 @@ import {
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import AbilityEntityTargetQueryEditor from './AbilityEntityTargetQueryEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import TimeScaleCurveEditor from './TimeScaleCurveEditor.vue';
+import {
+  TIME_DILATION_NAMED_CURVE_KEYS,
+  TIME_DILATION_SLOT_DEFINITIONS,
+  timeDilationNamedCurveKeys,
+} from '../../../data/combat/timeDilationCatalog';
 
 type TimeDilationStep = Extract<
   CombatStepDefinition,
@@ -33,6 +39,40 @@ const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
 
 const ordinary = computed(() => (props.step.kind === 'startTimeDilation' ? props.step : undefined));
+const slotOptions = computed(() => {
+  const current = ordinary.value?.parameters.slot;
+  const definitions: { id: number; label: string }[] = TIME_DILATION_SLOT_DEFINITIONS.map(slot => ({
+    id: slot.id,
+    label: `${slot.name} (${slot.id})`,
+  }));
+  if (current !== undefined && current !== 0 && !definitions.some(slot => slot.id === current)) {
+    definitions.unshift({
+      id: current,
+      label: `${current} — ${t('nextTimeline.skillEditing.unknownTimeDilationSlot')}`,
+    });
+  }
+  return [
+    { id: 0, label: `0 — ${t('nextTimeline.skillEditing.invalidTimeDilationSlot')}` },
+    ...definitions,
+  ];
+});
+const namedCurveOptions = computed(() => {
+  const curve = ordinary.value?.parameters.curve;
+  if (
+    curve?.kind === 'named' &&
+    !TIME_DILATION_NAMED_CURVE_KEYS.includes(
+      curve.key as (typeof TIME_DILATION_NAMED_CURVE_KEYS)[number],
+    )
+  ) {
+    return [curve.key, ...TIME_DILATION_NAMED_CURVE_KEYS];
+  }
+  return TIME_DILATION_NAMED_CURVE_KEYS;
+});
+const curvePreviewKeys = computed<readonly TimeScaleCurveKeyDefinition[]>(() => {
+  const curve = ordinary.value?.parameters.curve;
+  if (curve === undefined) return [];
+  return curve.kind === 'inline' ? curve.keys : (timeDilationNamedCurveKeys(curve.key) ?? []);
+});
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
   blackboard: t('nextTimeline.skillEditing.operandBlackboard'),
@@ -91,6 +131,10 @@ function setOrdinaryNumber(field: 'slot' | 'priority', event: Event): void {
   const value = numberFrom(event);
   if (step === undefined || value === undefined || !Number.isInteger(value)) return;
   updateOrdinary({ ...step.parameters, [field]: value });
+}
+
+function setSlot(event: Event): void {
+  setOrdinaryNumber('slot', event);
 }
 
 function setDuration(durationSeconds: ActionValueOperand): void {
@@ -206,6 +250,15 @@ function setCurveKind(event: Event): void {
               inWeight: 0,
               outWeight: 0,
             },
+            {
+              time: 1,
+              value: 1,
+              inTangent: 0,
+              outTangent: 0,
+              weightedMode: 0,
+              inWeight: 0,
+              outWeight: 0,
+            },
           ],
         };
   updateOrdinary({ ...step.parameters, curve });
@@ -218,6 +271,12 @@ function setNamedCurveKey(event: Event): void {
     ...step.parameters,
     curve: { kind: 'named', key: (event.target as HTMLInputElement).value },
   });
+}
+
+function setInlineCurveKeys(keys: readonly TimeScaleCurveKeyDefinition[]): void {
+  const step = ordinary.value;
+  if (step === undefined || step.parameters.curve.kind !== 'inline') return;
+  updateOrdinary({ ...step.parameters, curve: { kind: 'inline', keys } });
 }
 
 function replaceCurveKey(index: number, key: TimeScaleCurveKeyDefinition): void {
@@ -392,12 +451,11 @@ function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQu
           :label="t('nextTimeline.skillEditing.timeDilationSlot')"
           :help="t('nextTimeline.skillEditing.fieldHelp.timeDilationSlot')"
         />
-        <input
-          type="number"
-          step="1"
-          :value="step.parameters.slot"
-          @input="setOrdinaryNumber('slot', $event)"
-        />
+        <select :value="step.parameters.slot" @change="setSlot">
+          <option v-for="option in slotOptions" :key="option.id" :value="option.id">
+            {{ option.label }}
+          </option>
+        </select>
       </label>
       <label>
         <EditorFieldLabel
@@ -536,14 +594,23 @@ function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQu
             {{ t('nextTimeline.skillEditing.timeDilationCurveKinds.inline') }}
           </option>
         </select>
-        <input
+        <select
           v-if="step.parameters.curve.kind === 'named'"
-          type="text"
           :value="step.parameters.curve.key"
-          :placeholder="t('nextTimeline.skillEditing.timeDilationCurveKey')"
-          @input="setNamedCurveKey"
-        />
+          @change="setNamedCurveKey"
+        >
+          <option v-for="key in namedCurveOptions" :key="key" :value="key">
+            {{ key }}
+          </option>
+        </select>
       </div>
+      <TimeScaleCurveEditor
+        v-if="curvePreviewKeys.length > 0"
+        class="curve-editor__graph"
+        :keys="curvePreviewKeys"
+        :readonly="step.parameters.curve.kind === 'named'"
+        @update="setInlineCurveKeys"
+      />
       <template v-if="step.parameters.curve.kind === 'inline'">
         <div
           v-for="(key, index) in step.parameters.curve.keys"
@@ -620,6 +687,10 @@ function setUltimateAbilityEntityQueries(queries: readonly AbilityEntityTargetQu
   padding: 12px 48px 12px 12px;
   border: 1px solid var(--ea-border-soft);
   background: var(--ea-fill-soft);
+}
+
+.curve-editor__graph {
+  margin-top: 10px;
 }
 
 .curve-editor__key > strong {

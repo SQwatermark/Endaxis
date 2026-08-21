@@ -4,42 +4,21 @@
  */
 import { compileTimeScaleCurve } from '../../core/combat/runtime/timeScaleCurve';
 import type { TimeDilationRuntimeConfig } from '../../core/combat/runtime/timeDilationRuntime';
+import { TIME_DILATION_NAMED_CURVE_DEFINITIONS } from './timeDilationCatalog';
 
-const resetToOne = compileTimeScaleCurve([
-  { time: 0, value: 1, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 },
-  { time: 1, value: 1, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 },
-]);
-
-const comboSkill = compileTimeScaleCurve([
-  {
-    time: 0,
-    value: 0.01,
-    inTangent: 0.000489342,
-    outTangent: 0.000489342,
-    weightedMode: 2,
-    inWeight: 0,
-    outWeight: 1,
-  },
-  {
-    time: 1,
-    value: 1,
-    inTangent: 8.798947,
-    outTangent: 8.798947,
-    weightedMode: 1,
-    inWeight: 0.102117956,
-    outWeight: 0,
-  },
-]);
+const namedCurves = new Map(
+  Object.entries(TIME_DILATION_NAMED_CURVE_DEFINITIONS).map(([name, keys]) => [
+    name,
+    compileTimeScaleCurve(keys),
+  ]),
+);
 
 export const timeDilationRuntimeConfig: TimeDilationRuntimeConfig = Object.freeze({
   entityLifetimeUsesGlobalScaleBySlot: new Map([
     [-1855252810, true],
     [197328068, true],
   ]),
-  curves: new Map([
-    ['RESETto1', resetToOne],
-    ['ComboSkill', comboSkill],
-  ]),
+  curves: namedCurves,
 });
 
 /** 标准入口的默认模式；调用方可传入原生模式值覆盖。 */

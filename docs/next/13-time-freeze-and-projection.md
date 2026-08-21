@@ -100,7 +100,7 @@
 - 技能时间线、技能冷却、Buff 生命周期和失衡恢复已分别接入自身所用时钟。标准伤害入口会装配公共优先级、槽位规则和已完整恢复的命名曲线。
 - 内联曲线属于动作定义，随技能一起编译；命名曲线属于版本化公共配置。二者只改变数据来源，不改变全局或实体作用范围。
 - 终结技在 Next 内使用独立语义槽位，避免为尚未恢复的原生固定标签伪造数值；槽位竞争行为与原生一致。
-- 当前公共配置只登记已恢复完整关键帧的 `ComboSkill` 和 `RESETto1`。`interrupt_weakness` 的切线和权重尚不完整，遇到该名称会严格失败。
+- 当前公共配置登记从当前 `TimeDilationConfig` TypeTree 完整恢复的 7 条命名曲线；槽位 GameplayTag、关键帧与来源哈希见 [`../research/time-dilation-slot-and-curve-config.md`](../research/time-dilation-slot-and-curve-config.md)。未登记名称继续严格失败。
 - `CombatTimelineClock` 按全局倍率推进项目逻辑帧，场景输入到达逻辑帧后才会提交；模拟入口会继续推进实际帧，直到到达指定逻辑终点。
 - 时间实例的开始、拒绝、替换、自然结束和动作结束均记录来源回执；`TimelineTimeSampled` 提供非正常倍率期间的逻辑时间事实。
 - `projectTimelineTimeMapping` 已提供逻辑帧与实际帧的双向映射。时间轴 UI 通过单一显示时间适配器消费映射：技能块起点优先采用 `SkillStarted` 回执，GAME/REAL 双标尺、光标、拖拽逆映射、连线和资源曲线共用实际帧坐标，存档仍只保存逻辑帧。
