@@ -16,6 +16,7 @@ from source_models import (
     TargetGroupWriteSource,
 )
 from source_utils import indent_source, ts_inline_literal
+from single_enemy_projectile import recursive_projectile_launch_has_no_single_enemy_target
 
 
 @dataclass(frozen=True)
@@ -238,6 +239,10 @@ def compile_conditional_branch_action(
         )
     projectile_launch = getattr(action, "projectileLaunch", None)
     if projectile_launch is not None:
+        if recursive_projectile_launch_has_no_single_enemy_target(
+            action, target_group_writes
+        ):
+            return "sequence()"
         compiled_matches = tuple(
             source
             for action_path, source in compiled_projectile_launches

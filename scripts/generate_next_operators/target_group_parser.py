@@ -20,9 +20,38 @@ from source_utils import (
 )
 from target_parser import (
     parse_character_team_selection_role,
+    parse_target_reference,
     parse_selector_summary,
     parse_spawned_entity_selector_identity,
+    selector_component_name,
 )
+
+
+def selector_excludes_plain_current_target(value: Any, path: str) -> bool:
+    """识别选择器明确排除当前输入 Target 的过滤器。"""
+    selector = require_dict(value, path)
+    for index, raw_processor in enumerate(
+        require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+    ):
+        processor_path = f"{path}.postProcessorData[{index}]"
+        processor = require_dict(raw_processor, processor_path)
+        if selector_component_name(processor, processor_path) != "ExcludeTarget":
+            continue
+        if set(processor) != {"$type", "excludedTargetSettings"}:
+            raise ValueError(f"{processor_path}: unexpected ExcludeTarget fields")
+        excluded = parse_target_reference(
+            processor.get("excludedTargetSettings"),
+            f"{processor_path}.excludedTargetSettings",
+        )
+        if (
+            excluded.targetSource == "Target"
+            and not excluded.targetGroupKey
+            and excluded.finderType is None
+            and not excluded.validatorTypes
+            and not excluded.postProcessorTypes
+        ):
+            return True
+    return False
 
 
 def parse_target_group_writes(
@@ -122,6 +151,10 @@ def parse_target_group_writes(
                         )
                         if target_group_key == "CureTarget"
                         else None
+                    ),
+                    excludesCurrentTarget=selector_excludes_plain_current_target(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
                     ),
                     inputTargets=(),
                     intervalSeconds=interval,

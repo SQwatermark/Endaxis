@@ -36,6 +36,7 @@ from source_models import (
     TimedTimeDilationSource,
 )
 from source_utils import indent_source, require_list, ts_inline_literal
+from single_enemy_projectile import recursive_projectile_launch_has_no_single_enemy_target
 
 
 def projectile_ability_entities_are_condition_projections(
@@ -304,6 +305,15 @@ def compile_resolved_sequence(
             projected_actions.update(
                 collect_compilable_conditional_action_types(hit.conditionalActions)
             )
+            if any(
+                recursive_projectile_launch_has_no_single_enemy_target(
+                    branch,
+                    hit.localTargetGroupWrites,
+                )
+                for condition in iter_nested_conditional_actions(hit.conditionalActions)
+                for branch in (*condition.succeedActions, *condition.failActions)
+            ):
+                projected_actions.add("LaunchProjectile")
         if hit.resourceGains:
             projected_actions.add("ObtainCostAction")
         if any(

@@ -66,9 +66,14 @@ export const perlicaGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -143,9 +148,14 @@ export const perlicaGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -210,36 +220,7 @@ export const perlicaGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -249,9 +230,43 @@ export const perlicaGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -359,9 +374,14 @@ export const perlicaGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -430,9 +450,441 @@ export const perlicaGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
+    },
+    {
+      "buffId": "buff_common_pulse_pulse_conduct_triggered",
+      "sourceFile": "buff_common_pulse_pulse_conduct_triggered.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "pulse_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "consumed_layer",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "consumed_type",
+          "value": 1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "extra_scaling",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "real_duration",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "IfElseAction",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 4,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "real_duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "count": {
+                        "value": 0.0,
+                        "blackboardKey": "count",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "consumed_type": {
+                        "value": 0.0,
+                        "blackboardKey": "consumed_type",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "consumed_layer": {
+                        "value": 0.0,
+                        "blackboardKey": "consumed_layer",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "extra_scaling": {
+                        "value": 0.0,
+                        "blackboardKey": "extra_scaling",
+                        "levelValues": [
+                          1.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_pulse_pulse_conduct_triggered_do"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "IfElseAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 4,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "real_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "extra_scaling": {
+                            "value": 0.0,
+                            "blackboardKey": "extra_scaling",
+                            "levelValues": [
+                              1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "GT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "duration",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 2,
+                        "blackboardMutation": {
+                          "key": "real_duration",
+                          "operation": "Assign",
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "real_duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "count": {
+                            "value": 0.0,
+                            "blackboardKey": "count",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_type": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_type",
+                            "levelValues": [
+                              1.0
+                            ]
+                          },
+                          "consumed_layer": {
+                            "value": 0.0,
+                            "blackboardKey": "consumed_layer",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "extra_scaling": {
+                            "value": 0.0,
+                            "blackboardKey": "extra_scaling",
+                            "levelValues": [
+                              1.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     }
   ],
   "skills": [
@@ -712,13 +1164,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -736,9 +1195,16 @@ export const perlicaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -793,7 +1259,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -1272,13 +1739,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -1333,7 +1807,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -1446,13 +1921,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -1507,7 +1989,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -2049,13 +2532,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2073,9 +2563,16 @@ export const perlicaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -2130,7 +2627,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -2243,13 +2741,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2267,9 +2772,16 @@ export const perlicaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -2324,7 +2836,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -2437,13 +2950,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -2461,9 +2981,16 @@ export const perlicaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -2518,7 +3045,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -3090,13 +3618,20 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3114,9 +3649,16 @@ export const perlicaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -3171,7 +3713,8 @@ export const perlicaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -5742,9 +6285,16 @@ export const perlicaGeneratedSource = {
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckTagMatch",
@@ -5753,6 +6303,9 @@ export const perlicaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "entityTag": {
                     "targetSource": "Target",
                     "targetGroupKey": "",
@@ -5763,7 +6316,11 @@ export const perlicaGeneratedSource = {
                   },
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CompareFloat",
@@ -5780,9 +6337,16 @@ export const perlicaGeneratedSource = {
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -5846,7 +6410,23 @@ export const perlicaGeneratedSource = {
                         "useDirectValue": true,
                         "inputValueKey": ""
                       }
-                    ]
+                    ],
+                    "target": {
+                      "targetSource": "Context",
+                      "targetGroupKey": "extra_target",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
                   },
                   "projectileTriggeredSkills": [
                     {
@@ -6031,9 +6611,16 @@ export const perlicaGeneratedSource = {
                                 "levelValues": null
                               },
                               "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             },
                             {
                               "sourceType": "CheckTagMatch",
@@ -6042,6 +6629,9 @@ export const perlicaGeneratedSource = {
                               "left": null,
                               "right": null,
                               "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
                               "entityTag": {
                                 "targetSource": "Target",
                                 "targetGroupKey": "",
@@ -6052,7 +6642,11 @@ export const perlicaGeneratedSource = {
                               },
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             },
                             {
                               "sourceType": "CompareFloat",
@@ -6069,9 +6663,16 @@ export const perlicaGeneratedSource = {
                                 "levelValues": null
                               },
                               "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -6135,11 +6736,28 @@ export const perlicaGeneratedSource = {
                                     "useDirectValue": true,
                                     "inputValueKey": ""
                                   }
-                                ]
+                                ],
+                                "target": {
+                                  "targetSource": "Context",
+                                  "targetGroupKey": "extra_target",
+                                  "selectorOwner": "ActionOwner",
+                                  "ownerContextKey": "",
+                                  "centerType": "ActionSource",
+                                  "centerContextKey": "",
+                                  "centerToGround": false,
+                                  "target": "ActionSource",
+                                  "targetContextKey": "",
+                                  "enableAdvancedDirection": false,
+                                  "selectorDirection": "SourceForward",
+                                  "finderType": null,
+                                  "validatorTypes": [],
+                                  "postProcessorTypes": []
+                                }
                               }
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "alwaysNext": true
                         }
                       ],
                       "auxiliaryActions": [
@@ -6281,7 +6899,8 @@ export const perlicaGeneratedSource = {
                   ]
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [
@@ -6830,9 +7449,16 @@ export const perlicaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -6854,7 +7480,8 @@ export const perlicaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -6874,13 +7501,20 @@ export const perlicaGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -6902,7 +7536,8 @@ export const perlicaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

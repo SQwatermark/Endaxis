@@ -7,12 +7,11 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 310,
-    "completeOperatorCount": 21,
+    "compiledCount": 311,
+    "completeOperatorCount": 22,
     "blockerKinds": {
-      "projectile-child-actions": 2,
       "root-action-coverage": 2,
-      "other": 2,
+      "other": 3,
       "condition-other": 2,
       "buff-source-or-target": 2
     },
@@ -894,11 +893,9 @@
       "operatorName": "Perlica",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "projectile-child-actions": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0009_azrila",
@@ -993,7 +990,7 @@
       "compiledCount": 9,
       "complete": false,
       "blockerKinds": {
-        "projectile-child-actions": 1
+        "other": 1
       }
     },
     {
@@ -1185,9 +1182,9 @@
       "operatorName": "Perlica",
       "skillId": "chr_0004_pelica_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 0,
@@ -3051,8 +3048,8 @@
       "skillId": "chr_0011_seraph_combo_skill",
       "skillType": "comboSkill",
       "stage": "dsl-blocked",
-      "blockerKind": "projectile-child-actions",
-      "blocker": "combo_skill: projectile child combat actions are not projected: ['LaunchProjectile']",
+      "blockerKind": "other",
+      "blocker": "combo_skill.schedule[2].conditionalAction.conditions[0].targetGroupWrite: unsupported skill target-group producer",
       "unresolvedActions": [
         "CreateBuffAction",
         "FinishBuffAction",

@@ -424,6 +424,7 @@ TARGET_GROUP_WRITE_INTERNAL_KEYS = frozenset(
         "centerContextKey",
         "selectorOwner",
         "selectorOwnerContextKey",
+        "excludesCurrentTarget",
     }
 )
 

@@ -7,13 +7,13 @@ from typing import Any, Callable
 
 from source_models import (
     DamageUnitSource,
-    ProjectileLaunchSource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
     ResolvedDamageHitSource,
     SkillSource,
 )
 from source_utils import require_list, ts_inline_literal
+from single_enemy_projectile import recursive_projectile_launch_has_no_single_enemy_target
 
 
 @dataclass(frozen=True)
@@ -262,18 +262,10 @@ def compile_projectile_damage(
     if len(hit.directDamageHits) != 1:
         raise ValueError(f"{skill.key}: projectile hit requires exactly one direct damage action")
     if hit.conditionalActions:
-        if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
-            raise ValueError(
-                f"{skill.key}: conditional projectile branch requires an explicit single-target omission declaration"
-            )
         validate_ignored_recursive_projectile_conditions(
             hit, f"{skill.key}.projectileTriggeredSkills[0].conditionalActions"
         )
     if hit.nestedProjectileTriggeredSkills:
-        if config.get("ignoreRecursiveProjectileForSingleTarget") is not True:
-            raise ValueError(
-                f"{skill.key}: recursive projectile requires an explicit single-target omission declaration"
-            )
         if any(
             nested.projectileId != hit.projectileId
             or nested.triggerSkillId != hit.triggerSkillId
@@ -412,14 +404,14 @@ def compile_projectile_damage(
 def validate_ignored_recursive_projectile_conditions(
     hit: ProjectileTriggeredSkillSource, path: str
 ) -> None:
-    """校验显式省略项确实只是在条件分支中再次发射同一命中技能。"""
-    launches: list[ProjectileLaunchSource] = []
+    """校验条件分支中的递归发射在单敌人投影下必然没有目标。"""
+    launches = []
     for condition_index, condition in enumerate(hit.conditionalActions):
         if condition.failActions:
             raise ValueError(f"{path}[{condition_index}]: recursive omission has a fail branch")
         for action_index, action in enumerate(condition.succeedActions):
             if action.projectileLaunch is not None:
-                launches.append(action.projectileLaunch)
+                launches.append(action)
                 continue
             if action.blackboardMutation is not None:
                 continue
@@ -429,13 +421,21 @@ def validate_ignored_recursive_projectile_conditions(
             )
     if len(launches) != 1:
         raise ValueError(f"{path}: expected exactly one recursive projectile launch")
-    launch = launches[0]
+    action = launches[0]
+    launch = action.projectileLaunch
+    assert launch is not None
     if (
         launch.projectileId != hit.projectileId
         or ProjectileSkillTriggerSource(hit.triggerEvent, hit.triggerSkillId)
         not in launch.skillTriggers
     ):
         raise ValueError(f"{path}: recursive launch does not target the same projectile event skill")
+    if not recursive_projectile_launch_has_no_single_enemy_target(
+        action, hit.localTargetGroupWrites
+    ):
+        raise ValueError(
+            f"{path}: recursive launch is not provably targetless in the single-enemy model"
+        )
 
 
 def encode_step_key_parts(parts: tuple[int | str, ...]) -> str:

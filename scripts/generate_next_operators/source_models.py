@@ -1615,6 +1615,7 @@ class TargetGroupWriteSource:
     selectorOwner: str | None = None
     selectorOwnerContextKey: str = ""
     characterTeamSelectionRole: str | None = None
+    excludesCurrentTarget: bool = False
 
 
 @dataclass(frozen=True)

@@ -85,7 +85,8 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 - `aura_action_parser.py`：严格解析技能时间线与 Buff 事件中的 Aura、形状、目标过滤、内部动作和浮空输出；共享动作树遍历由入口注入。
 - `target_group_parser.py`：严格解析 Finder、Continuous Finder、Merge、选择器身份及 owner-spawned 标签查询证据，不提前归约成单敌人结果。
 - `skill_action_fact_parser.py`：聚合辅助 Buff/能力实体动作、运行时黑板读写/结束 Buff，以及带直接条件和容器路径证据的时间线跳转；共享遍历、来源加载和目标证明由入口注入。
-- `damage_step_compiler.py`：统一编译旧式直伤、单投射物伤害、结构化 `DamageUnit`、固定伤害/失衡、稳定伤害步骤 key，以及显式单目标递归投射物省略校验；数值、资源和 Buff 辅助规则由入口注入。
+- `damage_step_compiler.py`：统一编译旧式直伤、单投射物伤害、结构化 `DamageUnit`、固定伤害/失衡、稳定伤害步骤 key，以及单敌人模型下递归投射物无目标证明；数值、资源和 Buff 辅助规则由入口注入。
+- `single_enemy_projectile.py`：只在来源明确以敌方普通存活目标为候选、排除当前目标，并将结果用于同一投射物命中技能的递归发射时，证明唯一敌人已被排除并省略该分支；不以处理器名称或干员白名单代替结构证据。
 - `buff_application_compiler.py`：统一编译单 Buff 应用、集合目标实例生命周期、内联事件/定时行为，以及固定单敌人模型可严格归约的 Aura；目标和动态操作数证明由入口注入。
 - `skill_source_builder.py`：按固定顺序把单个 manifest 技能入口、SkillData、SkillPatch 和各来源解析器装配为完整 `SkillSource`；只编排事实，不解释新的游戏语义。
 - `audit_report_renderer.py`：把完整来源事实、递归子图、resolved schedule、替换关系和支持度问题投影为稳定 JSON 审计报告。
