@@ -5134,14 +5134,26 @@ def compiled_sequence_semantic_signature(source: str) -> str:
     )
 
 
-PRESENTATION_CAMERA_BLACKBOARD_KEYS = frozenset({"isWall", "camera_blocked"})
+PRESENTATION_CAMERA_BLACKBOARD_VALUES = {
+    "isWall": frozenset({1}),
+    "camera_blocked": frozenset({1}),
+    "is_cam": frozenset({0, 1}),
+}
+PRESENTATION_CAMERA_CONDITION_TYPES = frozenset(
+    {"CheckSkillCameraMotionFree", "CheckTargetAngle"}
+)
 
 
 def is_presentation_only_camera_condition(action: ConditionalActionSource) -> bool:
     """确认条件树只传递已审计的镜头状态，不把镜头条件伪装成战斗条件。"""
 
     if not any(
-        condition.sourceType == "CheckSkillCameraMotionFree"
+        condition.sourceType in PRESENTATION_CAMERA_CONDITION_TYPES
+        for condition in action.conditions
+    ):
+        return False
+    if any(
+        condition.sourceType == "CheckTargetAngle" and condition.targetAngle is None
         for condition in action.conditions
     ):
         return False
@@ -5150,9 +5162,10 @@ def is_presentation_only_camera_condition(action: ConditionalActionSource) -> bo
         mutation = branch_action.blackboardMutation
         if (
             mutation is None
-            or mutation.key not in PRESENTATION_CAMERA_BLACKBOARD_KEYS
+            or mutation.key not in PRESENTATION_CAMERA_BLACKBOARD_VALUES
             or mutation.operation != "Assign"
-            or mutation.value.value != 1
+            or mutation.value.value
+            not in PRESENTATION_CAMERA_BLACKBOARD_VALUES[mutation.key]
             or mutation.value.blackboardKey is not None
             or mutation.value.levelValues is not None
         ):

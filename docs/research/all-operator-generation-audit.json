@@ -7,11 +7,10 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 315,
-    "completeOperatorCount": 25,
+    "compiledCount": 317,
+    "completeOperatorCount": 27,
     "blockerKinds": {
       "root-action-coverage": 2,
-      "condition-other": 2,
       "other": 1
     },
     "unresolvedActionPresence": {
@@ -1022,11 +1021,9 @@
       "operatorName": "Snowshine",
       "skillCount": 8,
       "parsedCount": 8,
-      "compiledCount": 7,
-      "complete": false,
-      "blockerKinds": {
-        "condition-other": 1
-      }
+      "compiledCount": 8,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0015_lifeng",
@@ -1089,11 +1086,9 @@
       "operatorName": "Catcher",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "condition-other": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0021_whiten",
@@ -4002,9 +3997,9 @@
       "operatorName": "Snowshine",
       "skillId": "chr_0014_aurora_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "normal_skill.schedule[8].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "AuraAction",
         "CreateBuffAction",
@@ -5654,9 +5649,9 @@
       "operatorName": "Catcher",
       "skillId": "chr_0020_meurs_normal_skill",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "normal_skill.schedule[6].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 3,

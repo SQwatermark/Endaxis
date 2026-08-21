@@ -7080,6 +7080,135 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "CheckSkillCameraMotionFree"):
             compile_conditional_action(action, "fixture.condition")
 
+    def test_camera_condition_can_share_a_presentation_only_branch_guard(self) -> None:
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=20,
+            actionPath=("timelineActions", "[3]"),
+            conditions=(
+                ConditionSource(
+                    sourceType="CheckMainCharacterCondition",
+                    supported=False,
+                    comparison=None,
+                    left=None,
+                    right=None,
+                    skillTypes=(),
+                ),
+                ConditionSource(
+                    sourceType="CheckSkillCameraMotionFree",
+                    supported=False,
+                    comparison=None,
+                    left=None,
+                    right=None,
+                    skillTypes=(),
+                ),
+            ),
+            succeedActions=(),
+            failActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="isWall",
+                        operation="Assign",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+            ),
+        )
+
+        self.assertTrue(is_presentation_only_camera_condition(action))
+        self.assertEqual(compile_conditional_action(action, "fixture.condition"), "sequence()")
+
+    def test_target_angle_camera_side_write_is_omitted_after_strict_parse(self) -> None:
+        target_settings = target_settings_fixture("Owner")
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 1,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.CheckTargetAngle+Data, Example",
+                                                "isEnable": True,
+                                                "priorityLevel": "Default",
+                                                "priorityOffset": 0,
+                                                "serverActionIndex": 2,
+                                                "origin": target_settings,
+                                                "target": target_settings,
+                                                "angleType": "TargetForward",
+                                                "angle": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 180,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ],
+                                        "onlyExecuteWhenSourceIsMainChar": False,
+                                        "onlyExecuteWhenSourceIsGuard": False,
+                                    },
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                                "serverActionIndex": 3,
+                                                "key": "is_cam",
+                                                "operation": "Assign",
+                                                "directValue": True,
+                                                "value": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 1,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ],
+                                        "onlyExecuteWhenSourceIsMainChar": False,
+                                        "onlyExecuteWhenSourceIsGuard": False,
+                                    },
+                                    "failActions": {
+                                        "actionData": [
+                                            {
+                                                "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                                                "serverActionIndex": 4,
+                                                "key": "is_cam",
+                                                "operation": "Assign",
+                                                "directValue": True,
+                                                "value": {
+                                                    "useBlackboardKey": False,
+                                                    "value": 0,
+                                                    "blackboardKey": "",
+                                                },
+                                            }
+                                        ],
+                                        "onlyExecuteWhenSourceIsMainChar": False,
+                                        "onlyExecuteWhenSourceIsGuard": False,
+                                    },
+                                    "alwaysNext": True,
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        action = parse_conditional_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(action.conditions[0].targetAngle.angleType, "TargetForward")
+        self.assertTrue(is_presentation_only_camera_condition(action))
+        self.assertEqual(compile_conditional_action(action, "fixture.condition"), "sequence()")
+
     def test_camera_condition_with_combat_leaf_is_not_omitted(self) -> None:
         condition = ConditionSource(
             sourceType="CheckSkillCameraMotionFree",

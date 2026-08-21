@@ -71,6 +71,7 @@ from source_models import (
     SuperArmorConditionSource,
     SwitchActionSource,
     TargetIdentityConditionSource,
+    TargetAngleConditionSource,
     TimedMarkerConditionSource,
     TwoDirectionAngleConditionSource,
     TimelineJumpBranchActionSource,
@@ -939,6 +940,36 @@ def parse_conditional_actions(
                     comparison=comparison,
                     value=parse_scalar(
                         condition.get("value"), f"{path}.value", inherited_blackboard
+                    ),
+                ),
+            )
+        if condition_type == "CheckTargetAngle":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "origin", "target", "angleType", "angle",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            angle_type = condition.get("angleType")
+            if angle_type not in {"TargetForward", "TargetBackward"}:
+                raise ValueError(f"{path}.angleType: unsupported value {angle_type!r}")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                targetAngle=TargetAngleConditionSource(
+                    origin=parse_target_reference(
+                        condition.get("origin"), f"{path}.origin"
+                    ),
+                    target=parse_target_reference(
+                        condition.get("target"), f"{path}.target"
+                    ),
+                    angleType=angle_type,
+                    angle=parse_scalar(
+                        condition.get("angle"), f"{path}.angle", inherited_blackboard
                     ),
                 ),
             )

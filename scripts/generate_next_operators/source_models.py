@@ -920,6 +920,14 @@ class TwoDirectionAngleConditionSource:
 
 
 @dataclass(frozen=True)
+class TargetAngleConditionSource:
+    origin: "TargetReferenceSource"
+    target: "TargetReferenceSource"
+    angleType: str
+    angle: ScalarSource
+
+
+@dataclass(frozen=True)
 class TargetReferenceSource:
     """一个原生 TargetSettings 引用；保留证明目标身份与位置所需的选择器语义。"""
 
@@ -1030,6 +1038,7 @@ class ConditionSource:
     enemyRank: "EnemyRankConditionSource | None" = None
     superArmor: "SuperArmorConditionSource | None" = None
     twoDirectionAngle: "TwoDirectionAngleConditionSource | None" = None
+    targetAngle: "TargetAngleConditionSource | None" = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None
